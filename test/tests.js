@@ -135,16 +135,13 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('depth', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/depth?symbol=ETHBTC&limit=5'
+                url: 'https://www.binance.com/api/v1/depth?symbol=ETHBTC'
             });
             callback(null, {
                 statusCode: 200
             }, '{"lastUpdateId":2727677,"bids":[["0.07085000","11.09700000",[]],["0.07080300","5.70500000",[]],["0.07070000","5.00000000",[]],["0.07067500","6.95000000",[]],["0.07065100","1.10100000",[]]],"asks":[["0.07096700","1.40300000",[]],["0.07118300","0.92900000",[]],["0.07119300","3.60300000",[]],["0.07125700","0.24900000",[]],["0.07129600","2.00000000",[]]]}');
         });
-        return binance.depth({
-                symbol: 'ETHBTC',
-                limit: 5
-            })
+        return binance.depth('ETHBTC')
             .then((response) => {
                 expect(response).to.deep.equal({
                     lastUpdateId: 2727677,
@@ -170,16 +167,13 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('aggTrades', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/aggTrades?symbol=ETHBTC&limit=5'
+                url: 'https://www.binance.com/api/v1/aggTrades?symbol=ETHBTC'
             });
             callback(null, {
                 statusCode: 200
             }, '[{"a":458006,"p": "0.07140500","q": "0.04900000","f":483670,"l":483670,"T":1503211746056,"m":false,"M":true},{"a":458007,"p": "0.07140500","q": "0.87200000","f":483671,"l":483671,"T":1503211750688,"m":false,"M":true},{"a":458008,"p": "0.07140500","q": "1.27300000","f":483672,"l":483672,"T":1503211750696,"m":false,"M":true},{"a":458009,"p": "0.07140500","q": "0.05700000","f":483673,"l":483673,"T":1503211750702,"m":false,"M":true},{"a":458010,"p": "0.07140500","q": "0.21900000","f":483674,"l":483674,"T":1503211750709,"m":false,"M":true}]');
         });
-        return binance.aggTrades({
-                symbol: 'ETHBTC',
-                limit: 5
-            })
+        return binance.aggTrades('ETHBTC')
             .then((response) => {
                 expect(response).to.deep.equal([
                     {

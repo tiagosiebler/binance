@@ -1,6 +1,6 @@
 {
   "name": "binance",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "node.js wrapper for the Binance REST and WebSocket APIs",
   "main": "./lib/binance.js",
   "scripts": {
