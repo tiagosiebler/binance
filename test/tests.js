@@ -24,6 +24,79 @@ describe("BinanceRest", () => {
         mockRequest.clearHandlers();
     });
 
+    it('allows using callbacks', () => {
+        mockRequest.setHandler('ping', (options, callback) => {
+            expect(options).to.deep.equal({
+                timeout: 30000,
+                url: 'https://www.binance.com/api/v1/ping'
+            });
+            callback(null, {
+                statusCode: 200
+            }, '{}');
+        });
+        return binance.ping()
+            .then((response) => {
+                expect(response).to.be.an('object').that.is.empty;
+            });
+    });
+
+    it('calls reject on the promise if the status code returned is not 2xx', () => {
+        mockRequest.setHandler('depth', (options, callback) => {
+            expect(options).to.deep.equal({
+                timeout: 30000,
+                url: 'https://www.binance.com/api/v1/depth?symbol=TEST'
+            });
+            callback(null, {
+                statusCode: 400
+            }, '{"code":-1121,"msg":"Invalid symbol."}');
+        });
+        return binance.depth('TEST')
+            .then((response) => {
+                throw new Error('Request should not have been successful');
+            })
+            .catch((err) => {
+                expect(err).to.deep.equal({
+                    code: -1121,
+                    msg: 'Invalid symbol.'
+                });
+            });
+    });
+
+    it('returns an error to the callback if the status code returned is not 2xx', (done) => {
+        mockRequest.setHandler('depth', (options, callback) => {
+            expect(options).to.deep.equal({
+                timeout: 30000,
+                url: 'https://www.binance.com/api/v1/depth?symbol=TEST'
+            });
+            callback(null, {
+                statusCode: 400
+            }, '{"code":-1121,"msg":"Invalid symbol."}');
+        });
+        binance.depth('TEST', (err) => {
+            try {
+                expect(err).to.deep.equal({
+                    code: -1121,
+                    msg: 'Invalid symbol.'
+                });
+                done();
+            } catch (err) {
+                done(err);
+            } 
+        });
+    });
+
+    it('throws an error if query is invalid', () => {
+        expect(() => {
+            binance.depth(null, () => {});
+        }).to.throw();
+    });
+
+    it('throws an error if the callback is invalid', () => {
+        expect(() => {
+            binance.depth('BNBBTC', null);
+        }).to.throw();
+    });
+
     it('should make ping requests and handle the response', () => {
         mockRequest.setHandler('ping', (options, callback) => {
             expect(options).to.deep.equal({
