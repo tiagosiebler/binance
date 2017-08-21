@@ -1,6 +1,6 @@
 {
   "name": "binance",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "node.js wrapper for the Binance REST and WebSocket APIs",
   "main": "./lib/binance.js",
   "scripts": {
@@ -29,7 +29,6 @@
   "devDependencies": {
     "chai": "^4.1.1",
     "mocha": "^3.5.0",
-    "mock-require": "^2.0.2",
-    "sinon": "^3.2.1"
+    "mock-require": "^2.0.2"
   }
 }

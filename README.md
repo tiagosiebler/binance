@@ -1,5 +1,5 @@
 # Binance
-A wrapper for the Binance API.  For more information on the API and parameters for requests visit https://www.binance.com/restapipub.html.
+A wrapper for the Binance REST and WebSocket APIs.  For more information on the API and parameters for requests visit https://www.binance.com/restapipub.html.
 
 # Usage/Example
 
@@ -18,13 +18,13 @@ const binanceRest = new api.BinanceRest({
 
 // You can use promises
 binanceRest.allOrders({
-        symbole: 'BNBBTC'  // Object is transformed into a query string, timestamp as automatically added
+        symbole: 'BNBBTC'  // Object is transformed into a query string, timestamp is automatically added
     })
     .then((data) => {
         console.log(data);
     })
     .catch((err) => {
-        console.error(err.message);
+        console.error(err);
     });
 
 /*
@@ -33,7 +33,7 @@ binanceRest.allOrders({
  */
 binanceRest.allOrders('BNBBTC', (err, data) => {
     if (err) {
-        console.error(err.message);
+        console.error(err);
     } else {
         console.log(data);
     }
