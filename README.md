@@ -18,7 +18,7 @@ const binanceRest = new api.BinanceRest({
 
 // You can use promises
 binanceRest.allOrders({
-        symbole: 'BNBBTC'  // Object is transformed into a query string, timestamp is automatically added
+        symbol: 'BNBBTC'  // Object is transformed into a query string, timestamp is automatically added
     })
     .then((data) => {
         console.log(data);
@@ -40,19 +40,19 @@ binanceRest.allOrders('BNBBTC', (err, data) => {
 });
 
 // WebSocket API
-const binanceWS = api.BinanceWS();
+const binanceWS = new api.BinanceWS();
 
 binanceWS.onDepthUpdate('BNBBTC', (data) => {
     console.log(data);
 });
 
 /*
- * onUserData requires an instance of binanceRest in order to make the necessary startUserDataStream and  
+ * onUserData requires an instance of BinanceRest in order to make the necessary startUserDataStream and  
  * keepAliveUserDataStream calls
  */
 binanceWS.onUserData(binanceRest, (data) => {
     console.log(data);
-}, 60000); // How often the keep alive should be sent in milliseconds
+}, 60000); // Optional, how often the keep alive should be sent in milliseconds
 
 binanceWS.onKline('BNBBTC', '1m', (data) => {
     console.log(data);
