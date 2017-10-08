@@ -60,6 +60,7 @@ binanceWS.onKline('BNBBTC', '1m', (data) => {
 ```
 
 #  REST APIs
+## Public
 
 [ping([callback _function_])](https://www.binance.com/restapipub.html#user-content-test-connectivity)
 
@@ -73,6 +74,11 @@ binanceWS.onKline('BNBBTC', '1m', (data) => {
 
 [ticker24hr(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-24hr-ticker-price-change-statistics)
 
+[allPrices([callback _function_])](https://www.binance.com/restapipub.html#symbols-price-ticker)
+
+[allBookTickers([callback _function_])](https://www.binance.com/restapipub.html#symbols-order-book-ticker)
+
+## Private
 [newOrder(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-new-order--signed)
 
 [testOrder(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-test-new-order-signed) - If this ends up making a real order it's the API, not this library
