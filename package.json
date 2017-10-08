@@ -1,7 +1,7 @@
 {
   "name": "binance",
   "version": "1.0.2",
-  "description": "node.js wrapper for the Binance REST and WebSocket APIs",
+  "description": "Node wrapper for the Binance REST and WebSocket APIs",
   "main": "./lib/binance.js",
   "scripts": {
     "test": "mocha"
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/aarongarvey/binance"
+    "url": "https://github.com/wrannaman/binance"
   },
   "keywords": [
     "api",
@@ -22,9 +22,10 @@
     "cryptocurrency",
     "binance",
     "btc",
-    "eth"
+    "eth",
+    "trading"
   ],
-  "author": "Aaron Garvey",
+  "author": "Aaron Garvey, Wrannaman",
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.1.1",
