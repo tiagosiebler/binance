@@ -44,7 +44,8 @@ binanceRest.allOrders('BNBBTC', (err, data) => {
  * WebSocket API
  *
  * Each call to onXXXX initiates a new websocket for the specified route, and calls your callback with
- * the payload of each message received.
+ * the payload of each message received.  Each call to onXXXX returns the instance of the websocket
+ * client if you want direct access(https://www.npmjs.com/package/ws).
  */
 const binanceWS = new api.BinanceWS();
 
