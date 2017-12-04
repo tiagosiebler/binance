@@ -28,7 +28,7 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('ping', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/ping'
+                url: 'https://www.binance.com/api/v1/ping?recvWindow=10000'
             });
             callback(null, {
                 statusCode: 200
@@ -44,7 +44,7 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('depth', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/depth?symbol=TEST'
+                url: 'https://www.binance.com/api/v1/depth?symbol=TEST&recvWindow=10000'
             });
             callback(null, {
                 statusCode: 400
@@ -66,7 +66,7 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('depth', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/depth?symbol=TEST'
+                url: 'https://www.binance.com/api/v1/depth?symbol=TEST&recvWindow=10000'
             });
             callback(null, {
                 statusCode: 400
@@ -78,6 +78,26 @@ describe("BinanceRest", () => {
                     code: -1121,
                     msg: 'Invalid symbol.'
                 });
+                done();
+            } catch (err) {
+                done(err);
+            } 
+        });
+    });
+
+    it('returns an error to the callback if the status code returned is not 2xx and the body is not JSON', (done) => {
+        mockRequest.setHandler('depth', (options, callback) => {
+            expect(options).to.deep.equal({
+                timeout: 30000,
+                url: 'https://www.binance.com/api/v1/depth?symbol=TEST&recvWindow=10000'
+            });
+            callback(null, {
+                statusCode: 500
+            }, '<html>Errorz!</html>');
+        });
+        binance.depth('TEST', (err) => {
+            try {
+                expect(err).to.equal('<html>Errorz!</html>');
                 done();
             } catch (err) {
                 done(err);
@@ -101,7 +121,7 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('ping', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/ping'
+                url: 'https://www.binance.com/api/v1/ping?recvWindow=10000'
             });
             callback(null, {
                 statusCode: 200
@@ -117,7 +137,7 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('time', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/time'
+                url: 'https://www.binance.com/api/v1/time?recvWindow=10000'
             });
             callback(null, {
                 statusCode: 200
@@ -135,7 +155,7 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('depth', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/depth?symbol=ETHBTC'
+                url: 'https://www.binance.com/api/v1/depth?symbol=ETHBTC&recvWindow=10000'
             });
             callback(null, {
                 statusCode: 200
@@ -167,7 +187,7 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('aggTrades', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/aggTrades?symbol=ETHBTC'
+                url: 'https://www.binance.com/api/v1/aggTrades?symbol=ETHBTC&recvWindow=10000'
             });
             callback(null, {
                 statusCode: 200
@@ -234,7 +254,7 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('klines', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/klines?symbol=ETHBTC&interval=1m&limit=5'
+                url: 'https://www.binance.com/api/v1/klines?symbol=ETHBTC&interval=1m&limit=5&recvWindow=10000'
             });
             callback(null, {
                 statusCode: 200
@@ -325,7 +345,7 @@ describe("BinanceRest", () => {
         mockRequest.setHandler('ticker/24hr', (options, callback) => {
             expect(options).to.deep.equal({
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/ticker/24hr?symbol=ETHBTC'
+                url: 'https://www.binance.com/api/v1/ticker/24hr?symbol=ETHBTC&recvWindow=10000'
             });
             callback(null, {
                 statusCode: 200
@@ -364,7 +384,7 @@ describe("BinanceRest", () => {
                 },
                 method: 'POST',
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/order?symbol=BNBBTC&side=SELL&type=LIMIT&timeInForce=GTC&quantity=5&price=0.000635&timestamp=1503258350918&signature=fc62720e9435fa5c0571b4afa34c94437a337c2b3d3273185591241a85e398a3'
+                url: 'https://www.binance.com/api/v1/order?symbol=BNBBTC&side=SELL&type=LIMIT&timeInForce=GTC&quantity=5&price=0.000635&timestamp=1503258350918&recvWindow=10000&signature=2f3f2748803e7eb21cb44a5525fec3b4d255cb3d2e1d6d8401c0af9426b5779b'
             });
             callback(null, {
                 statusCode: 200
@@ -397,7 +417,7 @@ describe("BinanceRest", () => {
                 },
                 method: 'POST',
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/order/test?symbol=BNBBTC&side=SELL&type=LIMIT&timeInForce=GTC&quantity=5&price=0.000635&timestamp=1503258350918&signature=fc62720e9435fa5c0571b4afa34c94437a337c2b3d3273185591241a85e398a3'
+                url: 'https://www.binance.com/api/v1/order/test?symbol=BNBBTC&side=SELL&type=LIMIT&timeInForce=GTC&quantity=5&price=0.000635&timestamp=1503258350918&recvWindow=10000&signature=2f3f2748803e7eb21cb44a5525fec3b4d255cb3d2e1d6d8401c0af9426b5779b'
             });
             callback(null, {
                 statusCode: 200
@@ -424,7 +444,7 @@ describe("BinanceRest", () => {
                     'X-MBX-APIKEY': 'super_secret_api_key'
                 },
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/order?symbol=BNBBTC&orderId=1497927&timestamp=1503258350918&signature=c2d48dbf90f7b93c20addc8ec9ca87e28762345006edab322fe0ece70ecf5ed6'
+                url: 'https://www.binance.com/api/v1/order?symbol=BNBBTC&orderId=1497927&timestamp=1503258350918&recvWindow=10000&signature=8226477e2a2a1a322e7e8082892ebb591458d6a95cc0aa7dec6e3d18c26b1335'
             });
             callback(null, {
                 statusCode: 200
@@ -461,7 +481,7 @@ describe("BinanceRest", () => {
                     'X-MBX-APIKEY': 'super_secret_api_key'
                 },
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/openOrders?symbol=BNBBTC&timestamp=1503258350918&signature=52dc0002f67e47b906e7022242d8d9306a42eb5554283bf8a13e43e31991f915'
+                url: 'https://www.binance.com/api/v1/openOrders?symbol=BNBBTC&timestamp=1503258350918&recvWindow=10000&signature=4d7acd9708b69cf601fa8f6e1327b8a722ec551d07be1bd74681d2faafe300e4'
             });
             callback(null, {
                 statusCode: 200
@@ -498,7 +518,7 @@ describe("BinanceRest", () => {
                 },
                 method: 'DELETE',
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/order?symbol=BNBBTC&orderId=1500955&timestamp=1503258350918&signature=86af435a4e612964062c3c4a6bba8199b6d30900a35ad65ecd2fe1857c06f791'
+                url: 'https://www.binance.com/api/v1/order?symbol=BNBBTC&orderId=1500955&timestamp=1503258350918&recvWindow=10000&signature=5ac86948067ba84e29a418a2790700eaf1d94e2c09607bcf78b7800306afedb4'
             });
             callback(null, {
                 statusCode: 200
@@ -526,7 +546,7 @@ describe("BinanceRest", () => {
                     'X-MBX-APIKEY': 'super_secret_api_key'
                 },
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/allOrders?symbol=BNBBTC&limit=1&timestamp=1503258350918&signature=804cc1a24059a2caaae890ec46a2acc9874b94d484f9e8aa9ae458a7a4101d62'
+                url: 'https://www.binance.com/api/v1/allOrders?symbol=BNBBTC&limit=1&timestamp=1503258350918&recvWindow=10000&signature=70ea658e41a9681f20856cdb1ca62f7181af4ede4660b28e5d001c47c84f8f74'
             });
             callback(null, {
                 statusCode: 200
@@ -563,7 +583,7 @@ describe("BinanceRest", () => {
                     'X-MBX-APIKEY': 'super_secret_api_key'
                 },
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/account?timestamp=1503258350918&signature=41793a079b4545ff8bb233a8563641d49165cafba3647850118c74e515d74d9d'
+                url: 'https://www.binance.com/api/v1/account?timestamp=1503258350918&recvWindow=10000&signature=727ca477db1dafac1e850de1456a91aaaaec2d2ce5ac084fc61e5a5a98ed42b0'
             });
             callback(null, {
                 statusCode: 200
@@ -617,7 +637,7 @@ describe("BinanceRest", () => {
                     'X-MBX-APIKEY': 'super_secret_api_key'
                 },
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/myTrades?symbol=BNBBTC&limit=1&timestamp=1503258350918&signature=804cc1a24059a2caaae890ec46a2acc9874b94d484f9e8aa9ae458a7a4101d62'
+                url: 'https://www.binance.com/api/v1/myTrades?symbol=BNBBTC&limit=1&timestamp=1503258350918&recvWindow=10000&signature=70ea658e41a9681f20856cdb1ca62f7181af4ede4660b28e5d001c47c84f8f74'
             });
             callback(null, {
                 statusCode: 200
@@ -651,7 +671,7 @@ describe("BinanceRest", () => {
                 },
                 method: 'POST',
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/userDataStream'
+                url: 'https://www.binance.com/api/v1/userDataStream?recvWindow=10000'
             });
             callback(null, {
                 statusCode: 200
@@ -673,7 +693,7 @@ describe("BinanceRest", () => {
                 },
                 method: 'PUT',
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/userDataStream?listenKey=DdfvqZ427zcWvtOzBSxmchhHPKV1t0lVCHdztRjIdU7CygJckPIIYmx5TOqU'
+                url: 'https://www.binance.com/api/v1/userDataStream?listenKey=DdfvqZ427zcWvtOzBSxmchhHPKV1t0lVCHdztRjIdU7CygJckPIIYmx5TOqU&recvWindow=10000'
             });
             callback(null, {
                 statusCode: 200
@@ -695,7 +715,7 @@ describe("BinanceRest", () => {
                 },
                 method: 'DELETE',
                 timeout: 30000,
-                url: 'https://www.binance.com/api/v1/userDataStream?listenKey=DdfvqZ427zcWvtOzBSxmchhHPKV1t0lVCHdztRjIdU7CygJckPIIYmx5TOqU'
+                url: 'https://www.binance.com/api/v1/userDataStream?listenKey=DdfvqZ427zcWvtOzBSxmchhHPKV1t0lVCHdztRjIdU7CygJckPIIYmx5TOqU&recvWindow=10000'
             });
             callback(null, {
                 statusCode: 200

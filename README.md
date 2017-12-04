@@ -1,5 +1,5 @@
 # Binance
-A wrapper for the Binance REST and WebSocket APIs.  For more information on the API and parameters for requests visit https://www.binance.com/restapipub.html.
+A wrapper for the Binance REST and WebSocket APIs.  For more information on the API and parameters for requests visit https://www.binance.com/restapipub.html
 
 # Usage/Example
 
@@ -39,27 +39,40 @@ binanceRest.allOrders('BNBBTC', (err, data) => {
     }
 });
 
-// WebSocket API
+/*
+ * WebSocket API
+ *
+ * Each call to onXXXX initiates a new websocket for the specified route, and calls your callback with
+ * the payload of each message received.
+ */
 const binanceWS = new api.BinanceWS();
 
 binanceWS.onDepthUpdate('BNBBTC', (data) => {
     console.log(data);
 });
 
-/*
- * onUserData requires an instance of BinanceRest in order to make the necessary startUserDataStream and  
- * keepAliveUserDataStream calls
- */
-binanceWS.onUserData(binanceRest, (data) => {
+binanceWS.onAggTrade('BNBBTC', (data) => {
     console.log(data);
-}, 60000); // Optional, how often the keep alive should be sent in milliseconds
+});
 
 binanceWS.onKline('BNBBTC', '1m', (data) => {
     console.log(data);
 });
+
+/*
+ * onUserData requires an instance of BinanceRest in order to make the necessary startUserDataStream and
+ * keepAliveUserDataStream calls.  The webSocket instance is returned by promise rather than directly
+ * due to needing to request a listenKey from the server first.
+ */
+binanceWS.onUserData(binanceRest, (data) => {
+        console.log(data);
+    }, 60000) // Optional, how often the keep alive should be sent in milliseconds
+    .then((ws) => {
+        // websocket instance available here
+    });
 ```
 
-#  REST APIs
+# REST APIs
 
 [ping([callback _function_])](https://www.binance.com/restapipub.html#user-content-test-connectivity)
 
