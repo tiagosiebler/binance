@@ -76,6 +76,10 @@ binanceWS.onUserData(binanceRest, (data) => {
 
 # REST APIs
 
+[allPrices([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)
+
+[allBookTickersTi([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)
+
 [ping([callback _function_])](https://www.binance.com/restapipub.html#user-content-test-connectivity)
 
 [time([callback _function_])](https://www.binance.com/restapipub.html#user-content-check-server-time)
@@ -103,6 +107,14 @@ binanceWS.onUserData(binanceRest, (data) => {
 [account(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-information-signed)
 
 [myTrades(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)
+
+[withdraw(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)
+
+[withdrawHistory(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)
+
+[depositHistory(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)
+
+[depositAddress(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)
 
 [startUserDataStream([callback _function_])](https://www.binance.com/restapipub.html#user-content-start-user-data-stream-api-key)
 
