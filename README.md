@@ -133,6 +133,7 @@ Response
 ### **[depth(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-order-book)**
 
 Query Parameters
+
 | Name               | Type    | Details                    |
 |--------------------|---------|----------------------------|
 | symbol             | string  |                            |
@@ -164,6 +165,7 @@ Response
 ### **[aggTrades(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-compressedaggregate-trades-list)**
 
 Query Parameters
+
 | Name                   | Type    | Details                                                           |
 |------------------------|---------|-------------------------------------------------------------------|
 | symbol                 | string  |                                                                   |
@@ -202,6 +204,8 @@ Response
 ### **[klines(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-klinecandlesticks)**
 
 Query Parameters
+
+
 | Name                   | Type    | Description                                                            |
 |------------------------|---------|------------------------------------------------------------------------|
 | symbol                 | string  |                                                                        |
@@ -248,6 +252,7 @@ Response
 ### **[ticker24hr(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-24hr-ticker-price-change-statistics)**
 
 Query Parameters
+
 | Name   | Type   | Description |
 |--------|--------|-------------|
 | symbol | string |             |
@@ -283,6 +288,7 @@ Response
 ### **[newOrder(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-new-order--signed)**
 
 Query Parameters
+
 | Name                          | Type    | Description                                                        |
 |-------------------------------|---------|--------------------------------------------------------------------|
 | symbol                        | string  |                                                                    |
@@ -308,6 +314,7 @@ Response
 ### **[testOrder(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-test-new-order-signed)**
 
 Query Parameters
+
 | Name                          | Type    | Description                                                        |
 |-------------------------------|---------|--------------------------------------------------------------------|
 | symbol                        | string  |                                                                    |
@@ -328,6 +335,7 @@ Response
 ### **[queryOrder(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-query-order-signed)**
 
 Query Parameters
+
 | Name                           | Type   | Description                                                        |
 |--------------------------------|--------|--------------------------------------------------------------------|
 | symbol                         | string |                                                                    |
@@ -356,6 +364,7 @@ Response
 ### **[cancelOrder(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-cancel-order-signed)**
 
 Query Parameters
+
 | Name                           | Type   | Description                                                 |
 |--------------------------------|--------|-------------------------------------------------------------|
 | symbol                         | string |                                                             |
@@ -376,6 +385,7 @@ Response
 ### **[openOrders(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-current-open-orders-signed)**
 
 Query Parameters
+
 | Name                           | Type   | Description |
 |--------------------------------|--------|-------------|
 | symbol                         | string |             |
@@ -405,6 +415,7 @@ Response
 ### **[allOrders(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-all-orders-signed)**
 
 Query Parameters
+
 | Name                 | Type    | Description                                                                    |
 |----------------------|---------|--------------------------------------------------------------------------------|
 | symbol               | string  |                                                                                |
@@ -460,6 +471,7 @@ Response
 ### **[myTrades(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)**
 
 Query Parameters
+
 | Name                | Type    | Description                                                     |
 |---------------------|---------|-----------------------------------------------------------------|
 | symbol              | string  |                                                                 |
@@ -488,6 +500,7 @@ Response
 ### **[withdraw(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)**
 
 Query Parameters
+
 | Name                    | Type    | Description                                                  |
 |-------------------------|---------|--------------------------------------------------------------|
 | asset                   | string  |                                                              |
@@ -508,6 +521,7 @@ Response
 ### **[withdrawHistory(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)**
 
 Query Parameters
+
 | Name                   | Type    | Description                                                                                                               |
 |------------------------|---------|---------------------------------------------------------------------------------------------------------------------------|
 | asset *(optional)*     | string  |                                                                                                                           |
@@ -537,6 +551,7 @@ Response
 ### **[depositHistory(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)**
 
 Query Parameters
+
 | Name                   | Type    | Description                    |
 |------------------------|---------|--------------------------------|
 | asset *(optional)*     | string  |                                |
@@ -566,6 +581,7 @@ Response
 ### **[depositAddress(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)**
 
 Query Parameters
+
 | Name                    | Type    | Description |
 |-------------------------|---------|-------------|
 | asset                   | string  |             |
