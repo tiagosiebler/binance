@@ -1,6 +1,6 @@
 {
   "name": "binance",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "node.js wrapper for the Binance REST and WebSocket APIs",
   "main": "./lib/binance.js",
   "scripts": {
@@ -25,6 +25,10 @@
     "eth"
   ],
   "author": "Aaron Garvey",
+  "contributors": [
+    "Clifford Roche <clifford.roche@gmail.com> (http://www.cliffordroche.ca)",
+    "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)"
+  ],
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.1.1",

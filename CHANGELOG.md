@@ -2,6 +2,7 @@
 
 ## 1.1.1
 - Minor docs updates
+- Set callback to deliver Error object on non 2XX return codes
 
 ## 1.1.0
 - Setup account related APIs with new routes and signing

@@ -73,12 +73,14 @@ describe("BinanceRest", () => {
                     statusCode: 400
                 }, '{"code":-1121,"msg":"Invalid symbol."}');
             });
-            binance.depth('TEST', (err) => {
+            binance.depth('TEST', (err, payload) => {
                 try {
-                    expect(err).to.deep.equal({
+                    expect(payload).to.deep.equal({
                         code: -1121,
                         msg: 'Invalid symbol.'
                     });
+                    expect(err).to.be.an('error');
+                    expect(err.message).to.equal('Response code 400');
                     done();
                 } catch (err) {
                     done(err);
@@ -96,9 +98,11 @@ describe("BinanceRest", () => {
                     statusCode: 500
                 }, '<html>Errorz!</html>');
             });
-            binance.depth('TEST', (err) => {
+            binance.depth('TEST', (err, payload) => {
                 try {
-                    expect(err).to.equal('<html>Errorz!</html>');
+                    expect(payload).to.equal('<html>Errorz!</html>');
+                    expect(err).to.be.an('error');
+                    expect(err.message).to.equal('Response code 500');
                     done();
                 } catch (err) {
                     done(err);
