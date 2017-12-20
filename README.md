@@ -79,7 +79,7 @@ binanceWS.onUserData(binanceRest, (data) => {
 
 [allPrices([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)
 
-[allBookTickersTi([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)
+[allBookTickers([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)
 
 [ping([callback _function_])](https://www.binance.com/restapipub.html#user-content-test-connectivity)
 
