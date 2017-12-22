@@ -336,7 +336,7 @@ Response
 {}
 ```
 
-### **[queryOrder(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-query-order-signed)**
+### **[queryOrder(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-query-order-signed)**
 
 Query Parameters
 
@@ -365,7 +365,7 @@ Response
 }
 ```
 
-### **[cancelOrder(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-cancel-order-signed)**
+### **[cancelOrder(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-cancel-order-signed)**
 
 Query Parameters
 
@@ -448,7 +448,7 @@ Response
 ]
 ```
 
-### **[account(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-information-signed)**
+### **[account([callback _function_])](https://www.binance.com/restapipub.html#user-content-account-information-signed)**
 
 Response
 ```javascript
@@ -607,14 +607,14 @@ Response
 { "listenKey": "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1" }
 ```
 
-### **[keepAliveUserDataStream(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-keepalive-user-data-stream-api-key)**
+### **[keepAliveUserDataStream([callback _function_])](https://www.binance.com/restapipub.html#user-content-keepalive-user-data-stream-api-key)**
 
 Response
 ```javascript
 {}
 ```
 
-### **[closeUserDataStream(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-close-user-data-stream-api-key)**
+### **[closeUserDataStream([callback _function_])](https://www.binance.com/restapipub.html#user-content-close-user-data-stream-api-key)**
 
 Response
 ```javascript

@@ -1,6 +1,7 @@
 const expect = require('chai').expect;
 const mockRequest = require('./mock-api.js');
 const mock = require('mock-require');
+const sinon = require('sinon');
 
 mock('request', mockRequest);
 
@@ -10,41 +11,49 @@ const BinanceWS = binanceApi.BinanceWS;
 
 describe("BinanceRest", () => {
     let binance;
+    let clock;
 
     beforeEach(() => {
-        binance = new BinanceRest({
-            key: 'super_secret_api_key',
-            secret: 'super_secret_secret',
-            recvWindow: 10000,
-            timeout: 30000
-        });
+        clock = sinon.useFakeTimers();
     });
 
     afterEach(() => {
         mockRequest.clearHandlers();
+        clock.restore();
+        binance = undefined;
     });
 
-    describe("public API", () => {
-        it('allows using callbacks', () => {
+    describe("general", () => {
+
+        beforeEach(() => {
+            binance = new BinanceRest({
+                key: 'super_secret_api_key',
+                secret: 'super_secret_secret',
+                disableBeautification: true
+            });
+        });
+
+        it('allows using callbacks', (done) => {
             mockRequest.setHandler('api/v1/ping', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/ping'
                 });
                 callback(null, {
                     statusCode: 200
                 }, '{}');
             });
-            return binance.ping()
-                .then((response) => {
-                    expect(response).to.be.an('object').that.is.empty;
-                });
+            binance.ping((err, response) => {
+                expect(err).to.be.null;
+                expect(response).to.be.an('object').that.is.empty;
+                done();
+            });
         });
     
         it('calls reject on the promise if the status code returned is not 2xx', () => {
             mockRequest.setHandler('api/v1/depth', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/depth?symbol=TEST'
                 });
                 callback(null, {
@@ -62,11 +71,41 @@ describe("BinanceRest", () => {
                     });
                 });
         });
+
+        it('handles non 2xx status codes with responses that are not JSON when a promise is specified', () => {
+            mockRequest.setHandler('api/v1/depth', (options, callback) => {
+                callback(null, {
+                    statusCode: 500
+                }, '<html>Errorz!</html>');
+            });
+            return binance.depth('TEST')
+                .then((response) => {
+                    throw new Error('Request should not have been successful');
+                })
+                .catch((err, response) => {
+                    expect(err).to.equal('<html>Errorz!</html>');
+                });
+        });
+
+        it('handles errors from the request library when a promise is specified', () => {
+            mockRequest.setHandler('api/v1/depth', (options, callback) => {
+                callback(new Error('No request for you!'));
+            });
+            return binance.depth('TEST')
+                .then((response) => {
+                    throw new Error('Request should not have been successful');
+                })
+                .catch((err, response) => {
+                    expect(err).to.be.an('error');
+                    expect(err.message).to.equal('No request for you!');
+                    expect(response).to.be.undefined;
+                });
+        });
     
         it('returns an error to the callback if the status code returned is not 2xx', (done) => {
             mockRequest.setHandler('api/v1/depth', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/depth?symbol=TEST'
                 });
                 callback(null, {
@@ -91,7 +130,7 @@ describe("BinanceRest", () => {
         it('returns an error to the callback if the status code returned is not 2xx and the body is not JSON', (done) => {
             mockRequest.setHandler('api/v1/depth', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/depth?symbol=TEST'
                 });
                 callback(null, {
@@ -121,11 +160,21 @@ describe("BinanceRest", () => {
                 binance.depth('BNBBTC', null);
             }).to.throw();
         });
+    });
+
+    describe("public API", () => {
+
+        beforeEach(() => {
+            binance = new BinanceRest({
+                key: 'super_secret_api_key',
+                secret: 'super_secret_secret'
+            });
+        });
     
         it('should make ping requests and handle the response', () => {
             mockRequest.setHandler('api/v1/ping', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/ping'
                 });
                 callback(null, {
@@ -141,7 +190,7 @@ describe("BinanceRest", () => {
         it('should make time requests and handle the response', () => {
             mockRequest.setHandler('api/v1/time', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/time'
                 });
                 callback(null, {
@@ -156,55 +205,57 @@ describe("BinanceRest", () => {
                 });
         });
     
-        it('should make allBookTickers requests and handle the response', () => {
+        it('should make allBookTickers requests and handle the response', (done) => {
             mockRequest.setHandler('api/v1/ticker/allBookTickers', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/ticker/allBookTickers'
                 });
                 callback(null, {
                     statusCode: 200
                 }, '[{"symbol":"ETHBTC","bidPrice":"0.04035100","bidQty":"0.85800000","askPrice":"0.04039500","askQty":"1.18800000"},{"symbol":"LTCBTC","bidPrice":"0.00884200","bidQty":"16.66000000","askPrice":"0.00887000","askQty":"0.58000000"},{"symbol":"BNBBTC","bidPrice":"0.00021659","bidQty":"1698.00000000","askPrice":"0.00021660","askQty":"828.00000000"},{"symbol":"NEOBTC","bidPrice":"0.00363400","bidQty":"48.00000000","askPrice":"0.00365000","askQty":"251.07000000"}]');
             });
-            return binance.allBookTickers()
-                .then((response) => {
-                    expect(response).to.deep.equal([  
-                        {  
-                           "symbol":"ETHBTC",
-                           "bidPrice":"0.04035100",
-                           "bidQty":"0.85800000",
-                           "askPrice":"0.04039500",
-                           "askQty":"1.18800000"
-                        },
-                        {  
-                           "symbol":"LTCBTC",
-                           "bidPrice":"0.00884200",
-                           "bidQty":"16.66000000",
-                           "askPrice":"0.00887000",
-                           "askQty":"0.58000000"
-                        },
-                        {  
-                           "symbol":"BNBBTC",
-                           "bidPrice":"0.00021659",
-                           "bidQty":"1698.00000000",
-                           "askPrice":"0.00021660",
-                           "askQty":"828.00000000"
-                        },
-                        {  
-                           "symbol":"NEOBTC",
-                           "bidPrice":"0.00363400",
-                           "bidQty":"48.00000000",
-                           "askPrice":"0.00365000",
-                           "askQty":"251.07000000"
-                        }
-                    ]);
-                });
+
+            binance.allBookTickers((err, response) => {
+                expect(err).to.be.null;
+                expect(response).to.deep.equal([  
+                    {  
+                       "symbol":"ETHBTC",
+                       "bidPrice":"0.04035100",
+                       "bidQty":"0.85800000",
+                       "askPrice":"0.04039500",
+                       "askQty":"1.18800000"
+                    },
+                    {  
+                       "symbol":"LTCBTC",
+                       "bidPrice":"0.00884200",
+                       "bidQty":"16.66000000",
+                       "askPrice":"0.00887000",
+                       "askQty":"0.58000000"
+                    },
+                    {  
+                       "symbol":"BNBBTC",
+                       "bidPrice":"0.00021659",
+                       "bidQty":"1698.00000000",
+                       "askPrice":"0.00021660",
+                       "askQty":"828.00000000"
+                    },
+                    {  
+                       "symbol":"NEOBTC",
+                       "bidPrice":"0.00363400",
+                       "bidQty":"48.00000000",
+                       "askPrice":"0.00365000",
+                       "askQty":"251.07000000"
+                    }
+                ]);
+                done();
+            });
         });
     
         it('should make allPrices requests and handle the response', () => {
             mockRequest.setHandler('api/v1/ticker/allPrices', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/ticker/allPrices'
                 });
                 callback(null, {
@@ -269,7 +320,7 @@ describe("BinanceRest", () => {
         it('should make depth requests and handle the response', () => {
             mockRequest.setHandler('api/v1/depth', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/depth?symbol=ETHBTC'
                 });
                 callback(null, {
@@ -301,7 +352,7 @@ describe("BinanceRest", () => {
         it('should make aggregated trade requests and handle the response', () => {
             mockRequest.setHandler('api/v1/aggTrades', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/aggTrades?symbol=ETHBTC'
                 });
                 callback(null, {
@@ -368,7 +419,7 @@ describe("BinanceRest", () => {
         it('should make kline requests and handle the response', () => {
             mockRequest.setHandler('api/v1/klines', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/klines?symbol=ETHBTC&interval=1m&limit=5'
                 });
                 callback(null, {
@@ -459,16 +510,14 @@ describe("BinanceRest", () => {
         it('should make 24 hour ticker requests and handle the response', () => {
             mockRequest.setHandler('api/v1/ticker/24hr', (options, callback) => {
                 expect(options).to.deep.equal({
-                    timeout: 30000,
+                    timeout: 15000,
                     url: 'https://www.binance.com/api/v1/ticker/24hr?symbol=ETHBTC'
                 });
                 callback(null, {
                     statusCode: 200
                 }, '{"priceChange":"-0.00116100","priceChangePercent":"-1.614","weightedAvgPrice":"0.07098817","prevClosePrice":"0.07191900","lastPrice":"0.07075800","bidPrice":"0.07075800","askPrice":"0.07077200","openPrice":"0.07191900","highPrice":"0.07285800","lowPrice":"0.06900000","volume":"19985.33300000","openTime":1503128802623,"closeTime":1503215202623,"fristId":466817,"lastId":484582,"count":17766}');
             });
-            return binance.ticker24hr({
-                    symbol: 'ETHBTC'
-                })
+            return binance.ticker24hr('ETHBTC')
                 .then((response) => {
                     expect(response).to.deep.equal({
                             askPrice: "0.07077200",
@@ -493,6 +542,15 @@ describe("BinanceRest", () => {
     });
 
     describe("private, signed API", () => {
+
+        beforeEach(() => {
+            binance = new BinanceRest({
+                key: 'super_secret_api_key',
+                secret: 'super_secret_secret',
+                recvWindow: 10000,
+                timeout: 30000
+            });
+        });
 
         it('should make new order requests and handle the response', () => {
             mockRequest.setHandler('api/v3/order', (options, callback) => {
@@ -562,7 +620,7 @@ describe("BinanceRest", () => {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
                     timeout: 30000,
-                    url: 'https://www.binance.com/api/v3/order?symbol=BNBBTC&orderId=1497927&timestamp=1503258350918&recvWindow=10000&signature=c8c613cbe26405740f2db92f316e771537a0fcfd858b29e51ad10d9aecce23b6'
+                    url: 'https://www.binance.com/api/v3/order?symbol=BNBBTC&orderId=1497927&timestamp=0&recvWindow=10000&signature=ce8c5519ee23564230f08db5b3248894a17952049f675ee37d09ad8933868bd1'
                 });
                 callback(null, {
                     statusCode: 200
@@ -571,7 +629,6 @@ describe("BinanceRest", () => {
             return binance.queryOrder({
                     symbol: 'BNBBTC',
                     orderId: 1497927,
-                    timestamp: 1503258350918
                 })
                 .then((response) => {
                     expect(response).to.deep.equal({
@@ -599,16 +656,13 @@ describe("BinanceRest", () => {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
                     timeout: 30000,
-                    url: 'https://www.binance.com/api/v3/openOrders?symbol=BNBBTC&timestamp=1503258350918&recvWindow=10000&signature=915ce33769fd7b5b3fbba2045a40de69611a0fdf41cf3529665fdaea7a4d49e8'
+                    url: 'https://www.binance.com/api/v3/openOrders?symbol=BNBBTC&timestamp=0&recvWindow=10000&signature=54dfa6e974bfcd0c2bcdddd65e820fd16b05515dfc66f5033b0fbffe9f9daca2'
                 });
                 callback(null, {
                     statusCode: 200
                 }, '[{"symbol":"BNBBTC","orderId":1500955,"clientOrderId":"z7z7gslJeO4DCDgYe9LtgB","price":"0.00070000","origQty":"5.00000000","executedQty":"0.00000000","status":"NEW","timeInForce":"GTC","type":"LIMIT","side":"SELL","stopPrice":"0.00000000","icebergQty":"0.00000000","time":1503260089565}]');
             });
-            return binance.openOrders({
-                    symbol: 'BNBBTC',
-                    timestamp: 1503258350918
-                })
+            return binance.openOrders('BNBBTC')
                 .then((response) => {
                     expect(response).to.deep.equal([{
                         clientOrderId: "z7z7gslJeO4DCDgYe9LtgB",
@@ -636,7 +690,7 @@ describe("BinanceRest", () => {
                     },
                     method: 'DELETE',
                     timeout: 30000,
-                    url: 'https://www.binance.com/api/v3/order?symbol=BNBBTC&orderId=1500955&timestamp=1503258350918&recvWindow=10000&signature=113883bcedc4bdff2aeb8aaecb0b7e5d38c16717c89f19a158d2f33f309b03fb'
+                    url: 'https://www.binance.com/api/v3/order?symbol=BNBBTC&orderId=1500955&timestamp=0&recvWindow=10000&signature=9546f891b4a19fdf87c1913fa04020113fdd1ec04cfaf4c2aac157fec2857025'
                 });
                 callback(null, {
                     statusCode: 200
@@ -644,8 +698,7 @@ describe("BinanceRest", () => {
             });
             return binance.cancelOrder({
                     symbol: 'BNBBTC',
-                    orderId: 1500955,
-                    timestamp: 1503258350918
+                    orderId: 1500955
                 })
                 .then((response) => {
                     expect(response).to.deep.equal({
@@ -664,17 +717,13 @@ describe("BinanceRest", () => {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
                     timeout: 30000,
-                    url: 'https://www.binance.com/api/v3/allOrders?symbol=BNBBTC&limit=1&timestamp=1503258350918&recvWindow=10000&signature=56bee3ce5c288a5818229cc8d75ff3b36c4cfda4081b9db16dec4ddf879dcd43'
+                    url: 'https://www.binance.com/api/v3/allOrders?symbol=BNBBTC&timestamp=0&recvWindow=10000&signature=54dfa6e974bfcd0c2bcdddd65e820fd16b05515dfc66f5033b0fbffe9f9daca2'
                 });
                 callback(null, {
                     statusCode: 200
                 }, '[{"symbol":"BNBBTC","orderId":1500955,"clientOrderId":"z7z7gslJeO4DCDgYe9LtgB","price":"0.00070000","origQty":"5.00000000","executedQty":"0.00000000","status":"CANCELED","timeInForce":"GTC","type":"LIMIT","side":"SELL","stopPrice":"0.00000000","icebergQty":"0.00000000","time":1503260089565}]');
             });
-            return binance.allOrders({
-                    symbol: 'BNBBTC',
-                    limit: 1,
-                    timestamp: 1503258350918
-                })
+            return binance.allOrders('BNBBTC')
                 .then((response) => {
                     expect(response).to.deep.equal([{
                         clientOrderId: "z7z7gslJeO4DCDgYe9LtgB",
@@ -701,7 +750,7 @@ describe("BinanceRest", () => {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
                     timeout: 30000,
-                    url: 'https://www.binance.com/api/v3/account?timestamp=1503258350918&recvWindow=10000&signature=5eab78e4ba3c3556fc032fea2df495ea4307c931d7cb8043b3bfc8ffe53c29cd'
+                    url: 'https://www.binance.com/api/v3/account?timestamp=0&recvWindow=10000&signature=fa83689730fa7ac8f7c2e24a10b0fa8baf0503756158128cced2e355934b5140'
                 });
                 callback(null, {
                     statusCode: 200
@@ -755,17 +804,13 @@ describe("BinanceRest", () => {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
                     timeout: 30000,
-                    url: 'https://www.binance.com/api/v3/myTrades?symbol=BNBBTC&limit=1&timestamp=1503258350918&recvWindow=10000&signature=56bee3ce5c288a5818229cc8d75ff3b36c4cfda4081b9db16dec4ddf879dcd43'
+                    url: 'https://www.binance.com/api/v3/myTrades?symbol=BNBBTC&timestamp=0&recvWindow=10000&signature=54dfa6e974bfcd0c2bcdddd65e820fd16b05515dfc66f5033b0fbffe9f9daca2'
                 });
                 callback(null, {
                     statusCode: 200
                 }, '[{"id":345660,"price":"0.00063907","qty":"5.00000000","commission":"0.00000000","commissionAsset":"BNB","time":1503257997234,"isBuyer":false,"isMaker":false,"isBestMatch":true}]');
             });
-            return binance.myTrades({
-                    symbol: 'BNBBTC',
-                    limit: 1,
-                    timestamp: 1503258350918
-                })
+            return binance.myTrades('BNBBTC')
                 .then((response) => {
                     expect(response).to.deep.equal([{
                         commission: "0.00000000",
@@ -789,7 +834,7 @@ describe("BinanceRest", () => {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
                     timeout: 30000,
-                    url: 'https://www.binance.com/wapi/v3/withdraw.html?asset=ETH&address=0x000&amount=Bajillions&timestamp=1503258350918&recvWindow=10000&signature=096e76be07f9c5fbabae0858c993d0192ac21131f7de72303bf19eea320ca0f6'
+                    url: 'https://www.binance.com/wapi/v3/withdraw.html?asset=ETH&address=0x000&amount=Bajillions&timestamp=0&recvWindow=10000&signature=5eb0f5626cfdfc1f1b4681071fc4080180832aae4739fe4cadb92e153dbbc525'
                 });
                 callback(null, {
                     statusCode: 200
@@ -798,8 +843,7 @@ describe("BinanceRest", () => {
             return binance.withdraw({
                     asset: 'ETH',
                     address: '0x000',
-                    amount: 'Bajillions',
-                    timestamp: 1503258350918
+                    amount: 'Bajillions'
                 })
                 .then((response) => {
                     expect(response).to.deep.equal({
@@ -818,16 +862,13 @@ describe("BinanceRest", () => {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
                     timeout: 30000,
-                    url: 'https://www.binance.com/wapi/v3/depositHistory.html?asset=ETH&timestamp=1512435623461&recvWindow=10000&signature=51bbe1f17fcc0c9479138098b85ac22e8d6790ea5097d9aac261820b3bd74f80'
+                    url: 'https://www.binance.com/wapi/v3/depositHistory.html?asset=ETH&timestamp=0&recvWindow=10000&signature=adb0f32f3ef4b9116b17ae095371ede1e97ffe9447bfb1e88f78285426ac615b'
                 });
                 callback(null, {
                     statusCode: 200
                 }, '{"depositList": [{"insertTime": 1508198532000,"amount": 0.04670582,"asset": "ETH","address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b","txId": "0xdf33b22bdb2b28b1f75ccd201a4a4m6e7g83jy5fc5d5a9d1340961598cfcb0a1","status": 1}], "success": true}');
             });
-            return binance.depositHistory({
-                asset: 'ETH',
-                timestamp: 1512435623461
-            }).then((response) => {
+            return binance.depositHistory('ETH').then((response) => {
                 expect(response).to.deep.equal({
                     "depositList": [
                         {
@@ -852,30 +893,28 @@ describe("BinanceRest", () => {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
                     timeout: 30000,
-                    url: 'https://www.binance.com/wapi/v3/withdrawHistory.html?asset=ETH&timestamp=1512435623461&recvWindow=10000&signature=51bbe1f17fcc0c9479138098b85ac22e8d6790ea5097d9aac261820b3bd74f80'
+                    url: 'https://www.binance.com/wapi/v3/withdrawHistory.html?asset=ETH&timestamp=0&recvWindow=10000&signature=adb0f32f3ef4b9116b17ae095371ede1e97ffe9447bfb1e88f78285426ac615b'
                 });
                 callback(null, {
                     statusCode: 200
                 }, '{"withdrawList": [{"id":"7213fea8e94b4a5593d507237e5a555b","amount": 1,"address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b","asset": "ETH","txId": "0xdf33b22bdb2b28b1f75ccd201a4a4m6e7g83jy5fc5d5a9d1340961598cfcb0a1","applyTime": 1508198532000,"status": 4}],"success": true}');
             });
-            return binance.withdrawHistory({
-                asset: 'ETH',
-                timestamp: 1512435623461
-            }).then((response) => {
-                expect(response).to.deep.equal({
-                    "withdrawList": [
-                        {
-                            "id":"7213fea8e94b4a5593d507237e5a555b",
-                            "amount": 1,
-                            "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
-                            "asset": "ETH",
-                            "txId": "0xdf33b22bdb2b28b1f75ccd201a4a4m6e7g83jy5fc5d5a9d1340961598cfcb0a1",
-                            "applyTime": 1508198532000,
-                            "status": 4
-                        },
-                    ],
-                    "success": true
-                });
+            return binance.withdrawHistory('ETH')
+                .then((response) => {
+                    expect(response).to.deep.equal({
+                        "withdrawList": [
+                            {
+                                "id":"7213fea8e94b4a5593d507237e5a555b",
+                                "amount": 1,
+                                "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
+                                "asset": "ETH",
+                                "txId": "0xdf33b22bdb2b28b1f75ccd201a4a4m6e7g83jy5fc5d5a9d1340961598cfcb0a1",
+                                "applyTime": 1508198532000,
+                                "status": 4
+                            },
+                        ],
+                        "success": true
+                    });
             });
         });
 
@@ -887,28 +926,36 @@ describe("BinanceRest", () => {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
                     timeout: 30000,
-                    url: 'https://www.binance.com/wapi/v3/depositAddress.html?asset=BNB&timestamp=1512435623461&recvWindow=10000&signature=a5e64c09032fb608bc5bce7fe2b4cb5d6de37cb355214b2fb965e5a48dc4a9d7'
+                    url: 'https://www.binance.com/wapi/v3/depositAddress.html?asset=BNB&timestamp=0&recvWindow=10000&signature=d00b9bc06f44f2336cfbbf2f4216a36e3c8c9b10a3d110fb733966bb9c7c8e1e'
                 });
                 callback(null, {
                     statusCode: 200
                 }, '{"address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b","success": true,"addressTag": "1231212","asset": "BNB"}');
             });
-            return binance.depositAddress({
-                asset: 'BNB',
-                timestamp: 1512435623461
-            }).then((response) => {
-                expect(response).to.deep.equal({
-                    "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
-                    "success": true,
-                    "addressTag": "1231212",
-                    "asset": "BNB"
+            return binance.depositAddress('BNB')
+                .then((response) => {
+                    expect(response).to.deep.equal({
+                        "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
+                        "success": true,
+                        "addressTag": "1231212",
+                        "asset": "BNB"
+                    });
                 });
-            });
         });
 
     });
 
     describe("websocket related API", () => {
+
+        beforeEach(() => {
+            binance = new BinanceRest({
+                key: 'super_secret_api_key',
+                secret: 'super_secret_secret',
+                recvWindow: 10000,
+                timeout: 30000
+            });
+        });
+
         it('should make requests to start a user data stream and handle the response', () => {
             mockRequest.setHandler('api/v1/userDataStream', (options, callback) => {
                 expect(options).to.deep.equal({
