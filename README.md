@@ -1,3 +1,7 @@
+![npm downloads](https://img.shields.io/npm/dt/binance.svg)
+![testing status](https://img.shields.io/travis/aarongarvey/binance.svg)
+![code coverage](https://img.shields.io/coveralls/github/aarongarvey/binance.svg)
+
 # Binance
 A wrapper for the Binance REST and WebSocket APIs.  Uses both promises and callbacks, and beautifies the
 binance API responses that normally use lots of one letter property names. For more information on the API and parameters for requests visit https://www.binance.com/restapipub.html
