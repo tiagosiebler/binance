@@ -607,14 +607,26 @@ Response
 { "listenKey": "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1" }
 ```
 
-### **[keepAliveUserDataStream([callback _function_])](https://www.binance.com/restapipub.html#user-content-keepalive-user-data-stream-api-key)**
+### **[keepAliveUserDataStream(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-keepalive-user-data-stream-api-key)**
+
+Query Parameters
+
+| Name                    | Type    | Description |
+|-------------------------|---------|-------------|
+| listenKey               | string  |             |
 
 Response
 ```javascript
 {}
 ```
 
-### **[closeUserDataStream([callback _function_])](https://www.binance.com/restapipub.html#user-content-close-user-data-stream-api-key)**
+### **[closeUserDataStream(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-close-user-data-stream-api-key)**
+
+Query Parameters
+
+| Name                    | Type    | Description |
+|-------------------------|---------|-------------|
+| listenKey               | string  |             |
 
 Response
 ```javascript
