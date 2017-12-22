@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2
+- Add lots of example responses and query paramter details to the README
+- Fix onUserData where the promise wasn't being returned
+- Add travis CI and coveralls
+
 ## 1.1.1
 - Minor docs updates
 - Set callback to deliver Error object on non 2XX return codes
