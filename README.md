@@ -4,7 +4,7 @@
 
 # Binance
 A wrapper for the Binance REST and WebSocket APIs.  Uses both promises and callbacks, and beautifies the
-binance API responses that normally use lots of one letter property names. For more information on the API and parameters for requests visit https://www.binance.com/restapipub.html
+binance API responses that normally use lots of one letter property names. For more information on the API and parameters for requests visit https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md
 
 # Usage/Example
 
@@ -83,6 +83,8 @@ binanceWS.onUserData(binanceRest, (data) => {
 
 ### **[allPrices([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)**
 
+This route appeared on an old API document, but does not appear in the most recent set of docs.  Use at your own risk.
+
 Response
 ```javascript
 [
@@ -98,6 +100,8 @@ Response
 ```
 
 ### **[allBookTickers([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)**
+
+This route appeared on an old API document, but does not appear in the most recent set of docs.  Use at your own risk.
 
 Response
 ```javascript
@@ -120,63 +124,19 @@ Response
 ]
 ```
 
-### **[ping([callback _function_])](https://www.binance.com/restapipub.html#user-content-test-connectivity)**
+### **[ping([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-connectivity)**
 
-Response
-```javascript
-{}
-```
+### **[time([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#check-server-time)**
 
-### **[time([callback _function_])](https://www.binance.com/restapipub.html#user-content-check-server-time)**
+### **[exchangeInfo([callback _funcion_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#exchange-information)**
 
-Response
-```javascript
-{ serverTime: 1513800453289 }
-```
+### **[depth(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#order-book)**
 
-### **[depth(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-order-book)**
+### **[trades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#recent-trades-list)**
 
-Query Parameters
+### **[historicalTrades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#old-trade-lookup-market_data)**
 
-| Name               | Type    | Details                    |
-|--------------------|---------|----------------------------|
-| symbol             | string  |                            |
-| limit *(optional)* | integer | Default and maximum of 100 |
-
-Response
-```javascript
-{
-    lastUpdateId: 52347642,
-    bids: [
-        [
-            '0.04838500', // Price
-            '0.18400000', // Quantity
-            [] // Ignored
-        ],
-        ...
-    ],
-    asks: [
-        [
-            '0.04843900',
-            '10.73400000',
-            []
-        ],
-        ...
-    ]
-}
-```
-
-### **[aggTrades(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-compressedaggregate-trades-list)**
-
-Query Parameters
-
-| Name                   | Type    | Details                                                           |
-|------------------------|---------|-------------------------------------------------------------------|
-| symbol                 | string  |                                                                   |
-| fromId *(optional)*    | long    | include to retrieve trades with ID >= fromId                      |
-| startTime *(optional)* | long    | Timestamp in ms, include to retrieve trade.timestamp >= startTime |
-| endTime *(optional)*   | long    | Timestamp in ms, include to retrieve trade.timestamp <= endTime   |
-| limit *(optional)*     | integer | Default and maximum of 500                                        |
+### **[aggTrades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#compressedaggregate-trades-list)**
 
 Response
 ```javascript
@@ -205,18 +165,7 @@ Response
 ]
 ```
 
-### **[klines(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-klinecandlesticks)**
-
-Query Parameters
-
-
-| Name                   | Type    | Description                                                            |
-|------------------------|---------|------------------------------------------------------------------------|
-| symbol                 | string  |                                                                        |
-| interval               | string  | Options: 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M |
-| startTime *(optional)* | long    | Timestamp in ms                                                        |
-| endTime *(optional)*   | long    | Timestamp in ms                                                        |
-| limit *(optional)*     | integer | Default and maximum of 500                                             |
+### **[klines(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#klinecandlestick-data)**
 
 Response
 ```javascript
@@ -253,385 +202,43 @@ Response
 ]
 ```
 
-### **[ticker24hr(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-24hr-ticker-price-change-statistics)**
+### **[ticker24hr(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#24hr-ticker-price-change-statistics)**
 
-Query Parameters
+### **[tickerPrice(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#symbol-price-ticker)**
 
-| Name   | Type   | Description |
-|--------|--------|-------------|
-| symbol | string |             |
+### **[bookTicker(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#symbol-order-book-ticker)**
 
-Response
-```javascript
-{
-    symbol: 'ETHBTC',
-    priceChange: '0.00177600',
-    priceChangePercent: '3.809',
-    weightedAvgPrice: '0.04668755',
-    prevClosePrice: '0.04662400',
-    lastPrice: '0.04840000',
-    lastQty: '4.91500000',
-    bidPrice: '0.04831400',
-    bidQty: '0.76500000',
-    askPrice: '0.04844200',
-    askQty: '7.13800000',
-    openPrice: '0.04662400',
-    highPrice: '0.04900000',
-    lowPrice: '0.04400000',
-    volume: '306627.07000000',
-    quoteVolume: '14315.66748465',
-    openTime: 1513716659596,
-    closeTime: 1513803059596,
-    firstId: 8168545,
-    lastId: 8523993,
-    count: 355449
-}
-```
-</details>
+### **[newOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#new-order--trade)**
 
-### **[newOrder(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-new-order--signed)**
+### **[testOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-new-order-trade)**
 
-Query Parameters
+### **[queryOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-order-user_data)**
 
-| Name                          | Type    | Description                                                        |
-|-------------------------------|---------|--------------------------------------------------------------------|
-| symbol                        | string  |                                                                    |
-| side                          | enum    | BUY, SELL                                                          |
-| type                          | enum    | LIMIT, MARKET                                                      |
-| timeInForce                   | enum    | GTC, IOC (Good till cancelled, Immediate or Cancel)                |
-| quantity                      | decimal |                                                                    |
-| price                         | decimal |                                                                    |
-| newClientOrderId *(optional)* | string  | A unique id for the order, will be generated if not sent           |
-| stopPrice *(optional)*        | decimal | Used with stop orders                                              |
-| icebergQty *(optional)*       | decimal | Used with iceberg orders                                           |
+### **[cancelOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-order-trade)**
 
-Response
-```javascript
-{
-    "symbol": "LTCBTC",
-    "orderId": 1,
-    "clientOrderId": "myOrder1",
-    "transactTime": 1499827319559
-}
-```
+### **[openOrders(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-open-orders-user_data)**
 
-### **[testOrder(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-test-new-order-signed)**
+### **[allOrders(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#all-orders-user_data)**
 
-Query Parameters
+### **[account([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-information-user_data)**
 
-| Name                          | Type    | Description                                                        |
-|-------------------------------|---------|--------------------------------------------------------------------|
-| symbol                        | string  |                                                                    |
-| side                          | enum    | BUY, SELL                                                          |
-| type                          | enum    | LIMIT, MARKET                                                      |
-| timeInForce                   | enum    | GTC, IOC (Good till cancelled, Immediate or Cancel)                |
-| quantity                      | decimal |                                                                    |
-| price                         | decimal |                                                                    |
-| newClientOrderId *(optional)* | string  | A unique id for the order, will be generated if not sent           |
-| stopPrice *(optional)*        | decimal | Used with stop orders                                              |
-| icebergQty *(optional)*       | decimal | Used with iceberg orders                                           |
+### **[myTrades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-trade-list-user_data)**
 
-Response
-```javascript
-{}
-```
+### **[withdraw(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#withdraw)**
 
-### **[queryOrder(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-query-order-signed)**
+### **[withdrawHistory(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#withdraw-history-user_data)**
 
-Query Parameters
+### **[depositHistory(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#deposit-history-user_data)**
 
-| Name                           | Type   | Description                                                        |
-|--------------------------------|--------|--------------------------------------------------------------------|
-| symbol                         | string |                                                                    |
-| orderId *(optional)*           | long   | If not present, origClientOrderId must be sent                     |
-| origClientOrderId *(optional)* | string | If not present, orderId must be sent                               |
+### **[depositAddress(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#deposit-address-user_data)**
 
-Response
-```javascript
-{
-    "symbol": "LTCBTC",
-    "orderId": 1,
-    "clientOrderId": "myOrder1",
-    "price": "0.1",
-    "origQty": "1.0",
-    "executedQty": "0.0",
-    "status": "NEW",
-    "timeInForce": "GTC",
-    "type": "LIMIT",
-    "side": "BUY",
-    "stopPrice": "0.0",
-    "icebergQty": "0.0",
-    "time": 1499827319559
-}
-```
+### **[accountStatus([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#account-status-user_data)**
 
-### **[cancelOrder(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-cancel-order-signed)**
+### **[startUserDataStream([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#start-user-data-stream-user_stream)**
 
-Query Parameters
+### **[keepAliveUserDataStream(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#keepalive-user-data-stream-user_stream)**
 
-| Name                           | Type   | Description                                                 |
-|--------------------------------|--------|-------------------------------------------------------------|
-| symbol                         | string |                                                             |
-| orderId *(optional)*           | long   | If not present, origClientOrderId must be sent              |
-| origClientOrderId *(optional)* | string | If not present, orderId must be sent                        |
-| newClientOrderId *(optional)*  | string | Used to uniquely identify this cancel, generated by default |
-
-Response
-```javascript
-{
-    "symbol": "LTCBTC",
-    "origClientOrderId": "myOrder1",
-    "orderId": 1,
-    "clientOrderId": "cancelMyOrder1"
-}
-```
-
-### **[openOrders(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-current-open-orders-signed)**
-
-Query Parameters
-
-| Name                           | Type   | Description |
-|--------------------------------|--------|-------------|
-| symbol                         | string |             |
-
-Response
-```javascript
-[
-    {
-        "symbol": "LTCBTC",
-        "orderId": 1,
-        "clientOrderId": "myOrder1",
-        "price": "0.1",
-        "origQty": "1.0",
-        "executedQty": "0.0",
-        "status": "NEW",
-        "timeInForce": "GTC",
-        "type": "LIMIT",
-        "side": "BUY",
-        "stopPrice": "0.0",
-        "icebergQty": "0.0",
-        "time": 1499827319559
-    },
-    ...
-]
-```
-
-### **[allOrders(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-all-orders-signed)**
-
-Query Parameters
-
-| Name                 | Type    | Description                                                                    |
-|----------------------|---------|--------------------------------------------------------------------------------|
-| symbol               | string  |                                                                                |
-| orderId *(optional)* | long    | If set, retrieve orders with ID >= orderId, otherwise most recent are returned |
-| limit *(optional)*   | integer | Default and maximum of 500                                                     |
-
-Response
-```javascript
-[
-    {
-        "symbol": "LTCBTC",
-        "orderId": 1,
-        "clientOrderId": "myOrder1",
-        "price": "0.1",
-        "origQty": "1.0",
-        "executedQty": "0.0",
-        "status": "NEW",
-        "timeInForce": "GTC",
-        "type": "LIMIT",
-        "side": "BUY",
-        "stopPrice": "0.0",
-        "icebergQty": "0.0",
-        "time": 1499827319559
-    },
-    ...
-]
-```
-
-### **[account([callback _function_])](https://www.binance.com/restapipub.html#user-content-account-information-signed)**
-
-Response
-```javascript
-{
-    "makerCommission": 15,
-    "takerCommission": 15,
-    "buyerCommission": 0,
-    "sellerCommission": 0,
-    "canTrade": true,
-    "canWithdraw": true,
-    "canDeposit": true,
-    "updateTime": 1502765854332,
-    "balances": [
-        {
-            "asset": "BTC",
-            "free": "4723846.89208129",
-            "locked": "0.00000000"
-        },
-        ...
-    ]
-}
-```
-
-### **[myTrades(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)**
-
-Query Parameters
-
-| Name                | Type    | Description                                                     |
-|---------------------|---------|-----------------------------------------------------------------|
-| symbol              | string  |                                                                 |
-| fromId *(optional)* | long    | TradeId to fetch from.  Retrieves most recent trades by default |
-| limit *(optional)*  | integer | Default and maximum of 500                                      |
-
-Response
-```javascript
-[
-    {
-        id: 1068299,
-        orderId: 5496403,
-        price: '0.00050431',
-        qty: '30.00000000',
-        commission: '0.00001513',
-        commissionAsset: 'BTC',
-        time: 1513275761857,
-        isBuyer: false,
-        isMaker: false,
-        isBestMatch: true
-    },
-    ...
-]
-```
-
-### **[withdraw(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)**
-
-Query Parameters
-
-| Name                    | Type    | Description                                                  |
-|-------------------------|---------|--------------------------------------------------------------|
-| asset                   | string  |                                                              |
-| address                 | string  |                                                              |
-| addressTag *(optional)* | string  | Secondary address identifier for coins like XRP, XMR, etc... |
-| amount                  | decimal |                                                              |
-| name *(optional)*       | string  | Description of the address                                   |
-
-Response
-```javascript
-{
-    "msg": "success",
-    "success": true,
-    "id": "7213fea8e94b4a5593d507237e5a555b"
-}
-```
-
-### **[withdrawHistory(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)**
-
-Query Parameters
-
-| Name                   | Type    | Description                                                                                                               |
-|------------------------|---------|---------------------------------------------------------------------------------------------------------------------------|
-| asset *(optional)*     | string  |                                                                                                                           |
-| status *(optional)*    | integer | { 0: 'Email Sent', 1: 'Cancelled', 2: 'Awaiting Approval', 3: 'Rejected', 4: 'Processing', 5: 'Failure', 6: 'Completed' } |
-| startTime *(optional)* | long    | Timestamp in ms                                                                                                           |
-| endTime *(optional)*   | long    | Timestamp in ms                                                                                                           |
-
-Response
-```javascript
-{
-    "withdrawList": [
-        {
-            "id": "7213fea8e94b4a5593d507237e5a555b"
-            "amount": 1,
-            "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
-            "asset": "ETH",
-            "txId": "0xdf33b22bdb2b28b1f75ccd201a4a4m6e7g83jy5fc5d5a9d1340961598cfcb0a1",
-            "applyTime": 1508198532000,
-            "status": 4
-        },
-        ...
-    ],
-    "success": true
-}
-```
-
-### **[depositHistory(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)**
-
-Query Parameters
-
-| Name                   | Type    | Description                    |
-|------------------------|---------|--------------------------------|
-| asset *(optional)*     | string  |                                |
-| status *(optional)*    | integer | { 0: 'Pending', 1: 'Success' } |
-| startTime *(optional)* | long    | Timestamp in ms                |
-| endTime *(optional)*   | long    | Timestamp in ms                |
-
-Response
-```javascript
-{
-    "depositList": [
-        {
-            "insertTime": 1508298532000,
-            "amount": 1000,
-            "asset": "XMR",
-            "address": "463tWEBn5XZJSxLU34r6g7h8jtxuNcDbjLSjkn3XAXHCbLrTTErJrBWYgHJQyrCwkNgYvyV3z8zctJLPCZy24jvb3NiTcTJ",
-            "addressTag": "342341222",
-            "txId": "b3c6219639c8ae3f9cf010cdc24fw7f7yt8j1e063f9b4bd1a05cb44c4b6e2509",
-            "status": 1
-        },
-        ...
-    ],
-    "success": true
-}
-```
-
-### **[depositAddress(query _object|string_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-account-trade-list-signed)**
-
-Query Parameters
-
-| Name                    | Type    | Description |
-|-------------------------|---------|-------------|
-| asset                   | string  |             |
-
-Response
-```javascript
-{
-    "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
-    "success": true,
-    "addressTag": "1231212",
-    "asset": "BNB"
-}
-```
-
-### **[startUserDataStream([callback _function_])](https://www.binance.com/restapipub.html#user-content-start-user-data-stream-api-key)**
-
-Response
-```javascript
-{ "listenKey": "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1" }
-```
-
-### **[keepAliveUserDataStream(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-keepalive-user-data-stream-api-key)**
-
-Query Parameters
-
-| Name                    | Type    | Description |
-|-------------------------|---------|-------------|
-| listenKey               | string  |             |
-
-Response
-```javascript
-{}
-```
-
-### **[closeUserDataStream(query _object_, [callback _function_])](https://www.binance.com/restapipub.html#user-content-close-user-data-stream-api-key)**
-
-Query Parameters
-
-| Name                    | Type    | Description |
-|-------------------------|---------|-------------|
-| listenKey               | string  |             |
-
-Response
-```javascript
-{}
-```
+### **[closeUserDataStream(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#close-user-data-stream-user_stream)**
 
 # WebSocket APIs
 
@@ -699,11 +306,11 @@ Response
 }
 ```
 
-### **[onAggTrade(symbol, eventHandler)](https://www.binance.com/restapipub.html#trades-wss-endpoint)**
+### **[onAggTrade(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#aggregate-trade-streams)**
 
 Returns the websocket, an instance of https://www.npmjs.com/package/ws
 
-Response
+Beautified Response
 ```javascript
 {
     eventType: 'aggTrade',
