@@ -33,7 +33,9 @@
   "author": "Aaron Garvey",
   "contributors": [
     "Clifford Roche <clifford.roche@gmail.com> (http://www.cliffordroche.ca)",
-    "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)"
+    "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)",
+    "Andrey Vorobyov <vorandrew@gmail.com>",
+    "Gavy Aggarwal (http://gavyaggarwal.com/)"
   ],
   "license": "MIT",
   "devDependencies": {
