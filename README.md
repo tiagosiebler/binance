@@ -52,7 +52,7 @@ binanceRest.allOrders('BNBBTC', (err, data) => {
  * the payload of each message received.  Each call to onXXXX returns the instance of the websocket
  * client if you want direct access(https://www.npmjs.com/package/ws).
  */
-const binanceWS = new api.BinanceWS();
+const binanceWS = new api.BinanceWS(true); // Argument specifies whether the responses should be beautified, defaults to true
 
 binanceWS.onDepthUpdate('BNBBTC', (data) => {
     console.log(data);
@@ -65,6 +65,36 @@ binanceWS.onAggTrade('BNBBTC', (data) => {
 binanceWS.onKline('BNBBTC', '1m', (data) => {
     console.log(data);
 });
+
+/*
+ * You can use one websocket for multiple streams.  There are also helpers for the stream names, but the
+ * documentation has all of the stream names should you want to specify them explicitly.
+ */
+const streams = binanceWS.streams;
+
+binanceWS.onCombinedStream([
+        streams.depth('BNBBTC'),
+        streams.kline('BNBBTC', '5m'),
+        streams.trade('BNBBTC'),
+        streams.ticker('BNBBTC')
+    ],
+    (streamEvent) => {
+        switch(streamEvent.stream) {
+            case streams.depth('BNBBTC'):
+                console.log('Depth event, update order book\n', streamEvent.data);
+                break;
+            case streams.kline('BNBBTC', '5m'):
+                console.log('Kline event, update 5m candle display\n', streamEvent.data);
+                break;
+            case streams.trade('BNBBTC'):
+                console.log('Trade event, update trade history\n', streamEvent.data);
+                break;
+            case streams.ticker('BNBBTC'):
+                console.log('Ticker event, update market stats\n', streamEvent.data);
+                break;
+        }
+    }
+);
 
 /*
  * onUserData requires an instance of BinanceRest in order to make the necessary startUserDataStream and
@@ -242,9 +272,11 @@ Response
 
 # WebSocket APIs
 
-### **[onDepthUpdate(symbol, eventHandler)](https://www.binance.com/restapipub.html#depth-wss-endpoint)**
+### **[onDepthUpdate(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#diff-depth-stream)**
 
-Function call returns the websocket, an instance of https://www.npmjs.com/package/ws
+Order book price and quantity depth updates used to locally manage an order book, pushed every second.  Function call returns the websocket, an instance of https://www.npmjs.com/package/ws
+
+Stream Name: *\<symbol\>@depth*
 
 Response
 ```javascript
@@ -252,8 +284,8 @@ Response
     eventType: 'depthUpdate',
     eventTime: 1513807798461,
     symbol: 'BNBBTC',
-    U: 17962354,
-    updateId: 17962357, // syncs with updateId on depth route
+    firstUpdateId: 17962354,
+    lastUpdateId: 17962357, // syncs with updateId on depth route
     bidDepthDelta: [
         {
             price: '0.00031239',
@@ -273,11 +305,19 @@ Response
 }
 ```
 
-### **[onKline(symbol, interval, eventHandler)](https://www.binance.com/restapipub.html#kline-wss-endpoint)**
+### **[onDepthLevelUpdate(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#partial-book-depth-streams)**
 
-Returns the websocket, an instance of https://www.npmjs.com/package/ws
+Top \<levels\> bids and asks, pushed every second. Valid \<levels\> are 5, 10, or 20.  Function call returns the websocket, an instance of https://www.npmjs.com/package/ws.  See official docs for [response](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#partial-book-depth-streams).
 
-Response
+Stream Name: *\<symbol\>@depth\<levels\>*
+
+### **[onKline(symbol, interval, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#klinecandlestick-streams)**
+
+Pushes updates to the current klines/candlesticks every second.  Valid intervals are described [here](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#klinecandlestick-streams).  Returns the websocket, an instance of https://www.npmjs.com/package/ws
+
+Stream Name: *\<symbol\>@kline_\<interval\>*
+
+Beautified Response
 ```javascript
 {
     eventType: 'kline',
@@ -308,7 +348,9 @@ Response
 
 ### **[onAggTrade(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#aggregate-trade-streams)**
 
-Returns the websocket, an instance of https://www.npmjs.com/package/ws
+Pushes trade information that is aggregated for a single taker order.  Returns the websocket, an instance of https://www.npmjs.com/package/ws
+
+Stream Name: *\<symbol\>@aggTrade*
 
 Beautified Response
 ```javascript
@@ -327,7 +369,146 @@ Beautified Response
 }
 ```
 
-### **[onUserData(binanceRest, eventHandler, [interval])](https://www.binance.com/restapipub.html#user-wss-endpoint)**
+### **[onTrade(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#trade-streams)**
+
+Pushes raw trade information, with each trade having a unique buyer and seller.  Returns the websocket, an instance of https://www.npmjs.com/package/ws
+
+Stream Name: *\<symbol\>@trade*
+
+Beautified Response
+```javascript
+{
+    eventType: 'trade',
+    eventTime: 1515266751986,
+    symbol: 'BNBBTC',
+    tradeId: 4684001,
+    price: '0.00121490',
+    quantity: '25.00000000',
+    buyerOrderId: 14860825,
+    sellerOrderId: 14860815,
+    time: 1515266751974,
+    maker: false,
+    ignored: true
+}
+```
+
+### **[onTicker(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#individual-symbol-ticker-streams)**
+
+24 hour ticker stats for a single symbol pushed every second.  Returns the websocket, an instance of https://www.npmjs.com/package/ws
+
+Stream Name: *\<symbol\>@ticker*
+
+Beautified Response
+```javascript
+{ 
+    eventType: '24hrTicker',
+    eventTime: 1515266555314,
+    symbol: 'BNBBTC',
+    priceChange: '0.00036700',
+    priceChangePercent: '44.111',
+    weightedAveragePrice: '0.00102603',
+    previousClose: '0.00083200',
+    currentClose: '0.00119900',
+    closeQuantity: '256.06000000',
+    bestBid: '0.00119900',
+    bestBidQuantity: '479.82000000',
+    bestAskPrice: '0.00120000',
+    bestAskQuantity: '93.56000000',
+    open: '0.00083200',
+    high: '0.00134950',
+    low: '0.00080000',
+    baseAssetVolume: '18940498.53000000',
+    quoteAssetVolume: '19433.56011157',
+    openTime: 1515180155234,
+    closeTime: 1515266555234,
+    firstTradeId: 4399671,
+    lastTradeId: 4682727,
+    trades: 283057
+}
+```
+
+### **[onAllTickers(eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#all-market-tickers-stream)**
+
+24hr Ticker statistics for all symbols in an array, pushed every second.  Returns the websocket, an instance of https://www.npmjs.com/package/ws
+
+Stream Name: *!ticker@arr*
+
+Beautified Response
+```javascript
+{ 
+    eventType: '24hrTicker',
+    eventTime: 1515266555314,
+    symbol: 'BNBBTC',
+    priceChange: '0.00036700',
+    priceChangePercent: '44.111',
+    weightedAveragePrice: '0.00102603',
+    previousClose: '0.00083200',
+    currentClose: '0.00119900',
+    closeQuantity: '256.06000000',
+    bestBid: '0.00119900',
+    bestBidQuantity: '479.82000000',
+    bestAskPrice: '0.00120000',
+    bestAskQuantity: '93.56000000',
+    open: '0.00083200',
+    high: '0.00134950',
+    low: '0.00080000',
+    baseAssetVolume: '18940498.53000000',
+    quoteAssetVolume: '19433.56011157',
+    openTime: 1515180155234,
+    closeTime: 1515266555234,
+    firstTradeId: 4399671,
+    lastTradeId: 4682727,
+    trades: 283057
+}
+```
+
+### **onCombinedStream(streams, eventHandler)**
+
+*streams* should be an array of stream names.  You specify these explicitly, or you can use some helper functions to generate them:
+
+```javascript
+const binanceWS = new api.BinanceWS();
+const streams = binanceWS.streams;
+
+binanceWS.onCombinedStream(
+    [
+        streams.depth('BNBBTC'),
+        streams.depthLevel('BNBBTC', 5),
+        streams.kline('BNBBTC', '5m'),
+        streams.aggTrade('BNBBTC'),
+        streams.trade('BNBBTC'),
+        streams.ticker('BNBBTC'),
+        streams.allTickers()
+    ],
+    (streamEvent) => {
+        switch(streamEvent.stream) {
+            case streams.depth('BNBBTC'):
+                console.log('Depth Event', streamEvent.data);
+                break;
+            case streams.depthLevel('BNBBTC', 5):
+                console.log('Depth Level Event', streamEvent.data);
+                break;
+            case streams.kline('BNBBTC', '5m'):
+                console.log('Kline Event', streamEvent.data);
+                break;
+            case streams.aggTrade('BNBBTC'):
+                console.log('AggTrade Event', streamEvent.data);
+                break;
+            case streams.trade('BNBBTC'):
+                console.log('Trade Event', streamEvent.data);
+                break;
+            case streams.ticker('BNBBTC'):
+                console.log('BNBBTC Ticker Event', streamEvent.data);
+                break;
+            case streams.allTickers():
+                console.log('Ticker Event', streamEvent.data);
+                break;
+        }
+    }
+);
+```
+
+### **[onUserData(binanceRest, eventHandler, [interval])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#user-data-streams-for-binance-2017-12-01)**
 
 Will return the websocket via promise, **interval** defaults to 60000, is the amount of time between calls made to keep the user stream alive, **binanceRest** should be an instance of BinanceRest that will be used to get the listenKey and keep the stream alive
 
