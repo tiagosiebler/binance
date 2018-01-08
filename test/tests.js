@@ -857,7 +857,6 @@ describe("BinanceRest", () => {
         it('should make deposit history requests and handle the response', () => {
             mockRequest.setHandler('wapi/v3/depositHistory.html', (options, callback) => {
                 expect(options).to.deep.equal({
-                    method: 'GET',
                     headers: {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
@@ -888,7 +887,6 @@ describe("BinanceRest", () => {
         it('should make withdrawal history requests and handle the response', () => {
             mockRequest.setHandler('wapi/v3/withdrawHistory.html', (options, callback) => {
                 expect(options).to.deep.equal({
-                    method: 'GET',
                     headers: {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
@@ -921,7 +919,6 @@ describe("BinanceRest", () => {
         it('should make deposit address requests and handle the response', () => {
             mockRequest.setHandler('wapi/v3/depositAddress.html', (options, callback) => {
                 expect(options).to.deep.equal({
-                    method: 'GET',
                     headers: {
                         'X-MBX-APIKEY': 'super_secret_api_key'
                     },
