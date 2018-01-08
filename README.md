@@ -4,7 +4,7 @@
 
 # Binance
 A wrapper for the Binance REST and WebSocket APIs.  Uses both promises and callbacks, and beautifies the
-binance API responses that normally use lots of one letter property names. For more information on the API and parameters for requests visit https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md
+binance API responses that normally use lots of one letter property names. For more information on the API and parameters for requests visit https://github.com/binance-exchange/binance-official-api-docs
 
 # Usage/Example
 
@@ -168,7 +168,7 @@ Response
 
 ### **[aggTrades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#compressedaggregate-trades-list)**
 
-Response
+Beautified Response
 ```javascript
 [
     {
@@ -197,7 +197,7 @@ Response
 
 ### **[klines(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#klinecandlestick-data)**
 
-Response
+Beautified Response
 ```javascript
 [
     {
@@ -524,10 +524,10 @@ Responses
     cancelType: 'GTC',
     quantity: '10.00000000',
     price: '0.00030120',
-    P: '0.00000000',
-    F: '0.00000000',
+    stopPrice: '0.00000000',
+    icebergQuantity: '0.00000000',
     g: -1,
-    C: 'null',
+    originalClientOrderId: 'null',
     executionType: 'TRADE',
     orderStatus: 'FILLED',
     rejectReason: 'NONE',
@@ -541,8 +541,7 @@ Responses
     tradeId: 3023119,
     I: 21799081,
     w: false,
-    maker: true,
-    M: true
+    maker: true
 }
 ```
 ```javascript
@@ -556,6 +555,7 @@ Responses
     canTrade: true,
     canWithdraw: true,
     canDeposit: true,
+    lastUpdateTime: 1499405658848,
     balances: [
         {
             asset: 'BTC',
