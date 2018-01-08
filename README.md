@@ -111,62 +111,29 @@ binanceWS.onUserData(binanceRest, (data) => {
 
 # REST APIs
 
-### **[allPrices([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)**
-
-This route appeared on an old API document, but does not appear in the most recent set of docs.  Use at your own risk.
-
-Response
-```javascript
-[
-    {
-        symbol: 'ETHBTC',
-        price: '0.04789700'
-    },{
-        symbol: 'LTCBTC',
-        price: '0.01885200'
-    },
-    ...
-]
-```
-
-### **[allBookTickers([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)**
-
-This route appeared on an old API document, but does not appear in the most recent set of docs.  Use at your own risk.
-
-Response
-```javascript
-[
-    {
-        symbol: 'ETHBTC',
-        bidPrice: '0.04790000',
-        bidQty: '15.00000000',
-        askPrice: '0.04801200',
-        askQty: '13.86000000'
-    },
-    {
-        symbol: 'LTCBTC',
-        bidPrice: '0.01885200',
-        bidQty: '3.13000000',
-        askPrice: '0.01889000',
-        askQty: '0.07000000'
-    },
-    ...
-]
-```
+Example responses are only included for routes where the response is beautified, and therefore different than the official docs.  Click on any function call to see the related route information in the official documentation.
 
 ### **[ping([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-connectivity)**
+For testing connectivity.
 
 ### **[time([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#check-server-time)**
+Retrieves the current server time.
 
 ### **[exchangeInfo([callback _funcion_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#exchange-information)**
+Retrieves the current exchange trading rules and symbol information.  Includes rate limits for request and orders,
+as well as restrictions placed on various values when ordering.
 
 ### **[depth(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#order-book)**
+Retrieves the order book for a given symbol.
 
 ### **[trades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#recent-trades-list)**
+Retrieves the most recent trades for a given symbol(up to 500).
 
 ### **[historicalTrades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#old-trade-lookup-market_data)**
+Retrieves historical trades by tradeId.  If no tradeId is specified the most recent trades are returned.
 
 ### **[aggTrades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#compressedaggregate-trades-list)**
+Get compressed, aggregate trades. Trades that fill at the same time, from the same order, with the same price will have the quantity aggregated.
 
 Beautified Response
 ```javascript
@@ -196,6 +163,7 @@ Beautified Response
 ```
 
 ### **[klines(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#klinecandlestick-data)**
+Retrieve kline/candlestick bars for a symbol. Klines are uniquely identified by their open time.
 
 Beautified Response
 ```javascript
@@ -233,42 +201,68 @@ Beautified Response
 ```
 
 ### **[ticker24hr(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#24hr-ticker-price-change-statistics)**
+Retrieve 24 hour price change statistics.
 
 ### **[tickerPrice(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#symbol-price-ticker)**
+Retrieve latest price for a symbol or symbols.
 
 ### **[bookTicker(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#symbol-order-book-ticker)**
+Retrieve best price/qty on the order book for a symbol or symbols.
 
 ### **[newOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#new-order--trade)**
+Places a new order.
 
 ### **[testOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-new-order-trade)**
+Places a test order.
 
 ### **[queryOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-order-user_data)**
+Check an order's status.
 
 ### **[cancelOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-order-trade)**
+Cancel an open order.
 
 ### **[openOrders(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-open-orders-user_data)**
+Get all open orders for a symbol, or all symbols. Careful when accessing this with no symbol as the number of requests counted against the rate limiter is equal to the number of symbols currently trading on the exchange.
 
 ### **[allOrders(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#all-orders-user_data)**
+Retrieve all orders on an account, whether active, cancelled, or filled.
 
 ### **[account([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-information-user_data)**
+Retrieve current account information including commision rates, trading permissions, and free/locked balances.
 
 ### **[myTrades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-trade-list-user_data)**
+Retrieve all trades made by an account.
 
 ### **[withdraw(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#withdraw)**
+Make a withdrawal.
 
 ### **[withdrawHistory(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#withdraw-history-user_data)**
+Retrieve withdrawal history for an account for a specific asset, or all assets.  Includes status.
 
 ### **[depositHistory(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#deposit-history-user_data)**
+Retrieve deposit history for an account for a specific asset, or all assets.  Includes status.
 
 ### **[depositAddress(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#deposit-address-user_data)**
+Generate and retrieve a deposit address for a given asset.
 
 ### **[accountStatus([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#account-status-user_data)**
+Retrieve account status.
 
 ### **[startUserDataStream([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#start-user-data-stream-user_stream)**
+For use in conjunction with the user data websocket.  Returns a listen key that must be specified.   [`onUserData()`](#onuserdatabinancerest-eventhandler-interval) will handle this for you when you pass it an instance of `BinanceRest`.
 
 ### **[keepAliveUserDataStream(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#keepalive-user-data-stream-user_stream)**
+The keep alive request needed to keep a user data websocket open.  Will be automatically sent at a specified interval if using
+[`onUserData()`](#onuserdatabinancerest-eventhandler-interval).
 
 ### **[closeUserDataStream(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#close-user-data-stream-user_stream)**
+Closes the user data stream.
+
+### **[allPrices([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)**
+Returns the latest price for all symbols.  This route appears on the old API document, but does not appear in the most recent set of docs.  You should probably use `tickerPrice()` instead as it utilizes a route with a newer version.
+
+### **[allBookTickers([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)**
+Returns the best price/qty on the order book for all symbols.  This route appears on an old API document, but does not appear in the most recent set of docs.  You should probably use `bookTicker()` instead as it utilizes a route with a newer version.
 
 # WebSocket APIs
 
@@ -510,7 +504,7 @@ binanceWS.onCombinedStream(
 
 ### **[onUserData(binanceRest, eventHandler, [interval])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#user-data-streams-for-binance-2017-12-01)**
 
-Will return the websocket via promise, **interval** defaults to 60000, is the amount of time between calls made to keep the user stream alive, **binanceRest** should be an instance of BinanceRest that will be used to get the listenKey and keep the stream alive
+Will return the websocket via promise, `interval` defaults to 60000(ms), and is the amount of time between calls made to keep the user stream alive. `binanceRest` should be an instance of `BinanceRest` that will be used to get the `listenKey` and keep the stream alive.
 
 Responses
 ```javascript
@@ -526,7 +520,7 @@ Responses
     price: '0.00030120',
     stopPrice: '0.00000000',
     icebergQuantity: '0.00000000',
-    g: -1,
+    g: -1, // to be ignored
     originalClientOrderId: 'null',
     executionType: 'TRADE',
     orderStatus: 'FILLED',
@@ -539,8 +533,8 @@ Responses
     commissionAsset: 'BTC',
     tradeTime: 1513808673912,
     tradeId: 3023119,
-    I: 21799081,
-    w: false,
+    I: 21799081, // ignore
+    w: false, // ignore
     maker: true
 }
 ```
