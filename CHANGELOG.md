@@ -1,7 +1,14 @@
 # Changelog
 
+## 1.2.0
+- Remove example responses from README for cases where they match the new official docs
+- Update README links to point to new official docs on github
+- Fix onUserData so the keep alive interval requests function properly
+- Use new base url specified in new official docs
+- Add new REST and WebSocket API functionality to include all that's specified in the newest set of documentation
+
 ## 1.1.2
-- Add lots of example responses and query paramter details to the README
+- Add lots of example responses and query parameter details to the README
 - Fix onUserData where the promise wasn't being returned
 - Add travis CI and coveralls
 
@@ -23,10 +30,10 @@
 - Update tests for fixes
 
 ## 1.0.2
-Fix readme, remove extraneous file
+- Fix readme, remove extraneous file
 
 ## 1.0.1
-Fix automatic timestamp issue
+- Fix automatic timestamp issue
 
 ## 1.0.0
-First release
+- First release
