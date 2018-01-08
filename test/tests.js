@@ -348,6 +348,87 @@ describe("BinanceRest", () => {
                     });
                 });
         });
+
+        it('should make trades requests and handle the response', () => {
+            mockRequest.setHandler('api/v1/trades', (options, callback) => {
+                expect(options).to.deep.equal({
+                    timeout: 15000,
+                    url: 'https://api.binance.com/api/v1/trades?symbol=ETHBTC'
+                });
+                callback(null, {
+                    statusCode: 200
+                }, '[{"id":17843116,"price":"0.07625700","qty":"0.08700000","time":1515439245305,"isBuyerMaker":false,"isBestMatch":true},{"id":17843117,"price":"0.07625700","qty":"0.13600000","time":1515439245318,"isBuyerMaker":false,"isBestMatch":true},{"id":17843118,"price":"0.07614300","qty":"0.43200000","time":1515439245553,"isBuyerMaker":false,"isBestMatch":true}]');
+            });
+            return binance.trades('ETHBTC')
+                .then((response) => {
+                    expect(response).to.deep.equal([
+                        {
+                            id: 17843116,       
+                            price: '0.07625700',
+                            qty: '0.08700000',  
+                            time: 1515439245305,
+                            isBuyerMaker: false,
+                            isBestMatch: true
+                        }, {
+                            id: 17843117,       
+                            price: '0.07625700',
+                            qty: '0.13600000',  
+                            time: 1515439245318,
+                            isBuyerMaker: false,
+                            isBestMatch: true
+                        }, {
+                            id: 17843118,       
+                            price: '0.07614300',
+                            qty: '0.43200000',  
+                            time: 1515439245553,
+                            isBuyerMaker: false,
+                            isBestMatch: true
+                        }
+                    ]);
+                });
+        });
+
+        it('should make historical trades requests and handle the response', () => {
+            mockRequest.setHandler('api/v1/historicalTrades', (options, callback) => {
+                expect(options).to.deep.equal({
+                    headers: {
+                        'X-MBX-APIKEY': 'super_secret_api_key'
+                    },
+                    timeout: 15000,
+                    url: 'https://api.binance.com/api/v1/historicalTrades?symbol=ETHBTC'
+                });
+                callback(null, {
+                    statusCode: 200
+                }, '[{"id":17851860,"price":"0.07600400","qty":"0.11000000","time":1515440470089,"isBuyerMaker":true,"isBestMatch":true},{"id":17851861,"price":"0.07607700","qty":"0.06600000","time":1515440470158,"isBuyerMaker":false,"isBestMatch":true},{"id":17851862,"price":"0.07607700","qty":"0.32400000","time":1515440470158,"isBuyerMaker":false,"isBestMatch":true}]');
+            });
+            return binance.historicalTrades('ETHBTC')
+                .then((response) => {
+                    expect(response).to.deep.equal([
+                        {
+                            id: 17851860,
+                            price: '0.07600400',
+                            qty: '0.11000000',
+                            time: 1515440470089,
+                            isBuyerMaker: true,
+                            isBestMatch: true
+                        }, {
+                            id: 17851861,
+                            price: '0.07607700',
+                            qty: '0.06600000',
+                            time: 1515440470158,
+                            isBuyerMaker: false,
+                            isBestMatch: true
+                        }, {
+                            id: 17851862,
+                            price: '0.07607700',
+                            qty: '0.32400000',
+                            time: 1515440470158,
+                            isBuyerMaker: false,
+                            isBestMatch: true
+                        }
+                    ]);
+                });
+        });
     
         it('should make aggregated trade requests and handle the response', () => {
             mockRequest.setHandler('api/v1/aggTrades', (options, callback) => {
@@ -413,6 +494,119 @@ describe("BinanceRest", () => {
                             timestamp :1503211750709
                         }
                     ]);
+                });
+        });
+
+        it('should make exchangeInfo requests and handle the response', () => {
+            mockRequest.setHandler('api/v1/exchangeInfo', (options, callback) => {
+                expect(options).to.deep.equal({
+                    timeout: 15000,
+                    url: 'https://api.binance.com/api/v1/exchangeInfo'
+                });
+                callback(null, {
+                    statusCode: 200
+                }, '{"timezone":"UTC","serverTime":1515441151322,"rateLimits":[{"rateLimitType":"REQUESTS","interval":"MINUTE","limit":1200},{"rateLimitType":"ORDERS","interval":"SECOND","limit":10},{"rateLimitType":"ORDERS","interval":"DAY","limit":100000}],"exchangeFilters":[],"symbols":[{"symbol":"ETHBTC","status":"TRADING","baseAsset":"ETH","baseAssetPrecision":8,"quoteAsset":"BTC","quotePrecision":8,"orderTypes":["LIMIT","LIMIT_MAKER","MARKET","STOP_LOSS_LIMIT","TAKE_PROFIT_LIMIT"],"icebergAllowed":true,"filters":[{"filterType":"PRICE_FILTER","minPrice":"0.00000100","maxPrice":"100000.00000000","tickSize":"0.00000100"},{"filterType":"LOT_SIZE","minQty":"0.00100000","maxQty":"100000.00000000","stepSize":"0.00100000"},{"filterType":"MIN_NOTIONAL","minNotional":"0.00100000"}]},{"symbol":"LTCBTC","status":"TRADING","baseAsset":"LTC","baseAssetPrecision":8,"quoteAsset":"BTC","quotePrecision":8,"orderTypes":["LIMIT","LIMIT_MAKER","MARKET","STOP_LOSS_LIMIT","TAKE_PROFIT_LIMIT"],"icebergAllowed":true,"filters":[{"filterType":"PRICE_FILTER","minPrice":"0.00000100","maxPrice":"100000.00000000","tickSize":"0.00000100"},{"filterType":"LOT_SIZE","minQty":"0.00100000","maxQty":"100000.00000000","stepSize":"0.00100000"},{"filterType":"MIN_NOTIONAL","minNotional":"0.00100000"}]},{"symbol":"BNBBTC","status":"TRADING","baseAsset":"BNB","baseAssetPrecision":8,"quoteAsset":"BTC","quotePrecision":8,"orderTypes":["LIMIT","LIMIT_MAKER","MARKET","STOP_LOSS_LIMIT","TAKE_PROFIT_LIMIT"],"icebergAllowed":true,"filters":[{"filterType":"PRICE_FILTER","minPrice":"0.00000100","maxPrice":"100000.00000000","tickSize":"0.00000100"},{"filterType":"LOT_SIZE","minQty":"0.00100000","maxQty":"100000.00000000","stepSize":"0.00100000"},{"filterType":"MIN_NOTIONAL","minNotional":"0.00100000"}]}]}');
+            });
+            return binance.exchangeInfo()
+                .then((response) => {
+                    expect(response).to.deep.equal({
+                        timezone: 'UTC',
+                        serverTime: 1515441151322,
+                        rateLimits: [
+                            {
+                                rateLimitType: 'REQUESTS',
+                                interval: 'MINUTE',
+                                limit: 1200
+                            }, {
+                                rateLimitType: 'ORDERS',
+                                interval: 'SECOND',
+                                limit: 10
+                            }, {
+                                rateLimitType: 'ORDERS',
+                                interval: 'DAY',
+                                limit: 100000
+                            }
+                        ],
+                        exchangeFilters: [],
+                        symbols: [
+                            {
+                                symbol: 'ETHBTC',
+                                status: 'TRADING',
+                                baseAsset: 'ETH',
+                                baseAssetPrecision: 8,
+                                quoteAsset: 'BTC',
+                                quotePrecision: 8,
+                                orderTypes: ["LIMIT","LIMIT_MAKER","MARKET","STOP_LOSS_LIMIT","TAKE_PROFIT_LIMIT"],
+                                icebergAllowed: true,
+                                filters: [
+                                    {
+                                        filterType: "PRICE_FILTER",
+                                        minPrice: "0.00000100",
+                                        maxPrice: "100000.00000000",
+                                        tickSize: "0.00000100"
+                                    }, {
+                                        filterType: "LOT_SIZE",
+                                        minQty: "0.00100000",
+                                        maxQty: "100000.00000000",
+                                        stepSize: "0.00100000"
+                                    }, {
+                                        filterType: "MIN_NOTIONAL", 
+                                        minNotional: "0.00100000"
+                                    }
+                                ]
+                            }, {
+                                symbol: 'LTCBTC',
+                                status: 'TRADING',
+                                baseAsset: 'LTC',
+                                baseAssetPrecision: 8,
+                                quoteAsset: 'BTC',
+                                quotePrecision: 8,
+                                orderTypes: ["LIMIT","LIMIT_MAKER","MARKET","STOP_LOSS_LIMIT","TAKE_PROFIT_LIMIT"],
+                                icebergAllowed: true,
+                                filters: [
+                                    {
+                                        filterType: "PRICE_FILTER",
+                                        minPrice: "0.00000100",
+                                        maxPrice: "100000.00000000",
+                                        tickSize: "0.00000100"
+                                    }, {
+                                        filterType: "LOT_SIZE",
+                                        minQty: "0.00100000",
+                                        maxQty: "100000.00000000",
+                                        stepSize: "0.00100000"
+                                    }, {
+                                        filterType: "MIN_NOTIONAL", 
+                                        minNotional: "0.00100000"
+                                    }
+                                ]
+                            }, {
+                                symbol: 'BNBBTC',
+                                status: 'TRADING',
+                                baseAsset: 'BNB',
+                                baseAssetPrecision: 8,
+                                quoteAsset: 'BTC',
+                                quotePrecision: 8,
+                                orderTypes: ["LIMIT","LIMIT_MAKER","MARKET","STOP_LOSS_LIMIT","TAKE_PROFIT_LIMIT"],
+                                icebergAllowed: true,
+                                filters: [
+                                    {
+                                        filterType: "PRICE_FILTER",
+                                        minPrice: "0.00000100",
+                                        maxPrice: "100000.00000000",
+                                        tickSize: "0.00000100"
+                                    }, {
+                                        filterType: "LOT_SIZE",
+                                        minQty: "0.00100000",
+                                        maxQty: "100000.00000000",
+                                        stepSize: "0.00100000"
+                                    }, {
+                                        filterType: "MIN_NOTIONAL", 
+                                        minNotional: "0.00100000"
+                                    }
+                                ]
+                            }
+                        ]
+                    });
                 });
         });
     
@@ -537,6 +731,47 @@ describe("BinanceRest", () => {
                             volume: "19985.33300000",
                             weightedAvgPrice: "0.07098817"
                         });
+                });
+        });
+
+        it('should make ticker price requests and handle the response', () => {
+            mockRequest.setHandler('api/v3/ticker/price', (options, callback) => {
+                expect(options).to.deep.equal({
+                    timeout: 15000,
+                    url: 'https://api.binance.com/api/v3/ticker/price?symbol=ETHBTC'
+                });
+                callback(null, {
+                    statusCode: 200
+                }, '{"symbol":"ETHBTC","price":"0.07597600"}');
+            });
+            return binance.tickerPrice('ETHBTC')
+                .then((response) => {
+                    expect(response).to.deep.equal({
+                        symbol: 'ETHBTC',
+                        price: '0.07597600'
+                    });
+                });
+        });
+
+        it('should make book ticker requests and handle the response', () => {
+            mockRequest.setHandler('api/v3/ticker/bookTicker', (options, callback) => {
+                expect(options).to.deep.equal({
+                    timeout: 15000,
+                    url: 'https://api.binance.com/api/v3/ticker/bookTicker?symbol=ETHBTC'
+                });
+                callback(null, {
+                    statusCode: 200
+                }, '{"symbol":"ETHBTC","bidPrice":"0.07601600","bidQty":"11.71000000","askPrice":"0.07607900","askQty":"3.67800000"}');
+            });
+            return binance.bookTicker('ETHBTC')
+                .then((response) => {
+                    expect(response).to.deep.equal({
+                        symbol: 'ETHBTC',
+                        bidPrice: '0.07601600',
+                        bidQty: '11.71000000',
+                        askPrice: '0.07607900',
+                        askQty: '3.67800000'
+                    });
                 });
         });
     });
@@ -823,6 +1058,28 @@ describe("BinanceRest", () => {
                         qty: "5.00000000",
                         time: 1503257997234
                     }]);
+                });
+        });
+
+        it('should make account status requests and handle the response', () => {
+            mockRequest.setHandler('wapi/v3/accountStatus.html', (options, callback) => {
+                expect(options).to.deep.equal({
+                    headers: {
+                        'X-MBX-APIKEY': 'super_secret_api_key'
+                    },
+                    timeout: 30000,
+                    url: 'https://api.binance.com/wapi/v3/accountStatus.html?timestamp=0&recvWindow=10000&signature=fa83689730fa7ac8f7c2e24a10b0fa8baf0503756158128cced2e355934b5140'
+                });
+                callback(null, {
+                    statusCode: 200
+                }, '{"msg":"Normal","success":true}');
+            });
+            return binance.accountStatus()
+                .then((response) => {
+                    expect(response).to.deep.equal({
+                        msg: 'Normal',
+                        success: true
+                    });
                 });
         });
 
