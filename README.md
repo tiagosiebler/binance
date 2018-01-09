@@ -458,7 +458,7 @@ Beautified Response
 
 ### **onCombinedStream(streams, eventHandler)**
 
-*streams* should be an array of stream names.  You specify these explicitly, or you can use some helper functions to generate them:
+*streams* should be an array of stream names.  You may specify these explicitly, or you can use some helper functions to generate them:
 
 ```javascript
 const binanceWS = new api.BinanceWS();

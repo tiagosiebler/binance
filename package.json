@@ -6,14 +6,11 @@
   "scripts": {
     "test": "mocha",
     "cover": "istanbul cover _mocha",
-    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls"
+    "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls",
+    "lint": "eslint lib test util"
   },
   "dependencies": {
-    "coveralls": "^3.0.0",
-    "istanbul": "^0.4.5",
-    "mocha-lcov-reporter": "^1.3.0",
     "request": "^2.81.0",
-    "sinon": "^4.1.3",
     "underscore": "^1.8.3",
     "ws": "^3.1.0"
   },
@@ -40,7 +37,12 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.1.1",
+    "coveralls": "^3.0.0",
+    "eslint": "^4.15.0",
+    "istanbul": "^0.4.5",
+    "mocha-lcov-reporter": "^1.3.0",
     "mocha": "^3.5.0",
-    "mock-require": "^2.0.2"
+    "mock-require": "^2.0.2",
+    "sinon": "^4.1.3"
   }
 }
