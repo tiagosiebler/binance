@@ -7,8 +7,10 @@ const binanceRest = new BinanceRest({
     recvWindow: 10000
 });
 
-binanceRest[process.argv[2]](process.argv[3] && JSON.parse(process.argv[3])).then((response) => {
-    console.log(response);
-}).catch((err) => {
-    console.error(err);
-});
+binanceRest[process.argv[2]](process.argv[3] && JSON.parse(process.argv[3]))
+    .then((response) => {
+        console.log(response);
+    })
+    .catch((err) => {
+        console.error(err);
+    });
