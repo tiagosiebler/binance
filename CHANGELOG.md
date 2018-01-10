@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.1
+- Fix account function signature so as not to break potential calls when upgrading
+
 ## 1.2.0
 - Remove example responses from README for cases where they match the new official docs
 - Update README links to point to new official docs on github
