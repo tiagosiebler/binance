@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.2
+- Fix beautification of allTickers event arrays when using combinedStreams
+
 ## 1.2.1
 - Fix account function signature so as not to break potential calls when upgrading
 
