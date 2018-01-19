@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.0
+- Add the ability to have the library handle system clock drift
+
 ## 1.2.2
 - Fix beautification of allTickers event arrays when using combinedStreams
 
