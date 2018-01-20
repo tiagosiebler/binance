@@ -15,10 +15,16 @@ const binanceRest = new api.BinanceRest({
     secret: 'api-secret', // Same for this
     timeout: 15000, // Optional, defaults to 15000, is the request time out in milliseconds
     recvWindow: 10000, // Optional, defaults to 5000, increase if you're getting timestamp errors
-    disableBeautification: false
+    disableBeautification: false,
     /*
      * Optional, default is false. Binance's API returns objects with lots of one letter keys.  By
      * default those keys will be replaced with more descriptive, longer ones.
+     */
+    handleDrift: false
+    /* Optional, default is false.  If turned on, the library will attempt to handle any drift of
+     * your clock on it's own.  If a request fails due to drift, it'll attempt a fix by requesting
+     * binance's server time, calculating the difference with your own clock, and then reattempting
+     * the request.
      */
 });
 
@@ -560,6 +566,22 @@ Responses
     ]
 }
 ```
+
+# Timestamp errors
+
+Most can be resolved by adjusting your `recvWindow` a bit larger, but if your clock is constantly
+or intermittently going out of sync with the server, the library is capable of calculating the
+drift and adjusting the timestamps.  You have some options.  The first is to add the `handleDrift`
+option to the constructor, setting it to `true`.  In this case, if your clock is ahead of the
+server's, or falls behind and is outside the `recvWindow`, and a request fails, the library will
+calculate the drift of your clock and reattempt the request.  It will also use the drift value to
+adjust all subsequent calls.  This may add more time to the initial requests that fail, and could
+potentially affect highly time sensitive trades.  The alternative is to use the
+`startTimeSync(interval_in_ms)` and `endTimeSync` functions.  The former will begin an interval,
+and each time it's called the drift will be calculated and used on all subsequent requests.  The
+default interval is 5 minutes, and it should be specified in milliseconds.  The latter will clear
+the interval.  You may also calculate the drift manually by calling `calculateDrift()`. The
+resulting value will be stored internally and used on all subsequent calls.
 
 # License
 [MIT](LICENSE)

@@ -26,7 +26,6 @@ module.exports = {
             'declaration',
             { 'allowArrowFunctions': true }
         ],
-        'function-paren-newline': 'error',
         'implicit-arrow-linebreak': 'error',
         'indent': [
             'error',
@@ -34,7 +33,6 @@ module.exports = {
         ],
         'key-spacing': 'error',
         'keyword-spacing': 'error',
-        'lines-around-comment': 'error',
         'lines-between-class-members': 'error',
         'max-len': [
             'error',
@@ -101,7 +99,6 @@ module.exports = {
         // Best Practices
         'array-callback-return': 'error',
         'block-scoped-var': 'error',
-        'class-methods-use-this': 'error',
         'curly': 'error',
         'dot-location': ['error', 'property'],
         'dot-notation': 'error',
