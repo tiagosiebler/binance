@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.1
+- Fix error handling for callbacks when response is empty, introduced by clock drift changes
+
 ## 1.3.0
 - Add the ability to have the library handle system clock drift
 
