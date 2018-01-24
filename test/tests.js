@@ -67,6 +67,19 @@ describe('BinanceRest', () => {
                 });
         });
 
+        it('handles empty responses when a promise is specified', () => {
+            mockRequest.setHandler('api/v1/depth', (options, callback) => {
+                callback(null, null, '<html>Errorz!</html>');
+            });
+            return binance.depth('TEST')
+                .then(() => {
+                    throw new Error('Request should not have been successful');
+                })
+                .catch((err) => {
+                    expect(err).to.equal('<html>Errorz!</html>');
+                });
+        });
+
         it('handles non 2xx status codes with responses that are not JSON when a promise is specified', () => {
             mockRequest.setHandler('api/v1/depth', (options, callback) => {
                 callback(null, { statusCode: 500 }, '<html>Errorz!</html>');
