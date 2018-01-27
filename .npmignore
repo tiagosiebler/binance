@@ -1,3 +1,7 @@
 .gitignore
+coverage/
 test/
 util/
+.vscode/
+.eslintrc.js
+.travis.yml 
