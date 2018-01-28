@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.2/3
+- Add an error handler to the websocket so the process doesn't exit
+- Handle malformed JSON responses in websocket messages
+
 ## 1.3.1
 - Fix error handling for callbacks when response is empty, introduced by clock drift changes
 
