@@ -1,9 +1,15 @@
 const { expect } = require('chai');
 
 describe('processing', () => {
-    const { processFilters } = require('../lib/processing');
+    const processing = require('../lib/processing');
+    const { processFilters } = processing;
 
-    describe('symbolInfo1', () => {
+    it('is exposed out the package', () => {
+        const binance = require('../lib/binance');
+        expect(processing).to.equal(binance.processing);
+    });
+
+    describe('processFilters', () => {
         const symbolInfo1 = {
             'symbol': 'ETHBTC',
             'status': 'TRADING',
@@ -28,8 +34,25 @@ describe('processing', () => {
             ]
         };
 
-        it('processFilters', () => {
-            // Quantity
+        it('fixes quantities which are below the min lot size', () => {
+            expect(processFilters(symbolInfo1, {
+                quantity: 0.0001,
+                price: 1
+            })).to.deep.equal({
+                quantity: '0.001',
+                price: '1.000000'
+            });
+        });
+        it('fixes quantities which are above the max lot size', () => {
+            expect(processFilters(symbolInfo1, {
+                quantity: 1000000000,
+                price: 1
+            })).to.deep.equal({
+                quantity: '100000.000',
+                price: '1.000000'
+            });
+        });
+        it('fixes quantities based on step size ending with 1', () => {
             expect(processFilters(symbolInfo1, {
                 quantity: 1,
                 price: 1
@@ -66,7 +89,27 @@ describe('processing', () => {
                 price: '1.000000'
             });
 
-            // Price
+        });
+
+        it('fixes prices which are below the min price', () => {
+            expect(processFilters(symbolInfo1, {
+                quantity: '5000.000',
+                price: '0.000000000001'
+            })).to.deep.equal({
+                quantity: '5000.000',
+                price: '0.000001'
+            });
+        });
+        it('fixes prices which are above the max price', () => {
+            expect(processFilters(symbolInfo1, {
+                quantity: 1,
+                price: 1000000000
+            })).to.deep.equal({
+                quantity: '1.000',
+                price: '100000.000000'
+            });
+        });
+        it('fixes prices based on step size ending with 1', () => {
             expect(processFilters(symbolInfo1, {
                 quantity: '1',
                 price: '1.000001'
@@ -93,7 +136,7 @@ describe('processing', () => {
                 price: '1.0000019'
             })).to.deep.equal({
                 quantity: '1.000',
-                price: '1.000002'
+                price: '1.000001'
             });
             expect(processFilters(symbolInfo1, {
                 quantity: '1',
@@ -102,8 +145,8 @@ describe('processing', () => {
                 quantity: '1.000',
                 price: '1.000001'
             });
-
-            // Min Notional
+        });
+        it('fixes quantity and price when below the min notional', () => {
             expect(processFilters(symbolInfo1, {
                 quantity: '.00000001',
                 price: '1.000000'
@@ -126,9 +169,7 @@ describe('processing', () => {
                 price: '0.000125'
             });
         });
-    });
 
-    describe('symbolInfo2', () => {
         const symbolInfo2 = {
             'symbol': 'ETHBTC',
             'status': 'TRADING',
@@ -153,8 +194,7 @@ describe('processing', () => {
             ]
         };
 
-        it('processFilters', () => {
-            // Quantity
+        it('fixes quantities based on step size ending with something other than 1', () => {
             expect(processFilters(symbolInfo2, {
                 quantity: 1,
                 price: 1
@@ -190,8 +230,8 @@ describe('processing', () => {
                 quantity: '0.999',
                 price: '0.999999'
             });
-
-            // Price
+        });
+        it('fixes prices based on step size ending with something other than 1', () => {
             expect(processFilters(symbolInfo2, {
                 quantity: '1',
                 price: '1.000001'
@@ -227,8 +267,8 @@ describe('processing', () => {
                 quantity: '0.999',
                 price: '0.999999'
             });
-
-            // Min Notional
+        });
+        it('fixes quantity and price when below the min notional, with step size not ending with 1', () => {
             expect(processFilters(symbolInfo2, {
                 quantity: '.00000001',
                 price: '1.000000'
