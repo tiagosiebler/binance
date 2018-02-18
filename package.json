@@ -10,9 +10,9 @@
     "lint": "eslint lib test util"
   },
   "dependencies": {
+    "reconnecting-websocket": "^3.2.2",
     "request": "^2.81.0",
-    "underscore": "^1.8.3",
-    "ws": "^3.1.0"
+    "underscore": "^1.8.3"
   },
   "repository": {
     "type": "git",
