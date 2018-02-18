@@ -12,7 +12,8 @@
   "dependencies": {
     "reconnecting-websocket": "^3.2.2",
     "request": "^2.81.0",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "ws": "^4.0.0"
   },
   "repository": {
     "type": "git",
