@@ -20,11 +20,15 @@ const binanceRest = new api.BinanceRest({
      * Optional, default is false. Binance's API returns objects with lots of one letter keys.  By
      * default those keys will be replaced with more descriptive, longer ones.
      */
-    handleDrift: false
+    handleDrift: false,
     /* Optional, default is false.  If turned on, the library will attempt to handle any drift of
      * your clock on it's own.  If a request fails due to drift, it'll attempt a fix by requesting
      * binance's server time, calculating the difference with your own clock, and then reattempting
      * the request.
+     */
+    baseUrl: 'https://api.binance.com/',
+    /* Optional, default is 'https://api.binance.com/'. Can be usefull in case default url stops working. handle any drift of
+     * In febrary 2018, Binance had a major outage and when service started to be up again, only https://us.binance.com was working.
      */
 });
 
@@ -400,7 +404,7 @@ Stream Name: *\<symbol\>@ticker*
 
 Beautified Response
 ```javascript
-{ 
+{
     eventType: '24hrTicker',
     eventTime: 1515266555314,
     symbol: 'BNBBTC',
@@ -435,7 +439,7 @@ Stream Name: *!ticker@arr*
 
 Beautified Response
 ```javascript
-{ 
+{
     eventType: '24hrTicker',
     eventTime: 1515266555314,
     symbol: 'BNBBTC',
