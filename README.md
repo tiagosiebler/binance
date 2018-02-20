@@ -27,8 +27,8 @@ const binanceRest = new api.BinanceRest({
      * the request.
      */
     baseUrl: 'https://api.binance.com/',
-    /* Optional, default is 'https://api.binance.com/'. Can be usefull in case default url stops working. handle any drift of
-     * In febrary 2018, Binance had a major outage and when service started to be up again, only https://us.binance.com was working.
+    /* Optional, default is 'https://api.binance.com/'. Can be useful in case default url stops working.
+     * In february 2018, Binance had a major outage and when service started to be up again, only https://us.binance.com was working.
      */
 });
 
