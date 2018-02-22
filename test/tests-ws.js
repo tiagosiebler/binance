@@ -1,14 +1,19 @@
 const expect = require('chai').expect;
+const { EventEmitter } = require('events');
 
 const binanceApi = require('../lib/binance.js');
 const BinanceWS = binanceApi.BinanceWS;
 
+// Set true to help gather data for new tests.
 let debugRaw = false;
 let debugBeautified = false;
 
 function validateWebSocket(name, testData, beautified, ...args) {
     it('raw', done => {
         const binance = new BinanceWS(false);
+        if (!debugRaw) {
+            binance.WebSocket = EventEmitter;
+        }
 
         let result = null;
         let rawArgs = [
@@ -21,6 +26,7 @@ function validateWebSocket(name, testData, beautified, ...args) {
                 }
             }
         ];
+
         const ws = binance[name](...rawArgs);
         if (!debugRaw) {
             ws.emit('message', testData);
@@ -30,6 +36,9 @@ function validateWebSocket(name, testData, beautified, ...args) {
     });
     it('beautified', done => {
         const binance = new BinanceWS(true);
+        if (!debugBeautified) {
+            binance.WebSocket = EventEmitter;
+        }
 
         let result = null;
         let beautyArgs = [
@@ -40,6 +49,7 @@ function validateWebSocket(name, testData, beautified, ...args) {
                 }
             }
         ];
+
         const ws = binance[name](...beautyArgs);
         ws.emit('message', testData);
         expect(result).to.deep.equal(beautified);
