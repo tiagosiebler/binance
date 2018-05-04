@@ -12,8 +12,9 @@
   "dependencies": {
     "bignumber.js": "^6.0.0",
     "request": "^2.81.0",
+    "retry": "^0.10.1",
     "underscore": "^1.8.3",
-    "ws": "^3.1.0"
+    "ws": "^4.0.0"
   },
   "repository": {
     "type": "git",
