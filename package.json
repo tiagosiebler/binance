@@ -5,6 +5,7 @@
   "main": "./lib/binance.js",
   "scripts": {
     "test": "mocha",
+    "test:types": "tsc -p types/test",
     "cover": "istanbul cover _mocha",
     "coveralls": "npm run cover -- --report lcovonly && cat ./coverage/lcov.info | coveralls",
     "lint": "eslint lib test util"
@@ -35,7 +36,7 @@
     "Gavy Aggarwal (http://gavyaggarwal.com/)"
   ],
   "license": "MIT",
-  "types": "index.d.ts",
+  "types": "types/index.d.ts",
   "devDependencies": {
     "chai": "^4.1.1",
     "coveralls": "^3.0.0",
