@@ -20,12 +20,13 @@ const binanceRest = new api.BinanceRest({
      * Optional, default is false. Binance's API returns objects with lots of one letter keys.  By
      * default those keys will be replaced with more descriptive, longer ones.
      */
-    handleDrift: false
+    handleDrift: false,
     /* Optional, default is false.  If turned on, the library will attempt to handle any drift of
      * your clock on it's own.  If a request fails due to drift, it'll attempt a fix by requesting
      * binance's server time, calculating the difference with your own clock, and then reattempting
      * the request.
      */
+    proxy: null // Optional, 'null' for no proxy or 'http://yourproxy:3128' to use a proxy
 });
 
 // You can use promises
