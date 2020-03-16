@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/aarongarvey/binance"
+    "url": "https://github.com/zoeyg/binance"
   },
   "keywords": [
     "api",
@@ -27,7 +27,7 @@
     "btc",
     "eth"
   ],
-  "author": "Aaron Garvey",
+  "author": "Zoey Garvey",
   "contributors": [
     "Clifford Roche <clifford.roche@gmail.com> (http://www.cliffordroche.ca)",
     "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)",
