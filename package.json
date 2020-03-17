@@ -7,7 +7,8 @@
         "test": "mocha",
         "cover": "nyc --reporter=html --reporter=text mocha",
         "coveralls": "nyc report --reporter=text-lcov | coveralls",
-        "lint": "eslint lib test util && prettier --check lib/**/* test/**/* util/**/*"
+        "lint": "eslint lib test util && prettier --check lib/**/* test/**/* util/**/*",
+        "precommit": "yarn test && yarn lint"
     },
     "dependencies": {
         "request": "^2.88.2",
