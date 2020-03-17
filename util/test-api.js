@@ -8,9 +8,9 @@ const binanceRest = new BinanceRest({
 });
 
 binanceRest[process.argv[2]](process.argv[3] && JSON.parse(process.argv[3]))
-    .then((response) => {
+    .then(response => {
         console.log(response);
     })
-    .catch((err) => {
+    .catch(err => {
         console.error(err);
     });
