@@ -576,6 +576,31 @@ Responses
 }
 ```
 
+# Processing
+
+## Filters
+
+Quantities and prices used when creating orders must fall within the guidelines provided by the
+filters in symbolInfo responses. The code below shows how to turn a quantity and price into
+acceptable values for creating an order. The results vary depending on the symbol used, since
+different symbols have different filters.
+
+Symbol information can be obtained from **[exchangeInfo([callback _funcion_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#exchange-information)**
+
+```js
+const { ValueProcessor } = require('binance');
+
+ValueProcessor.processFilters(symbolInfo, {
+    quantity: '30.000000001', // Also accepts 'number' values.
+    price: '0.00234414211'
+})
+
+// {
+//     quantity: '30.000',
+//     price: '0.002344'
+// }
+```
+
 # Timestamp errors
 
 Most can be resolved by adjusting your `recvWindow` a bit larger, but if your clock is constantly
