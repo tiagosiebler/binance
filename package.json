@@ -8,6 +8,7 @@
         "cover": "nyc --reporter=html --reporter=text mocha",
         "coveralls": "nyc report --reporter=text-lcov | coveralls",
         "lint": "eslint lib test util && prettier --check lib/**/* test/**/* util/**/*",
+        "lintfix": "eslint lib test util --fix && prettier --write lib/**/* test/**/* util/**/*",
         "precommit": "yarn test && yarn lint"
     },
     "dependencies": {
