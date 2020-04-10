@@ -205,8 +205,7 @@ describe('BinanceRest', () => {
                 (options, callback) => {
                     expect(options).to.deep.equal({
                         timeout: 15000,
-                        url:
-                            `${binance.getBaseUrl()}api/v1/ticker/allBookTickers`
+                        url: `${binance.getBaseUrl()}api/v1/ticker/allBookTickers`
                     });
                     callback(
                         null,
@@ -403,8 +402,7 @@ describe('BinanceRest', () => {
                     expect(options).to.deep.equal({
                         headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                         timeout: 15000,
-                        url:
-                            `${binance.getBaseUrl()}api/v1/historicalTrades?symbol=ETHBTC`
+                        url: `${binance.getBaseUrl()}api/v1/historicalTrades?symbol=ETHBTC`
                     });
                     callback(
                         null,
@@ -447,8 +445,7 @@ describe('BinanceRest', () => {
             mockRequest.setHandler('api/v1/aggTrades', (options, callback) => {
                 expect(options).to.deep.equal({
                     timeout: 15000,
-                    url:
-                        `${binance.getBaseUrl()}api/v1/aggTrades?symbol=ETHBTC`
+                    url: `${binance.getBaseUrl()}api/v1/aggTrades?symbol=ETHBTC`
                 });
                 callback(
                     null,
@@ -661,8 +658,7 @@ describe('BinanceRest', () => {
             mockRequest.setHandler('api/v1/klines', (options, callback) => {
                 expect(options).to.deep.equal({
                     timeout: 15000,
-                    url:
-                        `${binance.getBaseUrl()}api/v1/klines?symbol=ETHBTC&interval=1m&limit=5`
+                    url: `${binance.getBaseUrl()}api/v1/klines?symbol=ETHBTC&interval=1m&limit=5`
                 });
                 callback(
                     null,
@@ -758,8 +754,7 @@ describe('BinanceRest', () => {
                 (options, callback) => {
                     expect(options).to.deep.equal({
                         timeout: 15000,
-                        url:
-                            `${binance.getBaseUrl()}api/v1/ticker/24hr?symbol=ETHBTC`
+                        url: `${binance.getBaseUrl()}api/v1/ticker/24hr?symbol=ETHBTC`
                     });
                     callback(
                         null,
@@ -796,8 +791,7 @@ describe('BinanceRest', () => {
                 (options, callback) => {
                     expect(options).to.deep.equal({
                         timeout: 15000,
-                        url:
-                            `${binance.getBaseUrl()}api/v3/ticker/price?symbol=ETHBTC`
+                        url: `${binance.getBaseUrl()}api/v3/ticker/price?symbol=ETHBTC`
                     });
                     callback(
                         null,
@@ -820,8 +814,7 @@ describe('BinanceRest', () => {
                 (options, callback) => {
                     expect(options).to.deep.equal({
                         timeout: 15000,
-                        url:
-                            `${binance.getBaseUrl()}api/v3/ticker/bookTicker?symbol=ETHBTC`
+                        url: `${binance.getBaseUrl()}api/v3/ticker/bookTicker?symbol=ETHBTC`
                     });
                     callback(
                         null,
@@ -858,8 +851,7 @@ describe('BinanceRest', () => {
                     headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                     method: 'POST',
                     timeout: 30000,
-                    url:
-                        `${binance.getBaseUrl()}api/v3/order?symbol=BNBBTC&side=SELL&type=LIMIT&timeInForce=GTC&quantity=5&price=0.000635&timestamp=1503258350918&recvWindow=10000&signature=6c9f93d8c10c73b0bb5ff527b8f28696d7b2ef32e404da362b7eb99ee09d3832`
+                    url: `${binance.getBaseUrl()}api/v3/order?symbol=BNBBTC&side=SELL&type=LIMIT&timeInForce=GTC&quantity=5&price=0.000635&timestamp=1503258350918&recvWindow=10000&signature=6c9f93d8c10c73b0bb5ff527b8f28696d7b2ef32e404da362b7eb99ee09d3832`
                 });
                 callback(
                     null,
@@ -893,8 +885,7 @@ describe('BinanceRest', () => {
                     headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                     method: 'POST',
                     timeout: 30000,
-                    url:
-                        `${binance.getBaseUrl()}api/v3/order/test?symbol=BNBBTC&side=SELL&type=LIMIT&timeInForce=GTC&quantity=5&price=0.000635&timestamp=1503258350918&recvWindow=10000&signature=6c9f93d8c10c73b0bb5ff527b8f28696d7b2ef32e404da362b7eb99ee09d3832`
+                    url: `${binance.getBaseUrl()}api/v3/order/test?symbol=BNBBTC&side=SELL&type=LIMIT&timeInForce=GTC&quantity=5&price=0.000635&timestamp=1503258350918&recvWindow=10000&signature=6c9f93d8c10c73b0bb5ff527b8f28696d7b2ef32e404da362b7eb99ee09d3832`
                 });
                 callback(null, { statusCode: 200 }, '{}');
             });
@@ -918,8 +909,7 @@ describe('BinanceRest', () => {
                 expect(options).to.deep.equal({
                     headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                     timeout: 30000,
-                    url:
-                        `${binance.getBaseUrl()}api/v3/order?symbol=BNBBTC&orderId=1497927&timestamp=0&recvWindow=10000&signature=ce8c5519ee23564230f08db5b3248894a17952049f675ee37d09ad8933868bd1`
+                    url: `${binance.getBaseUrl()}api/v3/order?symbol=BNBBTC&orderId=1497927&timestamp=0&recvWindow=10000&signature=ce8c5519ee23564230f08db5b3248894a17952049f675ee37d09ad8933868bd1`
                 });
                 callback(
                     null,
@@ -956,8 +946,7 @@ describe('BinanceRest', () => {
                 expect(options).to.deep.equal({
                     headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                     timeout: 30000,
-                    url:
-                        `${binance.getBaseUrl()}api/v3/openOrders?symbol=BNBBTC&timestamp=0&recvWindow=10000&signature=54dfa6e974bfcd0c2bcdddd65e820fd16b05515dfc66f5033b0fbffe9f9daca2`
+                    url: `${binance.getBaseUrl()}api/v3/openOrders?symbol=BNBBTC&timestamp=0&recvWindow=10000&signature=54dfa6e974bfcd0c2bcdddd65e820fd16b05515dfc66f5033b0fbffe9f9daca2`
                 });
                 callback(
                     null,
@@ -992,8 +981,7 @@ describe('BinanceRest', () => {
                     headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                     method: 'DELETE',
                     timeout: 30000,
-                    url:
-                        `${binance.getBaseUrl()}api/v3/order?symbol=BNBBTC&orderId=1500955&timestamp=0&recvWindow=10000&signature=9546f891b4a19fdf87c1913fa04020113fdd1ec04cfaf4c2aac157fec2857025`
+                    url: `${binance.getBaseUrl()}api/v3/order?symbol=BNBBTC&orderId=1500955&timestamp=0&recvWindow=10000&signature=9546f891b4a19fdf87c1913fa04020113fdd1ec04cfaf4c2aac157fec2857025`
                 });
                 callback(
                     null,
@@ -1021,8 +1009,7 @@ describe('BinanceRest', () => {
                 expect(options).to.deep.equal({
                     headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                     timeout: 30000,
-                    url:
-                        `${binance.getBaseUrl()}api/v3/allOrders?symbol=BNBBTC&timestamp=0&recvWindow=10000&signature=54dfa6e974bfcd0c2bcdddd65e820fd16b05515dfc66f5033b0fbffe9f9daca2`
+                    url: `${binance.getBaseUrl()}api/v3/allOrders?symbol=BNBBTC&timestamp=0&recvWindow=10000&signature=54dfa6e974bfcd0c2bcdddd65e820fd16b05515dfc66f5033b0fbffe9f9daca2`
                 });
                 callback(
                     null,
@@ -1056,8 +1043,7 @@ describe('BinanceRest', () => {
                 expect(options).to.deep.equal({
                     headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                     timeout: 30000,
-                    url:
-                        `${binance.getBaseUrl()}api/v3/account?timestamp=0&recvWindow=10000&signature=fa83689730fa7ac8f7c2e24a10b0fa8baf0503756158128cced2e355934b5140`
+                    url: `${binance.getBaseUrl()}api/v3/account?timestamp=0&recvWindow=10000&signature=fa83689730fa7ac8f7c2e24a10b0fa8baf0503756158128cced2e355934b5140`
                 });
                 callback(
                     null,
@@ -1200,8 +1186,7 @@ describe('BinanceRest', () => {
                 expect(options).to.deep.equal({
                     headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                     timeout: 30000,
-                    url:
-                        `${binance.getBaseUrl()}api/v3/myTrades?symbol=BNBBTC&timestamp=0&recvWindow=10000&signature=54dfa6e974bfcd0c2bcdddd65e820fd16b05515dfc66f5033b0fbffe9f9daca2`
+                    url: `${binance.getBaseUrl()}api/v3/myTrades?symbol=BNBBTC&timestamp=0&recvWindow=10000&signature=54dfa6e974bfcd0c2bcdddd65e820fd16b05515dfc66f5033b0fbffe9f9daca2`
                 });
                 callback(
                     null,
@@ -1233,8 +1218,7 @@ describe('BinanceRest', () => {
                     expect(options).to.deep.equal({
                         headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                         timeout: 30000,
-                        url:
-                            `${binance.getBaseUrl()}wapi/v3/accountStatus.html?timestamp=0&recvWindow=10000&signature=fa83689730fa7ac8f7c2e24a10b0fa8baf0503756158128cced2e355934b5140`
+                        url: `${binance.getBaseUrl()}wapi/v3/accountStatus.html?timestamp=0&recvWindow=10000&signature=fa83689730fa7ac8f7c2e24a10b0fa8baf0503756158128cced2e355934b5140`
                     });
                     callback(
                         null,
@@ -1259,8 +1243,7 @@ describe('BinanceRest', () => {
                         method: 'POST',
                         headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                         timeout: 30000,
-                        url:
-                            `${binance.getBaseUrl()}wapi/v3/withdraw.html?asset=ETH&address=0x000&amount=Bajillions&timestamp=0&recvWindow=10000&signature=5eb0f5626cfdfc1f1b4681071fc4080180832aae4739fe4cadb92e153dbbc525`
+                        url: `${binance.getBaseUrl()}wapi/v3/withdraw.html?asset=ETH&address=0x000&amount=Bajillions&timestamp=0&recvWindow=10000&signature=5eb0f5626cfdfc1f1b4681071fc4080180832aae4739fe4cadb92e153dbbc525`
                     });
                     callback(
                         null,
@@ -1291,8 +1274,7 @@ describe('BinanceRest', () => {
                     expect(options).to.deep.equal({
                         headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                         timeout: 30000,
-                        url:
-                            `${binance.getBaseUrl()}wapi/v3/depositHistory.html?asset=ETH&timestamp=0&recvWindow=10000&signature=adb0f32f3ef4b9116b17ae095371ede1e97ffe9447bfb1e88f78285426ac615b`
+                        url: `${binance.getBaseUrl()}wapi/v3/depositHistory.html?asset=ETH&timestamp=0&recvWindow=10000&signature=adb0f32f3ef4b9116b17ae095371ede1e97ffe9447bfb1e88f78285426ac615b`
                     });
                     callback(
                         null,
@@ -1327,8 +1309,7 @@ describe('BinanceRest', () => {
                     expect(options).to.deep.equal({
                         headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                         timeout: 30000,
-                        url:
-                            `${binance.getBaseUrl()}wapi/v3/withdrawHistory.html?asset=ETH&timestamp=0&recvWindow=10000&signature=adb0f32f3ef4b9116b17ae095371ede1e97ffe9447bfb1e88f78285426ac615b`
+                        url: `${binance.getBaseUrl()}wapi/v3/withdrawHistory.html?asset=ETH&timestamp=0&recvWindow=10000&signature=adb0f32f3ef4b9116b17ae095371ede1e97ffe9447bfb1e88f78285426ac615b`
                     });
                     callback(
                         null,
@@ -1364,8 +1345,7 @@ describe('BinanceRest', () => {
                     expect(options).to.deep.equal({
                         headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                         timeout: 30000,
-                        url:
-                            `${binance.getBaseUrl()}wapi/v3/depositAddress.html?asset=BNB&timestamp=0&recvWindow=10000&signature=d00b9bc06f44f2336cfbbf2f4216a36e3c8c9b10a3d110fb733966bb9c7c8e1e`
+                        url: `${binance.getBaseUrl()}wapi/v3/depositAddress.html?asset=BNB&timestamp=0&recvWindow=10000&signature=d00b9bc06f44f2336cfbbf2f4216a36e3c8c9b10a3d110fb733966bb9c7c8e1e`
                     });
                     callback(
                         null,
@@ -1428,8 +1408,7 @@ describe('BinanceRest', () => {
                         headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                         method: 'PUT',
                         timeout: 30000,
-                        url:
-                            `${binance.getBaseUrl()}api/v1/userDataStream?listenKey=DdfvqZ427zcWvtOzBSxmchhHPKV1t0lVCHdztRjIdU7CygJckPIIYmx5TOqU`
+                        url: `${binance.getBaseUrl()}api/v1/userDataStream?listenKey=DdfvqZ427zcWvtOzBSxmchhHPKV1t0lVCHdztRjIdU7CygJckPIIYmx5TOqU`
                     });
                     callback(null, { statusCode: 200 }, '{}');
                 }
@@ -1452,8 +1431,7 @@ describe('BinanceRest', () => {
                         headers: { 'X-MBX-APIKEY': 'super_secret_api_key' },
                         method: 'DELETE',
                         timeout: 30000,
-                        url:
-                            `${binance.getBaseUrl()}api/v1/userDataStream?listenKey=DdfvqZ427zcWvtOzBSxmchhHPKV1t0lVCHdztRjIdU7CygJckPIIYmx5TOqU`
+                        url: `${binance.getBaseUrl()}api/v1/userDataStream?listenKey=DdfvqZ427zcWvtOzBSxmchhHPKV1t0lVCHdztRjIdU7CygJckPIIYmx5TOqU`
                     });
                     callback(null, { statusCode: 200 }, '{}');
                 }
