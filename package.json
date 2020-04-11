@@ -1,6 +1,6 @@
 {
     "name": "binance",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "description": "node.js wrapper for the Binance REST and WebSocket APIs",
     "main": "./lib/binance.js",
     "scripts": {
@@ -34,7 +34,8 @@
         "Clifford Roche <clifford.roche@gmail.com> (http://www.cliffordroche.ca)",
         "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)",
         "Andrey Vorobyov <vorandrew@gmail.com>",
-        "Gavy Aggarwal (http://gavyaggarwal.com/)"
+        "Gavy Aggarwal (http://gavyaggarwal.com/)",
+        "Tiago Siebler (https://github.com/tiagosiebler)"
     ],
     "license": "MIT",
     "types": "index.d.ts",
