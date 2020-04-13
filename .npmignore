@@ -6,3 +6,4 @@ util/
 .eslintrc.js
 .travis.yml
 .mocharc.json
+.prettierrc
