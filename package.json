@@ -12,6 +12,7 @@
         "precommit": "yarn test && yarn lint"
     },
     "dependencies": {
+        "bignumber.js": "^9.0.0",
         "request": "^2.88.2",
         "underscore": "^1.8.3",
         "ws": "^3.3.1"
