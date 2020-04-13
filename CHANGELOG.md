@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.4
+- Allow baseUrl override in constructor #46
+- Add requestOptions (proxy support + more) #64
+- Update vulnerable dependencies #73, #81
+- Provide `processFilter()` helper functionality for order prices and amounts #43
+- Fix endless onUserData keep alive timer #85
+
 ## 1.3.2/3
 - Add an error handler to the websocket so the process doesn't exit
 - Handle malformed JSON responses in websocket messages
