@@ -3,7 +3,8 @@
 ![code coverage](https://img.shields.io/coveralls/github/aarongarvey/binance.svg)
 
 # Binance
-A wrapper for the Binance REST and WebSocket APIs.  Uses both promises and callbacks, and beautifies the
+
+A wrapper for the Binance REST and WebSocket APIs. Uses both promises and callbacks, and beautifies the
 binance API responses that normally use lots of one letter property names. For more information on the API and parameters for requests visit https://github.com/binance-exchange/binance-official-api-docs
 
 # Usage/Example
@@ -21,14 +22,18 @@ const binanceRest = new api.BinanceRest({
      * default those keys will be replaced with more descriptive, longer ones.
      */
     handleDrift: false,
-    /* Optional, default is false.  If turned on, the library will attempt to handle any drift of
+    /*
+     * Optional, default is false.  If turned on, the library will attempt to handle any drift of
      * your clock on it's own.  If a request fails due to drift, it'll attempt a fix by requesting
      * binance's server time, calculating the difference with your own clock, and then reattempting
      * the request.
      */
     baseUrl: 'https://api.binance.com/',
-    /* Optional, default is 'https://api.binance.com/'. Can be useful in case default url stops working.
-     * In february 2018, Binance had a major outage and when service started to be up again, only https://us.binance.com was working.
+    /*
+     * Optional, default is 'https://api.binance.com/'. Can be useful in case default url stops working.
+     * In february 2018, Binance had a major outage and when service started to be up again, only
+     * https://us.binance.com was working.
+     */
     requestOptions: {}
     /*
      * Options as supported by the 'request' library
@@ -38,13 +43,14 @@ const binanceRest = new api.BinanceRest({
 });
 
 // You can use promises
-binanceRest.allOrders({
-        symbol: 'BNBBTC'  // Object is transformed into a query string, timestamp is automatically added
+binanceRest
+    .allOrders({
+        symbol: 'BNBBTC' // Object is transformed into a query string, timestamp is automatically added
     })
-    .then((data) => {
+    .then(data => {
         console.log(data);
     })
-    .catch((err) => {
+    .catch(err => {
         console.error(err);
     });
 
@@ -69,15 +75,15 @@ binanceRest.allOrders('BNBBTC', (err, data) => {
  */
 const binanceWS = new api.BinanceWS(true); // Argument specifies whether the responses should be beautified, defaults to true
 
-binanceWS.onDepthUpdate('BNBBTC', (data) => {
+binanceWS.onDepthUpdate('BNBBTC', data => {
     console.log(data);
 });
 
-binanceWS.onAggTrade('BNBBTC', (data) => {
+binanceWS.onAggTrade('BNBBTC', data => {
     console.log(data);
 });
 
-binanceWS.onKline('BNBBTC', '1m', (data) => {
+binanceWS.onKline('BNBBTC', '1m', data => {
     console.log(data);
 });
 
@@ -87,25 +93,38 @@ binanceWS.onKline('BNBBTC', '1m', (data) => {
  */
 const streams = binanceWS.streams;
 
-binanceWS.onCombinedStream([
+binanceWS.onCombinedStream(
+    [
         streams.depth('BNBBTC'),
         streams.kline('BNBBTC', '5m'),
         streams.trade('BNBBTC'),
         streams.ticker('BNBBTC')
     ],
-    (streamEvent) => {
-        switch(streamEvent.stream) {
+    streamEvent => {
+        switch (streamEvent.stream) {
             case streams.depth('BNBBTC'):
-                console.log('Depth event, update order book\n', streamEvent.data);
+                console.log(
+                    'Depth event, update order book\n',
+                    streamEvent.data
+                );
                 break;
             case streams.kline('BNBBTC', '5m'):
-                console.log('Kline event, update 5m candle display\n', streamEvent.data);
+                console.log(
+                    'Kline event, update 5m candle display\n',
+                    streamEvent.data
+                );
                 break;
             case streams.trade('BNBBTC'):
-                console.log('Trade event, update trade history\n', streamEvent.data);
+                console.log(
+                    'Trade event, update trade history\n',
+                    streamEvent.data
+                );
                 break;
             case streams.ticker('BNBBTC'):
-                console.log('Ticker event, update market stats\n', streamEvent.data);
+                console.log(
+                    'Ticker event, update market stats\n',
+                    streamEvent.data
+                );
                 break;
         }
     }
@@ -116,41 +135,54 @@ binanceWS.onCombinedStream([
  * keepAliveUserDataStream calls.  The webSocket instance is returned by promise rather than directly
  * due to needing to request a listenKey from the server first.
  */
-binanceWS.onUserData(binanceRest, (data) => {
-        console.log(data);
-    }, 60000) // Optional, how often the keep alive should be sent in milliseconds
-    .then((ws) => {
+binanceWS
+    .onUserData(
+        binanceRest,
+        data => {
+            console.log(data);
+        },
+        60000
+    ) // Optional, how often the keep alive should be sent in milliseconds
+    .then(ws => {
         // websocket instance available here
     });
 ```
 
 # REST APIs
 
-Example responses are only included for routes where the response is beautified, and therefore different than the official docs.  Click on any function call to see the related route information in the official documentation.
+Example responses are only included for routes where the response is beautified, and therefore different than the official docs. Click on any function call to see the related route information in the official documentation.
 
 ### **[ping([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-connectivity)**
+
 For testing connectivity.
 
 ### **[time([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#check-server-time)**
+
 Retrieves the current server time.
 
 ### **[exchangeInfo([callback _funcion_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#exchange-information)**
-Retrieves the current exchange trading rules and symbol information.  Includes rate limits for request and orders,
+
+Retrieves the current exchange trading rules and symbol information. Includes rate limits for request and orders,
 as well as restrictions placed on various values when ordering.
 
 ### **[depth(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#order-book)**
+
 Retrieves the order book for a given symbol.
 
 ### **[trades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#recent-trades-list)**
+
 Retrieves the most recent trades for a given symbol(up to 500).
 
 ### **[historicalTrades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#old-trade-lookup-market_data)**
-Retrieves historical trades by tradeId.  If no tradeId is specified the most recent trades are returned.
+
+Retrieves historical trades by tradeId. If no tradeId is specified the most recent trades are returned.
 
 ### **[aggTrades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#compressedaggregate-trades-list)**
+
 Get compressed, aggregate trades. Trades that fill at the same time, from the same order, with the same price will have the quantity aggregated.
 
 Beautified Response
+
 ```javascript
 [
     {
@@ -178,9 +210,11 @@ Beautified Response
 ```
 
 ### **[klines(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#klinecandlestick-data)**
+
 Retrieve kline/candlestick bars for a symbol. Klines are uniquely identified by their open time.
 
 Beautified Response
+
 ```javascript
 [
     {
@@ -216,78 +250,100 @@ Beautified Response
 ```
 
 ### **[ticker24hr(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#24hr-ticker-price-change-statistics)**
+
 Retrieve 24 hour price change statistics.
 
 ### **[tickerPrice(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#symbol-price-ticker)**
+
 Retrieve latest price for a symbol or symbols.
 
 ### **[bookTicker(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#symbol-order-book-ticker)**
+
 Retrieve best price/qty on the order book for a symbol or symbols.
 
 ### **[newOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#new-order--trade)**
+
 Places a new order.
 
 ### **[testOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-new-order-trade)**
+
 Places a test order.
 
 ### **[queryOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#query-order-user_data)**
+
 Check an order's status.
 
 ### **[cancelOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#cancel-order-trade)**
+
 Cancel an open order.
 
 ### **[openOrders(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#current-open-orders-user_data)**
+
 Get all open orders for a symbol, or all symbols. Careful when accessing this with no symbol as the number of requests counted against the rate limiter is equal to the number of symbols currently trading on the exchange.
 
 ### **[allOrders(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#all-orders-user_data)**
+
 Retrieve all orders on an account, whether active, cancelled, or filled.
 
 ### **[account([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-information-user_data)**
+
 Retrieve current account information including commision rates, trading permissions, and free/locked balances.
 
 ### **[myTrades(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-trade-list-user_data)**
+
 Retrieve all trades made by an account.
 
 ### **[withdraw(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#withdraw)**
+
 Make a withdrawal.
 
 ### **[withdrawHistory(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#withdraw-history-user_data)**
-Retrieve withdrawal history for an account for a specific asset, or all assets.  Includes status.
+
+Retrieve withdrawal history for an account for a specific asset, or all assets. Includes status.
 
 ### **[depositHistory(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#deposit-history-user_data)**
-Retrieve deposit history for an account for a specific asset, or all assets.  Includes status.
+
+Retrieve deposit history for an account for a specific asset, or all assets. Includes status.
 
 ### **[depositAddress(query _object|string_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#deposit-address-user_data)**
+
 Generate and retrieve a deposit address for a given asset.
 
 ### **[accountStatus([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/wapi-api.md#account-status-user_data)**
+
 Retrieve account status.
 
 ### **[startUserDataStream([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#start-user-data-stream-user_stream)**
-For use in conjunction with the user data websocket.  Returns a listen key that must be specified.   [`onUserData()`](#onuserdatabinancerest-eventhandler-interval) will handle this for you when you pass it an instance of `BinanceRest`.
+
+For use in conjunction with the user data websocket. Returns a listen key that must be specified. [`onUserData()`](#onuserdatabinancerest-eventhandler-interval) will handle this for you when you pass it an instance of `BinanceRest`.
 
 ### **[keepAliveUserDataStream(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#keepalive-user-data-stream-user_stream)**
-The keep alive request needed to keep a user data websocket open.  Will be automatically sent at a specified interval if using
+
+The keep alive request needed to keep a user data websocket open. Will be automatically sent at a specified interval if using
 [`onUserData()`](#onuserdatabinancerest-eventhandler-interval).
 
 ### **[closeUserDataStream(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#close-user-data-stream-user_stream)**
+
 Closes the user data stream.
 
 ### **[allPrices([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)**
-Returns the latest price for all symbols.  This route appears on the old API document, but does not appear in the most recent set of docs.  You should probably use `tickerPrice()` instead as it utilizes a route with a newer version.
+
+Returns the latest price for all symbols. This route appears on the old API document, but does not appear in the most recent set of docs. You should probably use `tickerPrice()` instead as it utilizes a route with a newer version.
 
 ### **[allBookTickers([callback _function_])](https://www.binance.com/restapipub.html#user-content-market-data-endpoints)**
-Returns the best price/qty on the order book for all symbols.  This route appears on an old API document, but does not appear in the most recent set of docs.  You should probably use `bookTicker()` instead as it utilizes a route with a newer version.
+
+Returns the best price/qty on the order book for all symbols. This route appears on an old API document, but does not appear in the most recent set of docs. You should probably use `bookTicker()` instead as it utilizes a route with a newer version.
 
 # WebSocket APIs
 
 ### **[onDepthUpdate(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#diff-depth-stream)**
 
-Order book price and quantity depth updates used to locally manage an order book, pushed every second.  Function call returns the websocket, an instance of https://www.npmjs.com/package/ws
+Order book price and quantity depth updates used to locally manage an order book, pushed every second. Function call returns the websocket, an instance of https://www.npmjs.com/package/ws
 
-Stream Name: *\<symbol\>@depth*
+Stream Name: _\<symbol\>@depth_
 
 Response
+
 ```javascript
 {
     eventType: 'depthUpdate',
@@ -316,17 +372,18 @@ Response
 
 ### **[onDepthLevelUpdate(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#partial-book-depth-streams)**
 
-Top \<levels\> bids and asks, pushed every second. Valid \<levels\> are 5, 10, or 20.  Function call returns the websocket, an instance of https://www.npmjs.com/package/ws.  See official docs for [response](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#partial-book-depth-streams).
+Top \<levels\> bids and asks, pushed every second. Valid \<levels\> are 5, 10, or 20. Function call returns the websocket, an instance of https://www.npmjs.com/package/ws. See official docs for [response](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#partial-book-depth-streams).
 
-Stream Name: *\<symbol\>@depth\<levels\>*
+Stream Name: _\<symbol\>@depth\<levels\>_
 
 ### **[onKline(symbol, interval, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#klinecandlestick-streams)**
 
-Pushes updates to the current klines/candlesticks every second.  Valid intervals are described [here](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#klinecandlestick-streams).  Returns the websocket, an instance of https://www.npmjs.com/package/ws
+Pushes updates to the current klines/candlesticks every second. Valid intervals are described [here](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#klinecandlestick-streams). Returns the websocket, an instance of https://www.npmjs.com/package/ws
 
-Stream Name: *\<symbol\>@kline_\<interval\>*
+Stream Name: _\<symbol\>@kline\_\<interval\>_
 
 Beautified Response
+
 ```javascript
 {
     eventType: 'kline',
@@ -357,11 +414,12 @@ Beautified Response
 
 ### **[onAggTrade(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#aggregate-trade-streams)**
 
-Pushes trade information that is aggregated for a single taker order.  Returns the websocket, an instance of https://www.npmjs.com/package/ws
+Pushes trade information that is aggregated for a single taker order. Returns the websocket, an instance of https://www.npmjs.com/package/ws
 
-Stream Name: *\<symbol\>@aggTrade*
+Stream Name: _\<symbol\>@aggTrade_
 
 Beautified Response
+
 ```javascript
 {
     eventType: 'aggTrade',
@@ -380,11 +438,12 @@ Beautified Response
 
 ### **[onTrade(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#trade-streams)**
 
-Pushes raw trade information, with each trade having a unique buyer and seller.  Returns the websocket, an instance of https://www.npmjs.com/package/ws
+Pushes raw trade information, with each trade having a unique buyer and seller. Returns the websocket, an instance of https://www.npmjs.com/package/ws
 
-Stream Name: *\<symbol\>@trade*
+Stream Name: _\<symbol\>@trade_
 
 Beautified Response
+
 ```javascript
 {
     eventType: 'trade',
@@ -403,11 +462,12 @@ Beautified Response
 
 ### **[onTicker(symbol, eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#individual-symbol-ticker-streams)**
 
-24 hour ticker stats for a single symbol pushed every second.  Returns the websocket, an instance of https://www.npmjs.com/package/ws
+24 hour ticker stats for a single symbol pushed every second. Returns the websocket, an instance of https://www.npmjs.com/package/ws
 
-Stream Name: *\<symbol\>@ticker*
+Stream Name: _\<symbol\>@ticker_
 
 Beautified Response
+
 ```javascript
 {
     eventType: '24hrTicker',
@@ -438,11 +498,12 @@ Beautified Response
 
 ### **[onAllTickers(eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#all-market-tickers-stream)**
 
-24hr Ticker statistics for all symbols in an array, pushed every second.  Returns the websocket, an instance of https://www.npmjs.com/package/ws
+24hr Ticker statistics for all symbols in an array, pushed every second. Returns the websocket, an instance of https://www.npmjs.com/package/ws
 
-Stream Name: *!ticker@arr*
+Stream Name: _!ticker@arr_
 
 Beautified Response
+
 ```javascript
 {
     eventType: '24hrTicker',
@@ -473,7 +534,7 @@ Beautified Response
 
 ### **onCombinedStream(streams, eventHandler)**
 
-*streams* should be an array of stream names.  You may specify these explicitly, or you can use some helper functions to generate them:
+_streams_ should be an array of stream names. You may specify these explicitly, or you can use some helper functions to generate them:
 
 ```javascript
 const binanceWS = new api.BinanceWS();
@@ -489,8 +550,8 @@ binanceWS.onCombinedStream(
         streams.ticker('BNBBTC'),
         streams.allTickers()
     ],
-    (streamEvent) => {
-        switch(streamEvent.stream) {
+    streamEvent => {
+        switch (streamEvent.stream) {
             case streams.depth('BNBBTC'):
                 console.log('Depth Event', streamEvent.data);
                 break;
@@ -522,6 +583,7 @@ binanceWS.onCombinedStream(
 Will return the websocket via promise, `interval` defaults to 60000(ms), and is the amount of time between calls made to keep the user stream alive. `binanceRest` should be an instance of `BinanceRest` that will be used to get the `listenKey` and keep the stream alive.
 
 Responses
+
 ```javascript
 {
     eventType: 'executionReport',
@@ -553,6 +615,7 @@ Responses
     maker: true
 }
 ```
+
 ```javascript
 {
     eventType: 'outboundAccountInfo',
@@ -593,7 +656,7 @@ const { ValueProcessor } = require('binance');
 ValueProcessor.processFilters(symbolInfo, {
     quantity: '30.000000001', // Also accepts 'number' values.
     price: '0.00234414211'
-})
+});
 
 // {
 //     quantity: '30.000',
@@ -605,17 +668,18 @@ ValueProcessor.processFilters(symbolInfo, {
 
 Most can be resolved by adjusting your `recvWindow` a bit larger, but if your clock is constantly
 or intermittently going out of sync with the server, the library is capable of calculating the
-drift and adjusting the timestamps.  You have some options.  The first is to add the `handleDrift`
-option to the constructor, setting it to `true`.  In this case, if your clock is ahead of the
+drift and adjusting the timestamps. You have some options. The first is to add the `handleDrift`
+option to the constructor, setting it to `true`. In this case, if your clock is ahead of the
 server's, or falls behind and is outside the `recvWindow`, and a request fails, the library will
-calculate the drift of your clock and reattempt the request.  It will also use the drift value to
-adjust all subsequent calls.  This may add more time to the initial requests that fail, and could
-potentially affect highly time sensitive trades.  The alternative is to use the
-`startTimeSync(interval_in_ms)` and `endTimeSync` functions.  The former will begin an interval,
-and each time it's called the drift will be calculated and used on all subsequent requests.  The
-default interval is 5 minutes, and it should be specified in milliseconds.  The latter will clear
-the interval.  You may also calculate the drift manually by calling `calculateDrift()`. The
+calculate the drift of your clock and reattempt the request. It will also use the drift value to
+adjust all subsequent calls. This may add more time to the initial requests that fail, and could
+potentially affect highly time sensitive trades. The alternative is to use the
+`startTimeSync(interval_in_ms)` and `endTimeSync` functions. The former will begin an interval,
+and each time it's called the drift will be calculated and used on all subsequent requests. The
+default interval is 5 minutes, and it should be specified in milliseconds. The latter will clear
+the interval. You may also calculate the drift manually by calling `calculateDrift()`. The
 resulting value will be stored internally and used on all subsequent calls.
 
 # License
+
 [MIT](LICENSE)
