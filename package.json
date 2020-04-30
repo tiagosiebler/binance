@@ -1,6 +1,6 @@
 {
     "name": "binance",
-    "version": "1.3.4",
+    "version": "1.3.5",
     "description": "node.js wrapper for the Binance REST and WebSocket APIs",
     "main": "./lib/binance.js",
     "scripts": {
@@ -36,10 +36,11 @@
         "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)",
         "Andrey Vorobyov <vorandrew@gmail.com>",
         "Gavy Aggarwal (http://gavyaggarwal.com/)",
-        "Tiago Siebler (https://github.com/tiagosiebler)"
+        "Tiago Siebler (https://github.com/tiagosiebler)",
+        "Tony Pettigrew (https://github.com/NeverEnder4)",
+        "Chris <apexearth@gmail.com> (https://github.com/apexearth)"
     ],
     "license": "MIT",
-    "types": "index.d.ts",
     "devDependencies": {
         "chai": "^4.1.1",
         "coveralls": "^3.0.9",
