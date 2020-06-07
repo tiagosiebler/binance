@@ -651,15 +651,14 @@ Responses
             onOrderBalance: '0.00000000'
         },
         {
-          asset: 'BNB',
-          availableBalance: '0.00032331',
-          onOrderBalance: '0.00000000'
+            asset: 'BNB',
+            availableBalance: '0.00032331',
+            onOrderBalance: '0.00000000'
         },
         ... 
     ]
 }
 ```
-
 
 # Processing
 
