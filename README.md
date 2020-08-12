@@ -639,6 +639,27 @@ Responses
 }
 ```
 
+```javascript
+{
+    eventType: 'outboundAccountPosition',
+    eventTime: 1513808673916,
+    lastUpdateTime: 1499405658848,
+    balances: [
+        {
+            asset: 'BTC',
+            availableBalance: '0.00301025',
+            onOrderBalance: '0.00000000'
+        },
+        {
+            asset: 'BNB',
+            availableBalance: '0.00032331',
+            onOrderBalance: '0.00000000'
+        },
+        ... 
+    ]
+}
+```
+
 # Processing
 
 ## Filters
