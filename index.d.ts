@@ -154,17 +154,17 @@ declare class BinanceRest {
 
   depth: (query: unknown, callback?: Callback) => unknown
 
-  klines: (query: KLineArgs, callback?: Callback) => Promise<KLineRes[]>;
+  klines: (query: KLineArgs, callback?: Callback, useFixie?: boolean) => Promise<KLineRes[]>;
 
-  newOrder: (query: PlaceOrderArgs, callback?: Callback) => unknown
+  newOrder: (query: PlaceOrderArgs, callback?: Callback, useFixie?: boolean) => unknown
 
-  openOrders: (query: unknown, callback?: Callback) => Promise<GetOpenOrdersRes[]>
+  openOrders: (query: unknown, callback?: Callback, useFixie?: boolean) => Promise<GetOpenOrdersRes[]>
 
   ping: (callback?: Callback) => unknown
 
-  queryOrder: (query: unknown, callback?: Callback) => unknown
+  queryOrder: (query: unknown, callback?: Callback, useFixie?: boolean) => unknown
 
-  testOrder: (query: PlaceOrderArgs, callback?: Callback) => unknown
+  testOrder: (query: PlaceOrderArgs, callback?: Callback, useFixie?: boolean) => unknown
 
   ticker24hr: (query: unknown, callback?: Callback) => unknown
 
