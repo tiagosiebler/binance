@@ -1,5 +1,5 @@
 {
-    "name": "binance",
+    "name": "binance-rd",
     "version": "1.3.5",
     "description": "node.js wrapper for the Binance REST and WebSocket APIs",
     "main": "./lib/binance.js",
