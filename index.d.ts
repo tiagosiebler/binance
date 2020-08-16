@@ -51,6 +51,25 @@ export interface PlaceOrderArgs {
   timestamp: number;
 }
 
+export interface OcoOrderArgs {
+  symbol: string;
+  // listClientOrderId	STRING	NO	A unique Id for the entire orderList
+  side: string;
+  // limitClientOrderId	STRING	NO	A unique Id for the limit order
+  type: string;
+  quantity: number;
+  price: number;
+  // limitIcebergQty	DECIMAL	NO	Used to make the LIMIT_MAKER leg an iceberg order.
+  // stopClientOrderId	STRING	NO	A unique Id for the stop loss/stop loss limit leg
+  // stopPrice	DECIMAL	YES
+  // stopLimitPrice	DECIMAL	NO	If provided, stopLimitTimeInForce is required.
+  // stopIcebergQty	DECIMAL	NO	Used with STOP_LOSS_LIMIT leg to make an iceberg order.
+  // stopLimitTimeInForce	ENUM	NO	Valid values are GTC/FOK/IOC
+  // newOrderRespType	ENUM	NO	Set the response JSON.
+  recvWindow: number,
+  timestamp: number;
+}
+
 export interface KLineArgs {
   symbol: string; // symbol pair
   limit: number; // period of time
@@ -107,6 +126,49 @@ export interface ExchangeInfoSymbol {
   permissions: unknown[]; // TODO:
 }
 
+export interface QueryOrderRes  {
+  "symbol": string;
+  "orderId": number;
+  "orderListId": number;
+  "clientOrderId": string;
+  "price": string;
+  "origQty": string;
+  "executedQty": string;
+  "cummulativeQuoteQty": string;
+  "status": string;
+  "timeInForce": string,
+  "type": string;
+  "side": string;
+  "stopPrice": string;
+  "icebergQty": string;
+  "time": number,
+  "updateTime": number,
+  "isWorking": boolean,
+  "origQuoteOrderQty": string;
+}
+
+export interface QueryOcoOrderRes {
+  "orderListId": number;
+  "contingencyType": string;
+  "listStatusType": string;
+  "listOrderStatus": string,
+  "listClientOrderId": string;
+  "transactionTime": number,
+  "symbol": string,
+  "orders": {
+    symbol: string,
+    orderId: number,
+    clientOrderId: string;
+  }[]
+}
+
+export interface QueryOcoOrderArgs  {
+  orderListId?: number;
+  origClientOrderId?:	string;
+  recvWindow: number;
+  timestamp: number;
+}
+
 export interface ExchangeInfo {
   timezone: string; // UTC etc
   serverTime: number;
@@ -156,13 +218,17 @@ declare class BinanceRest {
 
   klines: (query: KLineArgs, callback?: Callback, useFixie?: boolean) => Promise<KLineRes[]>;
 
-  newOrder: (query: PlaceOrderArgs, callback?: Callback, useFixie?: boolean) => unknown
+  newOrder: (query: PlaceOrderArgs, callback?: Callback, useFixie?: boolean) => unknown;
+
+  orderOco: (query: OcoOrderArgs, callback?: Callback, useFixie?: boolean) => unknown;
 
   openOrders: (query: unknown, callback?: Callback, useFixie?: boolean) => Promise<GetOpenOrdersRes[]>
 
   ping: (callback?: Callback) => unknown
 
-  queryOrder: (query: unknown, callback?: Callback, useFixie?: boolean) => unknown
+  queryOrder: (query: unknown, callback?: Callback, useFixie?: boolean) => Promise<QueryOrderRes>
+
+  queryOco: (query: QueryOcoOrderArgs, callback?: Callback, useFixie?: boolean) => Promise<QueryOcoOrderRes>;
 
   testOrder: (query: PlaceOrderArgs, callback?: Callback, useFixie?: boolean) => unknown
 
