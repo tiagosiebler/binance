@@ -1,6 +1,6 @@
 {
-    "name": "binance",
-    "version": "1.3.5",
+    "name": "binance-rd-custom",
+    "version": "1.4.1",
     "description": "node.js wrapper for the Binance REST and WebSocket APIs",
     "main": "./lib/binance.js",
     "scripts": {

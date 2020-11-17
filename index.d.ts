@@ -21,7 +21,7 @@ export interface KLineRes {
 export interface GetOpenOrdersRes {
   symbol: string;
   orderId: number;
-  orderListId: -1; // what can this be?
+  orderListId: number; // what can this be?
   clientOrderId: string;
   price: string; // (float)
   origQty: string; // (float)
@@ -39,6 +39,29 @@ export interface GetOpenOrdersRes {
   origQuoteOrderQty: string; // (float)
 }
 
+export interface NewOrderResponse {
+  "symbol": string,
+  "orderId": number,
+  "orderListId": number, //Unless OCO, value will be -1
+  "clientOrderId": string,
+  "transactTime": number,
+  "price": string;
+  "origQty": string;
+  "executedQty": string,
+  "cummulativeQuoteQty": string,
+  "status": string,
+  "timeInForce": string,
+  "type": string,
+  "side": string,
+  "fills":
+    {
+      "price": string;
+      "qty": string;
+      "commission": string;
+      "commissionAsset": string;
+    }[]
+}
+
 export interface PlaceOrderArgs {
   side: string;
   type: string;
@@ -49,6 +72,56 @@ export interface PlaceOrderArgs {
   newClientOrderId?: string;
   recvWindow: number,
   timestamp: number;
+}
+
+export interface OcoOrderResponse {
+    "orderListId": number,
+    "contingencyType": string,
+    "listStatusType": string,
+    "listOrderStatus": string,
+    "listClientOrderId": string,
+    "transactionTime": number,
+    "symbol": string,
+    "orders": {
+      symbol: string,
+      orderId: number,
+      clientOrderId: string;
+    }[],
+    "orderReports": {
+      "symbol": string,
+      "orderId": number,
+      "orderListId": number,
+      "clientOrderId": string;
+      "transactTime": number;
+      "price": string;
+      "origQty": string;
+      "executedQty": string;
+      "cummulativeQuoteQty": string;
+      "status": string;
+      "timeInForce": string,
+      "type": string,
+      "side": string,
+      "stopPrice"?: string;
+    }[];
+}
+
+export interface OcoOrderArgs {
+  symbol: string;
+  listClientOrderId: string;
+  side: string;
+  // limitClientOrderId	STRING	NO	A unique Id for the limit order
+  // type: string;
+  quantity: number;
+  price: number;
+  // limitIcebergQty	DECIMAL	NO	Used to make the LIMIT_MAKER leg an iceberg order.
+  // stopClientOrderId	STRING	NO	A unique Id for the stop loss/stop loss limit leg
+  stopPrice: number;
+  stopLimitPrice: number;
+  // stopIcebergQty	DECIMAL	NO	Used with STOP_LOSS_LIMIT leg to make an iceberg order.
+  stopLimitTimeInForce?: string
+  // newOrderRespType	ENUM	NO	Set the response JSON.
+  recvWindow?: number,
+  // timestamp: number;
 }
 
 export interface KLineArgs {
@@ -73,6 +146,26 @@ export interface RateLimit {
   intervalNum: number;
   limit: number;
 }
+
+export enum ListStatusType {
+  RESPONSE = 'RESPONSE',
+  EXEC_STARTED = 'EXEC_STARTED',
+  ALL_DONE = 'ALL_DONE'
+}
+
+// RESPONSE	This is used when the ListStatus is responding to a failed action. (E.g. Orderlist placement or cancellation)
+// EXEC_STARTED	The order list has been placed or there is an update to the order list status.
+// ALL_DONE	The order list has finished executing and thus no longer active.
+
+export enum ListOrderStatus {
+  EXECUTING = 'EXECUTING',
+  ALL_DONE = 'ALL_DONE',
+  REJECT = 'REJECT'
+}
+
+// EXECUTING	Either an order list has been placed or there is an update to the status of the list.
+// ALL_DONE	An order list has completed execution and thus no longer active.
+// REJECT	The List Status is responding to a failed action either during order placement or order canceled
 
 declare enum ExchangeInfoSymbolOrderTypes {
   LIMIT,
@@ -105,6 +198,49 @@ export interface ExchangeInfoSymbol {
     //All filters are optional
   ],
   permissions: unknown[]; // TODO:
+}
+
+export interface QueryOrderRes  {
+  "symbol": string;
+  "orderId": number;
+  "orderListId": number;
+  "clientOrderId": string;
+  "price": string;
+  "origQty": string;
+  "executedQty": string;
+  "cummulativeQuoteQty": string;
+  "status": string;
+  "timeInForce": string,
+  "type": string;
+  "side": string;
+  "stopPrice": string;
+  "icebergQty": string;
+  "time": number,
+  "updateTime": number,
+  "isWorking": boolean,
+  "origQuoteOrderQty": string;
+}
+
+export interface QueryOcoOrderRes {
+  "orderListId": number;
+  "contingencyType": string;
+  "listStatusType": string;
+  "listOrderStatus": string,
+  "listClientOrderId": string;
+  "transactionTime": number,
+  "symbol": string,
+  "orders": {
+    symbol: string,
+    orderId: number,
+    clientOrderId: string;
+  }[]
+}
+
+export interface QueryOcoOrderArgs  {
+  orderListId?: number;
+  origClientOrderId?:	string;
+  recvWindow?: number;
+  timestamp?: number;
 }
 
 export interface ExchangeInfo {
@@ -142,7 +278,7 @@ declare class BinanceRest {
 
   allBookTickers: (callback?: Callback) => unknown
 
-  allOrders: (query: unknown, callback?: Callback) => unknown
+  allOrders: (query: unknown, callback?: Callback, useFixie?: boolean) => unknown
 
   allPrices: (callback?: Callback) => unknown
 
@@ -154,17 +290,21 @@ declare class BinanceRest {
 
   depth: (query: unknown, callback?: Callback) => unknown
 
-  klines: (query: KLineArgs, callback?: Callback) => Promise<KLineRes[]>;
+  klines: (query: KLineArgs, callback?: Callback, useFixie?: boolean) => Promise<KLineRes[]>;
 
-  newOrder: (query: PlaceOrderArgs, callback?: Callback) => unknown
+  newOrder: (query: PlaceOrderArgs, callback?: Callback, useFixie?: boolean) => Promise<NewOrderResponse[]>;
 
-  openOrders: (query: unknown, callback?: Callback) => Promise<GetOpenOrdersRes[]>
+  orderOco: (query: OcoOrderArgs, callback?: Callback, useFixie?: boolean) => Promise<OcoOrderResponse>;
+
+  openOrders: (query: unknown, callback?: Callback, useFixie?: boolean) => Promise<GetOpenOrdersRes[]>
 
   ping: (callback?: Callback) => unknown
 
-  queryOrder: (query: unknown, callback?: Callback) => unknown
+  queryOrder: (query: unknown, callback?: Callback, useFixie?: boolean) => Promise<QueryOrderRes>
 
-  testOrder: (query: PlaceOrderArgs, callback?: Callback) => unknown
+  queryOco: (query: QueryOcoOrderArgs, callback?: Callback, useFixie?: boolean) => Promise<QueryOcoOrderRes>;
+
+  testOrder: (query: PlaceOrderArgs, callback?: Callback, useFixie?: boolean) => unknown
 
   ticker24hr: (query: unknown, callback?: Callback) => unknown
 
