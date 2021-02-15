@@ -532,6 +532,37 @@ Beautified Response
 }
 ```
 
+### **[onBookTicker(eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md)**
+
+Pushes any update to the best bid or ask's price or quantity in real-time for a specified symbol. Returns the websocket, an instance of https://www.npmjs.com/package/ws
+
+Stream Name: <symbol>@bookTicker
+
+Beautified Response
+
+```javascript
+{
+  "u":400900217,     // order book updateId
+  "s":"BNBUSDT",     // symbol
+  "b":"25.35190000", // best bid price
+  "B":"31.21000000", // best bid qty
+  "a":"25.36520000", // best ask price
+  "A":"40.66000000"  // best ask qty
+}
+```
+
+### **[onBookTickers(eventHandler)](https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md)**
+
+Pushes any update to the best bid or ask's price or quantity in real-time for all symbols. Returns the websocket, an instance of https://www.npmjs.com/package/ws
+
+Stream Name: !bookTicker
+
+Beautified Response
+
+```javascript
+  // Same as <symbol>@bookTicker payload
+```
+
 ### **onCombinedStream(streams, eventHandler)**
 
 _streams_ should be an array of stream names. You may specify these explicitly, or you can use some helper functions to generate them:
