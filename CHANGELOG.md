@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.6
+
+-   Bump dependencies. #104, #106, #107, #108.
+-   Add depositAddressWithNetwork and allCoinsInformation REST methods. #100
+
 ## 1.3.5
 
 -   Fix beautifer issue related to arrays and errors from binance server
