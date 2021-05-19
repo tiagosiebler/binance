@@ -1,8 +1,11 @@
 {
     "name": "binance",
-    "version": "1.3.5",
+    "version": "1.3.6",
     "description": "node.js wrapper for the Binance REST and WebSocket APIs",
     "main": "./lib/binance.js",
+    "files": [
+        "lib/*"
+    ],
     "scripts": {
         "test": "mocha",
         "cover": "nyc --reporter=html --reporter=text mocha",
@@ -40,6 +43,10 @@
         "Tony Pettigrew (https://github.com/NeverEnder4)",
         "Chris <apexearth@gmail.com> (https://github.com/apexearth)"
     ],
+    "funding": {
+      "type": "individual",
+      "url": "https://github.com/sponsors/tiagosiebler"
+    },
     "license": "MIT",
     "devDependencies": {
         "chai": "^4.1.1",
