@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.7
+
+-   Minor docs tweaks.
+-   Update package.json links.
+
 ## 1.3.6
 
 -   Bump dependencies. #104, #106, #107, #108.
