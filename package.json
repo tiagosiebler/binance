@@ -1,6 +1,6 @@
 {
     "name": "binance",
-    "version": "1.3.6",
+    "version": "1.3.7",
     "description": "node.js wrapper for the Binance REST and WebSocket APIs",
     "main": "./lib/binance.js",
     "files": [
@@ -22,8 +22,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/zoeyg/binance"
+        "url": "https://github.com/tiagosiebler/binance"
     },
+    "bugs": {
+      "url": "https://github.com/tiagosiebler/binance/issues"
+    },
+    "homepage": "https://github.com/tiagosiebler/binance#readme",
     "keywords": [
         "api",
         "bitcoin",

@@ -1,6 +1,6 @@
 ![npm downloads](https://img.shields.io/npm/dt/binance.svg)
-![testing status](https://img.shields.io/travis/aarongarvey/binance.svg)
-![code coverage](https://img.shields.io/coveralls/github/aarongarvey/binance.svg)
+![testing status](https://img.shields.io/travis/tiagosiebler/binance.svg)
+![code coverage](https://img.shields.io/coveralls/github/tiagosiebler/binance.svg)
 
 # Binance
 
@@ -655,7 +655,7 @@ Responses
             availableBalance: '0.00032331',
             onOrderBalance: '0.00000000'
         },
-        ... 
+        ...
     ]
 }
 ```
