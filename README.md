@@ -285,6 +285,10 @@ Get all open orders for a symbol, or all symbols. Careful when accessing this wi
 
 Retrieve all orders on an account, whether active, cancelled, or filled.
 
+### **[newOCO(query _object_, [callback _function_])](https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#new-oco-trade)**
+
+Places a new OCO(One-Cancels-the-Other) order.
+
 ### **[account([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-information-user_data)**
 
 Retrieve current account information including commision rates, trading permissions, and free/locked balances.
