@@ -289,6 +289,10 @@ Retrieve all orders on an account, whether active, cancelled, or filled.
 
 Places a new OCO(One-Cancels-the-Other) order.
 
+### **[cancelOCO(query _object_, [callback _function_])](https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#cancel-oco-trade)**
+
+Cancels an OCO order which includes both STOP_LOSS_LIMIT and LIMIT_MAKER type order on the basis of orderListId. Canceling an individual leg will cancel the entire OCO.
+
 ### **[account([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-information-user_data)**
 
 Retrieve current account information including commision rates, trading permissions, and free/locked balances.
