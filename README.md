@@ -301,6 +301,10 @@ Retrieves a specific OCO order based on provided optional parameters.
 
 Retrieves all OCO orders based on provided optional parameters.
 
+### **[queryOpenOCO(query _object_, [callback _function_])](https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md#query-open-oco-user_data)**
+
+Retrieves Open OCO orders.
+
 ### **[account([callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#account-information-user_data)**
 
 Retrieve current account information including commision rates, trading permissions, and free/locked balances.
