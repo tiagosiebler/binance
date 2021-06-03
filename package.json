@@ -1,66 +1,66 @@
 {
-    "name": "binance",
-    "version": "1.3.7",
-    "description": "node.js wrapper for the Binance REST and WebSocket APIs",
-    "main": "./lib/binance.js",
-    "files": [
-        "lib/*"
-    ],
-    "scripts": {
-        "test": "mocha",
-        "cover": "nyc --reporter=html --reporter=text mocha",
-        "coveralls": "nyc report --reporter=text-lcov | coveralls",
-        "lint": "eslint lib test util && prettier --check lib/**/* test/**/* util/**/*",
-        "lintfix": "eslint lib test util --fix && prettier --write lib/**/* test/**/* util/**/*",
-        "precommit": "yarn test && yarn lint"
-    },
-    "dependencies": {
-        "bignumber.js": "^9.0.0",
-        "request": "^2.88.2",
-        "underscore": "^1.8.3",
-        "ws": "^3.3.1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/tiagosiebler/binance"
-    },
-    "bugs": {
-      "url": "https://github.com/tiagosiebler/binance/issues"
-    },
-    "homepage": "https://github.com/tiagosiebler/binance#readme",
-    "keywords": [
-        "api",
-        "bitcoin",
-        "ethereum",
-        "cryptocurrency",
-        "binance",
-        "btc",
-        "eth"
-    ],
-    "author": "Zoey Garvey",
-    "contributors": [
-        "Clifford Roche <clifford.roche@gmail.com> (http://www.cliffordroche.ca)",
-        "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)",
-        "Andrey Vorobyov <vorandrew@gmail.com>",
-        "Gavy Aggarwal (http://gavyaggarwal.com/)",
-        "Tiago Siebler (https://github.com/tiagosiebler)",
-        "Tony Pettigrew (https://github.com/NeverEnder4)",
-        "Chris <apexearth@gmail.com> (https://github.com/apexearth)"
-    ],
-    "funding": {
-      "type": "individual",
-      "url": "https://github.com/sponsors/tiagosiebler"
-    },
-    "license": "MIT",
-    "devDependencies": {
-        "chai": "^4.1.1",
-        "coveralls": "^3.0.9",
-        "eslint": "^6.8.0",
-        "eslint-config-prettier": "^6.10.0",
-        "mocha": "^7.1.0",
-        "mock-require": "^2.0.2",
-        "nyc": "^15.0.0",
-        "prettier": "^1.19.1",
-        "sinon": "^9.0.1"
-    }
+  "name": "binance",
+  "version": "1.3.8",
+  "description": "node.js wrapper for the Binance REST and WebSocket APIs",
+  "main": "./lib/binance.js",
+  "files": [
+    "lib/*"
+  ],
+  "scripts": {
+    "test": "npx mocha",
+    "cover": "nyc --reporter=html --reporter=text mocha",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "lint": "eslint lib test util && prettier --check lib/**/* test/**/* util/**/*",
+    "lintfix": "eslint lib test util --fix && prettier --write lib/**/* test/**/* util/**/*",
+    "precommit": "npm run test && npm run lint"
+  },
+  "dependencies": {
+    "bignumber.js": "^9.0.0",
+    "request": "^2.88.2",
+    "underscore": "^1.8.3",
+    "ws": "^3.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tiagosiebler/binance"
+  },
+  "bugs": {
+    "url": "https://github.com/tiagosiebler/binance/issues"
+  },
+  "homepage": "https://github.com/tiagosiebler/binance#readme",
+  "keywords": [
+    "api",
+    "bitcoin",
+    "ethereum",
+    "cryptocurrency",
+    "binance",
+    "btc",
+    "eth"
+  ],
+  "author": "Zoey Garvey",
+  "contributors": [
+    "Clifford Roche <clifford.roche@gmail.com> (http://www.cliffordroche.ca)",
+    "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)",
+    "Andrey Vorobyov <vorandrew@gmail.com>",
+    "Gavy Aggarwal (http://gavyaggarwal.com/)",
+    "Tiago Siebler (https://github.com/tiagosiebler)",
+    "Tony Pettigrew (https://github.com/NeverEnder4)",
+    "Chris <apexearth@gmail.com> (https://github.com/apexearth)"
+  ],
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/tiagosiebler"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.1.1",
+    "coveralls": "^3.0.9",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "mocha": "^7.1.0",
+    "mock-require": "^2.0.2",
+    "nyc": "^15.0.0",
+    "prettier": "^1.19.1",
+    "sinon": "^9.0.1"
+  }
 }
