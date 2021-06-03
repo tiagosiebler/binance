@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.3.8
+-   Optimise local imports.
+-   Cleaning, including indentation.
+-   Deprecate yarn in favour of npm.
+-   Fix tests.
+-   Expose utility method for generating custom order ID.
+-   Add example on providing custom order ID.
+-   Update docs.
+
 ## 1.3.7
 
 -   Minor docs tweaks.

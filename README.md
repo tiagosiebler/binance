@@ -4,8 +4,7 @@
 
 # Binance
 
-A wrapper for the Binance REST and WebSocket APIs. Uses both promises and callbacks, and beautifies the
-binance API responses that normally use lots of one letter property names. For more information on the API and parameters for requests visit https://github.com/binance-exchange/binance-official-api-docs
+A wrapper for the Binance REST and WebSocket APIs. Uses promises and beautifies the binance API responses that normally use lots of one letter property names. For more information on the API and parameters for requests visit https://github.com/binance-exchange/binance-official-api-docs
 
 # Usage/Example
 
@@ -53,18 +52,6 @@ binanceRest
     .catch(err => {
         console.error(err);
     });
-
-/*
- * Or you can provide a callback.  Also, instead of passing an object as the query, routes
- * that only mandate a symbol, or symbol and timestamp, can be passed a string.
- */
-binanceRest.allOrders('BNBBTC', (err, data) => {
-    if (err) {
-        console.error(err);
-    } else {
-        console.log(data);
-    }
-});
 
 /*
  * WebSocket API
@@ -263,7 +250,25 @@ Retrieve best price/qty on the order book for a symbol or symbols.
 
 ### **[newOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#new-order--trade)**
 
-Places a new order.
+Places a new order. Example:
+```javascript
+
+const customOrderId = binanceRest.generateNewOrderId();
+binanceRest
+    .newOrder({
+        symbol: 'BTCUSDT',
+        quantity: 0.1,
+        side: 'BUY',
+        type: 'MARKET',
+        newClientOrderId: customOrderId,
+    })
+    .then(orderData => {
+        console.log(orderData);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+```
 
 ### **[testOrder(query _object_, [callback _function_])](https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#test-new-order-trade)**
 
@@ -687,19 +692,11 @@ ValueProcessor.processFilters(symbolInfo, {
 
 # Timestamp errors
 
-Most can be resolved by adjusting your `recvWindow` a bit larger, but if your clock is constantly
-or intermittently going out of sync with the server, the library is capable of calculating the
-drift and adjusting the timestamps. You have some options. The first is to add the `handleDrift`
-option to the constructor, setting it to `true`. In this case, if your clock is ahead of the
-server's, or falls behind and is outside the `recvWindow`, and a request fails, the library will
-calculate the drift of your clock and reattempt the request. It will also use the drift value to
-adjust all subsequent calls. This may add more time to the initial requests that fail, and could
-potentially affect highly time sensitive trades. The alternative is to use the
-`startTimeSync(interval_in_ms)` and `endTimeSync` functions. The former will begin an interval,
-and each time it's called the drift will be calculated and used on all subsequent requests. The
-default interval is 5 minutes, and it should be specified in milliseconds. The latter will clear
-the interval. You may also calculate the drift manually by calling `calculateDrift()`. The
-resulting value will be stored internally and used on all subsequent calls.
+Most can be resolved by adjusting your `recvWindow` a bit larger, but if your clock is constantly or intermittently going out of sync with the server, the library is capable of calculating the drift and adjusting the timestamps. You have some options. The first is to add the `handleDrift` option to the constructor, setting it to `true`.
+
+In this case, if your clock is ahead of the server's, or falls behind and is outside the `recvWindow`, and a request fails, the library will calculate the drift of your clock and reattempt the request. It will also use the drift value to adjust all subsequent calls. This may add more time to the initial requests that fail, and could potentially affect highly time sensitive trades.
+
+The alternative is to use the `startTimeSync(interval_in_ms)` and `endTimeSync` functions. The former will begin an interval, and each time it's called the drift will be calculated and used on all subsequent requests. The default interval is 5 minutes, and it should be specified in milliseconds. The latter will clear the interval. You may also calculate the drift manually by calling `calculateDrift()`. The resulting value will be stored internally and used on all subsequent calls.
 
 # License
 

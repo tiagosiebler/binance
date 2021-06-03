@@ -3,4 +3,4 @@ node_js:
     - 'stable'
 git:
     depth: false
-script: yarn precommit
+script: npm run precommit
