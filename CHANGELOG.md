@@ -1,4 +1,7 @@
 # Changelog
+## 1.3.9
+-   Bump ws dependency.
+-   Add bookTicker websocket. #116.
 
 ## 1.3.8
 -   Optimise local imports.
