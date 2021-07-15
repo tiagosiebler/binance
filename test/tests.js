@@ -220,31 +220,31 @@ describe('BinanceRest', () => {
         expect(response).to.deep.equal([
           {
             symbol: 'ETHBTC',
-            bidPrice: '0.04035100',
-            bidQty: '0.85800000',
-            askPrice: '0.04039500',
-            askQty: '1.18800000'
+            bidPrice: 0.040351,
+            bidQty: 0.858,
+            askPrice: 0.040395,
+            askQty: 1.188
           },
           {
             symbol: 'LTCBTC',
-            bidPrice: '0.00884200',
-            bidQty: '16.66000000',
-            askPrice: '0.00887000',
-            askQty: '0.58000000'
+            bidPrice: 0.008842,
+            bidQty: 16.66,
+            askPrice: 0.00887,
+            askQty: 0.58
           },
           {
             symbol: 'BNBBTC',
-            bidPrice: '0.00021659',
-            bidQty: '1698.00000000',
-            askPrice: '0.00021660',
-            askQty: '828.00000000'
+            bidPrice: 0.00021659,
+            bidQty: 1698,
+            askPrice: 0.0002166,
+            askQty: 828
           },
           {
             symbol: 'NEOBTC',
-            bidPrice: '0.00363400',
-            bidQty: '48.00000000',
-            askPrice: '0.00365000',
-            askQty: '251.07000000'
+            bidPrice: 0.003634,
+            bidQty: 48,
+            askPrice: 0.00365,
+            askQty: 251.07
           }
         ]);
         done();
@@ -270,51 +270,51 @@ describe('BinanceRest', () => {
         expect(response).to.deep.equal([
           {
             symbol: 'ETHBTC',
-            price: '0.04032100'
+            price: 0.040321
           },
           {
             symbol: 'LTCBTC',
-            price: '0.00886500'
+            price: 0.008865
           },
           {
             symbol: 'BNBBTC',
-            price: '0.00021682'
+            price: 0.00021682
           },
           {
             symbol: 'NEOBTC',
-            price: '0.00367100'
+            price: 0.003671
           },
           {
             symbol: '123456',
-            price: '0.00030000'
+            price: 0.0003
           },
           {
             symbol: 'QTUMETH',
-            price: '0.02884900'
+            price: 0.028849
           },
           {
             symbol: 'EOSETH',
-            price: '0.00852300'
+            price: 0.008523
           },
           {
             symbol: 'SNTETH',
-            price: '0.00016834'
+            price: 0.00016834
           },
           {
             symbol: 'BNTETH',
-            price: '0.00565300'
+            price: 0.005653
           },
           {
             symbol: 'BCCBTC',
-            price: '0.13200000'
+            price: 0.132
           },
           {
             symbol: 'GASBTC',
-            price: '0.00187000'
+            price: 0.00187
           },
           {
             symbol: 'BNBETH',
-            price: '0.00537000'
+            price: 0.00537
           }
         ]);
       });
@@ -336,18 +336,18 @@ describe('BinanceRest', () => {
         expect(response).to.deep.equal({
           lastUpdateId: 2727677,
           asks: [
-            ['0.07096700', '1.40300000', []],
-            ['0.07118300', '0.92900000', []],
-            ['0.07119300', '3.60300000', []],
-            ['0.07125700', '0.24900000', []],
-            ['0.07129600', '2.00000000', []]
+            [0.070967, 1.403, []],
+            [0.071183, 0.929, []],
+            [0.071193, 3.603, []],
+            [0.071257, 0.249, []],
+            [0.071296, 2, []]
           ],
           bids: [
-            ['0.07085000', '11.09700000', []],
-            ['0.07080300', '5.70500000', []],
-            ['0.07070000', '5.00000000', []],
-            ['0.07067500', '6.95000000', []],
-            ['0.07065100', '1.10100000', []]
+            [0.07085, 11.097, []],
+            [0.070803, 5.705, []],
+            [0.0707, 5, []],
+            [0.070675, 6.95, []],
+            [0.070651, 1.101, []]
           ]
         });
       });
@@ -369,24 +369,24 @@ describe('BinanceRest', () => {
         expect(response).to.deep.equal([
           {
             id: 17843116,
-            price: '0.07625700',
-            qty: '0.08700000',
+            price: 0.076257,
+            qty: 0.087,
             time: 1515439245305,
             isBuyerMaker: false,
             isBestMatch: true
           },
           {
             id: 17843117,
-            price: '0.07625700',
-            qty: '0.13600000',
+            price: 0.076257,
+            qty: 0.136,
             time: 1515439245318,
             isBuyerMaker: false,
             isBestMatch: true
           },
           {
             id: 17843118,
-            price: '0.07614300',
-            qty: '0.43200000',
+            price: 0.076143,
+            qty: 0.432,
             time: 1515439245553,
             isBuyerMaker: false,
             isBestMatch: true
@@ -415,24 +415,24 @@ describe('BinanceRest', () => {
         expect(response).to.deep.equal([
           {
             id: 17851860,
-            price: '0.07600400',
-            qty: '0.11000000',
+            price: 0.076004,
+            qty: 0.11,
             time: 1515440470089,
             isBuyerMaker: true,
             isBestMatch: true
           },
           {
             id: 17851861,
-            price: '0.07607700',
-            qty: '0.06600000',
+            price: 0.076077,
+            qty: 0.066,
             time: 1515440470158,
             isBuyerMaker: false,
             isBestMatch: true
           },
           {
             id: 17851862,
-            price: '0.07607700',
-            qty: '0.32400000',
+            price: 0.076077,
+            qty: 0.324,
             time: 1515440470158,
             isBuyerMaker: false,
             isBestMatch: true
@@ -461,8 +461,8 @@ describe('BinanceRest', () => {
             firstTradeId: 483670,
             lastTradeId: 483670,
             maker: false,
-            price: '0.07140500',
-            quantity: '0.04900000',
+            price: 0.071405,
+            quantity: 0.049,
             timestamp: 1503211746056
           },
           {
@@ -471,8 +471,8 @@ describe('BinanceRest', () => {
             firstTradeId: 483671,
             lastTradeId: 483671,
             maker: false,
-            price: '0.07140500',
-            quantity: '0.87200000',
+            price: 0.071405,
+            quantity: 0.872,
             timestamp: 1503211750688
           },
           {
@@ -481,8 +481,8 @@ describe('BinanceRest', () => {
             firstTradeId: 483672,
             lastTradeId: 483672,
             maker: false,
-            price: '0.07140500',
-            quantity: '1.27300000',
+            price: 0.071405,
+            quantity: 1.273,
             timestamp: 1503211750696
           },
           {
@@ -491,8 +491,8 @@ describe('BinanceRest', () => {
             firstTradeId: 483673,
             lastTradeId: 483673,
             maker: false,
-            price: '0.07140500',
-            quantity: '0.05700000',
+            price: 0.071405,
+            quantity: 0.057,
             timestamp: 1503211750702
           },
           {
@@ -501,8 +501,8 @@ describe('BinanceRest', () => {
             firstTradeId: 483674,
             lastTradeId: 483674,
             maker: false,
-            price: '0.07140500',
-            quantity: '0.21900000',
+            price: 0.071405,
+            quantity: 0.219,
             timestamp: 1503211750709
           }
         ]);
@@ -675,74 +675,74 @@ describe('BinanceRest', () => {
         .then(response => {
           expect(response).to.deep.equal([
             {
-              close: '0.07130300',
+              close: 0.071303,
               closeTime: 1503213479999,
-              high: '0.07132100',
-              low: '0.07120000',
-              open: '0.07120000',
+              high: 0.071321,
+              low: 0.0712,
+              open: 0.0712,
               openTime: 1503213420000,
-              quoteAssetVolume: '0.28160693',
-              takerBaseAssetVolume: '3.50900000',
-              takerQuoteAssetVolume: '0.25026338',
+              quoteAssetVolume: 0.28160693,
+              takerBaseAssetVolume: 3.509,
+              takerQuoteAssetVolume: 0.25026338,
               trades: 6,
-              volume: '3.94900000',
-              ignored: '56742.16444446'
+              volume: 3.949,
+              ignored: 56742.16444446
             },
             {
-              close: '0.07137300',
+              close: 0.071373,
               closeTime: 1503213539999,
-              high: '0.07137300',
-              low: '0.07120000',
-              open: '0.07130300',
+              high: 0.071373,
+              low: 0.0712,
+              open: 0.071303,
               openTime: 1503213480000,
-              quoteAssetVolume: '0.96808274',
-              takerBaseAssetVolume: '2.52600000',
-              takerQuoteAssetVolume: '0.18018091',
+              quoteAssetVolume: 0.96808274,
+              takerBaseAssetVolume: 2.526,
+              takerQuoteAssetVolume: 0.18018091,
               trades: 15,
-              volume: '13.59200000',
-              ignored: '56676.42790975'
+              volume: 13.592,
+              ignored: 56676.42790975
             },
             {
-              close: '0.07136700',
+              close: 0.071367,
               closeTime: 1503213599999,
-              high: '0.07159900',
-              low: '0.07127600',
-              open: '0.07137300',
+              high: 0.071599,
+              low: 0.071276,
+              open: 0.071373,
               openTime: 1503213540000,
-              quoteAssetVolume: '0.65519433',
-              takerBaseAssetVolume: '8.40100000',
-              takerQuoteAssetVolume: '0.59919476',
+              quoteAssetVolume: 0.65519433,
+              takerBaseAssetVolume: 8.401,
+              takerQuoteAssetVolume: 0.59919476,
               trades: 21,
-              volume: '9.18600000',
-              ignored: '56659.02528193'
+              volume: 9.186,
+              ignored: 56659.02528193
             },
             {
-              close: '0.07132100',
+              close: 0.071321,
               closeTime: 1503213659999,
-              high: '0.07142000',
-              low: '0.07127600',
-              open: '0.07127600',
+              high: 0.07142,
+              low: 0.071276,
+              open: 0.071276,
               openTime: 1503213600000,
-              quoteAssetVolume: '0.79448882',
-              takerBaseAssetVolume: '1.59700000',
-              takerQuoteAssetVolume: '0.11399855',
+              quoteAssetVolume: 0.79448882,
+              takerBaseAssetVolume: 1.597,
+              takerQuoteAssetVolume: 0.11399855,
               trades: 14,
-              volume: '11.13600000',
-              ignored: '56672.51428193'
+              volume: 11.136,
+              ignored: 56672.51428193
             },
             {
-              close: '0.07132100',
+              close: 0.071321,
               closeTime: 1503213719999,
-              high: '0.07132100',
-              low: '0.07132100',
-              open: '0.07132100',
+              high: 0.071321,
+              low: 0.071321,
+              open: 0.071321,
               openTime: 1503213660000,
-              quoteAssetVolume: '0.00000000',
-              takerBaseAssetVolume: '0.00000000',
-              takerQuoteAssetVolume: '0.00000000',
+              quoteAssetVolume: 0,
+              takerBaseAssetVolume: 0,
+              takerQuoteAssetVolume: 0,
               trades: 0,
-              volume: '0.00000000',
-              ignored: '56672.51428193'
+              volume: 0,
+              ignored: 56672.51428193
             }
           ]);
         });
@@ -765,22 +765,22 @@ describe('BinanceRest', () => {
       );
       return binance.ticker24hr('ETHBTC').then(response => {
         expect(response).to.deep.equal({
-          askPrice: '0.07077200',
-          bidPrice: '0.07075800',
+          askPrice: 0.070772,
+          bidPrice: 0.070758,
           closeTime: 1503215202623,
           count: 17766,
           fristId: 466817,
-          highPrice: '0.07285800',
+          highPrice: 0.072858,
           lastId: 484582,
-          lastPrice: '0.07075800',
-          lowPrice: '0.06900000',
-          openPrice: '0.07191900',
+          lastPrice: 0.070758,
+          lowPrice: 0.069,
+          openPrice: 0.071919,
           openTime: 1503128802623,
-          prevClosePrice: '0.07191900',
-          priceChange: '-0.00116100',
-          priceChangePercent: '-1.614',
-          volume: '19985.33300000',
-          weightedAvgPrice: '0.07098817'
+          prevClosePrice: 0.071919,
+          priceChange: -0.001161,
+          priceChangePercent: -1.614,
+          volume: 19985.333,
+          weightedAvgPrice: 0.07098817
         });
       });
     });
@@ -803,7 +803,7 @@ describe('BinanceRest', () => {
       return binance.tickerPrice('ETHBTC').then(response => {
         expect(response).to.deep.equal({
           symbol: 'ETHBTC',
-          price: '0.07597600'
+          price: 0.075976
         });
       });
     });
@@ -826,10 +826,10 @@ describe('BinanceRest', () => {
       return binance.bookTicker('ETHBTC').then(response => {
         expect(response).to.deep.equal({
           symbol: 'ETHBTC',
-          bidPrice: '0.07601600',
-          bidQty: '11.71000000',
-          askPrice: '0.07607900',
-          askQty: '3.67800000'
+          bidPrice: 0.076016,
+          bidQty: 11.71,
+          askPrice: 0.076079,
+          askQty: 3.678
         });
       });
     });
@@ -866,14 +866,14 @@ describe('BinanceRest', () => {
         .then(response => {
           expect(response).to.deep.equal({
             clientOrderId: 'dxkJuIgVohXkBsnI2Crnee',
-            executedQty: '5.00000000',
-            icebergQty: '0.00000000',
+            executedQty: 5,
+            icebergQty: 0,
             orderId: 1497927,
-            origQty: '5.00000000',
-            price: '0.00063500',
+            origQty: 5,
+            price: 0.000635,
             side: 'SELL',
             status: 'FILLED',
-            stopPrice: '0.00000000',
+            stopPrice: 0,
             symbol: 'BNBBTC',
             time: 1503257997234,
             timeInForce: 'GTC',
@@ -899,14 +899,14 @@ describe('BinanceRest', () => {
         expect(response).to.deep.equal([
           {
             clientOrderId: 'z7z7gslJeO4DCDgYe9LtgB',
-            executedQty: '0.00000000',
-            icebergQty: '0.00000000',
+            executedQty: 0,
+            icebergQty: 0,
             orderId: 1500955,
-            origQty: '5.00000000',
-            price: '0.00070000',
+            origQty: 5,
+            price: 0.0007,
             side: 'SELL',
             status: 'NEW',
-            stopPrice: '0.00000000',
+            stopPrice: 0,
             symbol: 'BNBBTC',
             time: 1503260089565,
             timeInForce: 'GTC',
@@ -962,14 +962,14 @@ describe('BinanceRest', () => {
         expect(response).to.deep.equal([
           {
             clientOrderId: 'z7z7gslJeO4DCDgYe9LtgB',
-            executedQty: '0.00000000',
-            icebergQty: '0.00000000',
+            executedQty: 0,
+            icebergQty: 0,
             orderId: 1500955,
-            origQty: '5.00000000',
-            price: '0.00070000',
+            origQty: 5,
+            price: 0.0007,
             side: 'SELL',
             status: 'CANCELED',
-            stopPrice: '0.00000000',
+            stopPrice: 0,
             symbol: 'BNBBTC',
             time: 1503260089565,
             timeInForce: 'GTC',
@@ -1004,118 +1004,118 @@ describe('BinanceRest', () => {
           balances: [
             {
               asset: 'BTC',
-              free: '0.00370801',
-              locked: '0.00000000'
+              free: 0.00370801,
+              locked: 0
             },
             {
               asset: 'LTC',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'ETH',
-              free: '0.26982983',
-              locked: '0.00000000'
+              free: 0.26982983,
+              locked: 0
             },
             {
               asset: 'BNC',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'ICO',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'NEO',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'BNB',
-              free: '926.00000000',
-              locked: '0.00000000'
+              free: 926,
+              locked: 0
             },
             {
               asset: '123',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: '456',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'QTUM',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'EOS',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'SNT',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'BNT',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'GAS',
-              free: '95.45000000',
-              locked: '0.00000000'
+              free: 95.45,
+              locked: 0
             },
             {
               asset: 'BCC',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'BTM',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'USDT',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'HCC',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'HSR',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'OAX',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'DNT',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'MCO',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             },
             {
               asset: 'ICN',
-              free: '0.00000000',
-              locked: '0.00000000'
+              free: 0,
+              locked: 0
             }
           ]
         });
@@ -1138,14 +1138,14 @@ describe('BinanceRest', () => {
       return binance.myTrades('BNBBTC').then(response => {
         expect(response).to.deep.equal([
           {
-            commission: '0.00000000',
+            commission: 0,
             commissionAsset: 'BNB',
             id: 345660,
             isBestMatch: true,
             isBuyer: false,
             isMaker: false,
-            price: '0.00063907',
-            qty: '5.00000000',
+            price: 0.00063907,
+            qty: 5,
             time: 1503257997234
           }
         ]);
