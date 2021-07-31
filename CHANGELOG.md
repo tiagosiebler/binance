@@ -1,4 +1,7 @@
 # Changelog
+## 1.4.0
+-   Extend beautifier to parse float values. #119.
+
 ## 1.3.9
 -   Bump ws dependency.
 -   Add bookTicker websocket. #116.
