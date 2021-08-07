@@ -20,7 +20,7 @@ Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser
 - Proxy support via axios integration.
 
 ## Installation
-`npm install --save binance`
+`npm install --save binance@2.0.0-beta.1`
 
 ## Issues & Discussion
 - Issues? Check the [issues tab](https://github.com/tiagosiebler/binance/issues).
