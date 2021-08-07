@@ -1,0 +1,31 @@
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/node:15.1
+    steps:
+      - checkout
+      - restore_cache:
+          # See the configuration reference documentation for more details on using restore_cache and save_cache steps
+          # https://circleci.com/docs/2.0/configuration-reference/?section=reference#save_cache
+          keys:
+            - node-deps-v1-{{ .Branch }}-{{checksum "package-lock.json"}}
+      - run:
+          name: install packages
+          command: npm ci
+      - save_cache:
+          key: node-deps-v1-{{ .Branch }}-{{checksum "package-lock.json"}}
+          paths:
+            - ~/.npm
+      - run:
+          name: Run Build
+          command: npm run build
+      - run:
+          name: Run Tests
+          command: npm run test
+
+workflows:
+  integrationtests:
+    jobs:
+      - test
