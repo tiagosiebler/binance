@@ -26,12 +26,17 @@ import { WebsocketClient } from '../src/websocket-client';
   });
 
   wsClient.on('formattedMessage', (data) => {
-    console.log('log formattedMessage: ', data);
     if (!Array.isArray(data)) {
       if (data.eventType === 'kline') {
         console.log('kline received ', data.kline);
+        return;
+      }
+      if (data.eventType === '24hrTicker') {
+        console.log('24hrTicker received ', data);
+        return;
       }
     }
+    console.log('log formattedMessage: ', data);
   });
 
   wsClient.on('open', (data) => {
@@ -50,5 +55,6 @@ import { WebsocketClient } from '../src/websocket-client';
   });
 
   wsClient.subscribeSpotKline(market, '1m');
+  wsClient.subscribeSpotSymbol24hrTicker(market);
 
 })();
