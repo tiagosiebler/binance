@@ -1,5 +1,8 @@
 import { SpotClient } from '../src/index';
 
+// or
+// import { SpotClient } from 'binance';
+
 const client = new SpotClient({
   // Optional (default: false) - when true, response strings are parsed to floats (only for known keys).
   // beautifyResponses: true,

@@ -15,7 +15,7 @@ describe('Public Spot REST API Endpoints', () => {
 
   describe('Misc', () => {
     it('should throw for unauthenticated private calls', async () => {
-      expect(() => api.getAllCoinsInformation()).rejects.toMatchObject(notAuthenticatedError());
+      expect(() => api.getBalances()).rejects.toMatchObject(notAuthenticatedError());
     });
 
     it('getServerTime() should return number', async () => {

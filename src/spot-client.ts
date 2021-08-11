@@ -101,7 +101,7 @@ export class SpotClient extends BaseRestClient {
     return this.get('sapi/v1/system/status');
   }
 
-  getAllCoinsInformation(): Promise<AllCoinsInformationResponse[]> {
+  getBalances(): Promise<AllCoinsInformationResponse[]> {
     return this.getPrivate('sapi/v1/capital/config/getall');
   }
 
