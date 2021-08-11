@@ -2,7 +2,7 @@ import { notAuthenticatedError, successResponseList, successResponseObject } fro
 import { USDMClient } from "../../src/usdm-client";
 
 describe('Public Futures USDM REST API Endpoints', () => {
-  const api = new USDMClient({ disable_time_sync: true });
+  const api = new USDMClient({ disableTimeSync: true });
 
   const symbol = 'BTCUSDT';
   const interval = '15m';

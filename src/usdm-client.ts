@@ -219,7 +219,9 @@ export class USDMClient extends BaseRestClient {
     return this.postPrivate('fapi/v1/order', params);
   }
 
-  // Warning: max 5 orders at a time!
+  /**
+   * Warning: max 5 orders at a time!
+   */
   submitMultipleOrders(batchOrders: NewFuturesOrderParams[]): Promise<(NewOrderResult | NewOrderError)[]> {
     batchOrders.forEach(order => this.validateOrderId(order, 'newClientOrderId'));
     return this.postPrivate('fapi/v1/batchOrders', { batchOrders });

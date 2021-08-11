@@ -31,11 +31,11 @@ export default abstract class BaseRestClient {
     requestOptions: AxiosRequestConfig = {},
   ) {
     this.options = {
-      recv_window: 5000,
+      recvWindow: 5000,
       // how often to sync time drift with binance servers
-      sync_interval_ms: 3600000,
+      syncIntervalMs: 3600000,
       // if true, we'll throw errors if any params are undefined
-      strict_param_validation: false,
+      strictParamValidation: false,
       ...options
     };
 
@@ -63,9 +63,9 @@ export default abstract class BaseRestClient {
       throw new Error('API Key & Secret are both required for private enpoints')
     }
 
-    if (this.options.disable_time_sync !== true) {
+    if (this.options.disableTimeSync !== true) {
       this.syncTime();
-      setInterval(this.syncTime.bind(this), +this.options.sync_interval_ms!);
+      setInterval(this.syncTime.bind(this), +this.options.syncIntervalMs!);
     }
 
     this.timeOffset = null;
@@ -220,7 +220,7 @@ export default abstract class BaseRestClient {
       this.updateApiLimitState(response.headers, url)
     }
 
-    if (this.options.parse_exceptions === false) {
+    if (this.options.parseExceptions === false) {
       throw e;
     }
 
@@ -259,13 +259,13 @@ export default abstract class BaseRestClient {
       timestamp: Date.now() + (this.timeOffset || 0)
     };
 
-    // Optional, set to 5000 by default. Increase if timestamp/recv_window errors are seen.
-    if (this.options.recv_window && !params.recvWindow) {
-      params.recvWindow = this.options.recv_window;
+    // Optional, set to 5000 by default. Increase if timestamp/recvWindow errors are seen.
+    if (this.options.recvWindow && !params.recvWindow) {
+      params.recvWindow = this.options.recvWindow;
     }
 
     if (this.key && this.secret) {
-      const serialisedParams = serialiseParams(params, this.options.strict_param_validation);
+      const serialisedParams = serialiseParams(params, this.options.strictParamValidation);
       params.signature = await signMessage(serialisedParams, this.secret);
     }
 
@@ -277,7 +277,7 @@ export default abstract class BaseRestClient {
    * Trigger time sync and store promise
    */
   private syncTime(): GenericAPIResponse {
-    if (this.options.disable_time_sync === true) {
+    if (this.options.disableTimeSync === true) {
       return Promise.resolve(false);
     }
 

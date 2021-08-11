@@ -5,7 +5,7 @@ describe('Private Spot REST API Endpoints', () => {
   const API_SECRET = process.env.API_SECRET_COM;
 
   const api = new SpotClient({
-    disable_time_sync: true,
+    disableTimeSync: true,
     api_key: API_KEY,
     api_secret: API_SECRET,
   }, {

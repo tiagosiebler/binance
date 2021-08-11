@@ -1,4 +1,5 @@
 # Binance API
+
 ## 2.0.0
 
 - Introduction for typescript with strong types on most request parameters & responses.
@@ -27,7 +28,11 @@
 - Passive tracking & storage of API limit states (IP request weight & order weight).
   - Parsed automatically via response headers when any request is made, if header is detected.
   - See `getRateLimitStates()` to query the last seen weights on any of the REST clients.
-- Smarter time-sync to handle common recv_window latency issues (optional, default on).
+- Smarter time-sync to handle common recvWindow latency issues (optional, default on).
+
+### 2.0.0-beta.4
+
+- Breaking change: refactor most options to camel case (instead of underscore separation).
 
 
 <!-- ## 2.0.1 -->
