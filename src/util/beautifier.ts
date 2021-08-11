@@ -407,6 +407,13 @@ export default class Beautifier {
       'maintenanceMarginRequired',
       'makerCommission',
       'markPrice',
+      'maxPrice',
+      'maxQty',
+      'minNotional',
+      'minPrice',
+      'minQty',
+      'multiplierDown',
+      'multiplierUp',
       'onOrderBalance',
       'open',
       'openPrice',
@@ -428,10 +435,12 @@ export default class Beautifier {
       'quoteVolumeActive',
       'realisedProfit',
       'sellerCommission',
+      'stepSize',
       'stopPrice',
       'takerBaseAssetVolume',
       'takerCommission',
       'takerQuoteAssetVolume',
+      'tickSize',
       'trailingStopActivationPrice',
       'trailingStopCallbackRate',
       'unrealisedPnl',
@@ -456,13 +465,22 @@ export default class Beautifier {
     return val;
   }
 
-  beautifyObject(data: any) {
+  /**
+   * Beautify array or object, recurisvely
+   */
+  beautifyObjectValues(data: any | any[]) {
+    if (Array.isArray(data)) {
+      return this.beautifyArrayValues(data);
+    }
     const beautifedObject = {};
     for (const [key, val] of Object.entries(data)) {
+      const type = typeof val;
       if (Array.isArray(val)) {
-        beautifedObject[key] = this.beautifyArray(val, key);
-      } else if (key === 'e') {
+        beautifedObject[key] = this.beautifyArrayValues(val, key);
+      } else if (key === 'e' && type === 'string') {
         beautifedObject['eventType'] = this.beautifyValueWithKey(key, val);
+      } else if (type === 'object') {
+        beautifedObject[key] = this.beautifyObjectValues(val);
       } else {
         beautifedObject[key] = this.beautifyValueWithKey(key, val);
       }
@@ -471,16 +489,16 @@ export default class Beautifier {
   }
 
   // TODO: if not matched return original object....
-  beautifyArray(data: any[], parentKey?: string | number) {
+  beautifyArrayValues(data: any[], parentKey?: string | number) {
     const beautifedArray: any[] = [];
     for (const [key, val] of data.entries()) {
       const type = typeof val;
       if (Array.isArray(val)) {
-        beautifedArray.push(this.beautifyArray(val, parentKey || key));
+        beautifedArray.push(this.beautifyArrayValues(val, parentKey || key));
       } else if (type === 'string' || type === 'number' || type === 'boolean') {
         beautifedArray.push(this.beautifyValueWithKey(parentKey || key, val));
       } else {
-        beautifedArray.push(this.beautifyObject(val))
+        beautifedArray.push(this.beautifyObjectValues(val))
       }
     }
     return beautifedArray;
@@ -495,10 +513,10 @@ export default class Beautifier {
     if (!knownBeautification) {
       // console.log(`beautify unknown key(..., "${key}")`);
       if (Array.isArray(data)) {
-        return this.beautifyArray(data);
+        return this.beautifyArrayValues(data);
       }
       if (typeof data === 'object' && data !== null) {
-        return this.beautifyObject(data);
+        return this.beautifyObjectValues(data);
       }
       return this.beautifyValueWithKey(key, data);
     }

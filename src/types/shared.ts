@@ -1,5 +1,6 @@
 // Generic numeric value stored as a string. Can be parsed via parseInt or parseFloat.
-export type numberInString = string;
+// Beautifier may convert these to number, if enabled.
+export type numberInString = string | number;
 
 export type ExchangeSymbol = string;
 

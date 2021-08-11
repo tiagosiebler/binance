@@ -7,6 +7,7 @@
 [1]: https://www.npmjs.com/package/binance
 
 Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser support.
+- Heavy integration testing with real API calls to support implementation stability.
 - Support REST APIs for Binance Spot, Margin, Isolated Margin & USDM Futures.
   - Automatically manage latency related authentication issues.
   - Strongly typed on most requests and responses.
@@ -15,8 +16,9 @@ Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser
   - Automatically handle silent websocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
   - Automatically handle listenKey persistence and expiration/refresh.
   - Strongly typed on most websocket events.
-  - Optional & automatic beautification of websocket events (from one-letter keys to descriptive words, and strings with floats to numbers).
-- Heavy integration testing with real API calls to support implementation stability.
+  - Optional:
+    - Automatic beautification of websocket events (from one-letter keys to descriptive words, and strings with floats to numbers).
+    - Automatic beautification of REST responses (parsing numbers in strings to numbers).
 - Proxy support via axios integration.
 
 ## Installation
@@ -33,6 +35,9 @@ Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser
 ## Documentation
 Most methods accept JS objects. These can be populated using parameters specified by Binance's API documentation.
 - [Binance API Documentation](https://binance-docs.github.io/apidocs/)
+
+## Examples
+Refer to the [examples](./examples) folder for implementation demonstrations.
 
 ## Structure
 This project uses typescript. Resources are stored in 3 key structures:

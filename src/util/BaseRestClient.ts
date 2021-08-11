@@ -3,6 +3,7 @@ import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
 import { signMessage } from './node-support';
 import { BinanceBaseUrlKey } from '@src/types/shared';
 import { serialiseParams, RestClientOptions, GenericAPIResponse, getRestBaseUrl } from './requestUtils';
+import Beautifier from './beautifier';
 
 type ApiLimitHeader = 'x-mbx-used-weight'
   | 'x-mbx-used-weight-1m'
@@ -21,6 +22,7 @@ export default abstract class BaseRestClient {
   private key: string | undefined;
   private secret: string | undefined;
   private baseUrlKey: BinanceBaseUrlKey;
+  private beautifier: Beautifier | undefined;
 
   public apiLimitTrackers: Record<ApiLimitHeader, number>;
   public apiLimitLastUpdated: number;
@@ -66,6 +68,10 @@ export default abstract class BaseRestClient {
     if (this.options.disableTimeSync !== true) {
       this.syncTime();
       setInterval(this.syncTime.bind(this), +this.options.syncIntervalMs!);
+    }
+
+    if (this.options.beautifyResponses) {
+      this.beautifier = new Beautifier();
     }
 
     this.timeOffset = null;
@@ -133,7 +139,7 @@ export default abstract class BaseRestClient {
   }
 
   // TODO: cleanup?
-  private updateApiLimitState(responseHeaders, requestedUrl: string) {
+  private updateApiLimitState(responseHeaders: Record<string, any>, requestedUrl: string) {
     const delta: Record<string, any> = {};
     for (const headerKey in this.apiLimitTrackers) {
       const headerValue = responseHeaders[headerKey];
@@ -201,7 +207,21 @@ export default abstract class BaseRestClient {
       }
 
       throw response;
-    }).catch(e => this.parseException(e, options.url));
+    })
+    .then(response => {
+      if (!this.options.beautifyResponses || !this.beautifier) {
+        return response;
+      }
+
+      // Fallback to original response if beautifier fails
+      try {
+        return this.beautifier.beautify(response, endpoint) || response;
+      } catch (e) {
+        console.error('BaseRestClient response beautify failed: ', JSON.stringify({ response: response, error: e }));
+      }
+      return response;
+    })
+    .catch(e => this.parseException(e, options.url));
   }
 
   /**

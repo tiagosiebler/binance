@@ -936,7 +936,16 @@ describe('Beautifier', () => {
           }
         });
       });
+    });
 
+    describe('REST Responses', () => {
+      it('should beautify spot getAvgPrice responses', () => {
+        const data = { mins: 5, price: '45896.03333227' };
+        expect(beautifier.beautify(data, 'api/v3/avgPrice')).toStrictEqual({
+          mins: 5,
+          price: 45896.03333227,
+        });
+      });
     });
 
   });

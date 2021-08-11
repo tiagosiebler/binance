@@ -33,7 +33,7 @@
 ### 2.0.0-beta.4
 
 - Breaking change: refactor most options to camel case (instead of underscore separation).
-
+- Add optional beautifier support for REST responses (parses known numbers stored as strings into numbers).
 
 <!-- ## 2.0.1 -->
   <!-- - Introduction of [coinm-client](./src/coinm-client.ts) for COINM Futures. -->
