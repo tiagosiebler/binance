@@ -190,6 +190,29 @@ export class SpotClient extends BaseRestClient {
   // TODO: https://binance-docs.github.io/apidocs/spot/en/#sub-account-endpoints
 
   /**
+   * Broker Endpoints
+   */
+  getBrokerIfNewUser(market: 'spot' | 'futures'): Promise<{ rebateWorking: boolean; ifNewUser: boolean; }> {
+    const prefix = market === 'spot' ? 'sapi' : 'fapi';
+    return this.getPrivate(prefix + '/v1/apiReferral/ifNewUser');
+  }
+
+  getBrokerUserCustomisedId(market: 'spot' | 'futures') {
+    const prefix = market === 'spot' ? 'sapi' : 'fapi';
+    return this.getPrivate(prefix + '/v1/apiReferral/userCustomization');
+  }
+
+  // USD & Coin-M can be found under API getIncome() (find "API rebate" in results)
+  getBrokerSpotRebateHistory(days: 7 | 30) {
+    if (days === 7) {
+      return this.getPrivate('sapi/v1/apiReferral/rebate/recentRecord');
+    }
+    if (days === 30) {
+      return this.getPrivate('sapi/v1/apiReferral/rebate/historicalRecord');
+    }
+  }
+
+  /**
    *
    * Market Data Endpoints
    *
