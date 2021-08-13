@@ -286,20 +286,7 @@ export class SpotClient extends BaseRestClient {
 
   submitNewOrder(params: NewSpotOrderParams): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
     this.validateOrderId(params, 'newClientOrderId');
-    const result = this.postPrivate('api/v3/order', params);
-
-    switch (params.newOrderRespType) {
-      case 'ACK':
-        return result as Promise<OrderResponseACK>;
-
-      case 'RESULT':
-        return result as Promise<OrderResponseResult>;
-
-      case 'FULL':
-        return result as Promise<OrderResponseFull>;
-    }
-
-    return result;
+    return this.postPrivate('api/v3/order', params);
   }
 
   cancelOrder(params: CancelOrderParams): Promise<CancelSpotOrderResult> {

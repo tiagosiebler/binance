@@ -391,12 +391,15 @@ export default class Beautifier {
       'entryPrice',
       'executedQty',
       'free',
+      'freeze',
       'high',
       'highPrice',
       'icebergQuantity',
       'icebergQty',
       'ignored',
       'income',
+      'ipoable',
+      'ipoing',
       'isolatedWalletAmount',
       'lastFilledPrice',
       'lastFilledQuantity',
@@ -438,6 +441,7 @@ export default class Beautifier {
       'sellerCommission',
       'stepSize',
       'stopPrice',
+      'storage',
       'takerBaseAssetVolume',
       'takerCommission',
       'takerQuoteAssetVolume',
@@ -449,7 +453,12 @@ export default class Beautifier {
       'volumeActive',
       'walletBalance',
       'weightedAveragePrice',
-      'weightedAvgPrice'
+      'weightedAvgPrice',
+      'withdrawFee',
+      'withdrawMax',
+      'withdrawMin',
+      'withdrawIntegerMultiple',
+      'withdrawing'
     ];
 
     // Map so we don't have to perform indexOf for each iteration

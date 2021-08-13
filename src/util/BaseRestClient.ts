@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
+import qs from 'qs';
 
 import { signMessage } from './node-support';
 import { BinanceBaseUrlKey } from '@src/types/shared';
@@ -194,7 +195,9 @@ export default abstract class BaseRestClient {
     if (method === 'GET') {
       options.params = params;
     } else {
-      options.data = params;
+      // Requests should be x-www-form-urlencoded
+      // TODO: optimise in the browser to use URLSearchParams
+      options.data = qs.stringify(params);
     }
 
     // console.log('sending request: ', JSON.stringify(options, null, 2));

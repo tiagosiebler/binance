@@ -11,6 +11,11 @@ export type BinanceBaseUrlKey = 'spot' | 'spot1' | 'spot2' | 'spot3' | 'spot4' |
 
 export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK';
 
+/**
+ * ACK = confirmation of order acceptance (no placement/fill information)
+ * RESULT = fill state
+ * FULL = fill state + detail on fills and other detail
+ */
 export type OrderResponseType = 'ACK' | 'RESULT' | 'FULL';
 
 export type OrderIdProperty = 'newClientOrderId' | 'listClientOrderId' | 'limitClientOrderId' | 'stopClientOrderId';
