@@ -66,6 +66,8 @@ export interface WebsocketClientOptions extends WSClientConfigurableOptions {
 // This is used to differentiate between each of the available websocket streams (as binance has multiple websockets)
 export type WsKey = string | 'spot' | 'margin' | 'usdmfutures' | 'coinmfutures' | 'options';
 
+type WsEventInternalSrc = 'event' | 'function';
+
 interface RestClientStore {
   spot: SpotClient;
   margin: SpotClient;
@@ -156,15 +158,20 @@ export class WebsocketClient extends EventEmitter {
 
     const ws = new WebSocket(url);
     this.wsUrlKeyMap[url] = wsRefKey;
-    ws.onopen = event => this.onWsOpen(event, wsRefKey);
-    ws.onerror = event => this.onWsError(event, wsRefKey, ws);
-    ws.onclose = event => this.onWsClose(event, wsRefKey, ws, url);
-    ws.onmessage = event => this.onWsMessage(event, wsRefKey);
 
     if (typeof ws.on === 'function') {
       ws.on('ping', event => this.onWsPing(event, wsRefKey, ws, 'event'));
       ws.on('pong', event => this.onWsPong(event, wsRefKey, 'event'));
+      ws.on('message', event => this.onWsMessage(event, wsRefKey, 'event'));
+      ws.on('close', event => this.onWsClose(event, wsRefKey, ws, url));
+      ws.on('error', event => this.onWsError(event, wsRefKey, ws));
+      ws.on('open', event => this.onWsOpen(event, wsRefKey));
     }
+
+    ws.onopen = event => this.onWsOpen(event, wsRefKey);
+    ws.onerror = event => this.onWsError(event, wsRefKey, ws);
+    ws.onclose = event => this.onWsClose(event, wsRefKey, ws, url);
+    ws.onmessage = event => this.onWsMessage(event, wsRefKey, 'function');
 
     // Not sure these work in the browser, the traditional event listeners are required for ping/pong frames in node
     ws.onping = event => this.onWsPing(event, wsRefKey, ws, 'function');
@@ -263,7 +270,7 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  private onWsMessage(event: any, wsKey: WsKey) {
+  private onWsMessage(event: any, wsKey: WsKey, source: WsEventInternalSrc) {
     try {
       const msg = JSON.parse(event && event.data || event);
 
@@ -312,10 +319,10 @@ export class WebsocketClient extends EventEmitter {
         return;
       }
 
-      this.logger.warning('Unhandled ws message type', { ...loggerCategory, parsedMessage: msg, rawEvent: event, wsKey});
+      this.logger.warning('Unhandled ws message type', { ...loggerCategory, parsedMessage: msg, rawEvent: event, wsKey, source });
     } catch (e) {
-      this.logger.error('Exception parsing ws message: ', { ...loggerCategory, rawEvent: event, wsKey, error: e });
-      this.emit('error', { wsKey, error: e, rawEvent: event });
+      this.logger.error('Exception parsing ws message: ', { ...loggerCategory, rawEvent: event, wsKey, error: e, source });
+      this.emit('error', { wsKey, error: e, rawEvent: event, source });
     }
   }
 
@@ -331,12 +338,12 @@ export class WebsocketClient extends EventEmitter {
     }, this.options.pongTimeout);
   }
 
-  private onWsPing(event: any, wsKey: WsKey, ws: WebSocket, source: 'function' | 'event') {
+  private onWsPing(event: any, wsKey: WsKey, ws: WebSocket, source: WsEventInternalSrc) {
     this.logger.silly('Received ping, sending pong frame', { ...loggerCategory, wsKey, event, source });
     ws.pong();
   }
 
-  private onWsPong(event: any, wsKey: WsKey, source: 'function' | 'event') {
+  private onWsPong(event: any, wsKey: WsKey, source: WsEventInternalSrc) {
     this.logger.silly('Received pong, clearing pong timer', { ...loggerCategory, wsKey, event, source });
     this.clearPongTimer(wsKey);
   }
