@@ -168,7 +168,7 @@ export class WebsocketClient extends EventEmitter {
       // ws.on('open', event => this.onWsOpen(event, wsRefKey));
     }
 
-    ws.onopen = event => this.onWsOpen(event, wsRefKey);
+    ws.onopen = event => this.onWsOpen(event, wsRefKey, url);
     ws.onerror = event => this.onWsError(event, wsRefKey, ws);
     ws.onclose = event => this.onWsClose(event, wsRefKey, ws, url);
     ws.onmessage = event => this.onWsMessage(event, wsRefKey, 'function');
@@ -220,8 +220,8 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  private onWsOpen(ws: WebSocket, wsKey: WsKey) {
-    this.logger.silly(`onWsOpen(): ${ws.url} : ${wsKey}`);
+  private onWsOpen(ws: WebSocket, wsKey: WsKey, wsUrl: string) {
+    this.logger.silly(`onWsOpen(): ${wsUrl} : ${wsKey}`);
     if (this.wsStore.isConnectionState(wsKey, READY_STATE_RECONNECTING)) {
       this.logger.info('Websocket reconnected', { ...loggerCategory, wsKey });
       this.emit('reconnected', { wsKey, ws });

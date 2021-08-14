@@ -1,18 +1,16 @@
-import { DefaultLogger } from '../src';
+import { DefaultLogger, WsFormattedMessage } from '../src';
 import { WebsocketClient } from '../src/websocket-client';
 
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';
 
 (async () => {
-  const key = 'APIKEY';
-  const secret = 'APISECRET';
-
-  const market = 'BTCUSDT';
+  const key = process.env.APIKEY || 'APIKEY';
+  const secret = process.env.APISECRET || 'APISECRET';
 
   const logger = {
     ...DefaultLogger,
-    // silly: () => {},
+    silly: () => {},
   };
 
   const wsClient = new WebsocketClient({
@@ -25,30 +23,41 @@ import { WebsocketClient } from '../src/websocket-client';
     // console.log('raw message received ', JSON.stringify(data, null, 2));
   });
 
-  wsClient.on('formattedMessage', (data) => {
-    console.log('log formattedMessage: ', data);
-    if (!Array.isArray(data) && data.wsMarket.includes('userData')) {
-      if (data.wsMarket.includes('spot')) {
-        // spot user data event
-        return;
-      }
-      if (data.wsMarket.includes('margin')) {
-        // spot margin data event
-        return;
-      }
-      if (data.wsMarket.includes('isolatedMargin')) {
-        // spot isolatedMargin data event
-        return;
-      }
-      if (data.wsMarket.includes('usdmTestnet')) {
-        // spot usdmTestnet data event
-        return;
-      }
-      if (data.wsMarket.includes('usdm')) {
-        // spot usdm data event
-        return;
-      }
+  function onUserDataEvent(data: WsFormattedMessage) {
+    if (Array.isArray(data)) {
+      return;
     }
+
+    // the market denotes which API category it came from
+    if (data.wsMarket.includes('spot')) {
+      console.log('spot user data event: ', data);
+      // spot user data event
+      return;
+    }
+    if (data.wsMarket.includes('margin')) {
+      console.log('margin user data event: ', data);
+      return;
+    }
+    if (data.wsMarket.includes('isolatedMargin')) {
+      console.log('isolatedMargin user data event: ', data);
+      return;
+    }
+    if (data.wsMarket.includes('usdmTestnet')) {
+      console.log('usdmTestnet user data event: ', data);
+      return;
+    }
+    if (data.wsMarket.includes('usdm')) {
+      console.log('usdm user data event: ', data);
+      return;
+    }
+  }
+
+  wsClient.on('formattedMessage', (data) => {
+    // The wsKey can be parsed to determine the type of message (what websocket it came from)
+    if (!Array.isArray(data) && data.wsKey.includes('userData')) {
+      return onUserDataEvent(data);
+    }
+    console.log('formattedMsg: ', JSON.stringify(data, null, 2));
   });
 
   wsClient.on('open', (data) => {
@@ -67,8 +76,8 @@ import { WebsocketClient } from '../src/websocket-client';
   });
 
   wsClient.subscribeSpotUserDataStream();
-  wsClient.subscribeMarginUserDataStream();
-  wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
+  // wsClient.subscribeMarginUserDataStream();
+  // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
   wsClient.subscribeUsdFuturesUserDataStream();
 
 })();
