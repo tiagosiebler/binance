@@ -22,7 +22,10 @@ Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser
 - Proxy support via axios integration.
 
 ## Installation
-`npm i binance@beta --save`
+`npm install binance --save`
+
+## Examples
+Refer to the [examples](./examples) folder for implementation demos.
 
 ## Issues & Discussion
 - Issues? Check the [issues tab](https://github.com/tiagosiebler/binance/issues).
@@ -35,9 +38,6 @@ Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser
 ## Documentation
 Most methods accept JS objects. These can be populated using parameters specified by Binance's API documentation.
 - [Binance API Documentation](https://binance-docs.github.io/apidocs/)
-
-## Examples
-Refer to the [examples](./examples) folder for implementation demonstrations.
 
 ## Structure
 This project uses typescript. Resources are stored in 3 key structures:
