@@ -162,10 +162,10 @@ export class WebsocketClient extends EventEmitter {
     if (typeof ws.on === 'function') {
       ws.on('ping', event => this.onWsPing(event, wsRefKey, ws, 'event'));
       ws.on('pong', event => this.onWsPong(event, wsRefKey, 'event'));
-      ws.on('message', event => this.onWsMessage(event, wsRefKey, 'event'));
-      ws.on('close', event => this.onWsClose(event, wsRefKey, ws, url));
-      ws.on('error', event => this.onWsError(event, wsRefKey, ws));
-      ws.on('open', event => this.onWsOpen(event, wsRefKey));
+      // ws.on('message', event => this.onWsMessage(event, wsRefKey, 'event'));
+      // ws.on('close', event => this.onWsClose(event, wsRefKey, ws, url));
+      // ws.on('error', event => this.onWsError(event, wsRefKey, ws));
+      // ws.on('open', event => this.onWsOpen(event, wsRefKey));
     }
 
     ws.onopen = event => this.onWsOpen(event, wsRefKey);
