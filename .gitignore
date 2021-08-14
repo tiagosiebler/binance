@@ -5,3 +5,4 @@ node_modules/
 util/config.js
 coverage/
 yarn-error.log
+lib/*

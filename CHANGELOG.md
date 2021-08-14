@@ -1,105 +1,45 @@
-# Changelog
-## 1.4.0
--   Extend beautifier to parse float values. #119.
+# Binance API
 
-## 1.3.9
--   Bump ws dependency.
--   Add bookTicker websocket. #116.
+## 2.0.0
 
-## 1.3.8
--   Optimise local imports.
--   Cleaning, including indentation.
--   Deprecate yarn in favour of npm.
--   Fix tests.
--   Expose utility method for generating custom order ID.
--   Add example on providing custom order ID.
--   Update docs.
+- Introduction for typescript with strong types on most request parameters & responses.
+  - NPM package includes transpiled framework & type declarations.
+  - Supports both typescript and vanilla node.js projects.
+  - REST requests and responses include detailed types, though some may still be missing.
+  - Raw and beautified WS events include detailed types, though some may still be missing.
+- Introduction for webpack.
+  - To generate a browser bundle clone & build the library then run webpack using `npm run pack`.
+- Introduction for integration tests via jest on all REST clients.
+  - Tests are executed automatically to avoid unintended breaking changes on release.
+  - Real API calls are made to validate integration.
+- Complete networking overhaul using [axios](https://github.com/axios/axios).
+  - Small & modern framework. Significant reduction in dependencies via deprecation of `request`.
+  - Support for proxies and [other axios-supported functionality](https://github.com/axios/axios#request-config).
+  - Support for backend (node) and frontend (browser) requests.
+- Complete overhaul in websockets client.
+  - Websocket events are still (optionally) beautified consistently with how the previous library worked.
+  - New event-driven architecture.
+  - Support for USDM Futures. More to come in a future release.
+  - Automatic connection monitoring, with automatic reconnect if the connection goes stale.
+  - Automatic userData connection monitoring, with automatic refresh and respawn if previous listen key expires or the connection closes unexpectedly.
+- Complete overhaul in REST client.
+  - Revamped spot client (see [spot-client](./src/spot-client.ts)).
+  - Introduction of [usdm-client](./src/usdm-client.ts) for USDM Futures.
+- Passive tracking & storage of API limit states (IP request weight & order weight).
+  - Parsed automatically via response headers when any request is made, if header is detected.
+  - See `getRateLimitStates()` to query the last seen weights on any of the REST clients.
+- Smarter time-sync to handle common recvWindow latency issues (optional, default on).
 
-## 1.3.7
+### 2.0.0-beta.4
 
--   Minor docs tweaks.
--   Update package.json links.
+- Breaking change: refactor most options to camel case (instead of underscore separation).
+- Add optional beautifier support for REST responses (parses known numbers stored as strings into numbers).
 
-## 1.3.6
+### 2.0.0-beta.5-8
 
--   Bump dependencies. #104, #106, #107, #108.
--   Add depositAddressWithNetwork and allCoinsInformation REST methods. #100
+- Breaking change: refactor spot getAllCoinsInformation to getBalances().
+- Fix POST request format to www-form-urlencoded.
 
-## 1.3.5
-
--   Fix beautifer issue related to arrays and errors from binance server
-
-## 1.3.4
-
--   Allow baseUrl override in constructor #46
--   Add requestOptions (proxy support + more) #64
--   Update vulnerable dependencies #73, #81
--   Provide `processFilter()` helper functionality for order prices and amounts #43
--   Fix endless onUserData keep alive timer #85
-
-## 1.3.2/3
-
--   Add an error handler to the websocket so the process doesn't exit
--   Handle malformed JSON responses in websocket messages
-
-## 1.3.1
-
--   Fix error handling for callbacks when response is empty, introduced by clock drift changes
-
-## 1.3.0
-
--   Add the ability to have the library handle system clock drift
-
-## 1.2.2
-
--   Fix beautification of allTickers event arrays when using combinedStreams
-
-## 1.2.1
-
--   Fix account function signature so as not to break potential calls when upgrading
-
-## 1.2.0
-
--   Remove example responses from README for cases where they match the new official docs
--   Update README links to point to new official docs on github
--   Fix onUserData so the keep alive interval requests function properly
--   Use new base url specified in new official docs
--   Add new REST and WebSocket API functionality to include all that's specified in the newest set of documentation
-
-## 1.1.2
-
--   Add lots of example responses and query parameter details to the README
--   Fix onUserData where the promise wasn't being returned
--   Add travis CI and coveralls
-
-## 1.1.1
-
--   Minor docs updates
--   Set callback to deliver Error object on non 2XX return codes
-
-## 1.1.0
-
--   Setup account related APIs with new routes and signing
--   Add allPrices and allBookTickers routes
--   Add withdraw, withdrawHistory, depositHistory and depositAddress routes
--   Setup the recvWindow query string option only to show up on signed routes
-
-## 1.0.3
-
--   Fix typo for websocket response beautify
--   Properly handle 500 responses from the server which are not JSON
--   Properly set recvWindow query option when passed to the constructor
--   Update readme
--   Update tests for fixes
-
-## 1.0.2
-
--   Fix readme, remove extraneous file
-
-## 1.0.1
-
--   Fix automatic timestamp issue
-
-## 1.0.0
-
--   First release
+<!-- ## 2.0.1 -->
+  <!-- - Introduction of [coinm-client](./src/coinm-client.ts) for COINM Futures. -->
+  <!-- - Introduction of [vanilla-client](./src/vanilla-client.ts) for Vanilla Options. -->

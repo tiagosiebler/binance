@@ -1,0 +1,6 @@
+{
+  "esversion": 8,
+  "asi": true,
+  "laxbreak": true,
+  "predef": [ "-Promise" ]
+}

@@ -1,25 +1,81 @@
 {
   "name": "binance",
-  "version": "1.4.0",
-  "description": "node.js wrapper for the Binance REST and WebSocket APIs",
-  "main": "./lib/binance.js",
+  "version": "2.0.0",
+  "description": "Node.js connector for Binance's REST APIs and WebSockets, with TypeScript & integration tests.",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
-    "lib/*"
+    "lib/*",
+    "index.js"
   ],
   "scripts": {
-    "test": "npx mocha",
-    "cover": "nyc --reporter=html --reporter=text mocha",
-    "coveralls": "nyc report --reporter=text-lcov | coveralls",
-    "lint": "eslint lib test util && prettier --check lib/**/* test/**/* util/**/*",
-    "lintfix": "eslint lib test util --fix && prettier --write lib/**/* test/**/* util/**/*",
-    "precommit": "npm run test && npm run lint"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "clean": "rm -rf lib dist",
+    "build": "tsc",
+    "build:clean": "npm run clean && npm run build",
+    "build:watch": "npm run clean && tsc --watch",
+    "pack": "webpack --config webpack/webpack.config.js",
+    "prepublish": "npm run build:clean",
+    "betapublish": "npm publish --tag beta"
   },
+  "author": "Tiago Siebler (https://github.com/tiagosiebler)",
+  "contributors": [
+    "Zoey Garvey",
+    "Clifford Roche <clifford.roche@gmail.com> (http://www.cliffordroche.ca)",
+    "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)",
+    "Andrey Vorobyov <vorandrew@gmail.com>",
+    "Dylan Sproule (https://github.com/dylansproule)",
+    "Gavy Aggarwal (http://gavyaggarwal.com/)",
+    "Tony Pettigrew (https://github.com/NeverEnder4)",
+    "Chris <apexearth@gmail.com> (https://github.com/apexearth)"
+  ],
   "dependencies": {
-    "bignumber.js": "^9.0.0",
-    "request": "^2.88.2",
-    "underscore": "^1.8.3",
-    "ws": "^5.2.3"
+    "axios": "^0.21.0",
+    "isomorphic-ws": "^4.0.1",
+    "qs": "^6.10.1",
+    "ws": "^7.4.0"
   },
+  "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "@types/node": "^14.14.7",
+    "eslint": "^7.10.0",
+    "jest": "^27.0.4",
+    "source-map-loader": "^2.0.0",
+    "ts-jest": "^27.0.3",
+    "ts-loader": "^8.0.11",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.0.5",
+    "webpack": "^5.4.0",
+    "webpack-bundle-analyzer": "^4.1.0",
+    "webpack-cli": "^4.2.0"
+  },
+  "keywords": [
+    "binance",
+    "binance api",
+    "binance futures api",
+    "binance spot api",
+    "binance margin api",
+    "api",
+    "websocket",
+    "rest",
+    "rest api",
+    "inverse",
+    "linear",
+    "usdt",
+    "trading bots",
+    "nodejs",
+    "node",
+    "trading",
+    "cryptocurrency",
+    "bitcoin",
+    "best"
+  ],
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/tiagosiebler"
+  },
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/tiagosiebler/binance"
@@ -27,41 +83,5 @@
   "bugs": {
     "url": "https://github.com/tiagosiebler/binance/issues"
   },
-  "homepage": "https://github.com/tiagosiebler/binance#readme",
-  "keywords": [
-    "api",
-    "bitcoin",
-    "ethereum",
-    "cryptocurrency",
-    "binance",
-    "btc",
-    "eth"
-  ],
-  "author": "Zoey Garvey",
-  "contributors": [
-    "Clifford Roche <clifford.roche@gmail.com> (http://www.cliffordroche.ca)",
-    "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)",
-    "Andrey Vorobyov <vorandrew@gmail.com>",
-    "Dylan Sproule (https://github.com/dylansproule)",
-    "Gavy Aggarwal (http://gavyaggarwal.com/)",
-    "Tiago Siebler (https://github.com/tiagosiebler)",
-    "Tony Pettigrew (https://github.com/NeverEnder4)",
-    "Chris <apexearth@gmail.com> (https://github.com/apexearth)"
-  ],
-  "funding": {
-    "type": "individual",
-    "url": "https://github.com/sponsors/tiagosiebler"
-  },
-  "license": "MIT",
-  "devDependencies": {
-    "chai": "^4.1.1",
-    "coveralls": "^3.0.9",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.0",
-    "mocha": "^7.1.0",
-    "mock-require": "^2.0.2",
-    "nyc": "^15.0.0",
-    "prettier": "^1.19.1",
-    "sinon": "^9.0.1"
-  }
+  "homepage": "https://github.com/tiagosiebler/binance#readme"
 }
