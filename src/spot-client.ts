@@ -326,11 +326,11 @@ export class SpotClient extends BaseRestClient {
   }
 
   getAllOCO(params?: BasicFromPaginatedParams): Promise<any> {
-    return this.postPrivate('api/v3/allOrderList', params);
+    return this.getPrivate('api/v3/allOrderList', params);
   }
 
   getAllOpenOCO(): Promise<any> {
-    return this.postPrivate('api/v3/openOrderList');
+    return this.getPrivate('api/v3/openOrderList');
   }
 
   getAccountInformation(): Promise<AccountInformation> {
