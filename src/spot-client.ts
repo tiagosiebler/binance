@@ -334,7 +334,7 @@ export class SpotClient extends BaseRestClient {
   }
 
   getAccountInformation(): Promise<AccountInformation> {
-    return this.postPrivate('api/v3/account');
+    return this.getPrivate('api/v3/account');
   }
 
   getAccountTradeList(params: SymbolFromPaginatedRequestFromId): Promise<RawAccountTrade[]> {
