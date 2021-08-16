@@ -318,6 +318,27 @@ export class USDMClient extends BaseRestClient {
 
   /**
    *
+   * Broker Futures Endpoints
+   *
+  **/
+
+  // 1 == USDT-Margined, 2 == Coin-margined
+  getBrokerIfNewFuturesUser(brokerId: string, type: 1 | 2 = 1): Promise<{ brokerId: string; rebateWorking: boolean; ifNewUser: boolean; }> {
+    return this.getPrivate('fapi/v1/apiReferral/ifNewUser', {
+      brokerId,
+      type,
+    });
+  }
+
+  setCustomIdForClient(customerId: string, email: string): Promise<{ customerId: string; email: string; }> {
+    return this.postPrivate('fapi/v1/apiReferral/customization', {
+      customerId,
+      email,
+    });
+  }
+
+  /**
+   *
    * User Data Stream Endpoints
    *
   **/

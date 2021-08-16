@@ -1,10 +1,10 @@
-import { SpotClient } from "../../src/spot-client";
+import { MainClient } from "../../src/index";
 
 describe('Private Spot REST API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
   const API_SECRET = process.env.API_SECRET_COM;
 
-  const api = new SpotClient({
+  const api = new MainClient({
     disableTimeSync: true,
     api_key: API_KEY,
     api_secret: API_SECRET,
@@ -23,9 +23,19 @@ describe('Private Spot REST API Endpoints', () => {
     it('getSystemStatus()', async () => {
       expect(await api.getSystemStatus()).toMatchObject({'msg': "normal", 'status': 0});
     });
-    
+
     it('getAccountInformation()', async () => {
-      expect(await api.getAccountInformation()).toMatchObject({ data: expect.any(Object) });
+      expect(await api.getAccountInformation()).toMatchObject({
+        buyerCommission: expect.any(Number),
+        makerCommission: expect.any(Number),
+        canDeposit: expect.any(Boolean),
+        canTrade: expect.any(Boolean),
+        canWithdraw: expect.any(Boolean),
+        permissions: expect.any(Array),
+        sellerCommission: expect.any(Number),
+        takerCommission: expect.any(Number),
+        updateTime: expect.any(Number),
+       });
     });
 
     it('getAllCoinsInformation()', async () => {

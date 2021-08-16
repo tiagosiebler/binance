@@ -72,7 +72,7 @@ import {
 
 import BaseRestClient from './util/BaseRestClient';
 
-export class SpotClient extends BaseRestClient {
+export class MainClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
@@ -192,9 +192,8 @@ export class SpotClient extends BaseRestClient {
   /**
    * Broker Endpoints
    */
-  getBrokerIfNewUser(market: 'spot' | 'futures'): Promise<{ rebateWorking: boolean; ifNewUser: boolean; }> {
-    const prefix = market === 'spot' ? 'sapi' : 'fapi';
-    return this.getPrivate(prefix + '/v1/apiReferral/ifNewUser');
+  getBrokerIfNewSpotUser(): Promise<{ rebateWorking: boolean; ifNewUser: boolean; }> {
+    return this.getPrivate('sapi/v1/apiReferral/ifNewUser');
   }
 
   getBrokerUserCustomisedId(market: 'spot' | 'futures') {
@@ -453,3 +452,8 @@ export class SpotClient extends BaseRestClient {
     }
   }
 };
+
+/**
+ * @deprecated use MainClient instead of SpotClient (it is the same)
+ */
+export const SpotClient = MainClient;

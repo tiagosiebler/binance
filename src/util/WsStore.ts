@@ -9,8 +9,8 @@ type WsTopicList = Set<WsTopic>;
 interface WsStoredState {
   ws?: WebSocket;
   connectionState?: WsConnectionState;
-  activePingTimer?: NodeJS.Timeout | undefined;
-  activePongTimer?: NodeJS.Timeout | undefined;
+  activePingTimer?: NodeJS.Timeout | number | undefined;
+  activePongTimer?: NodeJS.Timeout | number | undefined;
   subscribedTopics: WsTopicList;
 };
 

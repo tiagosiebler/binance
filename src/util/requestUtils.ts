@@ -1,11 +1,11 @@
-import { SpotClient } from "@src/spot-client";
+import { MainClient } from "@src/main-client";
 import { NewFuturesOrderParams } from "@src/types/futures";
 import { BinanceBaseUrlKey, CancelOCOParams, CancelOrderParams, NewOCOParams, OrderIdProperty } from "@src/types/shared";
 import { WsMarket } from "@src/types/websockets";
 import { USDMClient } from "@src/usdm-client";
 import { WsKey } from "@src/websocket-client";
 
-export type RestClient = SpotClient | USDMClient;
+export type RestClient = MainClient | USDMClient;
 
 export interface RestClientOptions {
   api_key?: string;

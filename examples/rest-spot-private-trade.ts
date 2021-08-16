@@ -1,12 +1,12 @@
-import { NewSpotOrderParams, OrderResponseFull, SpotClient, SymbolPrice } from '../src/index';
+import { NewSpotOrderParams, OrderResponseFull, MainClient, SymbolPrice } from '../src/index';
 
 // or
-// import { SpotClient } from 'binance';
+// import { MainClient } from 'binance';
 
 const key = process.env.APIKEY || 'APIKEY';
 const secret = process.env.APISECRET || 'APISECRET';
 
-const client = new SpotClient({
+const client = new MainClient({
   api_key: key,
   api_secret: secret,
   beautifyResponses: true,

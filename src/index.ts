@@ -1,5 +1,5 @@
 export * from './';
-export * from './spot-client';
+export * from './main-client';
 export * from './usdm-client';
 export * from './websocket-client';
 export * from './logger';
