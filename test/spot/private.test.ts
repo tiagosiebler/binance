@@ -25,7 +25,7 @@ describe('Private Spot REST API Endpoints', () => {
     });
     
     it('getAccountInformation()', async () => {
-      expect(await api.getAccountInformation()).toMatchObject(expect.any(Object));
+      expect(await api.getAccountInformation()).toMatchObject({ data: expect.any(Object) });
     });
 
     it('getAllCoinsInformation()', async () => {
