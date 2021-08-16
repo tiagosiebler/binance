@@ -23,6 +23,10 @@ describe('Private Spot REST API Endpoints', () => {
     it('getSystemStatus()', async () => {
       expect(await api.getSystemStatus()).toMatchObject({'msg': "normal", 'status': 0});
     });
+    
+    it('getAccountInformation()', async () => {
+      expect(await api.getAccountInformation()).toMatchObject({ data: expect.any(Object) });
+    });
 
     it('getAllCoinsInformation()', async () => {
       expect(await api.getBalances()).toMatchObject(expect.any(Array));
