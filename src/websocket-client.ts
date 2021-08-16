@@ -683,6 +683,7 @@ export class WebsocketClient extends EventEmitter {
     }
 
     // Set timer to keep WS alive every 50 minutes
+    // @ts-ignore
     listenKeyState.keepAliveTimer = setInterval(
       () => this.checkKeepAliveListenKey(listenKey, market, ws, wsKey, symbol, isTestnet),
       1000 * 60 * 50,
