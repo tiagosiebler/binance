@@ -23,9 +23,19 @@ describe('Private Spot REST API Endpoints', () => {
     it('getSystemStatus()', async () => {
       expect(await api.getSystemStatus()).toMatchObject({'msg': "normal", 'status': 0});
     });
-    
+
     it('getAccountInformation()', async () => {
-      expect(await api.getAccountInformation()).toMatchObject({ data: expect.any(Object) });
+      expect(await api.getAccountInformation()).toMatchObject({
+        buyerCommission: expect.any(Number),
+        makerCommission: expect.any(Number),
+        canDeposit: expect.any(Boolean),
+        canTrade: expect.any(Boolean),
+        canWithdraw: expect.any(Boolean),
+        permissions: expect.any(Array),
+        sellerCommission: expect.any(Number),
+        takerCommission: expect.any(Number),
+        updateTime: expect.any(Number),
+       });
     });
 
     it('getAllCoinsInformation()', async () => {
