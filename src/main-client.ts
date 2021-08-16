@@ -72,7 +72,7 @@ import {
 
 import BaseRestClient from './util/BaseRestClient';
 
-export class SpotClient extends BaseRestClient {
+export class MainClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
@@ -453,3 +453,8 @@ export class SpotClient extends BaseRestClient {
     }
   }
 };
+
+/**
+ * @deprecated use MainClient instead of SpotClient (it is the same)
+ */
+export const SpotClient = MainClient;

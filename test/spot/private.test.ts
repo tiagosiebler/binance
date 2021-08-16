@@ -1,10 +1,10 @@
-import { SpotClient } from "../../src/spot-client";
+import { MainClient } from "../../src/index";
 
 describe('Private Spot REST API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
   const API_SECRET = process.env.API_SECRET_COM;
 
-  const api = new SpotClient({
+  const api = new MainClient({
     disableTimeSync: true,
     api_key: API_KEY,
     api_secret: API_SECRET,

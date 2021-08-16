@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import WebSocket from 'isomorphic-ws';
 
 import { DefaultLogger } from './logger';
-import { SpotClient } from './spot-client';
+import { MainClient } from './main-client';
 import { KlineInterval } from './types/shared';
 import { WsFormattedMessage, WsMessageSpotUserDataEventFormatted, WsMarket, WsRawMessage, WsResponse } from './types/websockets';
 import { USDMClient } from './usdm-client';
@@ -69,13 +69,13 @@ export type WsKey = string | 'spot' | 'margin' | 'usdmfutures' | 'coinmfutures' 
 type WsEventInternalSrc = 'event' | 'function';
 
 interface RestClientStore {
-  spot: SpotClient;
-  margin: SpotClient;
+  spot: MainClient;
+  margin: MainClient;
   usdmFutures: USDMClient;
   usdmFuturesTestnet: USDMClient;
   // coinmFutures: USDMClient;
   // coinmFuturesTestnet: USDMClient;
-  // options: SpotClient;
+  // options: MainClient;
 }
 
 export declare interface WebsocketClient {
@@ -565,9 +565,9 @@ export class WebsocketClient extends EventEmitter {
     this.wsStore.setConnectionState(wsKey, state);
   }
 
-  private getSpotRestClient(): SpotClient {
+  private getSpotRestClient(): MainClient {
     if (!this.restClients.spot) {
-      this.restClients.spot = new SpotClient(this.getRestClientOptions(), this.options.requestOptions);
+      this.restClients.spot = new MainClient(this.getRestClientOptions(), this.options.requestOptions);
     }
     return this.restClients.spot;
   }

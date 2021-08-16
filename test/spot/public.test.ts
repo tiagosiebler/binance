@@ -1,8 +1,8 @@
-import { SpotClient } from "../../src/spot-client";
+import { MainClient } from "../../src/index";
 import { notAuthenticatedError, successResponseList, successResponseObject } from "../response.util";
 
 describe('Public Spot REST API Endpoints', () => {
-  const api = new SpotClient({ disableTimeSync: true });
+  const api = new MainClient({ disableTimeSync: true });
 
   const symbol = 'BTCUSDT';
   const interval = '15m';

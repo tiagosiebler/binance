@@ -1,12 +1,12 @@
-import { SpotClient } from '../src/index';
+import { MainClient } from '../src/index';
 
 // or
-// import { SpotClient } from 'binance';
+// import { MainClient } from 'binance';
 
 const key = 'APIKEY';
 const secret = 'APISECRET';
 
-const client = new SpotClient({
+const client = new MainClient({
   api_key: key,
   api_secret: secret,
 });

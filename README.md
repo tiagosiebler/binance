@@ -54,7 +54,7 @@ Create API credentials at Binance
 ## REST API Clients
 
 There are several REST API modules as there are some differences in each API group.
-1. `SpotClient` for most APIs, including: spot, margin, isolated margin, mining, BLVT, BSwap, Fiat & sub-account management.
+1. `MainClient` for most APIs, including: spot, margin, isolated margin, mining, BLVT, BSwap, Fiat & sub-account management.
 2. `USDMClient` for USD-M futures APIs.
 
 COIN-M and Vanilla Options connectors are not yet available, though contributions are welcome!
@@ -63,12 +63,12 @@ COIN-M and Vanilla Options connectors are not yet available, though contribution
 Start by importing the spot client. API credentials are optiona, though an error is thrown when attempting any private API calls without credentials.
 
 ```javascript
-const { SpotClient } = require('binance');
+const { MainClient } = require('binance');
 
 const API_KEY = 'xxx';
 const PRIVATE_KEY = 'yyy';
 
-const client = new SpotClient({
+const client = new MainClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
 });
