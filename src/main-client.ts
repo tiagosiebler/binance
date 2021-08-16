@@ -192,9 +192,8 @@ export class MainClient extends BaseRestClient {
   /**
    * Broker Endpoints
    */
-  getBrokerIfNewUser(market: 'spot' | 'futures'): Promise<{ rebateWorking: boolean; ifNewUser: boolean; }> {
-    const prefix = market === 'spot' ? 'sapi' : 'fapi';
-    return this.getPrivate(prefix + '/v1/apiReferral/ifNewUser');
+  getBrokerIfNewSpotUser(): Promise<{ rebateWorking: boolean; ifNewUser: boolean; }> {
+    return this.getPrivate('sapi/v1/apiReferral/ifNewUser');
   }
 
   getBrokerUserCustomisedId(market: 'spot' | 'futures') {
