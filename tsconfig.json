@@ -15,10 +15,7 @@
     "esModuleInterop": true,
     "lib": ["es2017","dom"],
     "baseUrl": ".",
-    "outDir": "lib",
-    "paths": {
-      "@src/*": ["src/*"]
-    }
+    "outDir": "lib"
   },
   "include": ["src/**/*", "src/.ts"],
   "exclude": [

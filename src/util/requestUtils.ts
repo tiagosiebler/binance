@@ -1,9 +1,9 @@
-import { MainClient } from "@src/main-client";
-import { NewFuturesOrderParams } from "@src/types/futures";
-import { BinanceBaseUrlKey, CancelOCOParams, CancelOrderParams, NewOCOParams, OrderIdProperty } from "@src/types/shared";
-import { WsMarket } from "@src/types/websockets";
-import { USDMClient } from "@src/usdm-client";
-import { WsKey } from "@src/websocket-client";
+import { MainClient } from "../main-client";
+import { NewFuturesOrderParams } from "../types/futures";
+import { BinanceBaseUrlKey, CancelOCOParams, CancelOrderParams, NewOCOParams, OrderIdProperty } from "../types/shared";
+import { WsMarket } from "../types/websockets";
+import { USDMClient } from "../usdm-client";
+import { WsKey } from "../websocket-client";
 
 export type RestClient = MainClient | USDMClient;
 

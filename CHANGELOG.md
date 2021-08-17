@@ -1,5 +1,11 @@
 # Binance API
 
+## 2.0.2
+- Fix getAccountInformation main endpoint.
+- Fix a few missing APIs.
+- Refactor SpotClient->MainClient. SpotClient will be deprecated in future (MainClient is the same, just a different name).
+- Fix build errors from incorrect module imports.
+
 ## 2.0.0
 
 - Introduction for typescript with strong types on most request parameters & responses.

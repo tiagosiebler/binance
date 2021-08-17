@@ -1,4 +1,4 @@
-import { WsKey } from '@src/websocket-client';
+import { WsKey } from '../websocket-client';
 import { FuturesOrderType, MarginType, PositionSide, WorkingType } from './futures';
 import { KlineInterval, numberInString, OCOOrderStatus, OCOStatus, OrderBookRow, OrderBookRowFormatted, OrderExecutionType, OrderSide, OrderStatus, OrderTimeInForce, OrderType } from './shared';
 

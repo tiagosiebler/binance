@@ -1,4 +1,4 @@
-import { WsFormattedMessage } from '@src/types/websockets';
+import { WsFormattedMessage } from '../types/websockets';
 
 export default class Beautifier {
   private beautificationMap: Record<string, Record<string, any>>;
