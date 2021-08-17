@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
 import qs from 'qs';
 
 import { signMessage } from './node-support';
-import { BinanceBaseUrlKey } from '@src/types/shared';
+import { BinanceBaseUrlKey } from '../types/shared';
 import { serialiseParams, RestClientOptions, GenericAPIResponse, getRestBaseUrl } from './requestUtils';
 import Beautifier from './beautifier';
 
