@@ -1,5 +1,9 @@
 # Binance API
 
+## 2.0.3
+- Expand main-client APIs.
+- Expand usdm-client APIs.
+
 ## 2.0.2
 - Fix getAccountInformation main endpoint.
 - Fix a few missing APIs.

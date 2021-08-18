@@ -202,12 +202,12 @@ export class MainClient extends BaseRestClient {
   }
 
   // USD & Coin-M can be found under API getIncome() (find "API rebate" in results)
-  getBrokerSpotRebateHistory(days: 7 | 30) {
+  getBrokerSpotRebateHistory(days: 7 | 30, customerId?: string) {
     if (days === 7) {
-      return this.getPrivate('sapi/v1/apiReferral/rebate/recentRecord');
+      return this.getPrivate('sapi/v1/apiReferral/rebate/recentRecord', { customerId });
     }
     if (days === 30) {
-      return this.getPrivate('sapi/v1/apiReferral/rebate/historicalRecord');
+      return this.getPrivate('sapi/v1/apiReferral/rebate/historicalRecord', { customerId });
     }
   }
 
