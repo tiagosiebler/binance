@@ -57,6 +57,9 @@ import {
   FuturesPosition,
   FuturesPositionTrade,
   ForceOrderResult,
+  SymbolLeverageBracketsResult,
+  IncomeHistory,
+  RebateDataOverview,
 } from './types/futures';
 
 import {
@@ -292,11 +295,11 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/userTrades', params);
   }
 
-  getIncomeHistory(params?: GetIncomeHistoryParams): Promise<any> {
+  getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
     return this.getPrivate('fapi/v1/income', params);
   }
 
-  getNotionalAndLeverageBrackets(params?: Partial<BasicSymbolParam>): Promise<any> {
+  getNotionalAndLeverageBrackets(params?: Partial<BasicSymbolParam>): Promise<SymbolLeverageBracketsResult[] | SymbolLeverageBracketsResult> {
     return this.getPrivate('fapi/v1/leverageBracket', params);
   }
 
@@ -312,7 +315,7 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/apiTradingStatus', params);
   }
 
-  getAccountComissionRate(params: BasicSymbolParam): Promise<any> {
+  getAccountComissionRate(params: BasicSymbolParam): Promise<RebateDataOverview> {
     return this.getPrivate('fapi/v1/commissionRate', params);
   }
 
@@ -330,10 +333,58 @@ export class USDMClient extends BaseRestClient {
     });
   }
 
-  setCustomIdForClient(customerId: string, email: string): Promise<{ customerId: string; email: string; }> {
+  setBrokerCustomIdForClient(customerId: string, email: string): Promise<{ customerId: string; email: string; }> {
     return this.postPrivate('fapi/v1/apiReferral/customization', {
       customerId,
       email,
+    });
+  }
+
+  getBrokerClientCustomIds(customerId: string, email: string, page?: number, limit?: number): Promise<any> {
+    return this.getPrivate('fapi/v1/apiReferral/customization', {
+      customerId,
+      email,
+      page,
+      limit,
+    });
+  }
+
+  getBrokerUserCustomId(brokerId: string): Promise<any> {
+    return this.getPrivate('fapi/v1/apiReferral/userCustomization', {
+      brokerId,
+    })
+  }
+
+  getBrokerRebateDataOverview(type: 1 | 2 = 1): Promise<RebateDataOverview> {
+    return this.getPrivate('fapi/v1/apiReferral/overview', {
+      type,
+    });
+  }
+
+  getBrokerUserTradeVolume(type: 1 | 2 = 1, startTime?: number, endTime?: number, limit?: number): Promise<any> {
+    return this.getPrivate('fapi/v1/apiReferral/tradeVol', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+
+  getBrokerRebateVolume(type: 1 | 2 = 1, startTime?: number, endTime?: number, limit?: number): Promise<any> {
+    return this.getPrivate('fapi/v1/apiReferral/rebateVol', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+
+  getBrokerTradeDetail(type: 1 | 2 = 1, startTime?: number, endTime?: number, limit?: number): Promise<any> {
+    return this.getPrivate('fapi/v1/apiReferral/traderSummary', {
+      type,
+      startTime,
+      endTime,
+      limit,
     });
   }
 

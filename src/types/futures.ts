@@ -152,6 +152,14 @@ export interface GetIncomeHistoryParams {
   limit?: number;
 }
 
+export interface IncomeHistory {
+  symbol?: string;
+  incomeType?: IncomeType;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
 type ForceOrderCloseType = 'LIQUIDATION' | 'ADL';
 
 export interface GetForceOrdersParams {
@@ -457,4 +465,29 @@ export interface ForceOrderResult {
   origType: FuturesOrderType;
   time: number;
   updateTime: number;
+}
+
+export interface SymbolLeverageBracket {
+  bracket: number;
+  initialLeverage: number;
+  notionalCap: number;
+  notionalFloor: number;
+  maintMarginRatio: number;
+  cum: number;
+}
+
+export interface SymbolLeverageBracketsResult {
+  symbol: string;
+  brackets: SymbolLeverageBracket[];
+}
+
+export interface RebateDataOverview {
+  brokerId: string;
+  newTraderRebateCommission: numberInString;
+  oldTraderRebateCommission: numberInString;
+  totalTradeUser: number;
+  unit: string;
+  totalTradeVol: numberInString;
+  totalRebateVol: numberInString;
+  time: number;
 }
