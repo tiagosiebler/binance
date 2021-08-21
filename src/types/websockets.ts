@@ -1,5 +1,5 @@
 import { WsKey } from '../websocket-client';
-import { FuturesOrderType, MarginType, PositionSide, WorkingType } from './futures';
+import { FuturesContractType, FuturesOrderType, MarginType, PositionSide, WorkingType } from './futures';
 import { KlineInterval, numberInString, OCOOrderStatus, OCOStatus, OrderBookRow, OrderBookRowFormatted, OrderExecutionType, OrderSide, OrderStatus, OrderTimeInForce, OrderType } from './shared';
 
 export type WsMarket = 'spot' | 'margin' | 'isolatedMargin' | 'usdm' | 'usdmTestnet' | 'coinm' | 'coinmTestnet' | 'options' | 'optionsTestnet';
@@ -36,7 +36,8 @@ export type WsRawMessage = WsMessageKlineRaw
   | WsMessage24hrTickerRaw[]
   | WsMessageBookTickerEventRaw
   | WsMessagePartialBookDepthEventRaw
-  | WsRawSpotUserDataEventRaw;
+  | WsRawSpotUserDataEventRaw
+  | WsMessageIndexPriceUpdateEventRaw;
 
 export type WsFormattedMessage = WsMessageKlineFormatted
   | WsMessageAggTradeFormatted
@@ -48,7 +49,17 @@ export type WsFormattedMessage = WsMessageKlineFormatted
   | WsMessageBookTickerEventFormatted
   | WsMessagePartialBookDepthEventFormatted
   | WsMessageSpotUserDataEventFormatted
-  | WsMessageFuturesUserDataEventFormatted;
+  | WsMessageFuturesUserDataEventFormatted
+  | WsMessageIndexPriceUpdateEventFormatted
+  | WsMessageMarkPriceUpdateEventFormatted
+  | WsMessageMarkPriceUpdateEventFormatted[]
+  | WsMessageForceOrderFormatted;
+
+
+interface WsSharedBase {
+  wsMarket: WsMarket;
+  wsKey: WsKey;
+}
 
 export interface WsResponse {
   type: 'message';
@@ -59,7 +70,7 @@ export interface WsResponse {
   wsKey: WsKey;
 }
 
-export interface WsMessageKlineRaw {
+export interface WsMessageKlineRaw extends WsSharedBase {
   e: 'kline';
   E: number;
   s: string;
@@ -82,12 +93,10 @@ export interface WsMessageKlineRaw {
     Q: numberInString;
     B: numberInString;
   };
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageKlineFormatted {
-  eventType: 'kline',
+export interface WsMessageKlineFormatted extends WsSharedBase {
+  eventType: 'kline' | 'indexPrice_kline',
   eventTime: number,
   symbol: string,
   kline: {
@@ -109,11 +118,35 @@ export interface WsMessageKlineFormatted {
     quoteVolumeActive: number,
     ignored: number
   };
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageAggTradeRaw {
+export interface WsMessageContinuousKlineFormatted extends WsSharedBase {
+  eventType: 'continuous_kline';
+  eventTime: number;
+  symbol: string;
+  contractType: FuturesContractType;
+  kline: {
+    startTime: number,
+    endTime: number,
+    symbol: string,
+    interval: KlineInterval,
+    firstTradeId: number,
+    lastTradeId: number,
+    open: number,
+    close: number,
+    high: number,
+    low: number,
+    volume: number,
+    trades: number,
+    final: false,
+    quoteVolume: number,
+    volumeActive: number,
+    quoteVolumeActive: number,
+    ignored: number
+  };
+}
+
+export interface WsMessageAggTradeRaw extends WsSharedBase {
   e: 'aggTrade';
   E: number;
   s: string;
@@ -125,11 +158,9 @@ export interface WsMessageAggTradeRaw {
   T: number;
   m: boolean;
   M: boolean;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageAggTradeFormatted {
+export interface WsMessageAggTradeFormatted extends WsSharedBase {
   eventType: 'aggTrade';
   eventTime: number;
   symbol: string;
@@ -141,11 +172,9 @@ export interface WsMessageAggTradeFormatted {
   time: number;
   maker: boolean;
   ignored: boolean;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageTradeRaw {
+export interface WsMessageTradeRaw extends WsSharedBase {
   e: 'trade';
   E: number;
   s: string;
@@ -157,11 +186,9 @@ export interface WsMessageTradeRaw {
   T: number;
   m: boolean;
   M: boolean;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageTradeFormatted {
+export interface WsMessageTradeFormatted extends WsSharedBase {
   eventType: 'trade';
   eventTime: number;
   symbol: string;
@@ -173,11 +200,9 @@ export interface WsMessageTradeFormatted {
   time: number;
   maker: boolean;
   ignored: boolean;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessage24hrMiniTickerRaw {
+export interface WsMessage24hrMiniTickerRaw extends WsSharedBase {
   e: '24hrMiniTicker';
   E: number;
   s: string;
@@ -187,25 +212,22 @@ export interface WsMessage24hrMiniTickerRaw {
   l: numberInString;
   v: numberInString;
   q: numberInString;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessage24hrMiniTickerFormatted {
+export interface WsMessage24hrMiniTickerFormatted extends WsSharedBase {
   eventType: '24hrMiniTicker';
   eventTime: number;
   symbol: string;
+  contractSymbol?: string;//coinm only
   close: number;
   open: number;
   high: number;
   low: number;
   baseAssetVolume: number;
   quoteAssetVolume: number;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessage24hrTickerRaw {
+export interface WsMessage24hrTickerRaw extends WsSharedBase {
   e: '24hrTicker';
   E: number;
   s: string;
@@ -229,11 +251,9 @@ export interface WsMessage24hrTickerRaw {
   F: number;
   L: number;
   n: number;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessage24hrTickerFormatted {
+export interface WsMessage24hrTickerFormatted extends WsSharedBase {
   eventType: '24hrTicker';
   eventTime: number;
   symbol: string;
@@ -257,11 +277,9 @@ export interface WsMessage24hrTickerFormatted {
   firstTradeId: number;
   lastTradeId: number;
   trades: number;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageBookTickerEventRaw {
+export interface WsMessageBookTickerEventRaw extends WsSharedBase {
   e: 'bookTicker';
   u: number;
   s: string;
@@ -269,37 +287,29 @@ export interface WsMessageBookTickerEventRaw {
   B: numberInString;
   a: numberInString;
   A: numberInString;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageBookTickerEventFormatted {
+export interface WsMessageBookTickerEventFormatted extends WsSharedBase {
   eventType: 'bookTicker';
   updateId: number;
   bidPrice: number;
   bidQty: number;
   askPrice: number;
   askQty: number;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessagePartialBookDepthEventRaw {
+export interface WsMessagePartialBookDepthEventRaw extends WsSharedBase {
   e: 'partialBookDepth';
   lastUpdateId: number;
   bids: OrderBookRow[];
   asks: OrderBookRow[];
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessagePartialBookDepthEventFormatted {
+export interface WsMessagePartialBookDepthEventFormatted extends WsSharedBase {
   eventType: 'partialBookDepth';
   lastUpdateId: number;
   bids: OrderBookRowFormatted[];
   asks: OrderBookRowFormatted[];
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
 /**
@@ -312,13 +322,11 @@ interface SpotBalanceRaw {
   l: numberInString;
 }
 
-export interface WsMessageSpotOutboundAccountPositionRaw {
+export interface WsMessageSpotOutboundAccountPositionRaw extends WsSharedBase {
   e: 'outboundAccountPosition';
   E: number;
   u: number;
   B: SpotBalanceRaw[];
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
 interface SpotBalanceFormatted {
@@ -327,36 +335,30 @@ interface SpotBalanceFormatted {
   l: number;
 }
 
-export interface WsMessageSpotOutboundAccountPositionFormatted {
+export interface WsMessageSpotOutboundAccountPositionFormatted extends WsSharedBase {
   eventType: 'outboundAccountPosition';
   eventTime: number;
   lastAccountUpdateTime: number;
   balances: SpotBalanceFormatted[];
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageSpotBalanceUpdateRaw {
+export interface WsMessageSpotBalanceUpdateRaw extends WsSharedBase {
   e: 'balanceUpdate';
   E: number;
   a: string;
   d: numberInString;
   T: number;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageSpotBalanceUpdateFormatted {
+export interface WsMessageSpotBalanceUpdateFormatted extends WsSharedBase {
   eventType: 'balanceUpdate';
   eventTime: number;
   asset: string;
   balanceDelta: number;
   clearTime: number;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageSpotUserDataExecutionReportEventRaw {
+export interface WsMessageSpotUserDataExecutionReportEventRaw extends WsSharedBase {
   e: 'executionReport';
   E: number;
   s: string;
@@ -389,11 +391,9 @@ export interface WsMessageSpotUserDataExecutionReportEventRaw {
   Z: numberInString;
   Y: numberInString;
   Q: numberInString;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageSpotUserDataExecutionReportEventFormatted {
+export interface WsMessageSpotUserDataExecutionReportEventFormatted extends WsSharedBase {
   eventType: 'executionReport';
   eventTime: number;
   symbol: string;
@@ -426,8 +426,6 @@ export interface WsMessageSpotUserDataExecutionReportEventFormatted {
   cumulativeQuoteAssetTransactedQty: number;
   lastQuoteAssetTransactedQty: number;
   orderQuoteQty: number;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
 export interface OrderObjectRaw {
@@ -436,7 +434,7 @@ export interface OrderObjectRaw {
   c: string;
 }
 
-export interface WsMessageSpotUserDataListStatusEventRaw {
+export interface WsMessageSpotUserDataListStatusEventRaw extends WsSharedBase {
   e: 'listStatus';
   E: number;
   s: string;
@@ -448,8 +446,6 @@ export interface WsMessageSpotUserDataListStatusEventRaw {
   C: string;
   T: number;
   O: OrderObjectRaw[];
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
 export interface OrderObjectFormatted {
@@ -458,7 +454,7 @@ export interface OrderObjectFormatted {
   clientOrderId: string;
 }
 
-export interface WsMessageSpotUserDataListStatusEventFormatted {
+export interface WsMessageSpotUserDataListStatusEventFormatted extends WsSharedBase {
   eventType: 'listStatus';
   eventTime: number;
   symbol: string;
@@ -470,8 +466,6 @@ export interface WsMessageSpotUserDataListStatusEventFormatted {
   listClientOrderId: string;
   transactionTime: number;
   orders: OrderObjectFormatted[];
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
 export type AccountUpdateEventType = 'DEPOSIT'
@@ -508,18 +502,14 @@ export interface WsUpdatedPosition {
   positionSide: PositionSide;
 }
 
-export interface WsMessageFuturesUserDataListenKeyExpiredRaw {
+export interface WsMessageFuturesUserDataListenKeyExpiredRaw extends WsSharedBase {
   e: 'listenKeyExpired';
   E: number;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageFuturesUserDataListenKeyExpiredFormatted {
+export interface WsMessageFuturesUserDataListenKeyExpiredFormatted extends WsSharedBase {
   eventType: 'listenKeyExpired';
   eventTime: number;
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
 export interface WsMessageFuturesMarginCalledPositionRaw {
@@ -545,22 +535,18 @@ export interface WsMessageFuturesMarginCalledPositionFormatted {
 }
 
 
-export interface WsMessageFuturesUserDataMarginCallRaw {
+export interface WsMessageFuturesUserDataMarginCallRaw extends WsSharedBase {
   e: 'MARGIN_CALL';
   E: number;
   cw: numberInString;
   p: WsMessageFuturesMarginCalledPositionRaw[];
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageFuturesUserDataMarginCallFormatted {
+export interface WsMessageFuturesUserDataMarginCallFormatted extends WsSharedBase {
   eventType: 'MARGIN_CALL';
   eventTime: number;
   crossWalletBalance: number;
   positions: WsMessageFuturesMarginCalledPositionFormatted[];
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
 export interface WsMessageFuturesAccountUpdatePositionRaw {
@@ -581,7 +567,7 @@ export interface WsMessageFuturesAccountUpdateBalanceRaw {
   bc: numberInString;
 }
 
-export interface WsMessageFuturesUserDataAccountUpdateRaw {
+export interface WsMessageFuturesUserDataAccountUpdateRaw extends WsSharedBase {
   e: 'ACCOUNT_UPDATE';
   E: number;
   T: number;
@@ -590,11 +576,9 @@ export interface WsMessageFuturesUserDataAccountUpdateRaw {
     B: WsMessageFuturesAccountUpdateBalanceRaw[];
     P: WsMessageFuturesAccountUpdatePositionRaw[];
   };
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageFuturesUserDataAccountUpdateFormatted {
+export interface WsMessageFuturesUserDataAccountUpdateFormatted extends WsSharedBase {
   eventType: 'ACCOUNT_UPDATE';
   eventTime: number;
   transactionId: number;
@@ -603,11 +587,9 @@ export interface WsMessageFuturesUserDataAccountUpdateFormatted {
     updatedBalances: WsAccountUpdatedBalance[];
     updatedPositions: WsUpdatedPosition[]
   };
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageFuturesUserDataOrderTradeUpdateEventRaw {
+export interface WsMessageFuturesUserDataOrderTradeUpdateEventRaw extends WsSharedBase {
   e: 'ORDER_TRADE_UPDATE';
   E: number;
   T: number;
@@ -643,11 +625,9 @@ export interface WsMessageFuturesUserDataOrderTradeUpdateEventRaw {
     cr: numberInString;
     rp: numberInString;
   };
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageFuturesUserDataTradeUpdateEventFormatted {
+export interface WsMessageFuturesUserDataTradeUpdateEventFormatted extends WsSharedBase {
   eventType: 'ORDER_TRADE_UPDATE';
   eventTime: number;
   transactionTime: number;
@@ -683,11 +663,9 @@ export interface WsMessageFuturesUserDataTradeUpdateEventFormatted {
     trailingStopCallbackRate: number;
     realisedProfit: number;
   };
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageFuturesUserDataAccountConfigUpdateEventRaw {
+export interface WsMessageFuturesUserDataAccountConfigUpdateEventRaw extends WsSharedBase {
   e: 'ACCOUNT_CONFIG_UPDATE';
   E: number;
   T: number;
@@ -698,11 +676,9 @@ export interface WsMessageFuturesUserDataAccountConfigUpdateEventRaw {
   ai?: {
     j: boolean;
   };
-  wsMarket: WsMarket;
-  wsKey: WsKey;
 }
 
-export interface WsMessageFuturesUserDataAccountConfigUpdateEventFormatted {
+export interface WsMessageFuturesUserDataAccountConfigUpdateEventFormatted extends WsSharedBase {
   eventType: 'ACCOUNT_CONFIG_UPDATE';
   eventTime: number;
   transactionTime: number;
@@ -713,6 +689,45 @@ export interface WsMessageFuturesUserDataAccountConfigUpdateEventFormatted {
   accountConfiguration?: {
     isMultiAssetsMode: boolean;
   };
-  wsMarket: WsMarket;
-  wsKey: WsKey;
+}
+
+export interface WsMessageIndexPriceUpdateEventRaw extends WsSharedBase {
+  e: 'indexPriceUpdate';
+  E: number;
+  i: string;
+  p: numberInString;
+}
+
+export interface WsMessageIndexPriceUpdateEventFormatted extends WsSharedBase {
+  eventType: 'indexPriceUpdate';
+  eventTime: number;
+  symbol: string;
+  indexPrice: number;
+}
+
+export interface WsMessageMarkPriceUpdateEventFormatted extends WsSharedBase {
+  eventType: 'markPriceUpdate';
+  eventTime: number;
+  symbol: string;
+  markPrice: number;
+  settlePriceEstimate: number;
+  indexPrice?: number;// undefined for coinm
+  fundingRate: number | '';
+  nextFundingTime: number;
+}
+
+export interface WsMessageForceOrderFormatted extends WsSharedBase {
+  eventType: 'forceOrder';
+  eventTime: number;
+  liquidationOrder: {
+    symbol: string;
+    side: OrderSide;
+    oorderType: FuturesOrderType;
+    quantity: number;
+    price: number;
+    averagePrice: number;
+    lastFilledQuantity: number;
+    orderFilledAccumulatedQuantity: number;
+    orderTradeTime: number;
+  }
 }

@@ -774,6 +774,196 @@ export class WebsocketClient extends EventEmitter {
 
   /**
    * --------------------------
+   * Universal market websocket streams (may apply to one or more API markets)
+   * --------------------------
+  **/
+
+  /**
+   * Subscribe to aggregate trades for a symbol in a market category
+   */
+   public subscribeAggregateTrades(symbol: string, market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'aggTrade';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to coin index for a symbol in COINM Futures markets
+   */
+  public subscribeCoinIndexPrice(symbol: string, updateSpeedMs: 1000 | 3000 = 3000, forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'indexPrice';
+    const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
+    const market: WsMarket = 'coinm';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to mark price for a symbol in a market category
+   */
+  public subscribeMarkPrice(symbol: string, market: 'usdm' | 'coinm', updateSpeedMs: 1000 | 3000 = 3000, forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'markPrice';
+    const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to mark price for all symbols in a market category
+   */
+  public subscribeAllMarketMarkPrice(market: 'usdm' | 'coinm', updateSpeedMs: 1000 | 3000 = 3000, forceNewConnection?: boolean): WebSocket {
+    const streamName = '!markPrice@arr';
+    const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
+    const wsKey = getWsKeyWithContext(market, streamName);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${streamName}${speedSuffix}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to klines(candles) for a symbol in a market category
+   */
+  public subscribeKlines(symbol: string, interval: KlineInterval, market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'kline';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol, interval);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}_${interval}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to continuous contract klines(candles) for a symbol futures
+   */
+  public subscribeContinuousContractKlines(symbol: string, contractType: 'perpetual' | 'current_quarter' | 'next_quarter', interval: KlineInterval, market: 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'continuousKline';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol, interval);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}_${contractType}@${streamName}_${interval}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to index klines(candles) for a symbol in a coinm futures
+   */
+  public subscribeIndexKlines(symbol: string, interval: KlineInterval, forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'indexPriceKline';
+    const market: WsMarket = 'coinm';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol, interval);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}_${interval}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to index klines(candles) for a symbol in a coinm futures
+   */
+  public subscribeMarkPriceKlines(symbol: string, interval: KlineInterval, forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'markPrice_kline';
+    const market: WsMarket = 'coinm';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol, interval);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}_${interval}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to mini 24hr ticker for a symbol in market category.
+   */
+  public subscribeSymbolMini24hrTicker(symbol: string, market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'miniTicker';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to mini 24hr mini ticker in market category.
+   */
+  public subscribeAllMini24hrTickers(market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const streamName = 'miniTicker';
+    const wsKey = getWsKeyWithContext(market, streamName);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}@arr`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to 24hr ticker for a symbol in any market.
+   */
+  public subscribeSymbol24hrTicker(symbol: string, market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'ticker';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to 24hr ticker in any market.
+   */
+  public subscribeAll24hrTickers(market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const streamName = 'ticker';
+    const wsKey = getWsKeyWithContext(market, streamName);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}@arr`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to best bid/ask for symbol in spot markets.
+   */
+  public subscribeSymbolBookTicker(symbol: string, market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'bookTicker';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to best bid/ask for all symbols in spot markets.
+   */
+  public subscribeAllBookTickers(market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const streamName = 'bookTicker';
+    const wsKey = getWsKeyWithContext(market, streamName);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to best bid/ask for symbol in spot markets.
+   */
+  public subscribeSymbolLiquidationOrders(symbol: string, market: 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'forceOrder';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to best bid/ask for all symbols in spot markets.
+   */
+  public subscribeAllLiquidationOrders(market: 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const streamName = 'forceOrder@arr';
+    const wsKey = getWsKeyWithContext(market, streamName);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to partial book depths. Note, spot only supports 1000ms or 100ms for updateMs, while futures only support 100, 250 or 500ms.
+   */
+  public subscribePartialBookDepths(symbol: string, levels: 5 | 10 | 20, updateMs: 100 | 250 | 500 | 1000, market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'depth';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const updateMsSuffx = updateMs === 100 ? `@${updateMs}ms` : '';
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`, wsKey, forceNewConnection);
+  }
+
+  /**
+   * Subscribe to spot orderbook depth updates to locally manage an order book.
+   */
+  public subscribeDiffBookDepth(symbol: string, updateMs: 1000 | 100 = 1000, market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'depth';
+    const wsKey = getWsKeyWithContext(market, 'diffBookDepth', lowerCaseSymbol, String(updateMs));
+    const updateMsSuffx = updateMs === 100 ? `@${updateMs}ms` : '';
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}${updateMsSuffx}`, wsKey, forceNewConnection);
+  }
+
+
+  /**
+   * --------------------------
    * SPOT market websocket streams
    * --------------------------
   **/
@@ -782,12 +972,7 @@ export class WebsocketClient extends EventEmitter {
    * Subscribe to aggregate trades for a symbol in spot markets.
    */
   public subscribeSpotAggregateTrades(symbol: string, forceNewConnection?: boolean): WebSocket {
-    const lowerCaseSymbol = symbol.toLowerCase();
-    const market: WsMarket = 'spot';
-    const streamName = 'aggTrade';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
+    return this.subscribeAggregateTrades(symbol, 'spot', forceNewConnection);
   }
 
   /**
@@ -798,115 +983,70 @@ export class WebsocketClient extends EventEmitter {
     const market: WsMarket = 'spot';
     const streamName = 'trade';
     const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
   }
 
   /**
    * Subscribe to candles for a symbol in spot markets.
    */
   public subscribeSpotKline(symbol: string, interval: KlineInterval, forceNewConnection?: boolean): WebSocket {
-    const lowerCaseSymbol = symbol.toLowerCase();
-    const market: WsMarket = 'spot';
-    const streamName = 'kline';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol, interval);
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/${lowerCaseSymbol}@${streamName}_${interval}`, wsKey, forceNewConnection);
+    return this.subscribeKlines(symbol, interval, 'spot', forceNewConnection);
   }
 
   /**
    * Subscribe to mini 24hr ticker for a symbol in spot markets.
    */
   public subscribeSpotSymbolMini24hrTicker(symbol: string, forceNewConnection?: boolean): WebSocket {
-    const lowerCaseSymbol = symbol.toLowerCase();
-    const market: WsMarket = 'spot';
-    const streamName = 'miniTicker';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
+    return this.subscribeSymbolMini24hrTicker(symbol, 'spot', forceNewConnection);
   }
 
   /**
    * Subscribe to mini 24hr mini ticker in spot markets.
    */
   public subscribeSpotAllMini24hrTickers(forceNewConnection?: boolean): WebSocket {
-    const market: WsMarket = 'spot';
-    const streamName = 'miniTicker';
-    const wsKey = getWsKeyWithContext(market, streamName);
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/!${streamName}@arr`, wsKey, forceNewConnection);
+    return this.subscribeAllMini24hrTickers('spot', forceNewConnection);
   }
 
   /**
    * Subscribe to 24hr ticker for a symbol in spot markets.
    */
   public subscribeSpotSymbol24hrTicker(symbol: string, forceNewConnection?: boolean): WebSocket {
-    const lowerCaseSymbol = symbol.toLowerCase();
-    const market: WsMarket = 'spot';
-    const streamName = 'ticker';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
+    return this.subscribeSymbol24hrTicker(symbol, 'spot', forceNewConnection);
   }
 
   /**
    * Subscribe to 24hr ticker in spot markets.
    */
   public subscribeSpotAll24hrTickers(forceNewConnection?: boolean): WebSocket {
-    const market: WsMarket = 'spot';
-    const streamName = 'ticker';
-    const wsKey = getWsKeyWithContext(market, streamName);
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/!${streamName}@arr`, wsKey, forceNewConnection);
+    return this.subscribeAll24hrTickers('spot', forceNewConnection);
   }
 
   /**
    * Subscribe to best bid/ask for symbol in spot markets.
    */
   public subscribeSpotSymbolBookTicker(symbol: string, forceNewConnection?: boolean): WebSocket {
-    const lowerCaseSymbol = symbol.toLowerCase();
-    const market: WsMarket = 'spot';
-    const streamName = 'bookTicker';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/${lowerCaseSymbol}@${streamName}`, wsKey, forceNewConnection);
+    return this.subscribeSymbolBookTicker(symbol, 'spot', forceNewConnection);
   }
 
   /**
    * Subscribe to best bid/ask for all symbols in spot markets.
    */
   public subscribeSpotAllBookTickers(forceNewConnection?: boolean): WebSocket {
-    const market: WsMarket = 'spot';
-    const streamName = 'bookTicker';
-    const wsKey = getWsKeyWithContext(market, streamName);
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/!${streamName}`, wsKey, forceNewConnection);
+    return this.subscribeAllBookTickers('spot', forceNewConnection);
   }
 
   /**
    * Subscribe to top bid/ask levels for symbol in spot markets.
    */
   public subscribeSpotPartialBookDepth(symbol: string, levels: 5 | 10 | 20, updateMs: 1000 | 100 = 1000, forceNewConnection?: boolean): WebSocket {
-    const lowerCaseSymbol = symbol.toLowerCase();
-    const market: WsMarket = 'spot';
-    const streamName = 'depth';
-    const wsKey = getWsKeyWithContext(market, 'partialBookDepth', lowerCaseSymbol, String(levels), String(updateMs));
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    const updateMsSuffx = updateMs === 100 ? `@${updateMs}ms` : '';
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`, wsKey, forceNewConnection);
+    return this.subscribePartialBookDepths(symbol, levels, updateMs, 'spot', forceNewConnection);
   }
 
   /**
    * Subscribe to spot orderbook depth updates to locally manage an order book.
    */
   public subscribeSpotDiffBookDepth(symbol: string, updateMs: 1000 | 100 = 1000, forceNewConnection?: boolean): WebSocket {
-    const lowerCaseSymbol = symbol.toLowerCase();
-    const market: WsMarket = 'spot';
-    const streamName = 'depth';
-    const wsKey = getWsKeyWithContext(market, 'diffBookDepth', lowerCaseSymbol, String(updateMs));
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    const updateMsSuffx = updateMs === 100 ? `@${updateMs}ms` : '';
-    return this.connectToWsUrl(`${wsBaseUrl}/ws/${lowerCaseSymbol}@${streamName}${updateMsSuffx}`, wsKey, forceNewConnection);
+    return this.subscribeDiffBookDepth(symbol, updateMs, 'spot', forceNewConnection);
   }
 
   /**
@@ -916,8 +1056,7 @@ export class WebsocketClient extends EventEmitter {
    public subscribeSpotUserDataStreamWithListenKey(listenKey: string, forceNewConnection?: boolean): WebSocket {
     const market: WsMarket = 'spot';
     const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
-    const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
-    const ws = this.connectToWsUrl(`${wsBaseUrl}/ws/${listenKey}`, wsKey, forceNewConnection);
+    const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
     // Start & store timer to keep alive listen key (and handle expiration)
     this.setKeepAliveListenKeyTimer(listenKey, market, ws, wsKey);
@@ -947,9 +1086,8 @@ export class WebsocketClient extends EventEmitter {
 
       const market: WsMarket = 'margin';
       const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
-      const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
 
-      const ws = this.connectToWsUrl(`${wsBaseUrl}/ws/${listenKey}`, wsKey, forceNewConnection);
+      const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
       // Start & store timer to keep alive listen key (and handle expiration)
       this.setKeepAliveListenKeyTimer(listenKey, market, ws, wsKey);
@@ -970,9 +1108,8 @@ export class WebsocketClient extends EventEmitter {
       const { listenKey } = await this.getSpotRestClient().getIsolatedMarginUserDataListenKey({ symbol: lowerCaseSymbol });
       const market: WsMarket = 'isolatedMargin';
       const wsKey = getWsKeyWithContext(market, 'userData', lowerCaseSymbol, listenKey);
-      const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
 
-      const ws =  this.connectToWsUrl(`${wsBaseUrl}/ws/${listenKey}`, wsKey, forceNewConnection);
+      const ws =  this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
       // Start & store timer to keep alive listen key (and handle expiration)
       this.setKeepAliveListenKeyTimer(listenKey, market, ws, wsKey, symbol);
@@ -1000,9 +1137,8 @@ export class WebsocketClient extends EventEmitter {
       const market: WsMarket = isTestnet? 'usdmTestnet' : 'usdm';
       const streamName = 'userData';
       const wsKey = [market, streamName, listenKey].join('_');
-      const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
 
-      const ws = this.connectToWsUrl(`${wsBaseUrl}/ws/${listenKey}`, wsKey, forceNewConnection);
+      const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
       // Start & store timer to keep alive listen key (and handle expiration)
       this.setKeepAliveListenKeyTimer(listenKey, market, ws, wsKey, undefined, isTestnet);
@@ -1012,6 +1148,7 @@ export class WebsocketClient extends EventEmitter {
       this.logger.error(`Failed to get USDM Futures user data listen key`, { ...loggerCategory, error: e });
     }
   }
+
 
   // TODO: coinm futures, options; once rest clients are implemented
 
@@ -1028,7 +1165,7 @@ export class WebsocketClient extends EventEmitter {
   //       const wsKey = [market, streamName, listenKey].join('_');
   //       const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
 
-  //       const ws = this.connectToWsUrl(`${wsBaseUrl}/ws/${listenKey}`, wsKey, forceNewConnection);
+  //       const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
   //       // Start & store timer to keep alive listen key (and handle expiration)
   //       this.setKeepAliveListenKeyTimer(listenKey, market, ws, wsKey);

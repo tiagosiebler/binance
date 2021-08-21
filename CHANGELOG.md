@@ -1,5 +1,10 @@
 # Binance API
 
+## 2.0.4
+- Disable 'silly' logger category by default to reduce ping/pong noise.
+- Expand ws support to other API categories.
+- Expand beautifier support for other WS messages.
+
 ## 2.0.3
 - Expand main-client APIs.
 - Expand usdm-client APIs.

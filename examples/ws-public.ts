@@ -9,6 +9,7 @@ import { WebsocketClient } from '../src/websocket-client';
   const secret = 'APISECRET';
 
   const market = 'BTCUSDT';
+  const coinMSymbol = 'XLMUSD_PERP';
 
   const logger = {
     ...DefaultLogger,
@@ -54,7 +55,32 @@ import { WebsocketClient } from '../src/websocket-client';
     console.log('ws has reconnected ', data?.wsKey );
   });
 
-  wsClient.subscribeSpotKline(market, '1m');
-  wsClient.subscribeSpotSymbol24hrTicker(market);
+  // wsClient.subscribeSpotKline(market, '1m');
+  // wsClient.subscribeKlines(market, '1m', 'usdm');
+  // wsClient.subscribeCoinIndexPrice(coinMSymbol);
+  // wsClient.subscribeMarkPrice(market, 'usdm');
+  // wsClient.subscribeMarkPrice(coinMSymbol, 'coinm');
+  // wsClient.subscribeAllMarketMarkPrice('usdm');
+  // wsClient.subscribeAllMarketMarkPrice('coinm');
+  wsClient.subscribeKlines(market, '1m', 'usdm');
+  // wsClient.subscribeContinuousContractKlines(market, 'perpetual', '1m', 'usdm');
+  // wsClient.subscribeIndexKlines(coinMSymbol, '1m');
+  // wsClient.subscribeMarkPriceKlines(coinMSymbol, '1m');
+  // wsClient.subscribeSymbolMini24hrTicker(market, 'usdm');
+  // wsClient.subscribeSymbolMini24hrTicker(coinMSymbol, 'coinm');
+  // wsClient.subscribeSymbolMini24hrTicker(market, 'spot');
+  // wsClient.subscribeSymbol24hrTicker(market, 'usdm');
+  // wsClient.subscribeSymbol24hrTicker(market, 'coinm');
+  // wsClient.subscribeSymbol24hrTicker(coinMSymbol, 'spot');
+  // wsClient.subscribeAllMini24hrTickers('usdm');
+  // wsClient.subscribeAllMini24hrTickers('coinm');
+  // wsClient.subscribeAllMini24hrTickers('spot');
+  // wsClient.subscribeAll24hrTickers('usdm');
+  // wsClient.subscribeAll24hrTickers('coinm');
+  // wsClient.subscribeAll24hrTickers('spot');
+  // wsClient.subscribeAllLiquidationOrders('usdm');
+  // wsClient.subscribeAllLiquidationOrders('coinm');
+  // wsClient.subscribeSpotSymbol24hrTicker(market);
+  // wsClient.subscribeAggregateTrades(market, 'usdm');
 
 })();
