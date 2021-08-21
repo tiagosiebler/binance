@@ -1,8 +1,14 @@
 import { BooleanString, BooleanStringCapitalised, ExchangeFilter, KlineInterval, numberInString, OrderBookRow, OrderResponseType, OrderSide, OrderStatus, OrderTimeInForce, OrderType, RateLimiter, SymbolFilter } from "./shared";
 
+export type FuturesContractType = 'PERPETUAL'
+  | 'CURRENT_MONTH'
+  | 'NEXT_MONTH'
+  | 'CURRENT_QUARTER'
+  | 'NEXT_QUARTER';
+
 export interface ContinuousContractKlinesParams {
   pair: string;
-  contractType: 'PERPETUAL' | 'CURRENT_MONTH' | 'NEXT_MONTH' | 'CURRENT_QUARTER' | 'NEXT_QUARTER';
+  contractType: FuturesContractType;
   interval: KlineInterval;
   startTime?: number;
   endTime?: number;
