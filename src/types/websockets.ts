@@ -55,6 +55,8 @@ export type WsFormattedMessage = WsMessageKlineFormatted
   | WsMessageMarkPriceUpdateEventFormatted[]
   | WsMessageForceOrderFormatted;
 
+export type WsUserDataEvents = WsMessageSpotUserDataEventFormatted
+  | WsMessageFuturesUserDataEventFormatted;
 
 interface WsSharedBase {
   wsMarket: WsMarket;
