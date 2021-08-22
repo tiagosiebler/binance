@@ -1,5 +1,8 @@
 # Binance API
 
+## 2.0.5
+- Refine types for user data websocket events (futures)
+
 ## 2.0.4
 - Disable 'silly' logger category by default to reduce ping/pong noise.
 - Expand ws support to other API categories.

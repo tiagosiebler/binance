@@ -5,11 +5,11 @@ import WebSocket from 'isomorphic-ws';
 import { DefaultLogger } from './logger';
 import { MainClient } from './main-client';
 import { KlineInterval } from './types/shared';
-import { WsFormattedMessage, WsMessageSpotUserDataEventFormatted, WsMarket, WsRawMessage, WsResponse } from './types/websockets';
+import { WsFormattedMessage, WsMarket, WsRawMessage, WsResponse, WsUserDataEvents } from './types/websockets';
 import { USDMClient } from './usdm-client';
 
 import Beautifier from './util/beautifier';
-import { appendEventIfMissing, appendEventMarket, getContextFromWsKey, getWsKeyWithContext, RestClient, RestClientOptions } from './util/requestUtils';
+import { appendEventIfMissing, appendEventMarket, getContextFromWsKey, getWsKeyWithContext, RestClientOptions } from './util/requestUtils';
 
 import WsStore from './util/WsStore';
 
@@ -82,7 +82,7 @@ export declare interface WebsocketClient {
   on(event: 'reply', listener: (event: WsResponse) => void): this;
   on(event: 'message', listener: (event: WsRawMessage) => void): this;
   on(event: 'formattedMessage', listener: (event: WsFormattedMessage) => void): this;
-  on(event: 'formattedUserDataMessage', listener: (event: WsMessageSpotUserDataEventFormatted) => void): this;
+  on(event: 'formattedUserDataMessage', listener: (event: WsUserDataEvents) => void): this;
   on(event: 'error', listener: (
     event: { wsKey: WsKey, error: any, rawEvent?: string }
   ) => void): this;
@@ -302,6 +302,12 @@ export class WebsocketClient extends EventEmitter {
                 'balanceUpdate',
                 'executionReport',
                 'listStatus',
+                'listenKeyExpired',
+                'MARGIN_CALL',
+                'ORDER_TRADE_UPDATE',
+                'ACCOUNT_UPDATE',
+                'ORDER_TRADE_UPDATE',
+                'ACCOUNT_CONFIG_UPDATE',
             ].includes(eventType)) {
               this.emit('formattedUserDataMessage', beautifiedMessage);
             }
