@@ -410,6 +410,7 @@ export default class Beautifier {
       updatedPositions: [
         {
           s: 'symbol',
+          ma: 'marginAsset',
           pa: 'positionAmount',
           ep: 'entryPrice',
           cr: 'accumulatedRealisedPreFee',

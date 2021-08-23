@@ -402,10 +402,11 @@ export class WebsocketClient extends EventEmitter {
         const { market, symbol, isTestnet } = getContextFromWsKey(wsKey);
         this.logger.info('Reconnecting to user data stream', { ...loggerCategory, wsKey, market, symbol });
 
-        this.respawnUserDataStream(market, symbol, isTestnet);
-
         // We'll set a new one once the new stream respawns, with a diff listenKey in the key
         this.wsStore.delete(wsKey);
+
+        this.respawnUserDataStream(market, symbol, isTestnet);
+
         return;
       }
 
@@ -752,18 +753,20 @@ export class WebsocketClient extends EventEmitter {
   }
 
   private async respawnUserDataStream(market: WsMarket, symbol?: string, isTestnet?: boolean, respawnAttempt?: number) {
+    const forceNewConnection = true;
+    const isReconnecting = true;
     try {
       switch (market) {
         case 'spot':
-          return this.subscribeSpotUserDataStream(true);
+          return this.subscribeSpotUserDataStream(forceNewConnection, isReconnecting);
         case 'margin':
-          return this.subscribeMarginUserDataStream(true);
+          return this.subscribeMarginUserDataStream(forceNewConnection, isReconnecting);
         case 'isolatedMargin':
-          return this.subscribeIsolatedMarginUserDataStream(symbol!, true);
+          return this.subscribeIsolatedMarginUserDataStream(symbol!, forceNewConnection, isReconnecting);
         case 'usdm':
-          return this.subscribeUsdFuturesUserDataStream(isTestnet);
+          return this.subscribeUsdFuturesUserDataStream(isTestnet, forceNewConnection, isReconnecting);
         case 'usdmTestnet':
-          return this.subscribeUsdFuturesUserDataStream(true);
+          return this.subscribeUsdFuturesUserDataStream(true, forceNewConnection, isReconnecting);
         case 'coinm':
         case 'coinmTestnet':
         case 'options':
@@ -1059,9 +1062,11 @@ export class WebsocketClient extends EventEmitter {
    * Subscribe to a spot user data stream. Use REST client to generate and persist listen key.
    * Supports spot, margin & isolated margin listen keys.
    */
-   public subscribeSpotUserDataStreamWithListenKey(listenKey: string, forceNewConnection?: boolean): WebSocket {
+   public subscribeSpotUserDataStreamWithListenKey(listenKey: string, forceNewConnection?: boolean, isReconnecting?: boolean): WebSocket {
     const market: WsMarket = 'spot';
     const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
+
+    this.setWsState(wsKey, isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING);
     const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
     // Start & store timer to keep alive listen key (and handle expiration)
@@ -1073,10 +1078,10 @@ export class WebsocketClient extends EventEmitter {
   /**
    * Subscribe to spot user data stream - listen key is automatically generated.
    */
-  public async subscribeSpotUserDataStream(forceNewConnection?: boolean): Promise<WebSocket> {
+  public async subscribeSpotUserDataStream(forceNewConnection?: boolean, isReconnecting?: boolean): Promise<WebSocket> {
     try {
       const { listenKey } = await this.getSpotRestClient().getSpotUserDataListenKey();
-      return this.subscribeSpotUserDataStreamWithListenKey(listenKey, forceNewConnection);
+      return this.subscribeSpotUserDataStreamWithListenKey(listenKey, forceNewConnection, isReconnecting);
     } catch (e) {
       this.logger.error(`Failed to get spot user data listen key`, { ...loggerCategory, error: e });
       throw e;
@@ -1086,13 +1091,14 @@ export class WebsocketClient extends EventEmitter {
   /**
    * Subscribe to margin user data stream - listen key is automatically generated.
    */
-  public async subscribeMarginUserDataStream(forceNewConnection?: boolean): Promise<WebSocket> {
+  public async subscribeMarginUserDataStream(forceNewConnection?: boolean, isReconnecting?: boolean): Promise<WebSocket> {
     try {
       const { listenKey } = await this.getSpotRestClient().getMarginUserDataListenKey();
 
       const market: WsMarket = 'margin';
       const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
 
+      this.setWsState(wsKey, isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING);
       const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
       // Start & store timer to keep alive listen key (and handle expiration)
@@ -1108,13 +1114,14 @@ export class WebsocketClient extends EventEmitter {
   /**
    * Subscribe to isolated margin user data stream - listen key is automatically generated.
    */
-  public async subscribeIsolatedMarginUserDataStream(symbol: string, forceNewConnection?: boolean): Promise<WebSocket> {
+  public async subscribeIsolatedMarginUserDataStream(symbol: string, forceNewConnection?: boolean, isReconnecting?: boolean): Promise<WebSocket> {
     try {
       const lowerCaseSymbol = symbol.toLowerCase();
       const { listenKey } = await this.getSpotRestClient().getIsolatedMarginUserDataListenKey({ symbol: lowerCaseSymbol });
       const market: WsMarket = 'isolatedMargin';
       const wsKey = getWsKeyWithContext(market, 'userData', lowerCaseSymbol, listenKey);
 
+      this.setWsState(wsKey, isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING);
       const ws =  this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
       // Start & store timer to keep alive listen key (and handle expiration)
@@ -1136,7 +1143,7 @@ export class WebsocketClient extends EventEmitter {
   /**
    * Subscribe to USD-M Futures user data stream - listen key is automatically generated.
    */
-   public async subscribeUsdFuturesUserDataStream(isTestnet?: boolean, forceNewConnection?: boolean): Promise<WebSocket> {
+   public async subscribeUsdFuturesUserDataStream(isTestnet?: boolean, forceNewConnection?: boolean, isReconnecting?: boolean): Promise<WebSocket> {
     try {
       const { listenKey } = await this.getUSDMRestClient(isTestnet).getFuturesUserDataListenKey();
 
@@ -1144,6 +1151,8 @@ export class WebsocketClient extends EventEmitter {
       const streamName = 'userData';
       const wsKey = [market, streamName, listenKey].join('_');
 
+      // Necessary so client knows this is a reconnect
+      this.setWsState(wsKey, isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING);
       const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
       // Start & store timer to keep alive listen key (and handle expiration)

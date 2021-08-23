@@ -494,7 +494,8 @@ export interface WsAccountUpdatedBalance {
 }
 
 export interface WsUpdatedPosition {
-  asset: string;
+  symbol: string;
+  marginAsset: string;
   positionAmount: number;
   entryPrice: number;
   accumulatedRealisedPreFee: number;
