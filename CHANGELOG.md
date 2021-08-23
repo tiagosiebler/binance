@@ -1,5 +1,11 @@
 # Binance API
 
+## 2.0.8
+- Emit `reconnected` events for reconnected user data stream.
+
+## 2.0.6
+- Fix symbol & margin asset types for futures user data updated position event.
+
 ## 2.0.5
 - Refine types for user data websocket events (futures)
 

@@ -13,8 +13,10 @@ Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser
   - Strongly typed on most requests and responses.
 - Support Websockets for Binance Spot, Margin, Isolated Margin & USDM Futures.
   - Event driven messaging.
-  - Automatically handle silent websocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
-  - Automatically handle listenKey persistence and expiration/refresh.
+  - Smart websocket persistence
+    - Automatically handle silent websocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
+    - Automatically handle listenKey persistence and expiration/refresh.
+    - Emit `reconnected` event when dropped connection is restored.
   - Strongly typed on most websocket events.
   - Optional:
     - Automatic beautification of websocket events (from one-letter keys to descriptive words, and strings with floats to numbers).
