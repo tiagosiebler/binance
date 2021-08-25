@@ -1,5 +1,9 @@
 # Binance API
 
+## 2.0.9-10
+- Fix typo in websocket types.
+- Fix missing type properties for ws messages.
+
 ## 2.0.8
 - Emit `reconnected` events for reconnected user data stream.
 
