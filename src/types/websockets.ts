@@ -719,18 +719,22 @@ export interface WsMessageMarkPriceUpdateEventFormatted extends WsSharedBase {
   nextFundingTime: number;
 }
 
+export interface WsLiquidationOrderFormatted {
+  symbol: string;
+  side: OrderSide;
+  orderType: FuturesOrderType;
+  timeInForce: OrderTimeInForce;
+  quantity: number;
+  price: number;
+  averagePrice: number;
+  orderStatus: OrderStatus;
+  lastFilledQuantity: number;
+  orderFilledAccumulatedQuantity: number;
+  orderTradeTime: number;
+}
+
 export interface WsMessageForceOrderFormatted extends WsSharedBase {
   eventType: 'forceOrder';
   eventTime: number;
-  liquidationOrder: {
-    symbol: string;
-    side: OrderSide;
-    oorderType: FuturesOrderType;
-    quantity: number;
-    price: number;
-    averagePrice: number;
-    lastFilledQuantity: number;
-    orderFilledAccumulatedQuantity: number;
-    orderTradeTime: number;
-  }
+  liquidationOrder: WsLiquidationOrderFormatted;
 }

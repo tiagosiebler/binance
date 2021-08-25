@@ -936,6 +936,39 @@ describe('Beautifier', () => {
           }
         });
       });
+
+      it('should include unrecognised properties as is', () => {
+        const data = {
+          "e":"ACCOUNT_CONFIG_UPDATE",       // Event Type
+          "E":1611646737479,                 // Event Time
+          "T":1611646737476,                 // Transaction Time
+          "ac":{
+            "s":"BTCUSDT",                     // symbol
+            "l":25                             // leverage
+          },
+          'ai': {
+            j: true,
+            diffProp: 55, // this value was not expected by the beautifier and shoudl be left in touched
+          },
+          'unkn': true,// this value was not expected by the beautifier and shoudl be left in touched
+
+        };
+
+        expect(beautifier.beautifyWsMessage(data, data.e)).toStrictEqual({
+          eventType: "ACCOUNT_CONFIG_UPDATE",
+          eventTime: data.E,
+          transactionTime: data.T,
+          assetConfiguration: {
+            symbol: "BTCUSDT",
+            leverage: 25,
+          },
+          accountConfiguration: {
+            isMultiAssetsMode: true,
+            diffProp: 55,
+          },
+          unkn: true,
+        });
+      });
     });
 
     describe('REST Responses', () => {
