@@ -833,11 +833,18 @@ export class WebsocketClient extends EventEmitter {
   /**
    * Subscribe to klines(candles) for a symbol in a market category
    */
-  public subscribeKlines(symbol: string, interval: KlineInterval, market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
-    const lowerCaseSymbol = symbol.toLowerCase();
+  public subscribeKlines(syms: string | string[], interval: KlineInterval, market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
+    const symbols = Array.isArray(syms)? syms : [syms]
     const streamName = 'kline';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol, interval);
-    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}_${interval}`, wsKey, forceNewConnection);
+    const lowerCaseSymbols: string[] = []
+    const streams: string[] = []
+    for (const symbol of symbols){
+        const lowerCaseSymbol = symbol.toLowerCase();
+        lowerCaseSymbols.push(lowerCaseSymbol)
+        streams.push(`${lowerCaseSymbol}@${streamName}_${interval}`)
+    }
+    const wsKey = getWsKeyWithContext(market, streamName, ...lowerCaseSymbols, interval);
+    return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/stream?streams=${streams.join("/")}`, wsKey, forceNewConnection);
   }
 
   /**
@@ -998,8 +1005,8 @@ export class WebsocketClient extends EventEmitter {
   /**
    * Subscribe to candles for a symbol in spot markets.
    */
-  public subscribeSpotKline(symbol: string, interval: KlineInterval, forceNewConnection?: boolean): WebSocket {
-    return this.subscribeKlines(symbol, interval, 'spot', forceNewConnection);
+  public subscribeSpotKline(symbols: string | string[], interval: KlineInterval, forceNewConnection?: boolean): WebSocket {
+    return this.subscribeKlines(symbols, interval, 'spot', forceNewConnection);
   }
 
   /**
