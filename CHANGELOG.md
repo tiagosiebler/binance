@@ -1,5 +1,8 @@
 # Binance API
 
+## 2.0.11
+- Fix APIs that use the DELETE method.
+
 ## 2.0.9-10
 - Fix typo in websocket types.
 - Fix missing type properties for ws messages.
