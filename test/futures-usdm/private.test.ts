@@ -90,6 +90,20 @@ describe('Private Futures USDM REST API Endpoints', () => {
         'takerCommissionRate': expect.any(String),
       });
     });
+
+    it('cancelOrder()', async () => {
+      expect(api.cancelOrder({ symbol, orderId: 123456 })).rejects.toMatchObject({
+        code: -2011,
+        message: 'Unknown order sent.',
+        body: { code: -2011, msg: 'Unknown order sent.' },
+      });
+    });
+
+    it('cancelAllOpenOrders()', async () => {
+      expect(api.cancelAllOpenOrders({ symbol })).resolves.toMatchObject({
+        "code": 200,
+      });
+    });
   });
 
   describe('User Data Stream', () => {

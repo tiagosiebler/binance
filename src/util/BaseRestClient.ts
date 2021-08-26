@@ -192,7 +192,7 @@ export default abstract class BaseRestClient {
       json: true
     };
 
-    if (method === 'GET') {
+    if (method === 'GET' || method === 'DELETE') {
       options.params = params;
     } else {
       // Requests should be x-www-form-urlencoded
