@@ -1,5 +1,8 @@
 # Binance API
 
+## 2.0.12
+- Increase default timeout for websocket pong heartbeats to 7500ms.
+
 ## 2.0.11
 - Fix APIs that use the DELETE method.
 
