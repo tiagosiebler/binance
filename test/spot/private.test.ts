@@ -64,7 +64,7 @@ describe('Private Spot REST API Endpoints', () => {
       expect(await api.getWithdrawHistory()).toMatchObject(expect.any(Array));
     });
 
-    it('getDespoitAddress()', async () => {
+    it.skip('getDepositAddress()', async () => {
       expect(await api.getDepositAddress({ coin })).toMatchObject({
         address: expect.any(String),
         coin,
