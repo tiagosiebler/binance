@@ -122,7 +122,7 @@ export class WebsocketClient extends EventEmitter {
     this.restClients = {};
 
     this.options = {
-      pongTimeout: 2500,
+      pongTimeout: 7500,
       pingInterval: 10000,
       reconnectTimeout: 500,
       ...options
