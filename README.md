@@ -68,7 +68,7 @@ Start by importing the spot client. API credentials are optiona, though an error
 const { MainClient } = require('binance');
 
 const API_KEY = 'xxx';
-const PRIVATE_KEY = 'yyy';
+const API_SECRET = 'yyy';
 
 const client = new MainClient({
   api_key: API_KEY,
@@ -92,7 +92,7 @@ client.getExchangeInfo()
   });
 ```
 
-See [spot-client.ts](./src/spot-client.ts) for further information.
+See [spot-client.ts](./src/main-client.ts) for further information.
 
 ### REST USD-M Futures
 Start by importing the spot client. API credentials are optiona, though an error is thrown when attempting any private API calls without credentials.
@@ -101,7 +101,7 @@ Start by importing the spot client. API credentials are optiona, though an error
 const { USDMClient } = require('binance');
 
 const API_KEY = 'xxx';
-const PRIVATE_KEY = 'yyy';
+const API_SECRET = 'yyy';
 
 const client = new USDMClient({
   api_key: API_KEY,
@@ -134,7 +134,7 @@ All websockets are accessible via the shared `WebsocketClient`. As before, API c
 const { WebsocketClient } = require('binance');
 
 const API_KEY = 'xxx';
-const PRIVATE_KEY = 'yyy';
+const API_SECRET = 'yyy';
 
 // optionally override the logger
 const logger = {
