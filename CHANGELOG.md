@@ -1,5 +1,8 @@
 # Binance API
 
+## 2.0.13
+- Expose time sync offset getter/setter in base client. `getTimeOffset()/setTimeOffest(value)`.
+
 ## 2.0.12
 - Increase default timeout for websocket pong heartbeats to 7500ms.
 

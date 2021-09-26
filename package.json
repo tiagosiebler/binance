@@ -1,6 +1,6 @@
 {
   "name": "binance",
-  "version": "2.0.12",
+  "version": "2.0.13",
   "description": "Node.js connector for Binance's REST APIs and WebSockets, with TypeScript & integration tests.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -16,7 +16,7 @@
     "build:clean": "npm run clean && npm run build",
     "build:watch": "npm run clean && tsc --watch",
     "pack": "webpack --config webpack/webpack.config.js",
-    "prepublish": "npm run build:clean",
+    "prepublishOnly": "npm run build:clean",
     "betapublish": "npm publish --tag beta"
   },
   "author": "Tiago Siebler (https://github.com/tiagosiebler)",
