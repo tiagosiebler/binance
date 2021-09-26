@@ -15,7 +15,7 @@ type ApiLimitHeader = 'x-mbx-used-weight'
   | 'x-mbx-order-count-1d';
 
 export default abstract class BaseRestClient {
-  private timeOffset: number | null;
+  private timeOffset: number = 0;
   private syncTimePromise: null | Promise<void>;
   private options: RestClientOptions;
   private baseUrl: string;
@@ -75,7 +75,6 @@ export default abstract class BaseRestClient {
       this.beautifier = new Beautifier();
     }
 
-    this.timeOffset = null;
     this.syncTimePromise = null;
 
     this.apiLimitTrackers = {
@@ -100,6 +99,17 @@ export default abstract class BaseRestClient {
       ...this.apiLimitTrackers,
       lastUpdated: this.apiLimitLastUpdated,
     }
+  }
+
+  /**
+   * Return time sync offset, automatically set if time sync is enabled. A higher offset means system clock is behind server time.
+   */
+  public getTimeOffset(): number {
+    return this.timeOffset;
+  }
+
+  public setTimeOffset(value: number) {
+    this.timeOffset = value;
   }
 
   get(endpoint: string, params?: any): GenericAPIResponse {
@@ -175,11 +185,6 @@ export default abstract class BaseRestClient {
       if (!this.key || !this.secret) {
         throw new Error('Private endpoints require api and private keys set');
       }
-
-      if (this.timeOffset === null) {
-        await this.syncTime();
-      }
-
       params = await this.signRequest(params);
     }
 
@@ -278,7 +283,6 @@ export default abstract class BaseRestClient {
   async signRequest(data: any): Promise<any> {
     const params = {
       ...data,
-      // api_key: this.key,
       timestamp: Date.now() + (this.timeOffset || 0)
     };
 
@@ -299,9 +303,9 @@ export default abstract class BaseRestClient {
   /**
    * Trigger time sync and store promise
    */
-  private syncTime(): GenericAPIResponse {
+  private syncTime(): Promise<void> {
     if (this.options.disableTimeSync === true) {
-      return Promise.resolve(false);
+      return Promise.resolve();
     }
 
     if (this.syncTimePromise !== null) {
