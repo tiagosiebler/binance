@@ -235,14 +235,8 @@ export default abstract class BaseRestClient {
   /**
    * @private generic handler to parse request exceptions
    */
-  parseException(e: AxiosError, url: string): unknown {
+  private parseException(e: AxiosError, url: string): unknown {
     const { response, request, message } = e;
-
-    // console.log('raw response: ', JSON.stringify({
-    //   request: request.body,
-    //   body: response?.data,
-    //   headers: response?.headers
-    // }, null, 2))
 
     if (response && response.headers) {
       this.updateApiLimitState(response.headers, url)
@@ -262,8 +256,6 @@ export default abstract class BaseRestClient {
       throw e;
     }
 
-    // console.log('response body: ', e.response?.data);
-
     // The request was made and the server responded with a status code
     // that falls out of the range of 2xx
     throw {
@@ -273,7 +265,11 @@ export default abstract class BaseRestClient {
       headers: response.headers,
       requestUrl: url,
       requestBody: request.body,
-      requestOptions: this.options
+      requestOptions: {
+        ...this.options,
+        api_key: undefined,
+        api_secret: undefined,
+      },
     };
   }
 

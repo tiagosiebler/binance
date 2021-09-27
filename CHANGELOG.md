@@ -1,5 +1,8 @@
 # Binance API
 
+## 2.0.14
+- Update values thrown by exception parser.
+
 ## 2.0.13
 - Expose time sync offset getter/setter in base client. `getTimeOffset()/setTimeOffest(value)`.
 - Add handler to signMessage method, falling back to browser equivalent if method is not a function (react/preact/#141).
