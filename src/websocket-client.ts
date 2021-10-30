@@ -261,7 +261,7 @@ export class WebsocketClient extends EventEmitter {
       this.wsStore.delete(wsKey);
     }
 
-    if (this.wsStore.getConnectionState(wsKey) !== READY_STATE_CLOSING) {
+    if (wsConnectionState !== READY_STATE_CLOSING) {
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!, wsUrl);
       this.emit('reconnecting', { wsKey, event, ws });
     } else {
