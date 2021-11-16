@@ -16,6 +16,7 @@ import {
   OrderIdProperty,
   GetAllOrdersParams,
   GenericCodeMsgError,
+  numberInString,
 } from './types/shared';
 
 import {
@@ -247,8 +248,8 @@ export class USDMClient extends BaseRestClient {
   }
 
   // Auto-cancel all open orders
-  setCancelOrdersOnTimeout(params: CancelOrdersTimeoutParams): Promise<any> {
-    return this.postPrivate('fapi/v1/positionSide', params);
+  setCancelOrdersOnTimeout(params: CancelOrdersTimeoutParams): Promise<{ symbol: string; countdownTime: numberInString; }> {
+    return this.postPrivate('fapi/v1/countdownCancelAll', params);
   }
 
   getCurrentOpenOrder(params: GetOrderParams): Promise<OrderResult> {
