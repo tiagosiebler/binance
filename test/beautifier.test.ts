@@ -752,6 +752,28 @@ describe('Beautifier', () => {
         });
       });
 
+      it('should beautify SPOT balanceUpdate events', () => {
+        const data = {
+          "e": "balanceUpdate",
+          "E": 1636459475278,
+          "a": "USDT",
+          "d": "-50.00000000",
+          "T": 1636459475277,
+          "wsMarket": "spot",
+          "wsKey": "spot_userData__E8Z3PcHaQiMXUPYQP2z4bgBAJ6RzHp8QGrYtdCLlVnnwHHcyG3s2BYH9DdkC"
+        };
+
+        expect(beautifier.beautifyWsMessage(data, data.e)).toStrictEqual({
+          "eventType": data['e'],
+          "eventTime": data['E'],
+          "asset": data.a,
+          "balanceDelta": Number(data.d),
+          "clearTime": data.T,
+          "wsMarket": data.wsMarket,
+          "wsKey": data.wsKey,
+        });
+      });
+
       it('should beautify USDM futures ACCOUNT_UPDATE events', () => {
         const data = {
           "e": "ACCOUNT_UPDATE",
