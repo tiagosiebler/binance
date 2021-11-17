@@ -193,6 +193,7 @@ export type WithdrawStatusCode = `${EnumWithdrawStatus}`;
 
 export interface WithdrawHistoryParams {
   coin?: string;
+  withdrawOrderId?: string;
   status?: WithdrawStatusCode;
   offset?: number;
   limit?: number;
