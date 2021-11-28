@@ -954,7 +954,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribePartialBookDepths(symbol: string, levels: 5 | 10 | 20, updateMs: 100 | 250 | 500 | 1000, market: 'spot' | 'usdm' | 'coinm', forceNewConnection?: boolean): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'depth';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const wsKey = getWsKeyWithContext(market, 'partialBookDepth', lowerCaseSymbol);
     const updateMsSuffx = updateMs === 100 ? `@${updateMs}ms` : '';
     return this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`, wsKey, forceNewConnection);
   }
