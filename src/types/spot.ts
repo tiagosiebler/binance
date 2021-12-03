@@ -297,6 +297,10 @@ export interface ExchangeInfoParams {
   symbols?: string[];
 }
 
+export type StringBoolean = 'TRUE' | 'FALSE';
+
+export type SideEffects = 'MARGIN_BUY' | 'AUTO_REPAY' | 'NO_SIDE_EFFECT';
+
 export interface NewSpotOrderParams {
   symbol: string;
   side: OrderSide;
@@ -309,6 +313,8 @@ export interface NewSpotOrderParams {
   stopPrice?: number;
   icebergQty?: number;
   newOrderRespType?: OrderResponseType;
+  isIsolated?: StringBoolean;
+  sideEffectType?: SideEffects;
 }
 
 export interface GetOCOParams {
@@ -504,7 +510,7 @@ export interface OrderFill {
 export interface OrderResponseFull {
   symbol: string;
   orderId: number;
-  orderListId: number;
+  orderListId?: number;
   clientOrderId: string;
   transactTime: number;
   price: numberInString;
@@ -515,6 +521,9 @@ export interface OrderResponseFull {
   timeInForce: OrderTimeInForce;
   type: OrderType;
   side: OrderSide;
+  marginBuyBorrowAmount?: number;
+  marginBuyBorrowAsset?: string;
+  isIsolated?: boolean;
   fills: OrderFill[];
 }
 
@@ -573,4 +582,15 @@ export interface AccountInformation {
   accoountType: string;
   balances: SpotAssetBalance[];
   permissions: any[];
+}
+
+export interface MarginTransactionResponse {
+  tranId: number;
+}
+
+export interface MarginAccountLoanParams {
+  asset: string;
+  isIsolated?: StringBoolean;
+  symbol?: string;
+  amount: number;
 }
