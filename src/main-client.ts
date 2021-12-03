@@ -59,6 +59,8 @@ import {
   SpotOrder,
   AccountInformation,
   RawAccountTrade,
+  MarginAccountLoanParams,
+  MarginTransactionResponse,
 } from './types/spot';
 
 import {
@@ -347,7 +349,19 @@ export class MainClient extends BaseRestClient {
   **/
 
   //TODO: https://binance-docs.github.io/apidocs/spot/en/#margin-account-trade
+  
+  marginAccountBorrow(params: MarginAccountLoanParams): Promise<MarginTransactionResponse> {
+    return this.postPrivate('sapi/v1/margin/loan', params);
+  }
 
+  marginAccountRepay(params: MarginAccountLoanParams): Promise<MarginTransactionResponse> {
+    return this.postPrivate('sapi/v1/margin/repay', params);
+  }
+
+  marginAccountNewOrder(params: NewSpotOrderParams): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.postPrivate('sapi/v1/margin/order', params);
+  }
 
   /**
    *
