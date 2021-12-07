@@ -160,13 +160,16 @@ export interface GetIncomeHistoryParams {
 
 export interface IncomeHistory {
   symbol?: string;
-  incomeType?: IncomeType;
-  startTime?: number;
-  endTime?: number;
-  limit?: number;
+  incomeType: IncomeType;
+  income: string;
+  asset: string;
+  time: number;
+  info: string;
+  tranId: number;
+  tradeId: string;
 }
 
-type ForceOrderCloseType = 'LIQUIDATION' | 'ADL';
+export type ForceOrderCloseType = 'LIQUIDATION' | 'ADL';
 
 export interface GetForceOrdersParams {
   symbol?: string;
@@ -496,4 +499,9 @@ export interface RebateDataOverview {
   totalTradeVol: numberInString;
   totalRebateVol: numberInString;
   time: number;
+}
+
+export interface SetCancelTimeoutResult {
+  symbol: string;
+  countdownTime: numberInString;
 }
