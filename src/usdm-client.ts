@@ -60,6 +60,7 @@ import {
   SymbolLeverageBracketsResult,
   IncomeHistory,
   RebateDataOverview,
+  SetCancelTimeoutResult,
 } from './types/futures';
 
 import {
@@ -247,8 +248,8 @@ export class USDMClient extends BaseRestClient {
   }
 
   // Auto-cancel all open orders
-  setCancelOrdersOnTimeout(params: CancelOrdersTimeoutParams): Promise<any> {
-    return this.postPrivate('fapi/v1/positionSide', params);
+  setCancelOrdersOnTimeout(params: CancelOrdersTimeoutParams): Promise<SetCancelTimeoutResult> {
+    return this.postPrivate('fapi/v1/countdownCancelAll', params);
   }
 
   getCurrentOpenOrder(params: GetOrderParams): Promise<OrderResult> {
