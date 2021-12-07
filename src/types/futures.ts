@@ -500,3 +500,8 @@ export interface RebateDataOverview {
   totalRebateVol: numberInString;
   time: number;
 }
+
+export interface SetCancelTimeoutResult {
+  symbol: string;
+  countdownTime: numberInString;
+}
