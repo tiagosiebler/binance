@@ -783,21 +783,28 @@ export class WebsocketClient extends EventEmitter {
     delete this.listenKeyStateStore[listenKey];
   }
 
-  private async respawnUserDataStream(market: WsMarket, symbol?: string, isTestnet?: boolean, respawnAttempt?: number) {
+  private async respawnUserDataStream(market: WsMarket, symbol?: string, isTestnet?: boolean, respawnAttempt?: number): Promise<void> {
     const forceNewConnection = true;
     const isReconnecting = true;
+    let ws: WebSocket | undefined;
+
     try {
       switch (market) {
         case 'spot':
-          return this.subscribeSpotUserDataStream(forceNewConnection, isReconnecting);
+          ws = await this.subscribeSpotUserDataStream(forceNewConnection, isReconnecting);
+          break;
         case 'margin':
-          return this.subscribeMarginUserDataStream(forceNewConnection, isReconnecting);
+          ws = await this.subscribeMarginUserDataStream(forceNewConnection, isReconnecting);
+          break;
         case 'isolatedMargin':
-          return this.subscribeIsolatedMarginUserDataStream(symbol!, forceNewConnection, isReconnecting);
+          ws = await this.subscribeIsolatedMarginUserDataStream(symbol!, forceNewConnection, isReconnecting);
+          break;
         case 'usdm':
-          return this.subscribeUsdFuturesUserDataStream(isTestnet, forceNewConnection, isReconnecting);
+          ws = await this.subscribeUsdFuturesUserDataStream(isTestnet, forceNewConnection, isReconnecting);
+          break;
         case 'usdmTestnet':
-          return this.subscribeUsdFuturesUserDataStream(true, forceNewConnection, isReconnecting);
+          ws = await this.subscribeUsdFuturesUserDataStream(true, forceNewConnection, isReconnecting);
+          break;
         case 'coinm':
         case 'coinmTestnet':
         case 'options':
@@ -807,8 +814,15 @@ export class WebsocketClient extends EventEmitter {
           throwUnhandledSwitch(market, `Failed to respawn user data stream - unhandled market: ${market}`)
       }
     } catch (e) {
-      this.logger.warning('User key respawn failed due to error, trying again with short delay', { ...loggerCategory, market, symbol, isTestnet, respawnAttempt, error: e });
-      setTimeout(() => this.respawnUserDataStream(market, symbol, isTestnet, respawnAttempt ? respawnAttempt + 1 : 1), 1000 * 15);
+      this.logger.error('Exception trying to spawn user data stream', { ...loggerCategory, market, symbol, isTestnet, error: e });
+    }
+
+    if (!ws) {
+      const delayInSeconds = 2;
+      this.logger.error('User key respawn failed, trying again with short delay', { ...loggerCategory, market, symbol, isTestnet, respawnAttempt, delayInSeconds });
+      setTimeout(() => this.respawnUserDataStream(market, symbol, isTestnet, respawnAttempt ? respawnAttempt + 1 : 1), 1000 * delayInSeconds);
+    } else {
+      console.log('ws is ok? ', ws);
     }
   }
 
@@ -1115,7 +1129,6 @@ export class WebsocketClient extends EventEmitter {
       return this.subscribeSpotUserDataStreamWithListenKey(listenKey, forceNewConnection, isReconnecting);
     } catch (e) {
       this.logger.error(`Failed to get spot user data listen key`, { ...loggerCategory, error: e });
-      throw e;
     }
   }
 
@@ -1138,7 +1151,6 @@ export class WebsocketClient extends EventEmitter {
       return ws;
     } catch (e) {
       this.logger.error(`Failed to get margin user data listen key`, { ...loggerCategory, error: e });
-      throw e;
     }
   }
 
