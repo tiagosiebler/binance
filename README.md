@@ -146,6 +146,8 @@ const wsClient = new WebsocketClient({
   api_key: key,
   api_secret: secret,
   beautify: true,
+  // Disable ping/pong ws heartbeat mechanism (not recommended)
+  // disableHeartbeat: true
 }, logger);
 
 // receive raw events
@@ -217,11 +219,14 @@ Pass a custom logger which supports the log methods `silly`, `debug`, `notice`, 
 ```javascript
 const { WebsocketClient, DefaultLogger } = require('binance');
 
-// Disable all logging on the silly level
-DefaultLogger.silly = () => {};
+// Enable all logging on the silly level
+DefaultLogger.silly = (...params) => {
+  console.log('sillyLog: ', params);
+};
 
 const ws = new WebsocketClient(
-  { key: 'xxx', secret: 'yyy' },
+  api_key: 'xxx',
+  api_secret: 'yyyy',
   DefaultLogger
 );
 ```

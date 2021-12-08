@@ -45,6 +45,8 @@ export interface WSClientConfigurableOptions {
   api_key?: string;
   api_secret?: string;
   beautify?: boolean;
+  // Disable ping/pong ws heartbeat mechanism (not recommended)
+  disableHeartbeat?: boolean;
   pongTimeout?: number;
   pingInterval?: number;
   reconnectTimeout?: number;
@@ -268,10 +270,12 @@ export class WebsocketClient extends EventEmitter {
       this.requestSubscribeTopics(wsKey, topics);
     }
 
-    this.wsStore.get(wsKey, true)!.activePingTimer = setInterval(
-      () => this.sendPing(wsKey),
-      this.options.pingInterval
-    );
+    if (!this.options.disableHeartbeat) {
+      this.wsStore.get(wsKey, true)!.activePingTimer = setInterval(
+        () => this.sendPing(wsKey),
+        this.options.pingInterval
+      );
+    }
   }
 
   private onWsError(error: any, wsKey: WsKey, ws: WebSocket) {
@@ -303,6 +307,8 @@ export class WebsocketClient extends EventEmitter {
 
   private onWsMessage(event: MessageEvent, wsKey: WsKey, source: WsEventInternalSrc) {
     try {
+      this.clearPongTimer(wsKey);
+
       const msg = parseRawWsMessage(event);
 
       // Edge case where raw event does not include event type, detect using wsKey and mutate msg.e
