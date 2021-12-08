@@ -361,8 +361,6 @@ export class MainClient extends BaseRestClient {
    *
   **/
 
-  //TODO: https://binance-docs.github.io/apidocs/spot/en/#margin-account-trade
-
   crossMarginAccountTransfer(params: CrossMarginAccountTransferParams): Promise<MarginTransactionResponse> {
     return this.postPrivate('sapi/v1/margin/transfer', params);
   }
