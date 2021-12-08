@@ -5,7 +5,7 @@ import WebSocket from 'isomorphic-ws';
 import { DefaultLogger } from './logger';
 import { MainClient } from './main-client';
 import { KlineInterval } from './types/shared';
-import { WsEventLike, WsFormattedMessage, WsMarket, WsRawMessage, WsResponse, WsUserDataEvents } from './types/websockets';
+import { WsFormattedMessage, WsMarket, WsRawMessage, WsResponse, WsUserDataEvents } from './types/websockets';
 import { USDMClient } from './usdm-client';
 
 import Beautifier from './util/beautifier';
