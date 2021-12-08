@@ -444,7 +444,9 @@ export interface DailyChangeStatistic {
   lastPrice: numberInString;
   lastQty: numberInString;
   bidPrice: numberInString;
+  bidQty: numberInString;
   askPrice: numberInString;
+  askQty: numberInString;
   openPrice: numberInString;
   highPrice: numberInString;
   lowPrice: numberInString;
