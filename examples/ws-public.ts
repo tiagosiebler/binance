@@ -9,7 +9,7 @@ import { WebsocketClient } from '../src/websocket-client';
   const secret = 'APISECRET';
 
   const market = 'BTCUSDT';
-  const coinMSymbol = 'XLMUSD_PERP';
+  const coinMSymbol = 'AVAXUSD_PERP';
 
   const logger = {
     ...DefaultLogger,
@@ -17,13 +17,13 @@ import { WebsocketClient } from '../src/websocket-client';
   };
 
   const wsClient = new WebsocketClient({
-    api_key: key,
-    api_secret: secret,
+    // api_key: key,
+    // api_secret: secret,
     beautify: true,
   }, logger);
 
   wsClient.on('message', (data) => {
-    console.log('raw message received ', JSON.stringify(data, null, 2));
+    // console.log('raw message received ', JSON.stringify(data, null, 2));
   });
 
   wsClient.on('formattedMessage', (data) => {
@@ -55,14 +55,15 @@ import { WebsocketClient } from '../src/websocket-client';
     console.log('ws has reconnected ', data?.wsKey );
   });
 
-  // wsClient.subscribeSpotKline(market, '1m');
-  // wsClient.subscribeKlines(market, '1m', 'usdm');
   // wsClient.subscribeCoinIndexPrice(coinMSymbol);
+
+  // wsClient.subscribeSpotKline(market, '1m');
+  wsClient.subscribeKlines(market, '1m', 'usdm');
   // wsClient.subscribeMarkPrice(market, 'usdm');
   // wsClient.subscribeMarkPrice(coinMSymbol, 'coinm');
   // wsClient.subscribeAllMarketMarkPrice('usdm');
   // wsClient.subscribeAllMarketMarkPrice('coinm');
-  wsClient.subscribeKlines(market, '1m', 'usdm');
+  // wsClient.subscribeKlines(market, '1m', 'usdm');
   // wsClient.subscribeContinuousContractKlines(market, 'perpetual', '1m', 'usdm');
   // wsClient.subscribeIndexKlines(coinMSymbol, '1m');
   // wsClient.subscribeMarkPriceKlines(coinMSymbol, '1m');
@@ -82,5 +83,6 @@ import { WebsocketClient } from '../src/websocket-client';
   // wsClient.subscribeAllLiquidationOrders('coinm');
   // wsClient.subscribeSpotSymbol24hrTicker(market);
   // wsClient.subscribeAggregateTrades(market, 'usdm');
+  // wsClient.subscribeSpotPartialBookDepth('ETHBTC', 5, 1000);
 
 })();

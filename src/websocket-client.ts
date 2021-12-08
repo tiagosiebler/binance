@@ -5,7 +5,7 @@ import WebSocket from 'isomorphic-ws';
 import { DefaultLogger } from './logger';
 import { MainClient } from './main-client';
 import { KlineInterval } from './types/shared';
-import { WsFormattedMessage, WsMarket, WsRawMessage, WsResponse, WsUserDataEvents } from './types/websockets';
+import { WsEventLike, WsFormattedMessage, WsMarket, WsRawMessage, WsResponse, WsUserDataEvents } from './types/websockets';
 import { USDMClient } from './usdm-client';
 
 import Beautifier from './util/beautifier';
@@ -100,6 +100,37 @@ interface ListenKeyPersistenceState {
 
 function throwUnhandledSwitch(x: never, msg: string): never {
   throw new Error(msg);
+}
+
+function parseEventTypeFromMessage(parsedMsg?): string | undefined {
+  if (parsedMsg?.e) {
+    return parsedMsg.e;
+  }
+  if (Array.isArray(parsedMsg) && parsedMsg.length) {
+    return parsedMsg[0]?.e;
+  }
+
+  return;
+}
+
+/**
+ * Try to resolve event.data. Example circumstance: {"stream":"!forceOrder@arr","data":{"e":"forceOrder","E":1634653599186,"o":{"s":"IOTXUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"3661","p":"0.06606","ap":"0.06669","X":"FILLED","l":"962","z":"3661","T":1634653599180}}}
+ */
+export function parseRawWsMessage(event: any) {
+  if (typeof event === 'string') {
+    const parsedEvent = JSON.parse(event);
+
+    if (parsedEvent.data) {
+      if (typeof parsedEvent.data === 'string') {
+        return parseRawWsMessage(parsedEvent.data);
+      }
+      return parsedEvent.data;
+    }
+  }
+  if (event?.data) {
+    return JSON.parse(event.data);
+  }
+  return event;
 }
 
 export class WebsocketClient extends EventEmitter {
@@ -270,15 +301,15 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  private onWsMessage(event: any, wsKey: WsKey, source: WsEventInternalSrc) {
+  private onWsMessage(event: MessageEvent, wsKey: WsKey, source: WsEventInternalSrc) {
     try {
-      const msg = JSON.parse(event && event.data || event);
+      const msg = parseRawWsMessage(event);
 
       // Edge case where raw event does not include event type, detect using wsKey and mutate msg.e
       appendEventIfMissing(msg, wsKey);
       appendEventMarket(msg, wsKey);
 
-      const eventType = msg.e || (Array.isArray(msg) && msg[0]?.e);
+      const eventType = parseEventTypeFromMessage(msg);
       if (eventType) {
         this.emit('message', msg);
 
@@ -325,7 +356,7 @@ export class WebsocketClient extends EventEmitter {
         return;
       }
 
-      this.logger.warning('Unhandled ws message type', { ...loggerCategory, parsedMessage: msg, rawEvent: event, wsKey, source });
+      this.logger.warning('Bug? Unhandled ws message event type. Check if appendEventIfMissing needs to parse wsKey.', { ...loggerCategory, parsedMessage: JSON.stringify(msg), rawEvent: event, wsKey, source });
     } catch (e) {
       this.logger.error('Exception parsing ws message: ', { ...loggerCategory, rawEvent: event, wsKey, error: e, source });
       this.emit('error', { wsKey, error: e, rawEvent: event, source });

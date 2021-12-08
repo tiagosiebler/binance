@@ -178,15 +178,17 @@ export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
     return;
   }
 
-  if (wsKey.indexOf('partialBookDepth') !== -1) {
-    wsMsg.e = 'partialBookDepth';
-    return;
-  }
-
   if (wsKey.indexOf('diffBookDepth') !== -1) {
     wsMsg.e = 'diffBookDepth';
     return;
   }
+
+  if (wsKey.indexOf('partialBookDepth') !== -1 || wsKey.indexOf('depth') !== -1) {
+    wsMsg.e = 'partialBookDepth';
+    return;
+  }
+
+  // console.warn('couldnt derive event type: ', wsKey);
 }
 
 interface WsContext {
