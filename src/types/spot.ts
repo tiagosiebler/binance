@@ -606,7 +606,7 @@ export interface MarginAccountLoanParams {
 }
 
 export interface QueryMarginAssetParams {
-  asset: string; 
+  asset: string;
 }
 
 export interface QueryMarginAssetResponse {
