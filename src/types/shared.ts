@@ -1,4 +1,7 @@
 // Generic numeric value stored as a string. Can be parsed via parseInt or parseFloat.
+
+import { StringBoolean } from "src";
+
 // Beautifier may convert these to number, if enabled.
 export type numberInString = string | number;
 
@@ -63,6 +66,7 @@ export interface BasicAssetParam {
 
 export interface BasicSymbolParam {
   symbol: string;
+  isIsolated?: StringBoolean;
 }
 
 export interface BasicAssetPaginatedParams {
@@ -105,6 +109,7 @@ export interface GetOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
+  isIsolated?: StringBoolean;
 }
 
 export interface HistoricalTradesParams {
@@ -130,10 +135,12 @@ export interface CancelOrderParams {
   orderId?: number;
   origClientOrderId?: string;
   newClientOrderId?: string;
+  isIsolated?: StringBoolean;
 }
 
 export interface CancelOCOParams {
   symbol: string;
+  isIsolated?: string;
   orderListId?: number;
   listClientOrderId?: number;
   newClientOrderId?: string;
@@ -152,6 +159,7 @@ export interface NewOCOParams {
   stopIcebergQty?: number;
   stopLimitTimeInForce: OrderTimeInForce;
   newOrderRespType: OrderResponseType;
+  isIsolated?: StringBoolean;
 }
 
 export interface SymbolFromPaginatedRequestFromId {
@@ -168,6 +176,7 @@ export interface GetAllOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
+  isIsolated?: StringBoolean;
 }
 
 export interface RateLimiter {

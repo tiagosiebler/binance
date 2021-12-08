@@ -61,6 +61,19 @@ import {
   RawAccountTrade,
   MarginAccountLoanParams,
   MarginTransactionResponse,
+  CrossMarginAccountTransferParams,
+  QueryMarginAssetParams,
+  QueryMarginAssetResponse,
+  QueryCrossMarginPairParams,
+  QueryCrossMarginPairResponse,
+  QueryMarginPriceIndexResponse,
+  MarginRecordResponse,
+  QueryMarginRecordParams,
+  QueryCrossMarginAccountDetailsParams,
+  QueryMaxBorrowResponse,
+  BasicMarginAssetParams,
+  QueryMaxTransferOutAmountResponse,
+  IsolatedMarginAccountTransferParams,
 } from './types/spot';
 
 import {
@@ -349,6 +362,10 @@ export class MainClient extends BaseRestClient {
   **/
 
   //TODO: https://binance-docs.github.io/apidocs/spot/en/#margin-account-trade
+
+  crossMarginAccountTransfer(params: CrossMarginAccountTransferParams): Promise<MarginTransactionResponse> {
+    return this.postPrivate('sapi/v1/margin/transfer', params);
+  }
   
   marginAccountBorrow(params: MarginAccountLoanParams): Promise<MarginTransactionResponse> {
     return this.postPrivate('sapi/v1/margin/loan', params);
@@ -358,10 +375,128 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/margin/repay', params);
   }
 
+  queryMarginAsset(params: QueryMarginAssetParams): Promise<QueryMarginAssetResponse> {
+    return this.get('sapi/v1/margin/asset', params);
+  }
+
+  queryCrossMarginPair(params: QueryCrossMarginPairParams): Promise<QueryCrossMarginPairResponse> {
+    return this.get('sapi/v1/margin/pair', params);
+  }
+
+  getAllMarginAssets(): Promise<QueryMarginAssetResponse[]> {
+    return this.get('sapi/v1/margin/allAssets');
+  }
+
+  getAllCrossMarginPairs(): Promise<QueryCrossMarginPairResponse[]> {
+    return this.get('sapi/v1/margin/allPairs');
+  }
+
+  queryMarginPriceIndex(params: BasicSymbolParam): Promise<QueryMarginPriceIndexResponse> {
+    return this.get('sapi/v1/margin/priceIndex', params);
+  }
+
   marginAccountNewOrder(params: NewSpotOrderParams): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('sapi/v1/margin/order', params);
   }
+
+  marginAccountCancelOrder(params: CancelOrderParams): Promise<CancelSpotOrderResult> {
+    return this.deletePrivate('sapi/v1/margin/order', params);
+  }
+
+  marginAccountCancelOpenOrders(params: BasicSymbolParam): Promise<CancelSpotOrderResult[]> {
+    return this.deletePrivate('sapi/v1/margin/openOrders', params);
+  }
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-cross-margin-transfer-history-user_data
+
+  queryLoanRecord(params: QueryMarginRecordParams): Promise<MarginRecordResponse> {
+    return this.getPrivate('sapi/v1/margin/loan', params);
+  }
+
+  queryRepayRecord(params: QueryMarginRecordParams): Promise<MarginRecordResponse> {
+    return this.getPrivate('sapi/v1/margin/repay', params);
+  }
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-interest-history-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-force-liquidation-record-user_data
+
+  queryCrossMarginAccountDetails(): Promise<QueryCrossMarginAccountDetailsParams> {
+    return this.getPrivate('sapi/v1/margin/account');
+  }
+
+  queryMarginAccountOrder(params: GetOrderParams): Promise<SpotOrder> {
+    return this.getPrivate('sapi/v1/margin/order', params);
+  }
+
+  queryMarginAccountOpenOrders(params: BasicSymbolParam): Promise<SpotOrder[]> {
+    return this.getPrivate('sapi/v1/margin/openOrders', params);
+  }
+
+  queryMarginAccountAllOrders(params: GetAllOrdersParams): Promise<SpotOrder[]> {
+    return this.getPrivate('sapi/v1/margin/allOrders', params);
+  }
+
+  marginAccountNewOCO(params: NewOCOParams): Promise<any> {
+    this.validateOrderId(params, 'listClientOrderId');
+    this.validateOrderId(params, 'limitClientOrderId');
+    this.validateOrderId(params, 'stopClientOrderId');
+    return this.postPrivate('sapi/v1/margin/order/oco', params);
+  }
+
+  marginAccountCancelOCO(params: CancelOCOParams): Promise<any> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.deletePrivate('sapi/v1/margin/orderList', params);
+  }
+
+  queryMarginAccountOCO(params: GetOCOParams): Promise<any> {
+    return this.getPrivate('sapi/v1/margin/orderList', params);
+  }
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-margin-account-39-s-all-oco-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-margin-account-39-s-open-oco-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-margin-account-39-s-trade-list-user_data
+
+  queryMaxBorrow(params: BasicMarginAssetParams): Promise<QueryMaxBorrowResponse> {
+    return this.getPrivate('sapi/v1/margin/maxBorrowable', params);
+  }
+
+  queryMaxTransferOutAmount(params: BasicMarginAssetParams): Promise<QueryMaxTransferOutAmountResponse> {
+    return this.getPrivate('sapi/v1/margin/maxTransferable', params);
+  }
+
+  isolatedMarginAccountTransfer(params: IsolatedMarginAccountTransferParams): Promise<MarginTransactionResponse> {
+    return this.postPrivate('sapi/v1/margin/isolated/transfer', params);
+  }
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-isolated-margin-transfer-history-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-isolated-margin-account-info-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#disable-isolated-margin-account-trade
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#enable-isolated-margin-account-trade
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-enabled-isolated-margin-account-limit-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-isolated-margin-symbol-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-all-isolated-margin-symbol-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#toggle-bnb-burn-on-spot-trade-and-margin-interest-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-bnb-burn-status-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-margin-interest-rate-history-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-cross-margin-fee-data-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-isolated-margin-fee-data-user_data
+
+  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-isolated-margin-tier-data-user_data
 
   /**
    *

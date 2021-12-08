@@ -318,6 +318,8 @@ export interface NewSpotOrderParams {
 }
 
 export interface GetOCOParams {
+  symbol?: string;
+  isIsolated?: StringBoolean;
   orderListId?: number;
   origClientOrderId?: string;
 }
@@ -541,6 +543,7 @@ export interface CancelSpotOrderResult {
   timeInForce: OrderTimeInForce;
   type: OrderType;
   side: OrderSide;
+  isIsolated?: boolean;
 }
 
 export interface SpotOrder {
@@ -562,6 +565,7 @@ export interface SpotOrder {
   updateTime: number;
   isWorking: boolean;
   origQuoteOrderQty: numberInString;
+  isIsolated?: boolean;
 }
 
 export interface SpotAssetBalance {
@@ -584,6 +588,12 @@ export interface AccountInformation {
   permissions: any[];
 }
 
+export interface CrossMarginAccountTransferParams {
+  asset: string;
+  amount: number;
+  type: 1 | 2;
+}
+
 export interface MarginTransactionResponse {
   tranId: number;
 }
@@ -592,5 +602,100 @@ export interface MarginAccountLoanParams {
   asset: string;
   isIsolated?: StringBoolean;
   symbol?: string;
+  amount: number;
+}
+
+export interface QueryMarginAssetParams {
+  asset: string; 
+}
+
+export interface QueryMarginAssetResponse {
+  assetFullName: string;
+  assetName: string;
+  isBorrowable: boolean;
+  isMortgageable: boolean;
+  userMinBorrow: numberInString;
+  userMinRepay: numberInString;
+}
+
+export interface QueryCrossMarginPairParams {
+  symbol: string;
+}
+
+export interface QueryCrossMarginPairResponse {
+  id: number;
+  symbol: string;
+  base: string;
+  quote: string;
+  isMarginTrade: boolean;
+  isBuyAllowed: boolean;
+  isSellAllowed: boolean;
+}
+
+export interface QueryMarginPriceIndexResponse {
+  calcTime: number;
+  price: numberInString;
+  symbol: string;
+}
+
+export interface QueryMarginRecordParams {
+  asset: string;
+  isolatedSymbol?: string;
+  txId?: number;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+  archived?: boolean;
+}
+
+export type LoanStatus = 'PENDING' | 'CONFIRMED' | 'FAILED';
+
+export interface MarginRecordParams {
+  isolatedSymbol?: string;
+  txId: number;
+  asset: string;
+  principal: numberInString;
+  timestamp: number;
+  status: LoanStatus
+}
+
+export interface MarginRecordResponse {
+  rows: Array<MarginRecordParams>;
+  total: number;
+}
+
+export interface QueryCrossMarginAccountDetailsParams {
+  borrowEnabled: boolean;
+  marginLevel: numberInString;
+  totalAssetOfBtc: numberInString;
+  totalLiabilityOfBtc: numberInString;
+  totalNetAssetOfBtc: numberInString;
+  tradeEnabled: boolean;
+  transferEnabled: boolean;
+  userAssets: Array<MarginBalance>;
+}
+
+export interface BasicMarginAssetParams {
+  asset: string;
+  isolatedSymbol?: string;
+}
+
+export interface QueryMaxBorrowResponse {
+  amount: numberInString;
+  borrowLimit: numberInString;
+}
+
+export interface QueryMaxTransferOutAmountResponse {
+  amount: numberInString;
+}
+
+export type IsolatedMarginTransfer = 'SPOT' | 'ISOLATED_MARGIN';
+
+export interface IsolatedMarginAccountTransferParams {
+  asset: string;
+  symbol: string;
+  transFrom: IsolatedMarginTransfer;
+  transTo: IsolatedMarginTransfer;
   amount: number;
 }
