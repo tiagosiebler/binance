@@ -10,6 +10,7 @@ import { USDMClient } from './usdm-client';
 
 import Beautifier from './util/beautifier';
 import { appendEventIfMissing, appendEventMarket, getContextFromWsKey, getWsKeyWithContext, RestClientOptions } from './util/requestUtils';
+import { terminateWs } from './util/ws-utils';
 
 import WsStore from './util/WsStore';
 
@@ -397,7 +398,7 @@ export class WebsocketClient extends EventEmitter {
     this.clearTimers(wsKey);
 
     this.getWs(wsKey)?.close();
-    this.getWs(wsKey)?.terminate();
+    terminateWs(this.getWs(wsKey));
   }
 
   public closeWs(ws: WebSocket, willReconnect?: boolean) {
@@ -784,7 +785,8 @@ export class WebsocketClient extends EventEmitter {
   private teardownUserDataListenKey(listenKey: string, market: WsMarket, ws: WebSocket) {
     const listenKeyState = this.getListenKeyState(listenKey, market);
     clearInterval(listenKeyState.keepAliveFailures);
-    ws.terminate();
+
+    terminateWs(ws);
 
     delete this.listenKeyStateStore[listenKey];
   }
