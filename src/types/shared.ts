@@ -11,6 +11,8 @@ export type BinanceBaseUrlKey = 'spot' | 'spot1' | 'spot2' | 'spot3' | 'spot4' |
 
 export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK';
 
+export type StringBoolean = 'TRUE' | 'FALSE';
+
 /**
  * ACK = confirmation of order acceptance (no placement/fill information)
  * RESULT = fill state
@@ -63,6 +65,7 @@ export interface BasicAssetParam {
 
 export interface BasicSymbolParam {
   symbol: string;
+  isIsolated?: StringBoolean;
 }
 
 export interface BasicAssetPaginatedParams {
@@ -105,6 +108,7 @@ export interface GetOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
+  isIsolated?: StringBoolean;
 }
 
 export interface HistoricalTradesParams {
@@ -130,10 +134,12 @@ export interface CancelOrderParams {
   orderId?: number;
   origClientOrderId?: string;
   newClientOrderId?: string;
+  isIsolated?: StringBoolean;
 }
 
 export interface CancelOCOParams {
   symbol: string;
+  isIsolated?: string;
   orderListId?: number;
   listClientOrderId?: number;
   newClientOrderId?: string;
@@ -152,6 +158,7 @@ export interface NewOCOParams {
   stopIcebergQty?: number;
   stopLimitTimeInForce: OrderTimeInForce;
   newOrderRespType: OrderResponseType;
+  isIsolated?: StringBoolean;
 }
 
 export interface SymbolFromPaginatedRequestFromId {
@@ -168,6 +175,7 @@ export interface GetAllOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
+  isIsolated?: StringBoolean;
 }
 
 export interface RateLimiter {
