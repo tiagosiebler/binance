@@ -829,8 +829,6 @@ export class WebsocketClient extends EventEmitter {
       const delayInSeconds = 2;
       this.logger.error('User key respawn failed, trying again with short delay', { ...loggerCategory, market, symbol, isTestnet, respawnAttempt, delayInSeconds });
       setTimeout(() => this.respawnUserDataStream(market, symbol, isTestnet, respawnAttempt ? respawnAttempt + 1 : 1), 1000 * delayInSeconds);
-    } else {
-      console.log('ws is ok? ', ws);
     }
   }
 
