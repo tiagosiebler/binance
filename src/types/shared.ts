@@ -1,7 +1,4 @@
 // Generic numeric value stored as a string. Can be parsed via parseInt or parseFloat.
-
-import { StringBoolean } from "src";
-
 // Beautifier may convert these to number, if enabled.
 export type numberInString = string | number;
 
@@ -13,6 +10,8 @@ export type BooleanStringCapitalised = 'TRUE' | 'FALSE';
 export type BinanceBaseUrlKey = 'spot' | 'spot1' | 'spot2' | 'spot3' | 'spot4' | 'usdmtest' | 'usdm' | 'coinm' | 'voptions' | 'voptionstest';
 
 export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK';
+
+export type StringBoolean = 'TRUE' | 'FALSE';
 
 /**
  * ACK = confirmation of order acceptance (no placement/fill information)
