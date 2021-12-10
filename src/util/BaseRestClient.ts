@@ -1,9 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
-import qs from 'qs';
 
-import { signMessage } from './node-support';
 import { BinanceBaseUrlKey } from '../types/shared';
-import { serialiseParams, RestClientOptions, GenericAPIResponse, getRestBaseUrl } from './requestUtils';
+import { serialiseParams, RestClientOptions, GenericAPIResponse, getRestBaseUrl, getRequestSignature } from './requestUtils';
 import Beautifier from './beautifier';
 
 type ApiLimitHeader = 'x-mbx-used-weight'
@@ -112,81 +110,62 @@ export default abstract class BaseRestClient {
     this.timeOffset = value;
   }
 
-  get(endpoint: string, params?: any): GenericAPIResponse {
+  public get(endpoint: string, params?: any): GenericAPIResponse {
     return this._call('GET', endpoint, params);
   }
 
-  getForBaseUrl(endpoint: string, baseUrlKey: BinanceBaseUrlKey, params?: any) {
+  public getForBaseUrl(endpoint: string, baseUrlKey: BinanceBaseUrlKey, params?: any) {
     const baseUrl = getRestBaseUrl(baseUrlKey, {});
     return this._call('GET', endpoint, params, false, baseUrl);
   }
 
-  getPrivate(endpoint: string, params?: any): GenericAPIResponse {
+  public getPrivate(endpoint: string, params?: any): GenericAPIResponse {
     return this._call('GET', endpoint, params, true);
   }
 
-  post(endpoint: string, params?: any): GenericAPIResponse {
+  public post(endpoint: string, params?: any): GenericAPIResponse {
     return this._call('POST', endpoint, params);
   }
 
-  postPrivate(endpoint: string, params?: any): GenericAPIResponse {
+  public postPrivate(endpoint: string, params?: any): GenericAPIResponse {
     return this._call('POST', endpoint, params, true);
   }
 
-  put(endpoint: string, params?: any): GenericAPIResponse {
+  public put(endpoint: string, params?: any): GenericAPIResponse {
     return this._call('PUT', endpoint, params);
   }
 
-  putPrivate(endpoint: string, params?: any): GenericAPIResponse {
+  public putPrivate(endpoint: string, params?: any): GenericAPIResponse {
     return this._call('PUT', endpoint, params, true);
   }
 
-  delete(endpoint: string, params?: any): GenericAPIResponse {
+  public delete(endpoint: string, params?: any): GenericAPIResponse {
     return this._call('DELETE', endpoint, params);
   }
 
-  deletePrivate(endpoint: string, params?: any): GenericAPIResponse {
+  public deletePrivate(endpoint: string, params?: any): GenericAPIResponse {
     return this._call('DELETE', endpoint, params, true);
-  }
-
-  // TODO: cleanup?
-  private updateApiLimitState(responseHeaders: Record<string, any>, requestedUrl: string) {
-    const delta: Record<string, any> = {};
-    for (const headerKey in this.apiLimitTrackers) {
-      const headerValue = responseHeaders[headerKey];
-      const value = parseInt(headerValue)
-      if (headerValue !== undefined && !isNaN(value)) {
-        // TODO: track last seen by key? insetad of all? some keys not returned by some endpoints more useful in estimating whether reset should've happened
-        this.apiLimitTrackers[headerKey] = value;
-        delta[headerKey] = {
-          updated: true,
-          valueParsed: value,
-          valueRaw: headerValue
-        };
-      } else {
-        delta[headerKey] = {
-          updated: false,
-          valueParsed: value,
-          valueRaw: headerValue
-        };
-      }
-    }
-    // console.log('responseHeaders: ', requestedUrl);
-    // console.table(responseHeaders);
-    // console.table(delta);
-    this.apiLimitLastUpdated = new Date().getTime();
   }
 
   /**
    * @private Make a HTTP request to a specific endpoint. Private endpoints are automatically signed.
    */
-  async _call(method: Method, endpoint: string, params?: any, isPrivate?: boolean, baseUrlOverride?: string): GenericAPIResponse {
-    if (isPrivate) {
-      if (!this.key || !this.secret) {
-        throw new Error('Private endpoints require api and private keys set');
-      }
-      params = await this.signRequest(params);
+  public async _call(method: Method, endpoint: string, params?: any, isPrivate?: boolean, baseUrlOverride?: string): GenericAPIResponse {
+    const timestamp = Date.now() + (this.getTimeOffset() || 0);
+
+    if (isPrivate && (!this.key || !this.secret)) {
+      throw new Error('Private endpoints require api and private keys to be set');
     }
+
+    // Handles serialisation of params into query string (url?key1=value1&key2=value2), handles encoding of values, adds timestamp and signature to request.
+    const { serialisedParams, signature, requestBody } = await getRequestSignature(
+      params,
+      this.key,
+      this.secret,
+      this.options.recvWindow,
+      timestamp,
+      this.options.strictParamValidation
+    );
 
     const baseUrl = baseUrlOverride || this.baseUrl;
 
@@ -194,22 +173,24 @@ export default abstract class BaseRestClient {
       ...this.globalRequestOptions,
       url: [baseUrl, endpoint].join('/'),
       method: method,
-      json: true
+      json: true,
     };
 
-    if (method === 'GET' || method === 'DELETE') {
+    if (isPrivate) {
+      options.url += '?' + [serialisedParams, 'signature=' + signature].join('&');
+    } else if (method === 'GET' || method === 'DELETE') {
       options.params = params;
     } else {
-      // Requests should be x-www-form-urlencoded
-      // TODO: optimise in the browser to use URLSearchParams
-      options.data = qs.stringify(params);
+      options.data = serialiseParams(requestBody, this.options.strictParamValidation, true);
     }
 
-    // console.log('sending request: ', JSON.stringify(options, null, 2));
+    // console.log('sending request: ', JSON.stringify({
+    //   reqOptions: options,
+    //   reqParams: params,
+    // }, null, 2));
 
     return axios(options).then(response => {
       this.updateApiLimitState(response.headers, options.url)
-
       if (response.status == 200) {
         return response.data;
       }
@@ -273,33 +254,38 @@ export default abstract class BaseRestClient {
     };
   }
 
-  /**
-   * @private sign request and set recv window
-   */
-  async signRequest(data: any): Promise<any> {
-    const params = {
-      ...data,
-      timestamp: Date.now() + (this.timeOffset || 0)
-    };
-
-    // Optional, set to 5000 by default. Increase if timestamp/recvWindow errors are seen.
-    if (this.options.recvWindow && !params.recvWindow) {
-      params.recvWindow = this.options.recvWindow;
+  // TODO: cleanup?
+  private updateApiLimitState(responseHeaders: Record<string, any>, requestedUrl: string) {
+    const delta: Record<string, any> = {};
+    for (const headerKey in this.apiLimitTrackers) {
+      const headerValue = responseHeaders[headerKey];
+      const value = parseInt(headerValue)
+      if (headerValue !== undefined && !isNaN(value)) {
+        // TODO: track last seen by key? insetad of all? some keys not returned by some endpoints more useful in estimating whether reset should've happened
+        this.apiLimitTrackers[headerKey] = value;
+        delta[headerKey] = {
+          updated: true,
+          valueParsed: value,
+          valueRaw: headerValue
+        };
+      } else {
+        delta[headerKey] = {
+          updated: false,
+          valueParsed: value,
+          valueRaw: headerValue
+        };
+      }
     }
-
-    if (this.key && this.secret) {
-      const serialisedParams = serialiseParams(params, this.options.strictParamValidation);
-      params.signature = await signMessage(serialisedParams, this.secret);
-    }
-
-    return params;
+    // console.log('responseHeaders: ', requestedUrl);
+    // console.table(responseHeaders);
+    // console.table(delta);
+    this.apiLimitLastUpdated = new Date().getTime();
   }
-
 
   /**
    * Trigger time sync and store promise
    */
-  private syncTime(): Promise<void> {
+  public syncTime(): Promise<void> {
     if (this.options.disableTimeSync === true) {
       return Promise.resolve();
     }

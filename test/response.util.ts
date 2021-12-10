@@ -22,5 +22,5 @@ export function successResponseObject() {
 };
 
 export function notAuthenticatedError() {
-  return new Error('Private endpoints require api and private keys set');
+  return new Error('Private endpoints require api and private keys to be set');
 };
