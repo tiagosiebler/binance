@@ -5,6 +5,7 @@ import { WsMarket } from "../types/websockets";
 import { USDMClient } from "../usdm-client";
 import { WsKey } from "../websocket-client";
 import { signMessage } from "./node-support";
+import { nanoid } from 'nanoid';
 
 export type RestClient = MainClient | USDMClient;
 
@@ -63,15 +64,11 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
 }
 
 export function generateNewOrderId(network: BinanceBaseUrlKey): string {
-  const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-  const maxLength = 25;
 
-  let randomString = 'x-' + getOrderIdPrefix(network);
-  for (let i = randomString.length; i < maxLength; i++) {
-    const rnum = Math.floor(Math.random() * chars.length);
-    randomString += chars.substring(rnum, rnum + 1);
-  }
-  return randomString;
+  const id = nanoid(25);
+  const prefixedId = 'x-' + getOrderIdPrefix(network) + id;
+
+  return prefixedId;
 }
 
 export function serialiseParams(params: object = {}, strict_validation = false, encodeValues: boolean = false): string {
