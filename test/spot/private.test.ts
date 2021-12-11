@@ -1,4 +1,4 @@
-import { MainClient } from "../../src/index";
+import { MainClient, NewSpotOrderParams } from "../../src/index";
 
 describe('Private Spot REST API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
@@ -17,6 +17,19 @@ describe('Private Spot REST API Endpoints', () => {
 
   beforeEach(() => {
     // console.log(`IP request weight: `, api.getRateLimitStates());
+  });
+
+  describe('Trade Endpoints', () => {
+    it('testNewOrder()', async () => {
+      const order: NewSpotOrderParams = {
+        symbol,
+        side: 'BUY',
+        type: 'MARKET',
+        quantity: 0.1,
+      };
+      const result = await api.testNewOrder(order);
+      expect(result).toStrictEqual({});
+    });
   });
 
   describe('Wallet Endpoints', () => {
