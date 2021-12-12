@@ -1,4 +1,7 @@
 // Generic numeric value stored as a string. Can be parsed via parseInt or parseFloat.
+
+import { SideEffects } from "src";
+
 // Beautifier may convert these to number, if enabled.
 export type numberInString = string | number;
 
@@ -144,6 +147,7 @@ export interface CancelOCOParams {
   listClientOrderId?: number;
   newClientOrderId?: string;
 }
+
 export interface NewOCOParams {
   symbol: string;
   listClientOrderId?: string;
@@ -159,6 +163,7 @@ export interface NewOCOParams {
   stopLimitTimeInForce: OrderTimeInForce;
   newOrderRespType: OrderResponseType;
   isIsolated?: StringBoolean;
+  sideEffectType?: SideEffects;
 }
 
 export interface SymbolFromPaginatedRequestFromId {
