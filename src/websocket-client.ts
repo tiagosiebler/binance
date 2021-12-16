@@ -421,7 +421,7 @@ export class WebsocketClient extends EventEmitter {
         break;
 
       default:
-        this.logger.error(`{context} due to unexpected response error: ${error.msg}`, { ...loggerCategory, wsKey });
+        this.logger.error(`${context} due to unexpected response error: ${error.msg || error.message || error}`, { ...loggerCategory, wsKey, error });
         break;
     }
   }
