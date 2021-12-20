@@ -119,7 +119,7 @@ function parseEventTypeFromMessage(parsedMsg?): string | undefined {
 /**
  * Try to resolve event.data. Example circumstance: {"stream":"!forceOrder@arr","data":{"e":"forceOrder","E":1634653599186,"o":{"s":"IOTXUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"3661","p":"0.06606","ap":"0.06669","X":"FILLED","l":"962","z":"3661","T":1634653599180}}}
  */
-export function parseRawWsMessage(event: MessageEvent) {
+export function parseRawWsMessage(event: any) {
   if (typeof event === 'string') {
     const parsedEvent = JSON.parse(event);
 
