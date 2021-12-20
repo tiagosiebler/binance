@@ -500,7 +500,7 @@ export interface WsUpdatedPosition {
   entryPrice: number;
   accumulatedRealisedPreFee: number;
   unrealisedPnl: number;
-  marginType: Lowercase<MarginType>;
+  marginType: 'cross' | 'isolated';
   isolatedWalletAmount: number;
   positionSide: PositionSide;
 }
@@ -558,7 +558,7 @@ export interface WsMessageFuturesAccountUpdatePositionRaw {
   ep: numberInString;
   cr: numberInString;
   up: numberInString;
-  mt: Lowercase<MarginType>
+  mt: 'cross' | 'isolated';
   iw: numberInString;
   ps: PositionSide;
 }
