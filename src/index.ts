@@ -11,3 +11,4 @@ export * from './types/websockets';
 
 export * from './util/requestUtils';
 export * from './util/WsStore';
+export * from './util/typeGuards';
