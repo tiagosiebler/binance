@@ -1,8 +1,19 @@
-import { DefaultLogger } from '../src';
-import { WebsocketClient } from '../src/websocket-client';
+import {
+  WebsocketClient,
+  DefaultLogger,
+  isWsFormatted24hrTicker,
+  isWsFormattedKline,
+} from '../src';
 
-// or
-// import { DefaultLogger, WebsocketClient } from 'binance';
+// or, with the npm package
+/*
+import {
+  WebsocketClient,
+  DefaultLogger,
+  isWsFormatted24hrTicker,
+  isWsFormattedKline,
+} from 'binance';
+*/
 
 (async () => {
   const key = 'APIKEY';
@@ -27,16 +38,22 @@ import { WebsocketClient } from '../src/websocket-client';
   });
 
   wsClient.on('formattedMessage', (data) => {
-    if (!Array.isArray(data)) {
-      if (data.eventType === 'kline') {
-        console.log('kline received ', data.kline);
-        return;
-      }
-      if (data.eventType === '24hrTicker') {
-        console.log('24hrTicker received ', data);
-        return;
-      }
+    // manually handle events and narrow down to desired types
+    if (!Array.isArray(data) && data.eventType === 'kline') {
+      console.log('kline received ', data.kline);
     }
+
+    // or use a supplied type guard (if available - not all type guards have been written yet)
+    if (isWsFormattedKline(data)) {
+      console.log('kline received ', data.kline);
+      return;
+    }
+
+    if (isWsFormatted24hrTicker(data)) {
+      console.log('24hrTicker received ', data);
+      return;
+    }
+
     console.log('log formattedMessage: ', data);
   });
 

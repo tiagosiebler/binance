@@ -1,4 +1,10 @@
-import { DefaultLogger, WsFormattedMessage } from '../src';
+import {
+  DefaultLogger,
+  isWsFormattedFuturesUserDataEvent,
+  isWsFormattedSpotUserDataEvent,
+  isWsFormattedUserDataEvent,
+  WsUserDataEvents,
+} from '../src';
 import { WebsocketClient } from '../src/websocket-client';
 
 // or
@@ -10,7 +16,7 @@ import { WebsocketClient } from '../src/websocket-client';
 
   const logger = {
     ...DefaultLogger,
-    silly: () => {},
+    silly: (...params) => console.log(params),
   };
 
   const wsClient = new WebsocketClient({
@@ -23,13 +29,12 @@ import { WebsocketClient } from '../src/websocket-client';
     // console.log('raw message received ', JSON.stringify(data, null, 2));
   });
 
-  function onUserDataEvent(data: WsFormattedMessage) {
-    if (Array.isArray(data)) {
-      return;
-    }
-
+  function onUserDataEvent(data: WsUserDataEvents) {
     // the market denotes which API category it came from
-    if (data.wsMarket.includes('spot')) {
+    // if (data.wsMarket.includes('spot')) {
+
+    // or use a type guard, if one exists (PRs welcome)
+    if (isWsFormattedSpotUserDataEvent(data)) {
       console.log('spot user data event: ', data);
       // spot user data event
       return;
@@ -46,7 +51,7 @@ import { WebsocketClient } from '../src/websocket-client';
       console.log('usdmTestnet user data event: ', data);
       return;
     }
-    if (data.wsMarket.includes('usdm')) {
+    if (isWsFormattedFuturesUserDataEvent(data)) {
       console.log('usdm user data event: ', data);
       return;
     }
@@ -54,7 +59,12 @@ import { WebsocketClient } from '../src/websocket-client';
 
   wsClient.on('formattedMessage', (data) => {
     // The wsKey can be parsed to determine the type of message (what websocket it came from)
-    if (!Array.isArray(data) && data.wsKey.includes('userData')) {
+    // if (!Array.isArray(data) && data.wsKey.includes('userData')) {
+    //   return onUserDataEvent(data);
+    // }
+
+    // or use a type guard if available
+    if (isWsFormattedUserDataEvent(data)) {
       return onUserDataEvent(data);
     }
     console.log('formattedMsg: ', JSON.stringify(data, null, 2));

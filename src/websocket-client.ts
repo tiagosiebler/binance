@@ -272,11 +272,17 @@ export class WebsocketClient extends EventEmitter {
     }
 
     if (!this.options.disableHeartbeat) {
-      this.wsStore.get(wsKey, true)!.activePingTimer = setInterval(
+      const wsState = this.wsStore.get(wsKey, true)!;
+      if (wsState.activePingTimer) {
+        clearInterval(wsState.activePingTimer as any);
+      }
+
+      wsState.activePingTimer = setInterval(
         () => this.sendPing(wsKey),
         this.options.pingInterval
       );
     }
+
   }
 
   private onWsError(error: any, wsKey: WsKey, ws: WebSocket) {
@@ -823,6 +829,7 @@ export class WebsocketClient extends EventEmitter {
       }
     } catch (e) {
       this.logger.error('Exception trying to spawn user data stream', { ...loggerCategory, market, symbol, isTestnet, error: e });
+      this.emit('error', { wsKey: market + '_' + 'userData', error: e })
     }
 
     if (!ws) {
@@ -1113,9 +1120,14 @@ export class WebsocketClient extends EventEmitter {
    * Subscribe to a spot user data stream. Use REST client to generate and persist listen key.
    * Supports spot, margin & isolated margin listen keys.
    */
-   public subscribeSpotUserDataStreamWithListenKey(listenKey: string, forceNewConnection?: boolean, isReconnecting?: boolean): WebSocket {
+   public subscribeSpotUserDataStreamWithListenKey(listenKey: string, forceNewConnection?: boolean, isReconnecting?: boolean): WebSocket | undefined {
     const market: WsMarket = 'spot';
     const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
+
+    if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
+      this.logger.silly('Existing spot user data connection in progress for listen key. Avoiding duplicate');
+      return this.getWs(wsKey);
+    }
 
     this.setWsState(wsKey, isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING);
     const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
@@ -1127,14 +1139,15 @@ export class WebsocketClient extends EventEmitter {
   }
 
   /**
-   * Subscribe to spot user data stream - listen key is automatically generated.
+   * Subscribe to spot user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
    */
-  public async subscribeSpotUserDataStream(forceNewConnection?: boolean, isReconnecting?: boolean): Promise<WebSocket> {
+  public async subscribeSpotUserDataStream(forceNewConnection?: boolean, isReconnecting?: boolean): Promise<WebSocket | undefined> {
     try {
       const { listenKey } = await this.getSpotRestClient().getSpotUserDataListenKey();
       return this.subscribeSpotUserDataStreamWithListenKey(listenKey, forceNewConnection, isReconnecting);
     } catch (e) {
-      this.logger.error(`Failed to get spot user data listen key`, { ...loggerCategory, error: e });
+      this.logger.error(`Failed to connect to spot user data`, { ...loggerCategory, error: e });
+      this.emit('error', { wsKey: 'spot' + '_' + 'userData', error: e });
     }
   }
 
@@ -1148,6 +1161,11 @@ export class WebsocketClient extends EventEmitter {
       const market: WsMarket = 'margin';
       const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
 
+      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
+        this.logger.silly('Existing margin user data connection in progress for listen key. Avoiding duplicate');
+        return this.getWs(wsKey);
+      }
+
       this.setWsState(wsKey, isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING);
       const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
@@ -1156,7 +1174,8 @@ export class WebsocketClient extends EventEmitter {
 
       return ws;
     } catch (e) {
-      this.logger.error(`Failed to get margin user data listen key`, { ...loggerCategory, error: e });
+      this.logger.error(`Failed to connect to margin user data`, { ...loggerCategory, error: e });
+      this.emit('error', { wsKey: 'margin' + '_' + 'userData', error: e });
     }
   }
 
@@ -1170,6 +1189,11 @@ export class WebsocketClient extends EventEmitter {
       const market: WsMarket = 'isolatedMargin';
       const wsKey = getWsKeyWithContext(market, 'userData', lowerCaseSymbol, listenKey);
 
+      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
+        this.logger.silly('Existing isolated margin user data connection in progress for listen key. Avoiding duplicate');
+        return this.getWs(wsKey);
+      }
+
       this.setWsState(wsKey, isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING);
       const ws =  this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
 
@@ -1178,8 +1202,8 @@ export class WebsocketClient extends EventEmitter {
 
       return ws;
     } catch (e) {
-      this.logger.error(`Failed to get isolated margin user data listen key`, { ...loggerCategory, symbol, error: e });
-    }
+      this.logger.error(`Failed to connect to isolated margin user data`, { ...loggerCategory, error: e, symbol });
+      this.emit('error', { wsKey: 'isolatedMargin' + '_' + 'userData', error: e });    }
 
   }
 
@@ -1200,6 +1224,11 @@ export class WebsocketClient extends EventEmitter {
       const streamName = 'userData';
       const wsKey = [market, streamName, listenKey].join('_');
 
+      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
+        this.logger.silly('Existing usd futures user data connection in progress for listen key. Avoiding duplicate');
+        return this.getWs(wsKey);
+      }
+
       // Necessary so client knows this is a reconnect
       this.setWsState(wsKey, isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING);
       const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
@@ -1209,7 +1238,8 @@ export class WebsocketClient extends EventEmitter {
 
       return ws;
     } catch (e) {
-      this.logger.error(`Failed to get USDM Futures user data listen key`, { ...loggerCategory, error: e });
+      this.logger.error(`Failed to connect to USD Futures user data`, { ...loggerCategory, error: e });
+      this.emit('error', { wsKey: 'usdm' + '_' + 'userData', error: e });
     }
   }
 

@@ -95,6 +95,11 @@ export default class WsStore {
     return this.getConnectionState(key) === state;
   }
 
+  isWsConnecting(key: string): boolean {
+    return this.isConnectionState(key, WsConnectionState.READY_STATE_CONNECTING)
+      || this.isConnectionState(key, WsConnectionState.READY_STATE_RECONNECTING);
+  }
+
   /* subscribed topics */
 
   getTopics(key: string): WsTopicList {
