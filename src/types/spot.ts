@@ -1,4 +1,4 @@
-import { ExchangeFilter, ExchangeSymbol, KlineInterval, numberInString, OrderBookRow, OrderResponseType, OrderSide, OrderStatus, OrderTimeInForce, OrderType, RateLimiter, SymbolFilter, StringBoolean } from "./shared";
+import { ExchangeFilter, ExchangeSymbol, KlineInterval, numberInString, OrderBookRow, OrderResponseType, OrderSide, OrderStatus, OrderTimeInForce, OrderType, RateLimiter, SymbolFilter, StringBoolean, SideEffects } from "./shared";
 
 export interface BasicTimeRangeParam {
   startTime?: number;
@@ -296,8 +296,6 @@ export interface ExchangeInfoParams {
   symbol?: string;
   symbols?: string[];
 }
-
-export type SideEffects = 'MARGIN_BUY' | 'AUTO_REPAY' | 'NO_SIDE_EFFECT';
 
 export interface NewSpotOrderParams {
   symbol: string;
