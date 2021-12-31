@@ -13,6 +13,8 @@ export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK';
 
 export type StringBoolean = 'TRUE' | 'FALSE';
 
+export type SideEffects = 'MARGIN_BUY' | 'AUTO_REPAY' | 'NO_SIDE_EFFECT';
+
 /**
  * ACK = confirmation of order acceptance (no placement/fill information)
  * RESULT = fill state
@@ -144,6 +146,7 @@ export interface CancelOCOParams {
   listClientOrderId?: number;
   newClientOrderId?: string;
 }
+
 export interface NewOCOParams {
   symbol: string;
   listClientOrderId?: string;
@@ -159,6 +162,7 @@ export interface NewOCOParams {
   stopLimitTimeInForce: OrderTimeInForce;
   newOrderRespType: OrderResponseType;
   isIsolated?: StringBoolean;
+  sideEffectType?: SideEffects;
 }
 
 export interface SymbolFromPaginatedRequestFromId {
