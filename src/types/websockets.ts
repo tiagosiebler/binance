@@ -294,6 +294,7 @@ export interface WsMessageBookTickerEventRaw extends WsSharedBase {
 export interface WsMessageBookTickerEventFormatted extends WsSharedBase {
   eventType: 'bookTicker';
   updateId: number;
+  symbol: string;
   bidPrice: number;
   bidQty: number;
   askPrice: number;
