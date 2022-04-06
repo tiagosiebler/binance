@@ -752,6 +752,7 @@ interface FuturesSubAccountList {
   totalUnrealizedProfit: numberInString;
   totalWalletBalance: numberInString;
   asset: string;
+  email: string;
 }
 
 type AccountType = 'SPOT' | 'USDT_FUTURE' | 'COIN_FUTURE';
@@ -787,11 +788,11 @@ export interface BasicSubAccount {
   subAccountApiKey: string;
 }
 
-export interface CreateVirtualSubAccountParams {
+export interface CreateSubAccountParams {
   subAccountString: string;
 }
 
-export interface CreateVirtualSubAccountResponseParams {
+export interface VirtualSubAccount {
   email: string;
 }
 
@@ -802,7 +803,7 @@ export interface GetSubAccountListParams {
   limit?: number;
 }
 
-export interface GetSubAccountListResponseParams {
+export interface SubAccountListResponse {
   subAccounts: SubAccountList[];
 }
 
@@ -815,7 +816,7 @@ export interface GetSubAccountSpotAssetTransferHistoryParams {
   limit?: number;
 }
 
-export interface GetSubAccountSpotAssetTransferHistoryResponseParams extends SubAccountBasicTransfer {
+export interface SubAccountSpotAssetTransferHistory extends SubAccountBasicTransfer {
   status: string;
 }
 
@@ -828,7 +829,7 @@ export interface GetSubAccountFuturesAssetTransferHistoryParams {
   limit?: number;
 }
 
-export interface GetSubAccountFuturesAssetTransferHistoryResponseParams {
+export interface SubAccountFuturesAssetTransferHistory {
   success: boolean;
   futuresType: number;
   transfers: SubAccountBasicTransfer[];
@@ -842,7 +843,7 @@ export interface SubAccountFuturesAssetTransferParams {
   amount: number;
 }
 
-export interface SubAccountFuturesAssetTransferResponseParams {
+export interface SubAccountFuturesAssetTransfer {
   success: boolean;
   txnId: numberInString;
 }
@@ -851,8 +852,8 @@ export interface GetSubAccountAssetsParams {
   email: string;
 }
 
-export interface GetSubAccountAssetsResponseParams {
- balances: SpotBalance[]; 
+export interface SubAccountAssets {
+  balances: SpotBalance[];
 }
 
 export interface GetSubAccountSpotAssetsSummaryParams {
@@ -861,7 +862,7 @@ export interface GetSubAccountSpotAssetsSummaryParams {
   size?: number;
 }
 
-export interface GetSubAccountSpotAssetsSummaryResponseParams {
+export interface SubAccountSpotAssetsSummary {
   totalCount: number;
   masterAccountTotalAsset: numberInString;
   spotSubUserAssetBtcVoList: SpotSubUserAssetBtcList[];
@@ -873,7 +874,7 @@ export interface GetSubAccountDepositAddressParams {
   network?: string;
 }
 
-export interface GetSubAccountDepositAddressResponseParams {
+export interface SubAccountDepositAddress {
   address: string;
   coin: string;
   tag: string;
@@ -884,12 +885,12 @@ export interface GetSubAccountDepositHistoryParams extends DepositHistoryParams 
   email: string;
 }
 
-export interface EnableMarginForSubAccountResponseParams {
+export interface SubAccountEnableMargin {
   email: string;
   isMarginEnabled: boolean;
 }
 
-export interface GetDetailOnSubAccountMarginAccountResponseParams extends BasicBtcTotals {
+export interface SubAccountMarginAccountDetail extends BasicBtcTotals {
   email: string;
   marginLevel: numberInString;
   marginTradeCoeffVo: MarginTradeCoeffVo;
@@ -900,16 +901,16 @@ interface SubAccountList extends BasicBtcTotals {
   email: string;
 }
 
-export interface GetSummaryOfSubAccountsMarginAccountResponseParams extends BasicBtcTotals {
+export interface SubAccountsMarginAccountSummary extends BasicBtcTotals {
   subAccountList: SubAccountList
 }
 
-export interface EnableFuturesForSubAccountResponseParams {
+export interface SubAccountEnableFutures {
   email: string;
   isFuturesEnabled: boolean;
 }
 
-export interface GetDetailOnSubAccountFuturesAccountResponseParams {
+export interface SubAccountFuturesAccountDetail {
   email: string;
   asset: string;
   assets: FuturesSubAccountAssets[];
@@ -927,7 +928,7 @@ export interface GetDetailOnSubAccountFuturesAccountResponseParams {
   updateTime: number;
 }
 
-export interface GetSummaryOfSubAccountFuturesAccountResponseParams extends FuturesSubAccountList {
+export interface SubAccountFuturesAccountSummary extends FuturesSubAccountList {
   subAccountList: FuturesSubAccountList[];
 }
 
@@ -942,24 +943,24 @@ export interface FuturesPositionRisk {
   unrealizedProfit: numberInString;
 }
 
-export interface TransferForSubAccountParams {
+export interface SubAccountTransferParams {
   email: string;
   asset: string;
   amount: number;
   type: number;
 }
 
-export interface TransferForSubAccountResponseParams {
+export interface SubAccountTransfer {
   txnId: numberInString;
 }
 
-export interface TransferToSubAccountOfSameMasterParams {
+export interface SubAccountTransferToSameMasterParams {
   toEmail: string;
   asset: string;
   amount: number;
 }
 
-export interface TransferToMasterParams {
+export interface SubAccountTransferToMasterParams {
   asset: string;
   amount: number;
 }
@@ -982,7 +983,7 @@ export interface SubAccountUniversalTransferParams {
   amount: number;
 }
 
-export interface SubAccountUniversalTransferResponseParams extends TransferForSubAccountResponseParams {
+export interface SubAccountUniversalTransfer extends SubAccountTransfer {
   clientTranId?: string;
 }
 
@@ -996,17 +997,12 @@ export interface GetSubAccountUniversalTransferHistoryParams {
   limit?: number;
 }
 
-export interface GetSubAccountUniversalTransferHistoryResponseParams {
+export interface SubAccountUniversalTransferHistoryResponse {
   result: SubAccountUniversalTransferHistory[];
   totalCount: number;
 }
 
-export interface GetDetailOnSubAccountFuturesAccountV2Params {
-  email: string;
-  futuresType: number;
-}
-
-export interface EnableLeverageTokenForSubAccountParams {
+export interface SubAccountEnableLeverageToken {
   email: string;
   enableBlvt: boolean;
 }
@@ -1015,14 +1011,14 @@ export interface EnableOrDisableIPRestrictionForSubAccountParams extends BasicSu
   ipRestrict: boolean;
 }
 
-export interface EnableOrDisableIPRestrictionForSubAccountResponseParams {
+export interface SubAccountnableOrDisableIPRestriction {
   ipRestrict: boolean;
   ipList: string[];
   updateTime: number;
   apiKey: string;
 }
 
-export interface AddOrDeleteIPListForSubAccountParams extends BasicSubAccount {
+export interface SubAccountAddOrDeleteIPList extends BasicSubAccount {
   ipAddress: string;
 }
 
@@ -1046,4 +1042,99 @@ export interface WithdrawAssetsFromManagedSubAccountParams {
   asset: string;
   amount: number;
   transferDate?: number;
+}
+
+export interface BasicFuturesSubAccountParams {
+  email: string;
+  futuresType: 1 | 2;
+}
+
+export interface GetSubAccountSummaryOnFuturesAccountV2Params {
+  futuresType: 1 | 2;
+  page?: number;
+  limit?: number;
+}
+
+export interface SubAccountUSDMDetail {
+  futureAccountResp: {
+    email: string;
+    assets: FuturesSubAccountAssets[];
+    canDeposit: boolean;
+    canWithdraw: boolean;
+    feeTier: number;
+    maxWithdrawAmount: numberInString;
+    totalInitialMargin: numberInString;
+    totalMaintenanceMargin: numberInString;
+    totalMarginBalance: numberInString;
+    totalOpenOrderInitialMargin: numberInString;
+    totalPositionInitialMargin: numberInString;
+    totalUnrealizedProfit: numberInString;
+    totalWalletBalance: numberInString;
+    updateTime: number;
+  }
+}
+
+export interface COINMSubAccount {
+  email: string;
+  totalMarginBalance: numberInString;
+  totalUnrealizedProfit: numberInString;
+  totalWalletBalanceOfBTC: numberInString;
+  asset: string;
+}
+
+export interface SubAccountCOINMDetail {
+  deliveryAccountResp: {
+    email: string;
+    assets: FuturesSubAccountAssets[];
+    canDeposit: boolean;
+    canWithdraw: boolean;
+    feeTier: number;
+    updateTime: number;
+  }
+}
+
+export interface SubAccountUSDMSummary {
+  futureAccountSummaryResp: {
+    totalInitialMargin: numberInString;
+    totalMaintenanceMargin: numberInString;
+    totalMarginBalance: numberInString;
+    totalOpenOrderInitialMargin: numberInString;
+    totalPositionInitialMargin: numberInString;
+    totalUnrealizedProfit: numberInString;
+    totalWalletBalance: numberInString;
+    asset: string;
+    subAccountList: FuturesSubAccountList[];
+  }
+}
+
+export interface SubAccountCOINMSummary {
+  deliveryAccountSummaryResp: {
+    totalMarginBalanceOfBTC: numberInString;
+    totalUnrealizedProfitOfBTC: numberInString;
+    totalWalletBalanceOfBTC: numberInString;
+    asset: string;
+    subAccountList: COINMSubAccount[];
+  }
+}
+
+export interface COINMPositionRisk {
+  entryPrice: numberInString;
+  markPrice: numberInString;
+  leverage: numberInString;
+  isolated: numberInString;
+  isolatedWallet: numberInString;
+  isolatedMargin: numberInString;
+  isAutoAddMargin: numberInString;
+  positionSide: string;
+  positionAmount: numberInString;
+  symbol: string;
+  unrealizedProfit: numberInString;
+}
+
+export interface SubAccountUSDMPositionRisk {
+  futurePositionRiskVos: FuturesPositionRisk[];
+}
+
+export interface SubAccountCOINMPositionRisk {
+  deliveryPositionRiskVos: COINMPositionRisk[];
 }
