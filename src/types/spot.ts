@@ -687,12 +687,12 @@ export interface IsolatedMarginAccountTransferParams {
   amount: number;
 }
 
-interface SpotSubUserAssetBtcList {
+export interface SpotSubUserAssetBtcList {
   email: string;
   totalAsset: numberInString;
 }
 
-interface SubAccountList {
+export interface SubAccountList {
   email: string;
   isFreeze: boolean;
   createTime: number;
@@ -700,7 +700,7 @@ interface SubAccountList {
   isAssetManagementSubAccount: boolean;
 }
 
-interface SubAccountBasicTransfer {
+export interface SubAccountBasicTransfer {
   from: string;
   to: string;
   asset: string;
@@ -709,7 +709,7 @@ interface SubAccountBasicTransfer {
   time: number;
 }
 
-interface MarginTradeCoeffVo {
+export interface MarginTradeCoeffVo {
   forceLiquidationBar: numberInString;
   marginCallBar: numberInString;
   normalBar: numberInString;
@@ -725,13 +725,13 @@ export interface SubAccountStatus {
   mobile: number;
 }
 
-interface BasicBtcTotals {
+export interface BasicBtcTotals {
   totalAssetOfBtc: numberInString;
   totalLiabilityOfBtc: numberInString;
   totalNetAssetOfBtc: numberInString;
 }
 
-interface FuturesSubAccountAssets {
+export interface FuturesSubAccountAssets {
   asset: string;
   initialMargin: numberInString;
   maintenanceMargin: numberInString;
@@ -743,7 +743,7 @@ interface FuturesSubAccountAssets {
   walletBalance: numberInString;
 }
 
-interface FuturesSubAccountList {
+export interface FuturesSubAccountList {
   totalInitialMargin: numberInString;
   totalMaintenanceMargin: numberInString;
   totalMarginBalance: numberInString;
@@ -755,7 +755,7 @@ interface FuturesSubAccountList {
   email: string;
 }
 
-type AccountType = 'SPOT' | 'USDT_FUTURE' | 'COIN_FUTURE';
+export type AccountType = 'SPOT' | 'USDT_FUTURE' | 'COIN_FUTURE';
 
 export interface SubAccountTransferHistory {
   counterParty: string;
@@ -770,7 +770,7 @@ export interface SubAccountTransferHistory {
   time: number;
 }
 
-interface SubAccountUniversalTransferHistory {
+export interface SubAccountUniversalTransferHistory {
   tranId: number;
   fromEmail: string;
   toEmail: string;
