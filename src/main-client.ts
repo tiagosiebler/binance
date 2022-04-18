@@ -72,20 +72,12 @@ import {
   BasicMarginAssetParams,
   QueryMaxTransferOutAmountResponse,
   IsolatedMarginAccountTransferParams,
-  GetSubAccountListParams,
-  GetSubAccountSpotAssetTransferHistoryParams,
-  GetSubAccountFuturesAssetTransferHistoryParams,
   SubAccountFuturesAssetTransferParams,
-  GetSubAccountAssetsParams,
-  GetSubAccountSpotAssetsSummaryParams,
-  GetSubAccountDepositAddressParams,
-  GetSubAccountDepositHistoryParams,
   SubAccountStatus,
   FuturesPositionRisk,
   SubAccountTransferHistory,
   SubAccountTransferHistoryParams,
   SubAccountUniversalTransferParams,
-  GetSubAccountUniversalTransferHistoryParams,
   EnableOrDisableIPRestrictionForSubAccountParams,
   BasicSubAccount,
   SubAccountAssetDetails,
@@ -116,12 +108,20 @@ import {
   SubAccountTransferToSameMasterParams,
   SubAccountCOINMDetail,
   SubAccountUSDMDetail,
-  GetSubAccountSummaryOnFuturesAccountV2Params,
   SubAccountCOINMSummary,
   SubAccountUSDMSummary,
   BasicFuturesSubAccountParams,
   SubAccountCOINMPositionRisk,
   SubAccountUSDMPositionRisk,
+  SubAccountListParams,
+  SubAccountSpotAssetTransferHistoryParams,
+  SubAccountFuturesAssetTransferHistoryParams,
+  SubAccountAssetsParams,
+  SubAccountSpotAssetsSummaryParams,
+  SubAccountDepositAddressParams,
+  SubAccountDepositHistoryParams,
+  SubAccountUniversalTransferHistoryParams,
+  SubAccountSummaryOnFuturesAccountV2Params,
 } from './types/spot';
 
 import {
@@ -242,19 +242,19 @@ export class MainClient extends BaseRestClient {
    *
   **/
 
-  createSubAccount(params: CreateSubAccountParams): Promise<VirtualSubAccount> {
+  createVirtualSubAccount(params: CreateSubAccountParams): Promise<VirtualSubAccount> {
     return this.postPrivate('sapi/v1/sub-account/virtualSubAccount', params);
   }
 
-  getSubAccountList(params?: GetSubAccountListParams): Promise<SubAccountListResponse> {
+  getSubAccountList(params?: SubAccountListParams): Promise<SubAccountListResponse> {
     return this.getPrivate('sapi/v1/sub-account/list', params);
   }
 
-  getSubAccountSpotAssetTransferHistory(params?: GetSubAccountSpotAssetTransferHistoryParams): Promise<SubAccountSpotAssetTransferHistory> {
+  getSubAccountSpotAssetTransferHistory(params?: SubAccountSpotAssetTransferHistoryParams): Promise<SubAccountSpotAssetTransferHistory> {
     return this.getPrivate('sapi/v1/sub-account/sub/transfer/history', params);
   }
 
-  getSubAccountFuturesAssetTransferHistory(params: GetSubAccountFuturesAssetTransferHistoryParams): Promise<SubAccountFuturesAssetTransferHistory> {
+  getSubAccountFuturesAssetTransferHistory(params: SubAccountFuturesAssetTransferHistoryParams): Promise<SubAccountFuturesAssetTransferHistory> {
     return this.getPrivate('sapi/v1/sub-account/futures/internalTransfer', params);
   }
 
@@ -262,24 +262,24 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/sub-account/futures/internalTransfer', params);
   }
 
-  getSubAccountAssets(params: GetSubAccountAssetsParams): Promise<SubAccountAssets> {
+  getSubAccountAssets(params: SubAccountAssetsParams): Promise<SubAccountAssets> {
     return this.getPrivate('sapi/v3/sub-account/assets', params);
   }
 
-  getSubAccountSpotAssetsSummary(params?: GetSubAccountSpotAssetsSummaryParams): Promise<SubAccountSpotAssetsSummary> {
+  getSubAccountSpotAssetsSummary(params?: SubAccountSpotAssetsSummaryParams): Promise<SubAccountSpotAssetsSummary> {
     return this.getPrivate('sapi/v1/sub-account/spotSummary', params);
   }
 
-  getSubAccountDepositAddress(params: GetSubAccountDepositAddressParams): Promise<SubAccountDepositAddress> {
+  getSubAccountDepositAddress(params: SubAccountDepositAddressParams): Promise<SubAccountDepositAddress> {
     return this.getPrivate('sapi/v1/capital/deposit/subAddress', params);
   }
 
-  getSubAccountDepositHistory(params: GetSubAccountDepositHistoryParams): Promise<DepositHistory[]> {
+  getSubAccountDepositHistory(params: SubAccountDepositHistoryParams): Promise<DepositHistory[]> {
     return this.getPrivate('sapi/v1/capital/deposit/subHisrec', params);
   }
 
-  getSubAccountStatusOnMarginOrFutures(email: string): Promise<SubAccountStatus[]> {
-    return this.getPrivate('sapi/v1/sub-account/status', { email } );
+  getSubAccountStatusOnMarginOrFutures(params?: { email?: string }): Promise<SubAccountStatus[]> {
+    return this.getPrivate('sapi/v1/sub-account/status', params );
   }
 
   subAccountEnableMargin(email: string): Promise<SubAccountEnableMargin> {
@@ -326,7 +326,7 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/sub-account/transfer/subToMaster', params);
   }
 
-  subAccountTransferHistory(params: SubAccountTransferHistoryParams): Promise<SubAccountTransferHistory[]> {
+  subAccountTransferHistory(params?: SubAccountTransferHistoryParams): Promise<SubAccountTransferHistory[]> {
     return this.getPrivate('sapi/v1/sub-account/transfer/subUserHistory', params);
   }
 
@@ -334,7 +334,7 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/sub-account/universalTransfer', params);
   }
 
-  getSubAccountUniversalTransferHistory(params?: GetSubAccountUniversalTransferHistoryParams): Promise<SubAccountUniversalTransferHistoryResponse> {
+  getSubAccountUniversalTransferHistory(params?: SubAccountUniversalTransferHistoryParams): Promise<SubAccountUniversalTransferHistoryResponse> {
     return this.getPrivate('sapi/v1/sub-account/universalTransfer', params);
   }
 
@@ -342,7 +342,7 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v2/sub-account/futures/account', params);
   }
 
-  getSubAccountSummaryOnFuturesAccountV2(params: GetSubAccountSummaryOnFuturesAccountV2Params): Promise<SubAccountUSDMSummary | SubAccountCOINMSummary> {
+  getSubAccountSummaryOnFuturesAccountV2(params: SubAccountSummaryOnFuturesAccountV2Params): Promise<SubAccountUSDMSummary | SubAccountCOINMSummary> {
     return this.getPrivate('sapi/v2/sub-account/futures/accountSummary', params);
   }
 

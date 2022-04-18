@@ -796,7 +796,7 @@ export interface VirtualSubAccount {
   email: string;
 }
 
-export interface GetSubAccountListParams {
+export interface SubAccountListParams {
   email?: string;
   isFreeze?: StringBoolean;
   page?: number;
@@ -807,7 +807,7 @@ export interface SubAccountListResponse {
   subAccounts: SubAccountList[];
 }
 
-export interface GetSubAccountSpotAssetTransferHistoryParams {
+export interface SubAccountSpotAssetTransferHistoryParams {
   fromEmail?: string;
   toEmail?: string;
   startTime?: number;
@@ -820,7 +820,7 @@ export interface SubAccountSpotAssetTransferHistory extends SubAccountBasicTrans
   status: string;
 }
 
-export interface GetSubAccountFuturesAssetTransferHistoryParams {
+export interface SubAccountFuturesAssetTransferHistoryParams {
   email: string;
   futuresType: number;
   startTime?: number;
@@ -848,7 +848,7 @@ export interface SubAccountFuturesAssetTransfer {
   txnId: numberInString;
 }
 
-export interface GetSubAccountAssetsParams {
+export interface SubAccountAssetsParams {
   email: string;
 }
 
@@ -856,7 +856,7 @@ export interface SubAccountAssets {
   balances: SpotBalance[];
 }
 
-export interface GetSubAccountSpotAssetsSummaryParams {
+export interface SubAccountSpotAssetsSummaryParams {
   email?: string;
   page?: number;
   size?: number;
@@ -868,7 +868,7 @@ export interface SubAccountSpotAssetsSummary {
   spotSubUserAssetBtcVoList: SpotSubUserAssetBtcList[];
 }
 
-export interface GetSubAccountDepositAddressParams {
+export interface SubAccountDepositAddressParams {
   email: string;
   coin: string;
   network?: string;
@@ -881,7 +881,7 @@ export interface SubAccountDepositAddress {
   url: string;
 }
 
-export interface GetSubAccountDepositHistoryParams extends DepositHistoryParams {
+export interface SubAccountDepositHistoryParams extends DepositHistoryParams {
   email: string;
 }
 
@@ -897,12 +897,12 @@ export interface SubAccountMarginAccountDetail extends BasicBtcTotals {
   marginUserAssetVoList: MarginBalance[];
 }
 
-interface SubAccountList extends BasicBtcTotals {
+export interface SubAccountListBtc extends BasicBtcTotals {
   email: string;
 }
 
 export interface SubAccountsMarginAccountSummary extends BasicBtcTotals {
-  subAccountList: SubAccountList
+  subAccountList: SubAccountListBtc
 }
 
 export interface SubAccountEnableFutures {
@@ -987,7 +987,7 @@ export interface SubAccountUniversalTransfer extends SubAccountTransfer {
   clientTranId?: string;
 }
 
-export interface GetSubAccountUniversalTransferHistoryParams {
+export interface SubAccountUniversalTransferHistoryParams {
   fromEmail?: string;
   toEmail?: string;
   clientTranId?: string;
@@ -1049,7 +1049,7 @@ export interface BasicFuturesSubAccountParams {
   futuresType: 1 | 2;
 }
 
-export interface GetSubAccountSummaryOnFuturesAccountV2Params {
+export interface SubAccountSummaryOnFuturesAccountV2Params {
   futuresType: 1 | 2;
   page?: number;
   limit?: number;
