@@ -127,10 +127,50 @@ describe('Private Spot REST API Endpoints', () => {
 
   });
 
-  describe('Sub-Account Endpoints', () => {
-    it.skip('getSubAccountList()', async () => {
-      expect(await api.getSubAccountList()).toMatchObject(expect.any(Array));
+  describe.skip('Sub-Account Endpoints', () => {
+    it('getSubAccountList()', async () => {
+      expect(await api.getSubAccountList()).toMatchObject({ subAccounts: expect.any(Array) });
     });
+
+    it('getSubAccountSpotAssetTransferHistory()', async () => {
+      expect(await api.getSubAccountSpotAssetTransferHistory()).toMatchObject(expect.any(Array));
+    });
+
+    it('getSubAccountSpotAssetsSummary()', async () => {
+      expect(await api.getSubAccountSpotAssetsSummary()).toMatchObject({
+        totalCount: expect.any(Number),
+        masterAccountTotalAsset: expect.any(String),
+        spotSubUserAssetBtcVoList: expect.any(Array)
+      });
+    });
+
+    it('getSubAccountStatusOnMarginOrFutures()', async () => {
+      expect(await api.getSubAccountStatusOnMarginOrFutures()).toMatchObject(expect.any(Array));
+    });
+
+    it('getSubAccountsSummaryOfMarginAccount()', async () => {
+      expect(await api.getSubAccountsSummaryOfMarginAccount()).toMatchObject({
+        totalAssetOfBtc: expect.any(String),
+        totalLiabilityOfBtc: expect.any(String),
+        totalNetAssetOfBtc: expect.any(String),
+        subAccountList: expect.any(Array)
+      });
+    });
+
+    it('getSubAccountFuturesAccountSummary()', async () => {
+      expect(await api.getSubAccountFuturesAccountSummary()).toMatchObject({
+        totalInitialMargin: expect.any(String),
+        totalMaintenanceMargin: expect.any(String),
+        totalMarginBalance: expect.any(String),
+        totalOpenOrderInitialMargin: expect.any(String),
+        totalPositionInitialMargin: expect.any(String),
+        totalUnrealizedProfit: expect.any(String),
+        totalWalletBalance: expect.any(String),
+        asset: expect.any(String),
+        subAccountList: expect.any(Array)
+      });
+    });
+
   });
 
   describe('User Data Stream', () => {
