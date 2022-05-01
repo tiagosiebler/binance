@@ -1,6 +1,21 @@
-import { BooleanString, BooleanStringCapitalised, ExchangeFilter, KlineInterval, numberInString, OrderBookRow, OrderResponseType, OrderSide, OrderStatus, OrderTimeInForce, OrderType, RateLimiter, SymbolFilter } from "./shared";
+import {
+  BooleanString,
+  BooleanStringCapitalised,
+  ExchangeFilter,
+  KlineInterval,
+  numberInString,
+  OrderBookRow,
+  OrderResponseType,
+  OrderSide,
+  OrderStatus,
+  OrderTimeInForce,
+  OrderType,
+  RateLimiter,
+  SymbolFilter,
+} from './shared';
 
-export type FuturesContractType = 'PERPETUAL'
+export type FuturesContractType =
+  | 'PERPETUAL'
   | 'CURRENT_MONTH'
   | 'NEXT_MONTH'
   | 'CURRENT_QUARTER'
@@ -60,7 +75,7 @@ export type MarginType = 'ISOLATED' | 'CROSSED';
 export type WorkingType = 'MARK_PRICE' | 'CONTRACT_PRICE';
 
 export type FuturesOrderType =
-  'LIMIT'
+  | 'LIMIT'
   | 'MARKET'
   | 'STOP'
   | 'STOP_MARKET'
@@ -72,7 +87,7 @@ export interface NewFuturesOrderParams {
   symbol: string;
   side: OrderSide;
   positionSide?: PositionSide;
-  type: OrderType;
+  type: FuturesOrderType;
   timeInForce?: OrderTimeInForce;
   quantity?: number;
   reduceOnly?: BooleanString;
@@ -94,12 +109,13 @@ export enum EnumPositionMarginChangeType {
 
 export type PositionMarginChangeType = `${EnumPositionMarginChangeType}`;
 
-export type IncomeType = 'TRANSFER'
-| 'WELCOME_BONUS'
-| 'REALIZED_PNL'
-| 'FUNDING_FEE'
-| 'COMMISSION'
-| 'INSURANCE_CLEAR';
+export type IncomeType =
+  | 'TRANSFER'
+  | 'WELCOME_BONUS'
+  | 'REALIZED_PNL'
+  | 'FUNDING_FEE'
+  | 'COMMISSION'
+  | 'INSURANCE_CLEAR';
 
 export interface CancelMultipleOrdersParams {
   symbol: string;
@@ -179,13 +195,15 @@ export interface GetForceOrdersParams {
   limit?: number;
 }
 
-export type ContactType = 'PERPETUAL'
+export type ContactType =
+  | 'PERPETUAL'
   | 'CURRENT_MONTH'
   | 'NEXT_MONTH'
   | 'CURRENT_QUARTER'
   | 'NEXT_QUARTER';
 
-export type ContractStatus = 'PENDING_TRADING'
+export type ContractStatus =
+  | 'PENDING_TRADING'
   | 'TRADING'
   | 'PRE_DELIVERING'
   | 'DELIVERING'
@@ -212,7 +230,7 @@ export interface FuturesSymbolExchangeInfo {
   baseAssetPrecision: number;
   quotePrecision: number;
   underlyingType: 'COIN' | 'INDEX'; // No other known values
-  underlyingSubType: string[];// DEFI / NFT / BSC / HOT / etc
+  underlyingSubType: string[]; // DEFI / NFT / BSC / HOT / etc
   settlePlan: number;
   triggerProtect: numberInString;
   filters: SymbolFilter[];
@@ -270,8 +288,8 @@ export type FuturesKline = [
   number, // number of trades
   numberInString, // taker buy base asset vol
   numberInString, // taker buy quote asest vol
-  numberInString, // ignore?
-]
+  numberInString // ignore?
+];
 
 export interface FundingRateHistory {
   symbol: string;
@@ -296,7 +314,7 @@ export interface OpenInterest {
 
 export interface PositionModeParams {
   dualSidePosition: DualSideMode;
-};
+}
 
 export interface ModeChangeResult {
   code: 200 | number;
