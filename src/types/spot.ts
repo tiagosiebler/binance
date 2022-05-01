@@ -1,4 +1,19 @@
-import { ExchangeFilter, ExchangeSymbol, KlineInterval, numberInString, OrderBookRow, OrderResponseType, OrderSide, OrderStatus, OrderTimeInForce, OrderType, RateLimiter, SymbolFilter, StringBoolean, SideEffects } from "./shared";
+import {
+  ExchangeFilter,
+  ExchangeSymbol,
+  KlineInterval,
+  numberInString,
+  OrderBookRow,
+  OrderResponseType,
+  OrderSide,
+  OrderStatus,
+  OrderTimeInForce,
+  OrderType,
+  RateLimiter,
+  SymbolFilter,
+  StringBoolean,
+  SideEffects,
+} from './shared';
 
 export interface BasicTimeRangeParam {
   startTime?: number;
@@ -13,13 +28,13 @@ export interface BasicFromPaginatedParams {
 }
 
 export type SymbolStatus =
-  'PRE_TRADING'
+  | 'PRE_TRADING'
   | 'TRADING'
   | 'POST_TRADING'
   | 'END_OF_DAY'
   | 'HALT'
   | 'AUCTION_MATCH'
-  | 'BREAK'
+  | 'BREAK';
 
 export interface SystemStatusResponse {
   status: 0 | 1;
@@ -64,7 +79,7 @@ export interface DailyFuturesAccountSnapshot {
 }
 
 export type DailyAccountSnapshotElement =
-  DailySpotAccountSnapshot
+  | DailySpotAccountSnapshot
   | DailyMarginAccountSnapshot
   | DailyFuturesAccountSnapshot;
 
@@ -265,7 +280,7 @@ export enum EnumUniversalTransferType {
   PayToSpot = 'PAY_MAIN',
 }
 
-export type UniversalTransferType = `${EnumUniversalTransferType}`
+export type UniversalTransferType = `${EnumUniversalTransferType}`;
 
 export interface UniversalTransferParams {
   type: UniversalTransferType;
@@ -325,21 +340,21 @@ export interface APITradingStatus {
     triggerCondition: Record<APILockTriggerCondition, number>;
     indicators: Record<ExchangeSymbol, APITriggerConditionSymbolStatus[]>;
     updateTime: number;
-  }
+  };
 }
 
 export interface APIPermissions {
   ipRestrict: boolean;
   createTime: number;
-  enableWithdrawals: boolean;   // This option allows you to withdraw via API. You must apply the IP Access Restriction filter in order to enable withdrawals
-  enableInternalTransfer: boolean;  // This option authorizes this key to transfer funds between your master account and your sub account instantly
-  permitsUniversalTransfer: boolean;  // Authorizes this key to be used for a dedicated universal transfer API to transfer multiple supported currencies. Each business's own transfer API rights are not affected by this authorization
-  enableVanillaOptions: boolean;  //  Authorizes this key to Vanilla options trading
+  enableWithdrawals: boolean; // This option allows you to withdraw via API. You must apply the IP Access Restriction filter in order to enable withdrawals
+  enableInternalTransfer: boolean; // This option authorizes this key to transfer funds between your master account and your sub account instantly
+  permitsUniversalTransfer: boolean; // Authorizes this key to be used for a dedicated universal transfer API to transfer multiple supported currencies. Each business's own transfer API rights are not affected by this authorization
+  enableVanillaOptions: boolean; //  Authorizes this key to Vanilla options trading
   enableReading: boolean;
-  enableFutures: boolean;  //  API Key created before your futures account opened does not support futures API service
-  enableMargin: boolean;   //  This option can be adjusted after the Cross Margin account transfer is completed
+  enableFutures: boolean; //  API Key created before your futures account opened does not support futures API service
+  enableMargin: boolean; //  This option can be adjusted after the Cross Margin account transfer is completed
   enableSpotAndMarginTrading: boolean; // Spot and margin trading
-  tradingAuthorityExpirationTime: number;  // Expiration time for spot and margin trading permission
+  tradingAuthorityExpirationTime: number; // Expiration time for spot and margin trading permission
 }
 
 export interface AssetDetail {
@@ -644,7 +659,7 @@ export interface MarginRecordParams {
   asset: string;
   principal: numberInString;
   timestamp: number;
-  status: LoanStatus
+  status: LoanStatus;
 }
 
 export interface MarginRecordResponse {
@@ -816,7 +831,8 @@ export interface SubAccountSpotAssetTransferHistoryParams {
   limit?: number;
 }
 
-export interface SubAccountSpotAssetTransferHistory extends SubAccountBasicTransfer {
+export interface SubAccountSpotAssetTransferHistory
+  extends SubAccountBasicTransfer {
   status: string;
 }
 
@@ -902,7 +918,7 @@ export interface SubAccountListBtc extends BasicBtcTotals {
 }
 
 export interface SubAccountsMarginAccountSummary extends BasicBtcTotals {
-  subAccountList: SubAccountListBtc
+  subAccountList: SubAccountListBtc;
 }
 
 export interface SubAccountEnableFutures {
@@ -1007,7 +1023,8 @@ export interface SubAccountEnableLeverageToken {
   enableBlvt: boolean;
 }
 
-export interface EnableOrDisableIPRestrictionForSubAccountParams extends BasicSubAccount {
+export interface EnableOrDisableIPRestrictionForSubAccountParams
+  extends BasicSubAccount {
   ipRestrict: boolean;
 }
 
@@ -1071,7 +1088,7 @@ export interface SubAccountUSDMDetail {
     totalUnrealizedProfit: numberInString;
     totalWalletBalance: numberInString;
     updateTime: number;
-  }
+  };
 }
 
 export interface COINMSubAccount {
@@ -1090,7 +1107,7 @@ export interface SubAccountCOINMDetail {
     canWithdraw: boolean;
     feeTier: number;
     updateTime: number;
-  }
+  };
 }
 
 export interface SubAccountUSDMSummary {
@@ -1104,7 +1121,7 @@ export interface SubAccountUSDMSummary {
     totalWalletBalance: numberInString;
     asset: string;
     subAccountList: FuturesSubAccountList[];
-  }
+  };
 }
 
 export interface SubAccountCOINMSummary {
@@ -1114,7 +1131,7 @@ export interface SubAccountCOINMSummary {
     totalWalletBalanceOfBTC: numberInString;
     asset: string;
     subAccountList: COINMSubAccount[];
-  }
+  };
 }
 
 export interface COINMPositionRisk {

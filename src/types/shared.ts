@@ -145,12 +145,15 @@ export interface CancelOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
+  /** For isolated margin trading only */
   newClientOrderId?: string;
+  /** For isolated margin trading only */
   isIsolated?: StringBoolean;
 }
 
 export interface CancelOCOParams {
   symbol: string;
+  /** For isolated margin trading only */
   isIsolated?: string;
   orderListId?: number;
   listClientOrderId?: number;
@@ -171,6 +174,7 @@ export interface NewOCOParams {
   stopIcebergQty?: number;
   stopLimitTimeInForce: OrderTimeInForce;
   newOrderRespType: OrderResponseType;
+  /** For isolated margin trading only */
   isIsolated?: StringBoolean;
   /** Define a side effect, only for margin trading */
   sideEffectType?: SideEffects;
@@ -190,6 +194,7 @@ export interface GetAllOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
+  /** For isolated margin trading only */
   isIsolated?: StringBoolean;
 }
 
