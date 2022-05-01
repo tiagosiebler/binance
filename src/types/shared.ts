@@ -172,6 +172,7 @@ export interface NewOCOParams {
   stopLimitTimeInForce: OrderTimeInForce;
   newOrderRespType: OrderResponseType;
   isIsolated?: StringBoolean;
+  /** Define a side effect, only for margin trading */
   sideEffectType?: SideEffects;
 }
 
