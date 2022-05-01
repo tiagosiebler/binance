@@ -527,8 +527,10 @@ export class MainClient extends BaseRestClient {
     const symbol = params?.symbol;
 
     let urlSuffix = '';
-    if (symbols || symbol) {
-      urlSuffix += '?symbol=' + (symbols || symbol);
+    if (symbol) {
+      urlSuffix += '?symbol=' + symbol;
+    } else if (symbols) {
+      urlSuffix += '?' + symbols;
     }
 
     return this.get('api/v3/exchangeInfo' + urlSuffix);
