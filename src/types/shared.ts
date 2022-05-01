@@ -7,7 +7,17 @@ export type ExchangeSymbol = string;
 export type BooleanString = 'true' | 'false';
 export type BooleanStringCapitalised = 'TRUE' | 'FALSE';
 
-export type BinanceBaseUrlKey = 'spot' | 'spot1' | 'spot2' | 'spot3' | 'spot4' | 'usdmtest' | 'usdm' | 'coinm' | 'voptions' | 'voptionstest';
+export type BinanceBaseUrlKey =
+  | 'spot'
+  | 'spot1'
+  | 'spot2'
+  | 'spot3'
+  | 'spot4'
+  | 'usdmtest'
+  | 'usdm'
+  | 'coinm'
+  | 'voptions'
+  | 'voptionstest';
 
 export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK';
 
@@ -22,11 +32,16 @@ export type SideEffects = 'MARGIN_BUY' | 'AUTO_REPAY' | 'NO_SIDE_EFFECT';
  */
 export type OrderResponseType = 'ACK' | 'RESULT' | 'FULL';
 
-export type OrderIdProperty = 'newClientOrderId' | 'listClientOrderId' | 'limitClientOrderId' | 'stopClientOrderId';
+export type OrderIdProperty =
+  | 'newClientOrderId'
+  | 'listClientOrderId'
+  | 'limitClientOrderId'
+  | 'stopClientOrderId';
 
 export type OrderSide = 'BUY' | 'SELL';
 
-export type OrderStatus = 'NEW'
+export type OrderStatus =
+  | 'NEW'
   | 'PARTIALLY_FILLED'
   | 'FILLED'
   | 'CANCELED'
@@ -34,26 +49,21 @@ export type OrderStatus = 'NEW'
   | 'REJECTED'
   | 'EXPIRED';
 
-export type OrderExecutionType = 'NEW'
+export type OrderExecutionType =
+  | 'NEW'
   | 'CANCELED'
   | 'REJECTED'
   | 'TRADE'
   | 'EXPIRED';
 
 // listStatusType
-export type OCOStatus =
-  'RESPONSE'
-  | 'EXEC_STARTED'
-  | 'ALL_DONE';
+export type OCOStatus = 'RESPONSE' | 'EXEC_STARTED' | 'ALL_DONE';
 
 // listOrderStatus
-export type OCOOrderStatus =
-  'EXECUTING'
-  | 'ALL_DONE'
-  | 'REJECT';
+export type OCOOrderStatus = 'EXECUTING' | 'ALL_DONE' | 'REJECT';
 
 export type OrderType =
-  'LIMIT'
+  | 'LIMIT'
   | 'LIMIT_MAKER'
   | 'MARKET'
   | 'STOP_LOSS'
@@ -90,7 +100,7 @@ export interface OrderBookParams {
 }
 
 export type KlineInterval =
-  '1m'
+  | '1m'
   | '3m'
   | '5m'
   | '15m'
@@ -135,12 +145,15 @@ export interface CancelOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
+  /** For isolated margin trading only */
   newClientOrderId?: string;
+  /** For isolated margin trading only */
   isIsolated?: StringBoolean;
 }
 
 export interface CancelOCOParams {
   symbol: string;
+  /** For isolated margin trading only */
   isIsolated?: string;
   orderListId?: number;
   listClientOrderId?: number;
@@ -161,7 +174,9 @@ export interface NewOCOParams {
   stopIcebergQty?: number;
   stopLimitTimeInForce: OrderTimeInForce;
   newOrderRespType: OrderResponseType;
+  /** For isolated margin trading only */
   isIsolated?: StringBoolean;
+  /** Define a side effect, only for margin trading */
   sideEffectType?: SideEffects;
 }
 
@@ -179,6 +194,7 @@ export interface GetAllOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
+  /** For isolated margin trading only */
   isIsolated?: StringBoolean;
 }
 
@@ -249,7 +265,8 @@ export interface SymbolMaxPositionFilter {
   maxPosition: numberInString;
 }
 
-export type SymbolFilter = SymbolPriceFilter
+export type SymbolFilter =
+  | SymbolPriceFilter
   | SymbolPercentPriceFilter
   | SymbolLotSizeFilter
   | SymbolMinNotionalFilter
@@ -270,7 +287,9 @@ export interface ExchangeMaxAlgoOrdersFilter {
   maxNumAlgoOrders: number;
 }
 
-export type ExchangeFilter = ExchangeMaxNumOrdersFilter | ExchangeMaxAlgoOrdersFilter;
+export type ExchangeFilter =
+  | ExchangeMaxNumOrdersFilter
+  | ExchangeMaxAlgoOrdersFilter;
 
 export type OrderBookPrice = numberInString;
 export type OrderBookAmount = numberInString;
@@ -279,7 +298,10 @@ export type OrderBookRow = [OrderBookPrice, OrderBookAmount];
 
 export type OrderBookPriceFormatted = number;
 export type OrderBookAmountFormatted = number;
-export type OrderBookRowFormatted = [OrderBookPriceFormatted, OrderBookAmountFormatted];
+export type OrderBookRowFormatted = [
+  OrderBookPriceFormatted,
+  OrderBookAmountFormatted
+];
 
 export interface GenericCodeMsgError {
   code: number;
