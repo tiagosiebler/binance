@@ -130,7 +130,7 @@ import {
   getServerTimeEndpoint,
   logInvalidOrderId,
   RestClientOptions,
-  serialiseParams
+  serialiseParams,
 } from './util/requestUtils';
 
 import BaseRestClient from './util/BaseRestClient';
@@ -138,7 +138,7 @@ import BaseRestClient from './util/BaseRestClient';
 export class MainClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
-    requestOptions: AxiosRequestConfig = {},
+    requestOptions: AxiosRequestConfig = {}
   ) {
     super('spot1', restClientOptions, requestOptions);
     return this;
@@ -158,7 +158,7 @@ export class MainClient extends BaseRestClient {
    *
    * Wallet Endpoints
    *
-  **/
+   **/
 
   getSystemStatus(): Promise<SystemStatusResponse> {
     return this.get('sapi/v1/system/status');
@@ -168,7 +168,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/capital/config/getall');
   }
 
-  getDailyAccountSnapshot(params: DailyAccountSnapshotParams): Promise<DailyAccountSnapshot> {
+  getDailyAccountSnapshot(
+    params: DailyAccountSnapshotParams
+  ): Promise<DailyAccountSnapshot> {
     return this.getPrivate('sapi/v1/accountSnapshot', params);
   }
 
@@ -188,15 +190,19 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/capital/deposit/hisrec', params);
   }
 
-  getWithdrawHistory(params?: WithdrawHistoryParams): Promise<WithdrawHistory[]> {
+  getWithdrawHistory(
+    params?: WithdrawHistoryParams
+  ): Promise<WithdrawHistory[]> {
     return this.getPrivate('sapi/v1/capital/withdraw/history', params);
   }
 
-  getDepositAddress(params: DepositAddressParams): Promise<DepositAddressResponse> {
+  getDepositAddress(
+    params: DepositAddressParams
+  ): Promise<DepositAddressResponse> {
     return this.getPrivate('sapi/v1/capital/deposit/address', params);
   }
 
-  getAccountStatus(): Promise<{ data: string; }> {
+  getAccountStatus(): Promise<{ data: string }> {
     return this.getPrivate('sapi/v1/account/status');
   }
 
@@ -212,7 +218,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/asset/assetDividend', params);
   }
 
-  getAssetDetail(params?: Partial<BasicAssetParam>): Promise<Record<ExchangeSymbol, AssetDetail>> {
+  getAssetDetail(
+    params?: Partial<BasicAssetParam>
+  ): Promise<Record<ExchangeSymbol, AssetDetail>> {
     return this.getPrivate('sapi/v1/asset/assetDetail', params);
   }
 
@@ -220,11 +228,15 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/asset/tradeFee', params);
   }
 
-  submitUniversalTransfer(params: UniversalTransferParams): Promise<{ tranId: number; }> {
+  submitUniversalTransfer(
+    params: UniversalTransferParams
+  ): Promise<{ tranId: number }> {
     return this.postPrivate('sapi/v1/asset/transfer', params);
   }
 
-  getUniversalTransferHistory(params: UniversalTransferHistoryParams): Promise<any> {
+  getUniversalTransferHistory(
+    params: UniversalTransferHistoryParams
+  ): Promise<any> {
     return this.getPrivate('sapi/v1/asset/transfer', params);
   }
 
@@ -240,54 +252,82 @@ export class MainClient extends BaseRestClient {
    *
    * Sub-Account Endpoints
    *
-  **/
+   **/
 
-  createVirtualSubAccount(params: CreateSubAccountParams): Promise<VirtualSubAccount> {
+  createVirtualSubAccount(
+    params: CreateSubAccountParams
+  ): Promise<VirtualSubAccount> {
     return this.postPrivate('sapi/v1/sub-account/virtualSubAccount', params);
   }
 
-  getSubAccountList(params?: SubAccountListParams): Promise<SubAccountListResponse> {
+  getSubAccountList(
+    params?: SubAccountListParams
+  ): Promise<SubAccountListResponse> {
     return this.getPrivate('sapi/v1/sub-account/list', params);
   }
 
-  getSubAccountSpotAssetTransferHistory(params?: SubAccountSpotAssetTransferHistoryParams): Promise<SubAccountSpotAssetTransferHistory> {
+  getSubAccountSpotAssetTransferHistory(
+    params?: SubAccountSpotAssetTransferHistoryParams
+  ): Promise<SubAccountSpotAssetTransferHistory> {
     return this.getPrivate('sapi/v1/sub-account/sub/transfer/history', params);
   }
 
-  getSubAccountFuturesAssetTransferHistory(params: SubAccountFuturesAssetTransferHistoryParams): Promise<SubAccountFuturesAssetTransferHistory> {
-    return this.getPrivate('sapi/v1/sub-account/futures/internalTransfer', params);
+  getSubAccountFuturesAssetTransferHistory(
+    params: SubAccountFuturesAssetTransferHistoryParams
+  ): Promise<SubAccountFuturesAssetTransferHistory> {
+    return this.getPrivate(
+      'sapi/v1/sub-account/futures/internalTransfer',
+      params
+    );
   }
 
-  subAccountFuturesAssetTransfer(params: SubAccountFuturesAssetTransferParams): Promise<SubAccountFuturesAssetTransfer> {
-    return this.postPrivate('sapi/v1/sub-account/futures/internalTransfer', params);
+  subAccountFuturesAssetTransfer(
+    params: SubAccountFuturesAssetTransferParams
+  ): Promise<SubAccountFuturesAssetTransfer> {
+    return this.postPrivate(
+      'sapi/v1/sub-account/futures/internalTransfer',
+      params
+    );
   }
 
-  getSubAccountAssets(params: SubAccountAssetsParams): Promise<SubAccountAssets> {
+  getSubAccountAssets(
+    params: SubAccountAssetsParams
+  ): Promise<SubAccountAssets> {
     return this.getPrivate('sapi/v3/sub-account/assets', params);
   }
 
-  getSubAccountSpotAssetsSummary(params?: SubAccountSpotAssetsSummaryParams): Promise<SubAccountSpotAssetsSummary> {
+  getSubAccountSpotAssetsSummary(
+    params?: SubAccountSpotAssetsSummaryParams
+  ): Promise<SubAccountSpotAssetsSummary> {
     return this.getPrivate('sapi/v1/sub-account/spotSummary', params);
   }
 
-  getSubAccountDepositAddress(params: SubAccountDepositAddressParams): Promise<SubAccountDepositAddress> {
+  getSubAccountDepositAddress(
+    params: SubAccountDepositAddressParams
+  ): Promise<SubAccountDepositAddress> {
     return this.getPrivate('sapi/v1/capital/deposit/subAddress', params);
   }
 
-  getSubAccountDepositHistory(params: SubAccountDepositHistoryParams): Promise<DepositHistory[]> {
+  getSubAccountDepositHistory(
+    params: SubAccountDepositHistoryParams
+  ): Promise<DepositHistory[]> {
     return this.getPrivate('sapi/v1/capital/deposit/subHisrec', params);
   }
 
-  getSubAccountStatusOnMarginOrFutures(params?: { email?: string }): Promise<SubAccountStatus[]> {
-    return this.getPrivate('sapi/v1/sub-account/status', params );
+  getSubAccountStatusOnMarginOrFutures(params?: {
+    email?: string;
+  }): Promise<SubAccountStatus[]> {
+    return this.getPrivate('sapi/v1/sub-account/status', params);
   }
 
   subAccountEnableMargin(email: string): Promise<SubAccountEnableMargin> {
-    return this.postPrivate('sapi/v1/sub-account/margin/enable', { email } );
+    return this.postPrivate('sapi/v1/sub-account/margin/enable', { email });
   }
 
-  getSubAccountDetailOnMarginAccount(email: string): Promise<SubAccountMarginAccountDetail> {
-    return this.getPrivate('sapi/v1/sub-account/margin/account', { email } );
+  getSubAccountDetailOnMarginAccount(
+    email: string
+  ): Promise<SubAccountMarginAccountDetail> {
+    return this.getPrivate('sapi/v1/sub-account/margin/account', { email });
   }
 
   getSubAccountsSummaryOfMarginAccount(): Promise<SubAccountsMarginAccountSummary> {
@@ -295,98 +335,161 @@ export class MainClient extends BaseRestClient {
   }
 
   subAccountEnableFutures(email: string): Promise<SubAccountEnableFutures> {
-    return this.postPrivate('sapi/v1/sub-account/futures/enable', { email } );
+    return this.postPrivate('sapi/v1/sub-account/futures/enable', { email });
   }
 
-  getSubAccountFuturesAccountDetail(email: string): Promise<SubAccountFuturesAccountDetail> {
-    return this.getPrivate('sapi/v1/sub-account/futures/account', { email } );
+  getSubAccountFuturesAccountDetail(
+    email: string
+  ): Promise<SubAccountFuturesAccountDetail> {
+    return this.getPrivate('sapi/v1/sub-account/futures/account', { email });
   }
 
   getSubAccountFuturesAccountSummary(): Promise<SubAccountFuturesAccountSummary> {
     return this.getPrivate('sapi/v1/sub-account/futures/accountSummary');
   }
 
-  getSubAccountFuturesPositionRisk(email: string): Promise<FuturesPositionRisk[]> {
-    return this.getPrivate('sapi/v1/sub-account/futures/positionRisk', { email } );
+  getSubAccountFuturesPositionRisk(
+    email: string
+  ): Promise<FuturesPositionRisk[]> {
+    return this.getPrivate('sapi/v1/sub-account/futures/positionRisk', {
+      email,
+    });
   }
 
-  subAccountFuturesTransfer(params: SubAccountTransferParams): Promise<SubAccountTransfer> {
+  subAccountFuturesTransfer(
+    params: SubAccountTransferParams
+  ): Promise<SubAccountTransfer> {
     return this.postPrivate('sapi/v1/sub-account/futures/transfer', params);
   }
 
-  subAccountMarginTransfer(params: SubAccountTransferParams): Promise<SubAccountTransfer> {
+  subAccountMarginTransfer(
+    params: SubAccountTransferParams
+  ): Promise<SubAccountTransfer> {
     return this.postPrivate('sapi/v1/sub-account/margin/transfer', params);
   }
 
-  subAccountTransferToSameMaster(params: SubAccountTransferToSameMasterParams): Promise<SubAccountTransfer> {
+  subAccountTransferToSameMaster(
+    params: SubAccountTransferToSameMasterParams
+  ): Promise<SubAccountTransfer> {
     return this.postPrivate('sapi/v1/sub-account/transfer/subToSub', params);
   }
 
-  subAccountTransferToMaster(params: SubAccountTransferToMasterParams): Promise<SubAccountTransfer> {
+  subAccountTransferToMaster(
+    params: SubAccountTransferToMasterParams
+  ): Promise<SubAccountTransfer> {
     return this.postPrivate('sapi/v1/sub-account/transfer/subToMaster', params);
   }
 
-  subAccountTransferHistory(params?: SubAccountTransferHistoryParams): Promise<SubAccountTransferHistory[]> {
-    return this.getPrivate('sapi/v1/sub-account/transfer/subUserHistory', params);
+  subAccountTransferHistory(
+    params?: SubAccountTransferHistoryParams
+  ): Promise<SubAccountTransferHistory[]> {
+    return this.getPrivate(
+      'sapi/v1/sub-account/transfer/subUserHistory',
+      params
+    );
   }
 
-  subAccountUniversalTransfer(params: SubAccountUniversalTransferParams): Promise<SubAccountUniversalTransfer> {
+  subAccountUniversalTransfer(
+    params: SubAccountUniversalTransferParams
+  ): Promise<SubAccountUniversalTransfer> {
     return this.postPrivate('sapi/v1/sub-account/universalTransfer', params);
   }
 
-  getSubAccountUniversalTransferHistory(params?: SubAccountUniversalTransferHistoryParams): Promise<SubAccountUniversalTransferHistoryResponse> {
+  getSubAccountUniversalTransferHistory(
+    params?: SubAccountUniversalTransferHistoryParams
+  ): Promise<SubAccountUniversalTransferHistoryResponse> {
     return this.getPrivate('sapi/v1/sub-account/universalTransfer', params);
   }
 
-  getSubAccountDetailOnFuturesAccountV2(params: BasicFuturesSubAccountParams): Promise<SubAccountUSDMDetail | SubAccountCOINMDetail> {
+  getSubAccountDetailOnFuturesAccountV2(
+    params: BasicFuturesSubAccountParams
+  ): Promise<SubAccountUSDMDetail | SubAccountCOINMDetail> {
     return this.getPrivate('sapi/v2/sub-account/futures/account', params);
   }
 
-  getSubAccountSummaryOnFuturesAccountV2(params: SubAccountSummaryOnFuturesAccountV2Params): Promise<SubAccountUSDMSummary | SubAccountCOINMSummary> {
-    return this.getPrivate('sapi/v2/sub-account/futures/accountSummary', params);
+  getSubAccountSummaryOnFuturesAccountV2(
+    params: SubAccountSummaryOnFuturesAccountV2Params
+  ): Promise<SubAccountUSDMSummary | SubAccountCOINMSummary> {
+    return this.getPrivate(
+      'sapi/v2/sub-account/futures/accountSummary',
+      params
+    );
   }
 
-  getSubAccountFuturesPositionRiskV2(params: BasicFuturesSubAccountParams): Promise<SubAccountUSDMPositionRisk | SubAccountCOINMPositionRisk> {
+  getSubAccountFuturesPositionRiskV2(
+    params: BasicFuturesSubAccountParams
+  ): Promise<SubAccountUSDMPositionRisk | SubAccountCOINMPositionRisk> {
     return this.getPrivate('sapi/v2/sub-account/futures/positionRisk', params);
   }
 
-  subAccountEnableLeverageToken(params: SubAccountEnableLeverageToken): Promise<SubAccountEnableLeverageToken> {
+  subAccountEnableLeverageToken(
+    params: SubAccountEnableLeverageToken
+  ): Promise<SubAccountEnableLeverageToken> {
     return this.postPrivate('sapi/v1/sub-account/blvt/enable', params);
   }
-  
-  subAccountEnableOrDisableIPRestriction(params: EnableOrDisableIPRestrictionForSubAccountParams): Promise<SubAccountnableOrDisableIPRestriction> {
-    return this.postPrivate('sapi/v1/sub-account/subAccountApi/ipRestriction', params);
+
+  subAccountEnableOrDisableIPRestriction(
+    params: EnableOrDisableIPRestrictionForSubAccountParams
+  ): Promise<SubAccountnableOrDisableIPRestriction> {
+    return this.postPrivate(
+      'sapi/v1/sub-account/subAccountApi/ipRestriction',
+      params
+    );
   }
 
-  subAccountAddIPList(params: SubAccountnableOrDisableIPRestriction): Promise<SubAccountAddOrDeleteIPList> {
-    return this.postPrivate('sapi/v1/sub-account/subAccountApi/ipRestriction/ipList', params);
+  subAccountAddIPList(
+    params: SubAccountnableOrDisableIPRestriction
+  ): Promise<SubAccountAddOrDeleteIPList> {
+    return this.postPrivate(
+      'sapi/v1/sub-account/subAccountApi/ipRestriction/ipList',
+      params
+    );
   }
 
-  getSubAccountIPRestriction(params: BasicSubAccount): Promise<SubAccountnableOrDisableIPRestriction> {
-    return this.getPrivate('sapi/v1/sub-account/subAccountApi/ipRestriction', params);
+  getSubAccountIPRestriction(
+    params: BasicSubAccount
+  ): Promise<SubAccountnableOrDisableIPRestriction> {
+    return this.getPrivate(
+      'sapi/v1/sub-account/subAccountApi/ipRestriction',
+      params
+    );
   }
 
-  subAccountDeleteIPList(params: SubAccountnableOrDisableIPRestriction): Promise<SubAccountnableOrDisableIPRestriction> {
-    return this.deletePrivate('sapi/v1/sub-account/subAccountApi/ipRestriction/ipList', params);
+  subAccountDeleteIPList(
+    params: SubAccountnableOrDisableIPRestriction
+  ): Promise<SubAccountnableOrDisableIPRestriction> {
+    return this.deletePrivate(
+      'sapi/v1/sub-account/subAccountApi/ipRestriction/ipList',
+      params
+    );
   }
 
-  depositAssetsIntoManagedSubAccount(params: SubAccountTransferToSameMasterParams): Promise<MarginTransactionResponse> {
+  depositAssetsIntoManagedSubAccount(
+    params: SubAccountTransferToSameMasterParams
+  ): Promise<MarginTransactionResponse> {
     return this.postPrivate('sapi/v1/managed-subaccount/deposit', params);
   }
 
-  getManagedSubAccountAssetDetails(email: string): Promise<SubAccountAssetDetails[]> {
-    return this.getPrivate('sapi/v1/managed-subaccount/asset', { email } );
+  getManagedSubAccountAssetDetails(
+    email: string
+  ): Promise<SubAccountAssetDetails[]> {
+    return this.getPrivate('sapi/v1/managed-subaccount/asset', { email });
   }
 
-  withdrawAssetsFromManagedSubAccount(params: WithdrawAssetsFromManagedSubAccountParams): Promise<MarginTransactionResponse> {
+  withdrawAssetsFromManagedSubAccount(
+    params: WithdrawAssetsFromManagedSubAccountParams
+  ): Promise<MarginTransactionResponse> {
     return this.postPrivate('sapi/v1/managed-subaccount/withdraw', params);
   }
 
   /**
    * Broker Endpoints
    */
-  
-  getBrokerIfNewSpotUser(): Promise<{ rebateWorking: boolean; ifNewUser: boolean; }> {
+
+  getBrokerIfNewSpotUser(): Promise<{
+    rebateWorking: boolean;
+    ifNewUser: boolean;
+  }> {
     return this.getPrivate('sapi/v1/apiReferral/ifNewUser');
   }
 
@@ -398,10 +501,14 @@ export class MainClient extends BaseRestClient {
   // USD & Coin-M can be found under API getIncome() (find "API rebate" in results)
   getBrokerSpotRebateHistory(days: 7 | 30, customerId?: string) {
     if (days === 7) {
-      return this.getPrivate('sapi/v1/apiReferral/rebate/recentRecord', { customerId });
+      return this.getPrivate('sapi/v1/apiReferral/rebate/recentRecord', {
+        customerId,
+      });
     }
     if (days === 30) {
-      return this.getPrivate('sapi/v1/apiReferral/rebate/historicalRecord', { customerId });
+      return this.getPrivate('sapi/v1/apiReferral/rebate/historicalRecord', {
+        customerId,
+      });
     }
   }
 
@@ -409,7 +516,7 @@ export class MainClient extends BaseRestClient {
    *
    * Market Data Endpoints
    *
-  **/
+   **/
 
   testConnectivity(): Promise<{}> {
     return this.get('api/v3/ping');
@@ -421,7 +528,7 @@ export class MainClient extends BaseRestClient {
 
     let urlSuffix = '';
     if (symbols || symbol) {
-      urlSuffix += '?' + (symbols || symbol);
+      urlSuffix += '?symbol=' + (symbols || symbol);
     }
 
     return this.get('api/v3/exchangeInfo' + urlSuffix);
@@ -439,7 +546,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('api/v3/historicalTrades', params);
   }
 
-  getAggregateTrades(params: SymbolFromPaginatedRequestFromId): Promise<AggregateTrade[]> {
+  getAggregateTrades(
+    params: SymbolFromPaginatedRequestFromId
+  ): Promise<AggregateTrade[]> {
     return this.get('api/v3/aggTrades', params);
   }
 
@@ -451,18 +560,27 @@ export class MainClient extends BaseRestClient {
     return this.get('api/v3/avgPrice', params);
   }
 
-  get24hrChangeStatististics(params?: Partial<BasicSymbolParam>): Promise<DailyChangeStatistic | DailyChangeStatistic[]> {
+  get24hrChangeStatististics(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<DailyChangeStatistic | DailyChangeStatistic[]> {
     if (!params?.symbol) {
       return this.get('api/v3/ticker/24hr') as Promise<DailyChangeStatistic[]>;
     }
-    return this.get('api/v3/ticker/24hr', params) as Promise<DailyChangeStatistic>;
+    return this.get(
+      'api/v3/ticker/24hr',
+      params
+    ) as Promise<DailyChangeStatistic>;
   }
 
-  getSymbolPriceTicker(params?: Partial<BasicSymbolParam>): Promise<SymbolPrice | SymbolPrice[]> {
+  getSymbolPriceTicker(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<SymbolPrice | SymbolPrice[]> {
     return this.get('api/v3/ticker/price', params);
   }
 
-  getSymbolOrderBookTicker(params?: Partial<BasicSymbolParam>): Promise<SymbolOrderBookTicker | SymbolOrderBookTicker[]> {
+  getSymbolOrderBookTicker(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<SymbolOrderBookTicker | SymbolOrderBookTicker[]> {
     return this.get('api/v3/ticker/bookTicker', params);
   }
 
@@ -470,14 +588,16 @@ export class MainClient extends BaseRestClient {
    *
    * Spot Account/Trade Endpoints
    *
-  **/
+   **/
 
   testNewOrder(params: NewSpotOrderParams): Promise<{}> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('api/v3/order/test', params);
   }
 
-  submitNewOrder(params: NewSpotOrderParams): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+  submitNewOrder(
+    params: NewSpotOrderParams
+  ): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('api/v3/order', params);
   }
@@ -486,7 +606,9 @@ export class MainClient extends BaseRestClient {
     return this.deletePrivate('api/v3/order', params);
   }
 
-  cancelAllSymbolOrders(params: BasicSymbolParam): Promise<CancelSpotOrderResult[]> {
+  cancelAllSymbolOrders(
+    params: BasicSymbolParam
+  ): Promise<CancelSpotOrderResult[]> {
     return this.deletePrivate('api/v3/openOrders', params);
   }
 
@@ -530,7 +652,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('api/v3/account');
   }
 
-  getAccountTradeList(params: SymbolFromPaginatedRequestFromId): Promise<RawAccountTrade[]> {
+  getAccountTradeList(
+    params: SymbolFromPaginatedRequestFromId
+  ): Promise<RawAccountTrade[]> {
     return this.getPrivate('api/v3/myTrades', params);
   }
 
@@ -538,25 +662,35 @@ export class MainClient extends BaseRestClient {
    *
    * Margin Account/Trade Endpoints
    *
-  **/
+   **/
 
-  crossMarginAccountTransfer(params: CrossMarginAccountTransferParams): Promise<MarginTransactionResponse> {
+  crossMarginAccountTransfer(
+    params: CrossMarginAccountTransferParams
+  ): Promise<MarginTransactionResponse> {
     return this.postPrivate('sapi/v1/margin/transfer', params);
   }
-  
-  marginAccountBorrow(params: MarginAccountLoanParams): Promise<MarginTransactionResponse> {
+
+  marginAccountBorrow(
+    params: MarginAccountLoanParams
+  ): Promise<MarginTransactionResponse> {
     return this.postPrivate('sapi/v1/margin/loan', params);
   }
 
-  marginAccountRepay(params: MarginAccountLoanParams): Promise<MarginTransactionResponse> {
+  marginAccountRepay(
+    params: MarginAccountLoanParams
+  ): Promise<MarginTransactionResponse> {
     return this.postPrivate('sapi/v1/margin/repay', params);
   }
 
-  queryMarginAsset(params: QueryMarginAssetParams): Promise<QueryMarginAssetResponse> {
+  queryMarginAsset(
+    params: QueryMarginAssetParams
+  ): Promise<QueryMarginAssetResponse> {
     return this.get('sapi/v1/margin/asset', params);
   }
 
-  queryCrossMarginPair(params: QueryCrossMarginPairParams): Promise<QueryCrossMarginPairResponse> {
+  queryCrossMarginPair(
+    params: QueryCrossMarginPairParams
+  ): Promise<QueryCrossMarginPairResponse> {
     return this.get('sapi/v1/margin/pair', params);
   }
 
@@ -568,30 +702,42 @@ export class MainClient extends BaseRestClient {
     return this.get('sapi/v1/margin/allPairs');
   }
 
-  queryMarginPriceIndex(params: BasicSymbolParam): Promise<QueryMarginPriceIndexResponse> {
+  queryMarginPriceIndex(
+    params: BasicSymbolParam
+  ): Promise<QueryMarginPriceIndexResponse> {
     return this.get('sapi/v1/margin/priceIndex', params);
   }
 
-  marginAccountNewOrder(params: NewSpotOrderParams): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+  marginAccountNewOrder(
+    params: NewSpotOrderParams
+  ): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('sapi/v1/margin/order', params);
   }
 
-  marginAccountCancelOrder(params: CancelOrderParams): Promise<CancelSpotOrderResult> {
+  marginAccountCancelOrder(
+    params: CancelOrderParams
+  ): Promise<CancelSpotOrderResult> {
     return this.deletePrivate('sapi/v1/margin/order', params);
   }
 
-  marginAccountCancelOpenOrders(params: BasicSymbolParam): Promise<CancelSpotOrderResult[]> {
+  marginAccountCancelOpenOrders(
+    params: BasicSymbolParam
+  ): Promise<CancelSpotOrderResult[]> {
     return this.deletePrivate('sapi/v1/margin/openOrders', params);
   }
 
   // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-cross-margin-transfer-history-user_data
 
-  queryLoanRecord(params: QueryMarginRecordParams): Promise<MarginRecordResponse> {
+  queryLoanRecord(
+    params: QueryMarginRecordParams
+  ): Promise<MarginRecordResponse> {
     return this.getPrivate('sapi/v1/margin/loan', params);
   }
 
-  queryRepayRecord(params: QueryMarginRecordParams): Promise<MarginRecordResponse> {
+  queryRepayRecord(
+    params: QueryMarginRecordParams
+  ): Promise<MarginRecordResponse> {
     return this.getPrivate('sapi/v1/margin/repay', params);
   }
 
@@ -611,7 +757,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/margin/openOrders', params);
   }
 
-  queryMarginAccountAllOrders(params: GetAllOrdersParams): Promise<SpotOrder[]> {
+  queryMarginAccountAllOrders(
+    params: GetAllOrdersParams
+  ): Promise<SpotOrder[]> {
     return this.getPrivate('sapi/v1/margin/allOrders', params);
   }
 
@@ -637,15 +785,21 @@ export class MainClient extends BaseRestClient {
 
   // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-margin-account-39-s-trade-list-user_data
 
-  queryMaxBorrow(params: BasicMarginAssetParams): Promise<QueryMaxBorrowResponse> {
+  queryMaxBorrow(
+    params: BasicMarginAssetParams
+  ): Promise<QueryMaxBorrowResponse> {
     return this.getPrivate('sapi/v1/margin/maxBorrowable', params);
   }
 
-  queryMaxTransferOutAmount(params: BasicMarginAssetParams): Promise<QueryMaxTransferOutAmountResponse> {
+  queryMaxTransferOutAmount(
+    params: BasicMarginAssetParams
+  ): Promise<QueryMaxTransferOutAmountResponse> {
     return this.getPrivate('sapi/v1/margin/maxTransferable', params);
   }
 
-  isolatedMarginAccountTransfer(params: IsolatedMarginAccountTransferParams): Promise<MarginTransactionResponse> {
+  isolatedMarginAccountTransfer(
+    params: IsolatedMarginAccountTransferParams
+  ): Promise<MarginTransactionResponse> {
     return this.postPrivate('sapi/v1/margin/isolated/transfer', params);
   }
 
@@ -679,10 +833,10 @@ export class MainClient extends BaseRestClient {
    *
    * User Data Stream Endpoints
    *
-  **/
+   **/
 
   // spot
-  getSpotUserDataListenKey(): Promise<{ listenKey: string; }> {
+  getSpotUserDataListenKey(): Promise<{ listenKey: string }> {
     return this.post('api/v3/userDataStream');
   }
 
@@ -695,7 +849,7 @@ export class MainClient extends BaseRestClient {
   }
 
   // margin
-  getMarginUserDataListenKey(): Promise<{ listenKey: string; }> {
+  getMarginUserDataListenKey(): Promise<{ listenKey: string }> {
     return this.post('sapi/v1/userDataStream');
   }
 
@@ -708,23 +862,37 @@ export class MainClient extends BaseRestClient {
   }
 
   // isolated margin
-  getIsolatedMarginUserDataListenKey(params: { symbol: string; }): Promise<{ listenKey: string; }> {
-    return this.post(`sapi/v1/userDataStream/isolated?${serialiseParams(params)}`);
+  getIsolatedMarginUserDataListenKey(params: {
+    symbol: string;
+  }): Promise<{ listenKey: string }> {
+    return this.post(
+      `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`
+    );
   }
 
-  keepAliveIsolatedMarginUserDataListenKey(params: { symbol: string; listenKey: string; }): Promise<{}> {
-    return this.put(`sapi/v1/userDataStream/isolated?${serialiseParams(params)}`);
+  keepAliveIsolatedMarginUserDataListenKey(params: {
+    symbol: string;
+    listenKey: string;
+  }): Promise<{}> {
+    return this.put(
+      `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`
+    );
   }
 
-  closeIsolatedMarginUserDataListenKey(params: { symbol: string; listenKey: string; }): Promise<{}> {
-    return this.delete(`sapi/v1/userDataStream/isolated?${serialiseParams(params)}`);
+  closeIsolatedMarginUserDataListenKey(params: {
+    symbol: string;
+    listenKey: string;
+  }): Promise<{}> {
+    return this.delete(
+      `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`
+    );
   }
 
   /**
    *
    * Savings Endpoints
    *
-  **/
+   **/
 
   //TODO: https://binance-docs.github.io/apidocs/spot/en/#savings-endpoints
 
@@ -732,7 +900,7 @@ export class MainClient extends BaseRestClient {
    *
    * Mining Endpoints
    *
-  **/
+   **/
 
   //TODO: https://binance-docs.github.io/apidocs/spot/en/#mining-endpoints
 
@@ -741,7 +909,7 @@ export class MainClient extends BaseRestClient {
    * Futures Management Endpoints
    * Note: to trade futures use the usdm-client or coinm-client. The spot client only has the futures endpoints listed in the "spot" docs category
    *
-  **/
+   **/
 
   //TODO: https://binance-docs.github.io/apidocs/spot/en/#futures
 
@@ -749,7 +917,7 @@ export class MainClient extends BaseRestClient {
    *
    * BLVT Endpoints
    *
-  **/
+   **/
 
   //TODO: https://binance-docs.github.io/apidocs/spot/en/#blvt-endpoints
 
@@ -757,15 +925,21 @@ export class MainClient extends BaseRestClient {
    *
    * BSwap Endpoints
    *
-  **/
+   **/
 
   //TODO: https://binance-docs.github.io/apidocs/spot/en/#bswap-endpoints
-
 
   /**
    * Validate syntax meets requirements set by binance. Log warning if not.
    */
-  private validateOrderId(params: NewSpotOrderParams | CancelOrderParams | NewOCOParams | CancelOCOParams, orderIdProperty: OrderIdProperty): void {
+  private validateOrderId(
+    params:
+      | NewSpotOrderParams
+      | CancelOrderParams
+      | NewOCOParams
+      | CancelOCOParams,
+    orderIdProperty: OrderIdProperty
+  ): void {
     const apiCategory = 'spot';
     if (!params[orderIdProperty]) {
       params[orderIdProperty] = generateNewOrderId(apiCategory);
@@ -777,7 +951,7 @@ export class MainClient extends BaseRestClient {
       logInvalidOrderId(orderIdProperty, expectedOrderIdPrefix, params);
     }
   }
-};
+}
 
 /**
  * @deprecated use MainClient instead of SpotClient (it is the same)
