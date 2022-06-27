@@ -37,7 +37,12 @@ export type WsRawMessage = WsMessageKlineRaw
   | WsMessageBookTickerEventRaw
   | WsMessagePartialBookDepthEventRaw
   | WsRawSpotUserDataEventRaw
-  | WsMessageIndexPriceUpdateEventRaw;
+  | WsMessageIndexPriceUpdateEventRaw
+  | WsMessageFuturesUserDataAccountUpdateRaw
+  | WsMessageFuturesUserDataListenKeyExpiredRaw
+  | WsMessageFuturesUserDataMarginCallRaw
+  | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
+  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw;
 
 export type WsFormattedMessage = WsMessageKlineFormatted
   | WsMessageAggTradeFormatted
