@@ -33,9 +33,17 @@ Refer to the [examples](./examples) folder for implementation demos.
 - Issues? Check the [issues tab](https://github.com/tiagosiebler/binance/issues).
 - Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
 - Questions about Binance APIs & WebSockets? Ask in the official [Binance API](https://t.me/binance_api_english) group on telegram.
-- Try my other connectors:
+
+## Related projects
+Check out my related projects:
+- Try my connectors:
   - [ftx-api](https://www.npmjs.com/package/ftx-api)
   - [bybit-api](https://www.npmjs.com/package/bybit-api)
+  - [binance](https://www.npmjs.com/package/binance)
+- Try my misc utilities:
+  - [orderbooks](https://www.npmjs.com/package/orderbooks)
+- Check out my examples:
+  - [awesome-crypto-examples](https://github.com/tiagosiebler/awesome-crypto-examples)
 
 ## Documentation
 Most methods accept JS objects. These can be populated using parameters specified by Binance's API documentation.
@@ -254,3 +262,7 @@ Or buy me a coffee using any of these:
 
 ### Contributions & Pull Requests
 Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
+
+## Stargazers
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/ftx-api,tiagosiebler/bybit-api,tiagosiebler/binance,tiagosiebler/orderbooks&type=Date)](https://star-history.com/#tiagosiebler/ftx-api&tiagosiebler/bybit-api&tiagosiebler/binance&tiagosiebler/orderbooks&Date)
