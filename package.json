@@ -1,6 +1,6 @@
 {
   "name": "binance",
-  "version": "2.0.30",
+  "version": "2.0.31",
   "description": "Node.js connector for Binance's REST APIs and WebSockets, with TypeScript & integration tests.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -11,7 +11,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "clean": "rm -rf lib dist",
+    "clean": "rimraf lib dist",
     "build": "tsc",
     "build:clean": "npm run clean && npm run build",
     "build:watch": "npm run clean && tsc --watch",
