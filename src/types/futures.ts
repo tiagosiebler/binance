@@ -83,20 +83,21 @@ export type FuturesOrderType =
   | 'TAKE_PROFIT_MARKET'
   | 'TRAILING_STOP_MARKET';
 
-export interface NewFuturesOrderParams {
+// When using the submitMultipleOrders() endpoint, it seems to expect strings instead of numbers. All other endpoints use numbers.
+export interface NewFuturesOrderParams<numberType = number> {
   symbol: string;
   side: OrderSide;
   positionSide?: PositionSide;
   type: FuturesOrderType;
   timeInForce?: OrderTimeInForce;
-  quantity?: number;
+  quantity?: numberType;
   reduceOnly?: BooleanString;
-  price?: number;
+  price?: numberType;
   newClientOrderId?: string;
-  stopPrice?: number;
+  stopPrice?: numberType;
   closePosition?: BooleanString;
-  activationPrice?: number;
-  callbackRate?: number;
+  activationPrice?: numberType;
+  callbackRate?: numberType;
   workingType?: WorkingType;
   priceProtect?: BooleanStringCapitalised;
   newOrderRespType?: OrderResponseType;

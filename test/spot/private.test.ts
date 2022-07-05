@@ -1,16 +1,19 @@
-import { MainClient, NewSpotOrderParams } from "../../src/index";
+import { MainClient, NewSpotOrderParams } from '../../src/index';
 
 describe('Private Spot REST API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
   const API_SECRET = process.env.API_SECRET_COM;
 
-  const api = new MainClient({
-    disableTimeSync: true,
-    api_key: API_KEY,
-    api_secret: API_SECRET,
-  }, {
-    timeout: 1000 * 60,
-  });
+  const api = new MainClient(
+    {
+      disableTimeSync: true,
+      api_key: API_KEY,
+      api_secret: API_SECRET,
+    },
+    {
+      timeout: 1000 * 60,
+    }
+  );
 
   const symbol = 'BTCUSDT';
   const coin = 'BTC';
@@ -34,7 +37,10 @@ describe('Private Spot REST API Endpoints', () => {
 
   describe('Wallet Endpoints', () => {
     it('getSystemStatus()', async () => {
-      expect(await api.getSystemStatus()).toMatchObject({'msg': "normal", 'status': 0});
+      expect(await api.getSystemStatus()).toMatchObject({
+        msg: 'normal',
+        status: 0,
+      });
     });
 
     it('getAccountInformation()', async () => {
@@ -48,7 +54,7 @@ describe('Private Spot REST API Endpoints', () => {
         sellerCommission: expect.any(Number),
         takerCommission: expect.any(Number),
         updateTime: expect.any(Number),
-       });
+      });
     });
 
     it('getAllCoinsInformation()', async () => {
@@ -56,17 +62,21 @@ describe('Private Spot REST API Endpoints', () => {
     });
 
     it('getAccountTradeList(symbol)', async () => {
-      expect(await api.getAccountTradeList({ symbol })).toMatchObject(expect.any(Array));
+      expect(await api.getAccountTradeList({ symbol })).toMatchObject(
+        expect.any(Array)
+      );
     });
 
     it('getDailyAccountSnapshot()', async () => {
-      expect(await api.getDailyAccountSnapshot({
-        type: 'SPOT',
-       })).toMatchObject({
-         code: 200,
-         msg: expect.any(String),
-         snapshotVos: expect.any(Array),
-       });
+      expect(
+        await api.getDailyAccountSnapshot({
+          type: 'SPOT',
+        })
+      ).toMatchObject({
+        code: 200,
+        msg: expect.any(String),
+        snapshotVos: expect.any(Array),
+      });
     });
 
     it('getDepositHistory()', async () => {
@@ -110,42 +120,53 @@ describe('Private Spot REST API Endpoints', () => {
     });
 
     it.skip('getUniversalTransferHistory()', async () => {
-      expect(await api.getUniversalTransferHistory({
-        type: 'MAIN_UMFUTURE'
-      })).toMatchObject({
+      expect(
+        await api.getUniversalTransferHistory({
+          type: 'MAIN_UMFUTURE',
+        })
+      ).toMatchObject({
         rows: expect.any(Array),
       });
     });
 
     it('getApiTradingStatus()', async () => {
-      expect(await api.getApiTradingStatus()).toMatchObject({ data: expect.any(Object) });
+      expect(await api.getApiTradingStatus()).toMatchObject({
+        data: expect.any(Object),
+      });
     });
 
     it('getApiKeyPermissions()', async () => {
-      expect(await api.getApiKeyPermissions()).toMatchObject(expect.any(Object));
+      expect(await api.getApiKeyPermissions()).toMatchObject(
+        expect.any(Object)
+      );
     });
-
   });
 
   describe.skip('Sub-Account Endpoints', () => {
     it('getSubAccountList()', async () => {
-      expect(await api.getSubAccountList()).toMatchObject({ subAccounts: expect.any(Array) });
+      expect(await api.getSubAccountList()).toMatchObject({
+        subAccounts: expect.any(Array),
+      });
     });
 
     it('getSubAccountSpotAssetTransferHistory()', async () => {
-      expect(await api.getSubAccountSpotAssetTransferHistory()).toMatchObject(expect.any(Array));
+      expect(await api.getSubAccountSpotAssetTransferHistory()).toMatchObject(
+        expect.any(Array)
+      );
     });
 
     it('getSubAccountSpotAssetsSummary()', async () => {
       expect(await api.getSubAccountSpotAssetsSummary()).toMatchObject({
         totalCount: expect.any(Number),
         masterAccountTotalAsset: expect.any(String),
-        spotSubUserAssetBtcVoList: expect.any(Array)
+        spotSubUserAssetBtcVoList: expect.any(Array),
       });
     });
 
     it('getSubAccountStatusOnMarginOrFutures()', async () => {
-      expect(await api.getSubAccountStatusOnMarginOrFutures()).toMatchObject(expect.any(Array));
+      expect(await api.getSubAccountStatusOnMarginOrFutures()).toMatchObject(
+        expect.any(Array)
+      );
     });
 
     it('getSubAccountsSummaryOfMarginAccount()', async () => {
@@ -153,7 +174,7 @@ describe('Private Spot REST API Endpoints', () => {
         totalAssetOfBtc: expect.any(String),
         totalLiabilityOfBtc: expect.any(String),
         totalNetAssetOfBtc: expect.any(String),
-        subAccountList: expect.any(Array)
+        subAccountList: expect.any(Array),
       });
     });
 
@@ -167,10 +188,9 @@ describe('Private Spot REST API Endpoints', () => {
         totalUnrealizedProfit: expect.any(String),
         totalWalletBalance: expect.any(String),
         asset: expect.any(String),
-        subAccountList: expect.any(Array)
+        subAccountList: expect.any(Array),
       });
     });
-
   });
 
   describe('User Data Stream', () => {
@@ -182,15 +202,21 @@ describe('Private Spot REST API Endpoints', () => {
 
       it('should keep alive user data key', async () => {
         const { listenKey } = await api.getSpotUserDataListenKey();
-        expect(await api.keepAliveSpotUserDataListenKey(listenKey)).toStrictEqual({});
+        expect(
+          await api.keepAliveSpotUserDataListenKey(listenKey)
+        ).toStrictEqual({});
       });
 
       it('should close user data key', async () => {
         const { listenKey } = await api.getSpotUserDataListenKey();
         expect(listenKey).toStrictEqual(expect.any(String));
 
-        expect(await api.closeSpotUserDataListenKey(listenKey)).toStrictEqual({});
-        expect(api.keepAliveSpotUserDataListenKey(listenKey)).rejects.toMatchObject({
+        expect(await api.closeSpotUserDataListenKey(listenKey)).toStrictEqual(
+          {}
+        );
+        expect(
+          api.keepAliveSpotUserDataListenKey(listenKey)
+        ).rejects.toMatchObject({
           code: -1125,
           message: 'This listenKey does not exist.',
         });
@@ -205,15 +231,21 @@ describe('Private Spot REST API Endpoints', () => {
 
       it('should keep alive user data key', async () => {
         const { listenKey } = await api.getMarginUserDataListenKey();
-        expect(await api.keepAliveMarginUserDataListenKey(listenKey)).toStrictEqual({});
+        expect(
+          await api.keepAliveMarginUserDataListenKey(listenKey)
+        ).toStrictEqual({});
       });
 
       it('should close user data key', async () => {
         const { listenKey } = await api.getMarginUserDataListenKey();
         expect(listenKey).toStrictEqual(expect.any(String));
 
-        expect(await api.closeMarginUserDataListenKey(listenKey)).toStrictEqual({});
-        expect(api.keepAliveMarginUserDataListenKey(listenKey)).rejects.toMatchObject({
+        expect(await api.closeMarginUserDataListenKey(listenKey)).toStrictEqual(
+          {}
+        );
+        expect(
+          api.keepAliveMarginUserDataListenKey(listenKey)
+        ).rejects.toMatchObject({
           code: -1105,
           message: 'This listenKey does not exist.',
         });
@@ -222,24 +254,38 @@ describe('Private Spot REST API Endpoints', () => {
 
     describe.skip('Binance Isolated Margin', () => {
       it('should create a user data key', async () => {
-        const { listenKey } = await api.getIsolatedMarginUserDataListenKey({ symbol });
+        const { listenKey } = await api.getIsolatedMarginUserDataListenKey({
+          symbol,
+        });
         expect(listenKey).toStrictEqual(expect.any(String));
       });
 
       it('should keep alive user data key', async () => {
-        const { listenKey } = await api.getIsolatedMarginUserDataListenKey({ symbol });
-        expect(await api.keepAliveIsolatedMarginUserDataListenKey({ symbol, listenKey })).toStrictEqual({});
+        const { listenKey } = await api.getIsolatedMarginUserDataListenKey({
+          symbol,
+        });
+        expect(
+          await api.keepAliveIsolatedMarginUserDataListenKey({
+            symbol,
+            listenKey,
+          })
+        ).toStrictEqual({});
       });
 
       it('should close user data key', async () => {
-        const { listenKey } = await api.getIsolatedMarginUserDataListenKey({ symbol });
-        expect(await api.closeIsolatedMarginUserDataListenKey({ symbol, listenKey })).toStrictEqual({});
-        expect(api.keepAliveIsolatedMarginUserDataListenKey({ symbol, listenKey })).rejects.toMatchObject({
+        const { listenKey } = await api.getIsolatedMarginUserDataListenKey({
+          symbol,
+        });
+        expect(
+          await api.closeIsolatedMarginUserDataListenKey({ symbol, listenKey })
+        ).toStrictEqual({});
+        expect(
+          api.keepAliveIsolatedMarginUserDataListenKey({ symbol, listenKey })
+        ).rejects.toMatchObject({
           code: -1105,
           message: 'This listenKey does not exist.',
         });
       });
     });
-
   });
 });
