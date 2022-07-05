@@ -72,6 +72,7 @@ import {
 } from './util/requestUtils';
 
 import BaseRestClient from './util/BaseRestClient';
+import { SymbolPrice } from './types/spot';
 
 export class USDMClient extends BaseRestClient {
   private clientId: BinanceBaseUrlKey;
@@ -165,7 +166,9 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/ticker/24hr', params);
   }
 
-  getSymbolPriceTicker(params?: Partial<BasicSymbolParam>): Promise<any> {
+  getSymbolPriceTicker(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<SymbolPrice | SymbolPrice[]> {
     return this.get('fapi/v1/ticker/price', params);
   }
 
@@ -245,15 +248,22 @@ export class USDMClient extends BaseRestClient {
   }
 
   /**
-   * Warning: max 5 orders at a time!
+   * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
+   *
+   * Known issue: `quantity` and `price` should be sent as strings
    */
   submitMultipleOrders(
-    batchOrders: NewFuturesOrderParams[]
+    orders: NewFuturesOrderParams<string>[]
   ): Promise<(NewOrderResult | NewOrderError)[]> {
-    batchOrders.forEach((order) =>
-      this.validateOrderId(order, 'newClientOrderId')
-    );
-    return this.postPrivate('fapi/v1/batchOrders', { batchOrders });
+    const stringOrders = orders.map((order) => {
+      const orderToStringify = { ...order };
+      this.validateOrderId(orderToStringify, 'newClientOrderId');
+      return JSON.stringify(orderToStringify);
+    });
+    const requestBody = {
+      batchOrders: `[${stringOrders.join(',')}]`,
+    };
+    return this.postPrivate('fapi/v1/batchOrders', requestBody);
   }
 
   getOrder(params: GetOrderParams): Promise<OrderResult> {

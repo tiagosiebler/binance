@@ -1,10 +1,17 @@
 import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
 
 import { BinanceBaseUrlKey } from '../types/shared';
-import { serialiseParams, RestClientOptions, GenericAPIResponse, getRestBaseUrl, getRequestSignature } from './requestUtils';
+import {
+  serialiseParams,
+  RestClientOptions,
+  GenericAPIResponse,
+  getRestBaseUrl,
+  getRequestSignature,
+} from './requestUtils';
 import Beautifier from './beautifier';
 
-type ApiLimitHeader = 'x-mbx-used-weight'
+type ApiLimitHeader =
+  | 'x-mbx-used-weight'
   | 'x-mbx-used-weight-1m'
   | 'x-sapi-used-ip-weight-1m'
   | 'x-mbx-order-count-1s'
@@ -29,7 +36,7 @@ export default abstract class BaseRestClient {
   constructor(
     baseUrlKey: BinanceBaseUrlKey,
     options: RestClientOptions = {},
-    requestOptions: AxiosRequestConfig = {},
+    requestOptions: AxiosRequestConfig = {}
   ) {
     this.options = {
       recvWindow: 5000,
@@ -37,7 +44,7 @@ export default abstract class BaseRestClient {
       syncIntervalMs: 3600000,
       // if true, we'll throw errors if any params are undefined
       strictParamValidation: false,
-      ...options
+      ...options,
     };
 
     this.globalRequestOptions = {
@@ -61,7 +68,9 @@ export default abstract class BaseRestClient {
     this.baseUrl = getRestBaseUrl(this.baseUrlKey, this.options);
 
     if (this.key && !this.secret) {
-      throw new Error('API Key & Secret are both required for private enpoints')
+      throw new Error(
+        'API Key & Secret are both required for private enpoints'
+      );
     }
 
     if (this.options.disableTimeSync !== true) {
@@ -86,7 +95,9 @@ export default abstract class BaseRestClient {
     };
   }
 
-  abstract getServerTime(baseUrlKeyOverride?: BinanceBaseUrlKey): Promise<number>;
+  abstract getServerTime(
+    baseUrlKeyOverride?: BinanceBaseUrlKey
+  ): Promise<number>;
 
   public getBaseUrlKey(): BinanceBaseUrlKey {
     return this.baseUrlKey;
@@ -96,7 +107,7 @@ export default abstract class BaseRestClient {
     return {
       ...this.apiLimitTrackers,
       lastUpdated: this.apiLimitLastUpdated,
-    }
+    };
   }
 
   /**
@@ -114,7 +125,11 @@ export default abstract class BaseRestClient {
     return this._call('GET', endpoint, params);
   }
 
-  public getForBaseUrl(endpoint: string, baseUrlKey: BinanceBaseUrlKey, params?: any) {
+  public getForBaseUrl(
+    endpoint: string,
+    baseUrlKey: BinanceBaseUrlKey,
+    params?: any
+  ) {
     const baseUrl = getRestBaseUrl(baseUrlKey, {});
     return this._call('GET', endpoint, params, false, baseUrl);
   }
@@ -150,22 +165,31 @@ export default abstract class BaseRestClient {
   /**
    * @private Make a HTTP request to a specific endpoint. Private endpoints are automatically signed.
    */
-  public async _call(method: Method, endpoint: string, params?: any, isPrivate?: boolean, baseUrlOverride?: string): GenericAPIResponse {
+  public async _call(
+    method: Method,
+    endpoint: string,
+    params?: any,
+    isPrivate?: boolean,
+    baseUrlOverride?: string
+  ): GenericAPIResponse {
     const timestamp = Date.now() + (this.getTimeOffset() || 0);
 
     if (isPrivate && (!this.key || !this.secret)) {
-      throw new Error('Private endpoints require api and private keys to be set');
+      throw new Error(
+        'Private endpoints require api and private keys to be set'
+      );
     }
 
     // Handles serialisation of params into query string (url?key1=value1&key2=value2), handles encoding of values, adds timestamp and signature to request.
-    const { serialisedParams, signature, requestBody } = await getRequestSignature(
-      params,
-      this.key,
-      this.secret,
-      this.options.recvWindow,
-      timestamp,
-      this.options.strictParamValidation
-    );
+    const { serialisedParams, signature, requestBody } =
+      await getRequestSignature(
+        params,
+        this.key,
+        this.secret,
+        this.options.recvWindow,
+        timestamp,
+        this.options.strictParamValidation
+      );
 
     const baseUrl = baseUrlOverride || this.baseUrl;
 
@@ -177,40 +201,56 @@ export default abstract class BaseRestClient {
     };
 
     if (isPrivate) {
-      options.url += '?' + [serialisedParams, 'signature=' + signature].join('&');
+      options.url +=
+        '?' + [serialisedParams, 'signature=' + signature].join('&');
     } else if (method === 'GET' || method === 'DELETE') {
       options.params = params;
     } else {
-      options.data = serialiseParams(requestBody, this.options.strictParamValidation, true);
+      options.data = serialiseParams(
+        requestBody,
+        this.options.strictParamValidation,
+        true
+      );
     }
 
-    // console.log('sending request: ', JSON.stringify({
-    //   reqOptions: options,
-    //   reqParams: params,
-    // }, null, 2));
+    // console.log(
+    //   'sending request: ',
+    //   JSON.stringify(
+    //     {
+    //       reqOptions: options,
+    //       reqParams: params,
+    //     },
+    //     null,
+    //     2
+    //   )
+    // );
 
-    return axios(options).then(response => {
-      this.updateApiLimitState(response.headers, options.url)
-      if (response.status == 200) {
-        return response.data;
-      }
+    return axios(options)
+      .then((response) => {
+        this.updateApiLimitState(response.headers, options.url);
+        if (response.status == 200) {
+          return response.data;
+        }
 
-      throw response;
-    })
-    .then(response => {
-      if (!this.options.beautifyResponses || !this.beautifier) {
+        throw response;
+      })
+      .then((response) => {
+        if (!this.options.beautifyResponses || !this.beautifier) {
+          return response;
+        }
+
+        // Fallback to original response if beautifier fails
+        try {
+          return this.beautifier.beautify(response, endpoint) || response;
+        } catch (e) {
+          console.error(
+            'BaseRestClient response beautify failed: ',
+            JSON.stringify({ response: response, error: e })
+          );
+        }
         return response;
-      }
-
-      // Fallback to original response if beautifier fails
-      try {
-        return this.beautifier.beautify(response, endpoint) || response;
-      } catch (e) {
-        console.error('BaseRestClient response beautify failed: ', JSON.stringify({ response: response, error: e }));
-      }
-      return response;
-    })
-    .catch(e => this.parseException(e, options.url));
+      })
+      .catch((e) => this.parseException(e, options.url));
   }
 
   /**
@@ -220,7 +260,7 @@ export default abstract class BaseRestClient {
     const { response, request, message } = e;
 
     if (response && response.headers) {
-      this.updateApiLimitState(response.headers, url)
+      this.updateApiLimitState(response.headers, url);
     }
 
     if (this.options.parseExceptions === false) {
@@ -255,24 +295,27 @@ export default abstract class BaseRestClient {
   }
 
   // TODO: cleanup?
-  private updateApiLimitState(responseHeaders: Record<string, any>, requestedUrl: string) {
+  private updateApiLimitState(
+    responseHeaders: Record<string, any>,
+    requestedUrl: string
+  ) {
     const delta: Record<string, any> = {};
     for (const headerKey in this.apiLimitTrackers) {
       const headerValue = responseHeaders[headerKey];
-      const value = parseInt(headerValue)
+      const value = parseInt(headerValue);
       if (headerValue !== undefined && !isNaN(value)) {
         // TODO: track last seen by key? insetad of all? some keys not returned by some endpoints more useful in estimating whether reset should've happened
         this.apiLimitTrackers[headerKey] = value;
         delta[headerKey] = {
           updated: true,
           valueParsed: value,
-          valueRaw: headerValue
+          valueRaw: headerValue,
         };
       } else {
         delta[headerKey] = {
           updated: false,
           valueParsed: value,
-          valueRaw: headerValue
+          valueRaw: headerValue,
         };
       }
     }
@@ -294,14 +337,13 @@ export default abstract class BaseRestClient {
       return this.syncTimePromise;
     }
 
-    this.syncTimePromise = this.fetchTimeOffset().then(offset => {
+    this.syncTimePromise = this.fetchTimeOffset().then((offset) => {
       this.timeOffset = offset;
       this.syncTimePromise = null;
     });
 
     return this.syncTimePromise;
   }
-
 
   /**
    * Estimate drift based on client<->server latency
@@ -312,11 +354,11 @@ export default abstract class BaseRestClient {
       const serverTime = await this.getServerTime();
       const end = Date.now();
 
-      const avgDrift = ((end - start) / 2);
+      const avgDrift = (end - start) / 2;
       return Math.ceil(serverTime - end + avgDrift);
     } catch (e) {
       console.error('Failed to fetch get time offset: ', e);
       return 0;
     }
   }
-};
+}

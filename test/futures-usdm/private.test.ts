@@ -1,4 +1,5 @@
-import { USDMClient } from "../../src/usdm-client";
+import { NewFuturesOrderParams } from '../../src/types/futures';
+import { USDMClient } from '../../src/usdm-client';
 
 describe('Private Futures USDM REST API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
@@ -18,11 +19,15 @@ describe('Private Futures USDM REST API Endpoints', () => {
 
   describe('Account/Trade Endpoints', () => {
     it('getCurrentPositionMode()', async () => {
-      expect(await api.getCurrentPositionMode()).toStrictEqual({'dualSidePosition': expect.any(Boolean)});
+      expect(await api.getCurrentPositionMode()).toStrictEqual({
+        dualSidePosition: expect.any(Boolean),
+      });
     });
 
     it('getMultiAssetsMode()', async () => {
-      expect(await api.getMultiAssetsMode()).toStrictEqual({'multiAssetsMargin': expect.any(Boolean)});
+      expect(await api.getMultiAssetsMode()).toStrictEqual({
+        multiAssetsMargin: expect.any(Boolean),
+      });
     });
 
     it('getAllOpenOrders()', async () => {
@@ -35,24 +40,24 @@ describe('Private Futures USDM REST API Endpoints', () => {
 
     it('getAccountInformation()', async () => {
       expect(await api.getAccountInformation()).toMatchObject({
-        'assets': expect.any(Array),
-        'availableBalance': expect.any(String),
-        'canDeposit': expect.any(Boolean),
-        'canTrade': expect.any(Boolean),
-        'canWithdraw': expect.any(Boolean),
-        'feeTier': expect.any(Number),
-        'maxWithdrawAmount': expect.any(String),
-        'positions': expect.any(Array),
-        'totalCrossUnPnl': expect.any(String),
-        'totalCrossWalletBalance': expect.any(String),
-        'totalInitialMargin': expect.any(String),
-        'totalMaintMargin': expect.any(String),
-        'totalMarginBalance': expect.any(String),
-        'totalOpenOrderInitialMargin': expect.any(String),
-        'totalPositionInitialMargin': expect.any(String),
-        'totalUnrealizedProfit': expect.any(String),
-        'totalWalletBalance': expect.any(String),
-        'updateTime': expect.any(Number),
+        assets: expect.any(Array),
+        availableBalance: expect.any(String),
+        canDeposit: expect.any(Boolean),
+        canTrade: expect.any(Boolean),
+        canWithdraw: expect.any(Boolean),
+        feeTier: expect.any(Number),
+        maxWithdrawAmount: expect.any(String),
+        positions: expect.any(Array),
+        totalCrossUnPnl: expect.any(String),
+        totalCrossWalletBalance: expect.any(String),
+        totalInitialMargin: expect.any(String),
+        totalMaintMargin: expect.any(String),
+        totalMarginBalance: expect.any(String),
+        totalOpenOrderInitialMargin: expect.any(String),
+        totalPositionInitialMargin: expect.any(String),
+        totalUnrealizedProfit: expect.any(String),
+        totalWalletBalance: expect.any(String),
+        updateTime: expect.any(Number),
       });
     });
 
@@ -65,11 +70,15 @@ describe('Private Futures USDM REST API Endpoints', () => {
     });
 
     it('getNotionalAndLeverageBrackets()', async () => {
-      expect(await api.getNotionalAndLeverageBrackets()).toMatchObject(expect.any(Array));
+      expect(await api.getNotionalAndLeverageBrackets()).toMatchObject(
+        expect.any(Array)
+      );
     });
 
     it('getADLQuantileEstimation()', async () => {
-      expect(await api.getADLQuantileEstimation()).toMatchObject(expect.any(Array));
+      expect(await api.getADLQuantileEstimation()).toMatchObject(
+        expect.any(Array)
+      );
     });
 
     it('getForceOrders()', async () => {
@@ -78,21 +87,23 @@ describe('Private Futures USDM REST API Endpoints', () => {
 
     it('getApiQuantitativeRulesIndicators()', async () => {
       expect(await api.getApiQuantitativeRulesIndicators()).toMatchObject({
-        'indicators': expect.any(Object),
-        'updateTime': expect.any(Number),
+        indicators: expect.any(Object),
+        updateTime: expect.any(Number),
       });
     });
 
     it('getAccountComissionRate()', async () => {
       expect(await api.getAccountComissionRate({ symbol })).toMatchObject({
-        'makerCommissionRate': expect.any(String),
-        'symbol': expect.any(String),
-        'takerCommissionRate': expect.any(String),
+        makerCommissionRate: expect.any(String),
+        symbol: expect.any(String),
+        takerCommissionRate: expect.any(String),
       });
     });
 
     it('cancelOrder()', async () => {
-      expect(api.cancelOrder({ symbol, orderId: 123456 })).rejects.toMatchObject({
+      expect(
+        api.cancelOrder({ symbol, orderId: 123456 })
+      ).rejects.toMatchObject({
         code: -2011,
         message: 'Unknown order sent.',
         body: { code: -2011, msg: 'Unknown order sent.' },
@@ -101,8 +112,32 @@ describe('Private Futures USDM REST API Endpoints', () => {
 
     it('cancelAllOpenOrders()', async () => {
       expect(api.cancelAllOpenOrders({ symbol })).resolves.toMatchObject({
-        "code": 200,
+        code: 200,
       });
+    });
+
+    it('submitMultipleOrders()', async () => {
+      const templateOrder: NewFuturesOrderParams<string> = {
+        symbol: 'VETUSDT',
+        side: 'BUY',
+        type: 'MARKET',
+        positionSide: 'LONG',
+        quantity: '1000000',
+      };
+      const orders: NewFuturesOrderParams<string>[] = [
+        templateOrder,
+        templateOrder,
+      ];
+      expect(api.submitMultipleOrders(orders)).resolves.toMatchObject([
+        {
+          code: -4061,
+          msg: "Order's position side does not match user's setting.",
+        },
+        {
+          code: -4061,
+          msg: "Order's position side does not match user's setting.",
+        },
+      ]);
     });
   });
 
@@ -126,5 +161,4 @@ describe('Private Futures USDM REST API Endpoints', () => {
       });
     });
   });
-
 });
