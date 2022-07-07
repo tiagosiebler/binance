@@ -19,7 +19,7 @@ export type BinanceBaseUrlKey =
   | 'voptions'
   | 'voptionstest';
 
-export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK';
+export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'GTE_GTC';
 
 export type StringBoolean = 'TRUE' | 'FALSE';
 
