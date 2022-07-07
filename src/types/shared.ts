@@ -19,6 +19,9 @@ export type BinanceBaseUrlKey =
   | 'voptions'
   | 'voptionstest';
 
+/**
+ * Time in force. Note: `GTE_GTC` is not officially documented, use at your own risk.
+ */
 export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'GTE_GTC';
 
 export type StringBoolean = 'TRUE' | 'FALSE';
