@@ -11,19 +11,34 @@ import {
   WsMessageMarkPriceUpdateEventFormatted,
   WsMessageSpotUserDataEventFormatted,
   WsRawMessage,
-  WsUserDataEvents
-} from "..";
+  WsUserDataEvents,
+} from '..';
 
 /*
   Use type guards to narrow down types with minimal efforts.
 */
 
+export function isWsFormattedMarkPriceUpdateEvent(
+  data: WsFormattedMessage
+): data is WsMessageMarkPriceUpdateEventFormatted {
+  return !Array.isArray(data) && data.eventType === 'markPriceUpdate';
+}
+
+export function isWsFormattedMarkPriceUpdateArray(
+  data: WsFormattedMessage
+): data is WsMessageMarkPriceUpdateEventFormatted[] {
+  return (
+    Array.isArray(data) &&
+    data.length !== 0 &&
+    isWsFormattedMarkPriceUpdateEvent(data[0])
+  );
+}
+
+/** @deprecated, use isWsFormattedMarkPriceUpdateEvent or isWsFormattedMarkPriceUpdateArray */
 export function isWsFormattedMarkPriceUpdate(
   data: WsFormattedMessage
 ): data is WsMessageMarkPriceUpdateEventFormatted[] {
-  return Array.isArray(data)
-    && data.length !== 0
-    && data[0].eventType === 'markPriceUpdate';
+  return isWsFormattedMarkPriceUpdateArray(data);
 }
 
 export function isWsFormattedKline(
@@ -39,19 +54,19 @@ export function isWsFormatted24hrTicker(
 }
 
 export function isWsFormattedUserDataEvent(
-  data: WsFormattedMessage,
+  data: WsFormattedMessage
 ): data is WsUserDataEvents {
   return !Array.isArray(data) && data.wsKey.includes('userData');
 }
 
 export function isWsFormattedSpotUserDataEvent(
-  data: WsFormattedMessage,
+  data: WsFormattedMessage
 ): data is WsMessageSpotUserDataEventFormatted {
   return isWsFormattedUserDataEvent(data) && data.wsMarket.includes('spot');
 }
 
 export function isWsFormattedFuturesUserDataEvent(
-  data: WsFormattedMessage,
+  data: WsFormattedMessage
 ): data is WsMessageFuturesUserDataEventFormatted {
   return isWsFormattedUserDataEvent(data) && data.wsMarket.includes('usdm');
 }
@@ -77,9 +92,7 @@ export function is24hrMiniTickerRaw(
 /**
  * Typeguard to validate a single kline raw event
  */
-export function isKlineRaw(
-  data: WsRawMessage
-): data is WsMessageKlineRaw {
+export function isKlineRaw(data: WsRawMessage): data is WsMessageKlineRaw {
   return !Array.isArray(data) && data.e === 'kline';
 }
 
