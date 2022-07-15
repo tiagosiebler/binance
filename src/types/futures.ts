@@ -524,3 +524,22 @@ export interface SetCancelTimeoutResult {
   symbol: string;
   countdownTime: numberInString;
 }
+
+export interface ChangeStats24hr {
+  symbol: string;
+  priceChange: numberInString;
+  priceChangePercent: numberInString;
+  weightedAvgPrice: numberInString;
+  lastPrice: numberInString;
+  lastQty: numberInString;
+  openPrice: numberInString;
+  highPrice: numberInString;
+  lowPrice: numberInString;
+  volume: numberInString;
+  quoteVolume: numberInString;
+  openTime: number;
+  closeTime: number;
+  firstId: number; // First tradeId
+  lastId: number; // Last tradeId
+  count: number;
+}

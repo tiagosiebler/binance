@@ -61,6 +61,7 @@ import {
   IncomeHistory,
   RebateDataOverview,
   SetCancelTimeoutResult,
+  ChangeStats24hr,
 } from './types/futures';
 
 import {
@@ -162,7 +163,9 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/fundingRate', params);
   }
 
-  get24hrChangeStatististics(params?: Partial<BasicSymbolParam>): Promise<any> {
+  get24hrChangeStatististics(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get('fapi/v1/ticker/24hr', params);
   }
 
