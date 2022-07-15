@@ -53,6 +53,14 @@ export function isWsFormatted24hrTicker(
   return !Array.isArray(data) && data.eventType === '24hrTicker';
 }
 
+export function isWsFormatted24hrTickerArray(
+  data: WsFormattedMessage
+): data is WsMessage24hrTickerFormatted[] {
+  return (
+    Array.isArray(data) && data.length !== 0 && isWsFormatted24hrTicker(data[0])
+  );
+}
+
 export function isWsFormattedUserDataEvent(
   data: WsFormattedMessage
 ): data is WsUserDataEvents {
