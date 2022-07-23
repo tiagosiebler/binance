@@ -1797,9 +1797,8 @@ export class WebsocketClient extends EventEmitter {
     isReconnecting?: boolean
   ): Promise<WebSocket> {
     try {
-      const { listenKey } = await this.getUSDMRestClient(
-        isTestnet
-      ).getFuturesUserDataListenKey();
+      const restClient = this.getUSDMRestClient(isTestnet);
+      const { listenKey } = await restClient.getFuturesUserDataListenKey();
 
       const market: WsMarket = isTestnet ? 'usdmTestnet' : 'usdm';
       const streamName = 'userData';

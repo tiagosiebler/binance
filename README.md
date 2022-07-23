@@ -188,6 +188,11 @@ wsClient.on('reconnected', (data) => {
   console.log('ws has reconnected ', data?.wsKey );
 });
 
+// Recommended: receive error events (e.g. first reconnection failed)
+wsClient.on('error', (data) => {
+  console.log('ws saw error ', data?.wsKey );
+});
+
 // Call methods to subcribe to as many websockets as you want.
 // Each method spawns a new connection, unless a websocket already exists for that particular request topic.
 // wsClient.subscribeSpotAggregateTrades(market);
@@ -205,6 +210,7 @@ wsClient.on('reconnected', (data) => {
 wsClient.subscribeSpotUserDataStream();
 wsClient.subscribeMarginUserDataStream();
 wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
+
 wsClient.subscribeUsdFuturesUserDataStream();
 
 // each method also restores the WebSocket object, which can be interacted with for more control
@@ -217,7 +223,7 @@ wsClient.subscribeUsdFuturesUserDataStream();
 
 ```
 
-See [websocket-client.ts](./src/websocket-client.ts) for further information.
+See [websocket-client.ts](./src/websocket-client.ts) for further information. Also see [ws-userdata.ts](./examples/ws-userdata.ts) for user data examples.
 
 ---
 

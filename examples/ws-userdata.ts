@@ -19,11 +19,14 @@ import { WebsocketClient } from '../src/websocket-client';
     silly: (...params) => console.log(params),
   };
 
-  const wsClient = new WebsocketClient({
-    api_key: key,
-    api_secret: secret,
-    beautify: true,
-  }, logger);
+  const wsClient = new WebsocketClient(
+    {
+      api_key: key,
+      api_secret: secret,
+      beautify: true,
+    },
+    logger
+  );
 
   wsClient.on('message', (data) => {
     // console.log('raw message received ', JSON.stringify(data, null, 2));
@@ -70,7 +73,11 @@ import { WebsocketClient } from '../src/websocket-client';
     console.log('formattedMsg: ', JSON.stringify(data, null, 2));
   });
 
+  let didConnectUserDataSuccessfully = false;
   wsClient.on('open', (data) => {
+    if (data.wsKey.includes('userData')) {
+      didConnectUserDataSuccessfully = true;
+    }
     console.log('connection opened open:', data.wsKey, data.ws.target.url);
   });
 
@@ -79,15 +86,32 @@ import { WebsocketClient } from '../src/websocket-client';
     console.log('log reply: ', JSON.stringify(data, null, 2));
   });
   wsClient.on('reconnecting', (data) => {
-    console.log('ws automatically reconnecting.... ', data?.wsKey );
+    console.log('ws automatically reconnecting.... ', data?.wsKey);
   });
   wsClient.on('reconnected', (data) => {
-    console.log('ws has reconnected ', data?.wsKey );
+    console.log('ws has reconnected ', data?.wsKey);
+  });
+  wsClient.on('error', (data) => {
+    console.error('ws saw error: ', data);
+
+    // Note: manually re-subscribing like this may only be needed if the FIRST user data connection attempt failed
+    // Capture exceptions using the error event, and handle this.
+    if (!didConnectUserDataSuccessfully && data.wsKey.includes('userData')) {
+      setTimeout(() => {
+        console.warn(
+          `Retrying connection to userdata ws ${data.wsKey} in 1 second...`
+        );
+        if (data.wsKey.includes('spot')) {
+          wsClient.subscribeSpotUserDataStream();
+        } else if (data.wsKey.includes('usdm')) {
+          wsClient.subscribeUsdFuturesUserDataStream();
+        }
+      }, 1000);
+    }
   });
 
   wsClient.subscribeSpotUserDataStream();
   // wsClient.subscribeMarginUserDataStream();
   // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
   wsClient.subscribeUsdFuturesUserDataStream();
-
 })();
