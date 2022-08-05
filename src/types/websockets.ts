@@ -431,7 +431,7 @@ export interface WsMessageSpotUserDataExecutionReportEventFormatted extends WsSh
   isMaker: false;
   ignoreThis2: true;
   orderCreationTime: number;
-  cumulativeQuoteAssetTransactedQty: number;
+  cummulativeQuoteAssetTransactedQty: number;
   lastQuoteAssetTransactedQty: number;
   orderQuoteQty: number;
 }

@@ -628,7 +628,7 @@ describe('Beautifier', () => {
           isMaker: false,
           ignoreThis2: false,
           orderCreationTime: 1627996656511,
-          cumulativeQuoteAssetTransactedQty: 0,
+          cummulativeQuoteAssetTransactedQty: 0,
           lastQuoteAssetTransactedQty: 0,
           orderQuoteQty: 0
         });
