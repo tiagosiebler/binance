@@ -122,6 +122,7 @@ import {
   SubAccountDepositHistoryParams,
   SubAccountUniversalTransferHistoryParams,
   SubAccountSummaryOnFuturesAccountV2Params,
+  QueryIsolatedMarginAccountInfo,
 } from './types/spot';
 
 import {
@@ -807,7 +808,11 @@ export class MainClient extends BaseRestClient {
 
   // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-isolated-margin-transfer-history-user_data
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-isolated-margin-account-info-user_data
+  queryIsolatedMarginAccountInfo(
+    symbols?: string
+  ): Promise<QueryIsolatedMarginAccountInfo> {
+    return this.getPrivate('sapi/v1/margin/isolated/account', { symbols });
+  }
 
   // TODO - https://binance-docs.github.io/apidocs/spot/en/#disable-isolated-margin-account-trade
 
