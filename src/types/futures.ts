@@ -482,8 +482,8 @@ export interface FuturesAccountInformation {
   totalCrossUnPnl: numberInString;
   availableBalance: numberInString;
   maxWithdrawAmount: numberInString;
-  assets: Asset[];
-  positions: Position[];
+  assets: FuturesAccountAsset[];
+  positions: FuturesAccountPosition[];
 }
 
 export interface FuturesPosition {
