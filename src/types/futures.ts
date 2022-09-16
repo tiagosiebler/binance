@@ -428,7 +428,7 @@ export interface FuturesAccountBalance {
   marginAvailable: boolean;
   updateTime: numberInString;
 }
-export interface Asset {
+export interface FuturesAccountAsset {
   asset: string;
   walletBalance: numberInString;
   unrealizedProfit: numberInString;
@@ -445,7 +445,7 @@ export interface Asset {
   updateTime: number;
 }
 
-export interface Position {
+export interface FuturesAccountPosition {
   symbol: string;
   initialMargin: numberInString;
   maintMargin: numberInString;
