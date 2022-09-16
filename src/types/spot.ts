@@ -13,6 +13,7 @@ import {
   SymbolFilter,
   StringBoolean,
   SideEffects,
+  Range,
 } from './shared';
 
 export interface BasicTimeRangeParam {
@@ -1175,4 +1176,60 @@ export interface StakingProduct {
   quota: StakingProductQuota;
 }
 
+export interface StakingProductPosition {
+  positionId: numberInString;
+  projectId: string;
+  asset: string;
+  amount: numberInString;
+  purchaseTime: numberInString;
+  duration: numberInString;
+  accrualDays: numberInString;
+  rewardAsset: string;
+  APY: numberInString;
+  rewardAmt: numberInString;
+  extraRewardAsset: string;
+  extraRewardAPY: numberInString;
+  estExtraRewardAmt: numberInString;
+  nextInterestPay: numberInString;
+  nextInterestPayDate: numberInString;
+  payInterestPeriod: numberInString;
+  redeemAmountEarly: numberInString;
+  interestEndDate: numberInString;
+  deliverDate: numberInString;
+  redeemPeriod: numberInString;
+  redeemingAmt: numberInString;
+  partialAmtDeliverDate: numberInString;
+  canRedeemEarly: boolean;
+  renewable: boolean;
+  type: string;
+  status: StakingStatus;
+}
+export interface StakingBasicParams {
+  product: StakingProductType;
+  current?: number;
+  size?: Range<1, 100>;
+}
+
+export interface StakingHistory {
+  positionId: numberInString;
+  time: number;
+  asset: string;
+  project?: string;
+  amount: numberInString;
+  lockPeriod?: numberInString;
+  deliverDate?: numberInString;
+  type?: string;
+  status: string;
+}
+export interface StakingPersonalLeftQuota {
+  leftPersonalQuota: numberInString;
+}
+export interface StakingHistoryParams extends StakingBasicParams {
+  txnType: StakingTxnType;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+}
+export type StakingTxnType = 'SUBSCRIPTION' | 'REDEMPTION' | 'INTEREST';
+export type StakingStatus = 'HOLDING' | 'REDEEMED';
 export type StakingProductType = 'STAKING' | 'F_DEFI' | 'L_DEFI';
