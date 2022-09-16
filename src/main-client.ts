@@ -16,6 +16,7 @@ import {
   SymbolFromPaginatedRequestFromId,
   OrderIdProperty,
   ExchangeSymbol,
+  Range,
 } from './types/shared';
 
 import {
@@ -122,6 +123,8 @@ import {
   SubAccountDepositHistoryParams,
   SubAccountUniversalTransferHistoryParams,
   SubAccountSummaryOnFuturesAccountV2Params,
+  StakingProduct,
+  StakingProductType,
 } from './types/spot';
 
 import {
@@ -888,6 +891,21 @@ export class MainClient extends BaseRestClient {
     return this.delete(
       `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`
     );
+  }
+
+  /**
+   *
+   * Staking Endpoints
+   *
+   **/
+
+  getStakingProductList(params: {
+    product: StakingProductType;
+    asset?: string;
+    current?: number;
+    size?: Range<1, 100>;
+  }): Promise<StakingProduct[]> {
+    return this.getPrivate(`sapi/v1/staking/productList`, params);
   }
 
   /**

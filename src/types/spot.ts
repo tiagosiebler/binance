@@ -1155,3 +1155,24 @@ export interface SubAccountUSDMPositionRisk {
 export interface SubAccountCOINMPositionRisk {
   deliveryPositionRiskVos: COINMPositionRisk[];
 }
+
+export interface StakingProductDetail {
+  asset: string;
+  rewardAsset: string;
+  duration: number;
+  renewable: boolean;
+  apy: numberInString;
+}
+
+export interface StakingProductQuota {
+  totalPersonalQuota: numberInString;
+  minimum: numberInString;
+}
+
+export interface StakingProduct {
+  projectId: string;
+  detail: StakingProductDetail;
+  quota: StakingProductQuota;
+}
+
+export type StakingProductType = 'STAKING' | 'F_DEFI' | 'L_DEFI';
