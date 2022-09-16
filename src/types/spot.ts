@@ -13,7 +13,6 @@ import {
   SymbolFilter,
   StringBoolean,
   SideEffects,
-  Range,
 } from './shared';
 
 export interface BasicTimeRangeParam {
@@ -1207,7 +1206,7 @@ export interface StakingProductPosition {
 export interface StakingBasicParams {
   product: StakingProductType;
   current?: number;
-  size?: Range<1, 100>;
+  size?: number;
 }
 
 export interface StakingHistory {
