@@ -737,7 +737,7 @@ export interface IsolatedMarginAccountAssets {
   tradeEnabled: boolean;
 }
 
-export interface QueryIsolatedMarginAccountInfo {
+export interface IsolatedMarginAccountInfo {
   assets: IsolatedMarginAccountAssets[];
   totalAssetOfBtc?: numberInString;
   totalLiabilityOfBtc?: numberInString;

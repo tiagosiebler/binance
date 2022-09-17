@@ -122,7 +122,7 @@ import {
   SubAccountDepositHistoryParams,
   SubAccountUniversalTransferHistoryParams,
   SubAccountSummaryOnFuturesAccountV2Params,
-  QueryIsolatedMarginAccountInfo,
+  IsolatedMarginAccountInfo,
 } from './types/spot';
 
 import {
@@ -810,7 +810,7 @@ export class MainClient extends BaseRestClient {
 
   getIsolatedMarginAccountInfo(params?: {
     symbols?: string;
-  }): Promise<QueryIsolatedMarginAccountInfo> {
+  }): Promise<IsolatedMarginAccountInfo> {
     return this.getPrivate('sapi/v1/margin/isolated/account', { params });
   }
 
