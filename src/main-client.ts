@@ -907,7 +907,7 @@ export class MainClient extends BaseRestClient {
   //TODO: https://binance-docs.github.io/apidocs/spot/en/#redeem-staking-product-user_data
   //TODO: https://binance-docs.github.io/apidocs/spot/en/#set-auto-staking-user_data
 
-  getStakingProductList(
+  getStakingProducts(
     params: StakingBasicParams & {
       asset?: string;
     }
