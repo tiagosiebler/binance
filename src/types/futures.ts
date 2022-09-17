@@ -428,6 +428,42 @@ export interface FuturesAccountBalance {
   marginAvailable: boolean;
   updateTime: numberInString;
 }
+export interface FuturesAccountAsset {
+  asset: string;
+  walletBalance: numberInString;
+  unrealizedProfit: numberInString;
+  marginBalance: numberInString;
+  maintMargin: numberInString;
+  initialMargin: numberInString;
+  positionInitialMargin: numberInString;
+  openOrderInitialMargin: numberInString;
+  maxWithdrawAmount: numberInString;
+  crossWalletBalance: numberInString;
+  crossUnPnl: numberInString;
+  availableBalance: numberInString;
+  marginAvailable: boolean;
+  updateTime: number;
+}
+
+export interface FuturesAccountPosition {
+  symbol: string;
+  initialMargin: numberInString;
+  maintMargin: numberInString;
+  unrealizedProfit: numberInString;
+  positionInitialMargin: numberInString;
+  openOrderInitialMargin: numberInString;
+  leverage: numberInString;
+  isolated: boolean;
+  entryPrice: numberInString;
+  maxNotional: numberInString;
+  positionSide: PositionSide;
+  positionAmt: numberInString;
+  notional: numberInString;
+  isolatedWallet: numberInString;
+  updateTime: number;
+  bidNotional: numberInString;
+  askNotional: numberInString;
+}
 
 export interface FuturesAccountInformation {
   feeTier: numberInString;
@@ -437,7 +473,17 @@ export interface FuturesAccountInformation {
   updateTime: numberInString;
   totalInitialMargin: numberInString;
   totalMaintMargin: numberInString;
-  // TODO:
+  totalWalletBalance: numberInString;
+  totalUnrealizedProfit: numberInString;
+  totalMarginBalance: numberInString;
+  totalPositionInitialMargin: numberInString;
+  totalOpenOrderInitialMargin: numberInString;
+  totalCrossWalletBalance: numberInString;
+  totalCrossUnPnl: numberInString;
+  availableBalance: numberInString;
+  maxWithdrawAmount: numberInString;
+  assets: FuturesAccountAsset[];
+  positions: FuturesAccountPosition[];
 }
 
 export interface FuturesPosition {
