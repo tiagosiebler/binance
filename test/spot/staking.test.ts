@@ -21,7 +21,7 @@ describe('Staking API Endpoints', () => {
 
   describe('Staking Endpoints', () => {
     it('getStakingProductList()', async () => {
-      const result = await api.getStakingProductList({
+      const result = await api.getStakingProducts({
         product: 'STAKING',
         size: 25,
       });
@@ -63,7 +63,7 @@ describe('Staking API Endpoints', () => {
   });
 
   it('getPersonalLeftQuotaOfStakingProduct()', async () => {
-    const products = await api.getStakingProductList({
+    const products = await api.getStakingProducts({
       product: 'STAKING',
       size: 2,
     });
