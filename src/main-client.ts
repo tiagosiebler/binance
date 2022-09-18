@@ -122,6 +122,13 @@ import {
   SubAccountDepositHistoryParams,
   SubAccountUniversalTransferHistoryParams,
   SubAccountSummaryOnFuturesAccountV2Params,
+  StakingProduct,
+  StakingProductType,
+  StakingProductPosition,
+  StakingBasicParams,
+  StakingHistoryParams,
+  StakingHistory,
+  StakingPersonalLeftQuota,
   IsolatedMarginAccountInfo,
 } from './types/spot';
 
@@ -893,6 +900,44 @@ export class MainClient extends BaseRestClient {
     return this.delete(
       `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`
     );
+  }
+
+  /**
+   *
+   * Staking Endpoints
+   *
+   **/
+
+  //TODO: https://binance-docs.github.io/apidocs/spot/en/#purchase-staking-product-user_data
+  //TODO: https://binance-docs.github.io/apidocs/spot/en/#redeem-staking-product-user_data
+  //TODO: https://binance-docs.github.io/apidocs/spot/en/#set-auto-staking-user_data
+
+  getStakingProducts(
+    params: StakingBasicParams & {
+      asset?: string;
+    }
+  ): Promise<StakingProduct[]> {
+    return this.getPrivate(`sapi/v1/staking/productList`, params);
+  }
+
+  getStakingProductPosition(
+    params: StakingBasicParams & {
+      productId?: string;
+      asset?: string;
+    }
+  ): Promise<StakingProductPosition[]> {
+    return this.getPrivate('sapi/v1/staking/position', params);
+  }
+
+  getStakingHistory(params: StakingHistoryParams): Promise<StakingHistory[]> {
+    return this.getPrivate('sapi/v1/staking/stakingRecord', params);
+  }
+
+  getPersonalLeftQuotaOfStakingProduct(params: {
+    product: StakingProductType;
+    productId: string;
+  }): Promise<StakingPersonalLeftQuota> {
+    return this.getPrivate('sapi/v1/staking/personalLeftQuota', params);
   }
 
   /**
