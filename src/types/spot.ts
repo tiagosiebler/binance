@@ -702,6 +702,48 @@ export interface IsolatedMarginAccountTransferParams {
   amount: number;
 }
 
+export interface IsolatedMarginAccountAsset {
+  asset: string;
+  borrowEnabled: boolean;
+  borrowed: numberInString;
+  free: numberInString;
+  interest: numberInString;
+  locked: numberInString;
+  netAsset: numberInString;
+  netAssetOfBtc: numberInString;
+  repayEnabled: boolean;
+  totalAsset: numberInString;
+}
+
+export type IsolatedMarginLevelStatus =
+  | 'EXCESSIVE'
+  | 'NORMAL'
+  | 'MARGIN_CALL'
+  | 'PRE_LIQUIDATION'
+  | 'FORCE_LIQUIDATION';
+
+export interface IsolatedMarginAccountAssets {
+  baseAsset: IsolatedMarginAccountAsset;
+  quoteAsset: IsolatedMarginAccountAsset;
+  symbol: string;
+  isolatedCreated: boolean;
+  enabled: boolean;
+  marginLevel: numberInString;
+  marginLevelStatus: IsolatedMarginLevelStatus;
+  marginRatio: numberInString;
+  indexPrice: numberInString;
+  liquidatePrice: numberInString;
+  liquidateRate: numberInString;
+  tradeEnabled: boolean;
+}
+
+export interface IsolatedMarginAccountInfo {
+  assets: IsolatedMarginAccountAssets[];
+  totalAssetOfBtc?: numberInString;
+  totalLiabilityOfBtc?: numberInString;
+  totalNetAssetOfBtc?: numberInString;
+}
+
 export interface SpotSubUserAssetBtcList {
   email: string;
   totalAsset: numberInString;

@@ -28,7 +28,8 @@
     "Dylan Sproule (https://github.com/dylansproule)",
     "Gavy Aggarwal (http://gavyaggarwal.com/)",
     "Tony Pettigrew (https://github.com/NeverEnder4)",
-    "Chris <apexearth@gmail.com> (https://github.com/apexearth)"
+    "Chris <apexearth@gmail.com> (https://github.com/apexearth)",
+    "Bruno Lobo <me@brunolobo.xyz> (https://brunolobo.xyz)"
   ],
   "dependencies": {
     "axios": "^0.21.0",
