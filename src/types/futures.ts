@@ -292,6 +292,17 @@ export type FuturesKline = [
   numberInString // ignore?
 ];
 
+export interface MarkPrice {
+  symbol: string;
+  markPrice: numberInString;
+  indexPrice: numberInString;
+  estimatedSettlePrice: numberInString;
+  lastFundingRate: numberInString;
+  interestRate: numberInString;
+  nextFundingTime: number;
+  time: number;
+}
+
 export interface FundingRateHistory {
   symbol: string;
   fundingRate: numberInString;
