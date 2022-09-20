@@ -62,6 +62,7 @@ import {
   RebateDataOverview,
   SetCancelTimeoutResult,
   ChangeStats24hr,
+  MarkPrice,
 } from './types/futures';
 
 import {
@@ -153,7 +154,9 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/markPriceKlines', params);
   }
 
-  getMarkPrice(params?: Partial<BasicSymbolParam>): Promise<any> {
+  getMarkPrice(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<MarkPrice | MarkPrice[]> {
     return this.get('fapi/v1/premiumIndex', params);
   }
 
