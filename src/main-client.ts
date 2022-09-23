@@ -42,6 +42,9 @@ import {
   DepositAddressResponse,
   DepositHistory,
   DepositHistoryParams,
+  DustConversion,
+  DustInfo,
+  DustLog,
   EnableOrDisableIPRestrictionForSubAccountParams,
   ExchangeInfo,
   ExchangeInfoParams,
@@ -214,12 +217,16 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/account/status');
   }
 
-  getDustLog(params?: BasicTimeRangeParam): Promise<any> {
+  getDustLog(params?: BasicTimeRangeParam): Promise<DustLog> {
     return this.getPrivate('sapi/v1/asset/dribblet', params);
   }
 
-  convertDustToBnb(params: ConvertDustParams): Promise<any> {
+  convertDustToBnb(params: ConvertDustParams): Promise<DustConversion> {
     return this.postPrivate('sapi/v1/asset/dust', params);
+  }
+
+  getDust(): Promise<DustInfo> {
+    return this.postPrivate('sapi/v1/asset/dust-btc');
   }
 
   getAssetDividendRecord(params?: BasicAssetPaginatedParams): Promise<any> {
