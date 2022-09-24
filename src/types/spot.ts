@@ -1,7 +1,6 @@
 import {
   ExchangeFilter,
   ExchangeSymbol,
-  KlineInterval,
   numberInString,
   OrderBookRow,
   OrderResponseType,
@@ -10,9 +9,9 @@ import {
   OrderTimeInForce,
   OrderType,
   RateLimiter,
-  SymbolFilter,
-  StringBoolean,
   SideEffects,
+  StringBoolean,
+  SymbolFilter,
 } from './shared';
 
 export interface BasicTimeRangeParam {
@@ -252,6 +251,61 @@ export interface DepositAddressResponse {
 export interface ConvertDustParams {
   asset: string[];
 }
+
+export interface DustInfoDetail {
+  asset: string;
+  assetFullName: string;
+  amountFree: numberInString;
+  toBTC: numberInString;
+  toBNB: numberInString;
+  toBNBOffExchange: numberInString;
+  exchange: numberInString;
+}
+
+export interface DustInfo {
+  details: DustInfoDetail[];
+  totalTransferBtc: numberInString;
+  totalTransferBNB: numberInString;
+  dribbletPercentage: numberInString;
+}
+
+export interface DustConversionResult {
+  amount: numberInString;
+  fromAsset: string;
+  operateTime: number;
+  serviceChargeAmount: numberInString;
+  tranId: number;
+  transferedAmount: numberInString;
+}
+
+export interface DustConversion {
+  totalServiceCharge: numberInString;
+  totalTransfered: numberInString;
+  transferResult: DustConversionResult[];
+}
+
+export interface UserAssetDribbletDetail {
+  transId: number;
+  serviceChargeAmount: numberInString;
+  amount: numberInString;
+  operateTime: number;
+  transferedAmount: numberInString;
+  fromAsset: string;
+}
+
+export interface UserAssetDribblet {
+  operateTime: number;
+  totalTransferedAmount: numberInString;
+  totalServiceChargeAmount: numberInString;
+  transId: number;
+  userAssetDribbletDetails: UserAssetDribbletDetail[];
+}
+
+export interface DustLog {
+  total: number;
+  userAssetDribblets: UserAssetDribblet[];
+}
+
 export enum EnumUniversalTransferType {
   SpotToC2C = 'MAIN_C2C',
   SpotToUSDM = 'MAIN_UMFUTURE',
