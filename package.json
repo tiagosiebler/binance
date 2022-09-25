@@ -1,6 +1,6 @@
 {
   "name": "binance",
-  "version": "2.0.39",
+  "version": "2.0.40",
   "description": "Node.js connector for Binance's REST APIs and WebSockets, with TypeScript & integration tests.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
