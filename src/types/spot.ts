@@ -1328,3 +1328,55 @@ export interface StakingHistoryParams extends StakingBasicParams {
 export type StakingTxnType = 'SUBSCRIPTION' | 'REDEMPTION' | 'INTEREST';
 export type StakingStatus = 'HOLDING' | 'REDEEMED';
 export type StakingProductType = 'STAKING' | 'F_DEFI' | 'L_DEFI';
+export type BSwapType = 'SINGLE' | 'COMBINATION';
+export type BSwapOperationType = 'ADD' | 'REMOVE';
+
+export interface BSwapOperationsParams {
+  operationId?: number;
+  poolId?: number;
+  operation: BSwapOperationType;
+  startTime?: number;
+  endTime?: number;
+  limit: number;
+}
+
+export interface BSwapOperations {
+  operationId: number;
+  poolId: number;
+  poolName: string;
+  operation: BSwapOperationType;
+  status: number;
+  updateTime: number;
+  shareAmount: numberInString;
+}
+export interface RemoveBSwapLiquidityParams {
+  poolId: number;
+  type: BSwapType;
+  asset?: string;
+  shareAmount: number;
+}
+
+export interface AddBSwapLiquidityParams {
+  poolId: number;
+  type?: BSwapType;
+  asset: string;
+  quantity: number;
+}
+
+export interface BasicBSwapResp {
+  operationId: number;
+}
+
+export interface BSwapShare {
+  shareAmount: number;
+  sharePercentage: number;
+  asset: { [k: string]: number };
+}
+
+export interface BSwapLiquidity {
+  poolId: number;
+  poolNmae: string;
+  updateTime: number;
+  liquidity: { [k: string]: number };
+  share: BSwapShare;
+}

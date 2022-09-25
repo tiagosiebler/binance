@@ -20,16 +20,21 @@ import {
 
 import {
   AccountInformation,
+  AddBSwapLiquidityParams,
   AggregateTrade,
   AllCoinsInformationResponse,
   APIPermissions,
   APITradingStatus,
   AssetDetail,
+  BasicBSwapResp,
   BasicFromPaginatedParams,
   BasicFuturesSubAccountParams,
   BasicMarginAssetParams,
   BasicSubAccount,
   BasicTimeRangeParam,
+  BSwapLiquidity,
+  BSwapOperations,
+  BSwapOperationsParams,
   CancelSpotOrderResult,
   ConvertDustParams,
   CreateSubAccountParams,
@@ -71,6 +76,7 @@ import {
   QueryMaxTransferOutAmountResponse,
   RawAccountTrade,
   RawTrade,
+  RemoveBSwapLiquidityParams,
   SpotOrder,
   StakingBasicParams,
   StakingHistory,
@@ -986,7 +992,27 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  //TODO: https://binance-docs.github.io/apidocs/spot/en/#bswap-endpoints
+  getBSwapLiquidity(params?: { poolId: number }): Promise<BSwapLiquidity[]> {
+    return this.getPrivate('sapi/v1/bswap/liquidity');
+  }
+
+  addBSwapLiquidity(params: AddBSwapLiquidityParams): Promise<BasicBSwapResp> {
+    return this.postPrivate('sapi/v1/bswap/liquidityAdd');
+  }
+
+  removeBSwapLiquidity(
+    params: RemoveBSwapLiquidityParams
+  ): Promise<BasicBSwapResp> {
+    return this.postPrivate('sapi/v1/bswap/liquidityRemove');
+  }
+
+  getBSwapOperations(
+    params?: BSwapOperationsParams
+  ): Promise<BSwapOperations[]> {
+    return this.getPrivate('sapi/v1/bswap/liquidityOps');
+  }
+
+  //TODO: add missing bswap-endpoints https://binance-docs.github.io/apidocs/spot/en/#bswap-endpoints
 
   /**
    * Validate syntax meets requirements set by binance. Log warning if not.
