@@ -1,14 +1,14 @@
 export * from './';
-export * from './main-client';
-export * from './usdm-client';
-export * from './websocket-client';
+export * from './coinm-client';
 export * from './logger';
-
+export * from './main-client';
+export * from './types/coin';
 export * from './types/futures';
 export * from './types/shared';
 export * from './types/spot';
 export * from './types/websockets';
-
+export * from './usdm-client';
 export * from './util/requestUtils';
-export * from './util/WsStore';
 export * from './util/typeGuards';
+export * from './util/WsStore';
+export * from './websocket-client';
