@@ -265,3 +265,7 @@ export function appendEventMarket(wsMsg: any, wsKey: WsKey) {
   wsMsg.wsMarket = market;
   wsMsg.wsKey = wsKey;
 }
+
+export function asArray<T>(el: T[] | T): T[] {
+  return Array.isArray(el) ? el : [el];
+}
