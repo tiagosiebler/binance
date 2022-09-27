@@ -1,7 +1,6 @@
 import {
   FuturesContractType,
   FuturesSymbolOrderBookTicker,
-  OpenInterest,
   PositionSide,
 } from './futures';
 import {
@@ -26,9 +25,12 @@ export interface PositionRisk {
   updateTime: number;
 }
 
-export interface CoinMOpenInterest extends OpenInterest {
+export interface CoinMOpenInterest {
+  symbol: string;
   pair: string;
+  openInterest: numberInString;
   contractType: FuturesContractType;
+  time: number;
 }
 export type SymbolOrPair =
   | { pair: string; symbol?: never }
