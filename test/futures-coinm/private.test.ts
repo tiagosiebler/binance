@@ -12,10 +12,8 @@ describe('Private Futures USDM REST API Endpoints', () => {
   });
   let book: CoinMSymbolOrderBookTicker[];
 
-  beforeEach(async () => {
-    if (!book) {
-      book = await api.getSymbolOrderBookTicker();
-    }
+  beforeAll(async () => {
+    book = await api.getSymbolOrderBookTicker();
   });
 
   describe('Account/Trade Endpoints', () => {
