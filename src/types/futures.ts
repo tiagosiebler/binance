@@ -507,6 +507,8 @@ export interface FuturesPosition {
   markPrice: numberInString;
   maxNotionalValue: numberInString;
   positionAmt: numberInString;
+  notional: numberInString;
+  isolatedWallet: numberInString;
   symbol: string;
   unRealizedProfit: numberInString;
   positionSide: PositionSide;
