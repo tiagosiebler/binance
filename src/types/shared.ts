@@ -16,6 +16,7 @@ export type BinanceBaseUrlKey =
   | 'usdmtest'
   | 'usdm'
   | 'coinm'
+  | 'coinmtest'
   | 'voptions'
   | 'voptionstest';
 

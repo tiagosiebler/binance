@@ -5,14 +5,14 @@ import {
   CoinMPositionTrade,
   CoinMSymbolOrderBookTicker,
   PositionRisk,
-  SymbolOrPair,
+  SymbolOrPair
 } from './types/coin';
 import { BinanceBaseUrlKey } from './types/shared';
 import BaseRestClient from './util/BaseRestClient';
 import {
   asArray,
   getServerTimeEndpoint,
-  RestClientOptions,
+  RestClientOptions
 } from './util/requestUtils';
 
 export class CoinMClient extends BaseRestClient {
@@ -20,9 +20,11 @@ export class CoinMClient extends BaseRestClient {
 
   constructor(
     restClientOptions: RestClientOptions = {},
-    requestOptions: AxiosRequestConfig = {}
+    requestOptions: AxiosRequestConfig = {},
+    useTestnet?: boolean
   ) {
-    const clientId = 'coinm';
+    const clientId = useTestnet ? 'coinmtest' : 'coinm';
+
     super(clientId, restClientOptions, requestOptions);
 
     this.clientId = clientId;
@@ -36,6 +38,10 @@ export class CoinMClient extends BaseRestClient {
     return this.get(getServerTimeEndpoint(this.clientId)).then(
       (response) => response.serverTime
     );
+  }
+
+  getFuturesUserDataListenKey(): Promise<{ listenKey: string }> {
+    return this.post('dapi/v1/listenKey');
   }
 
   //TODO - https://binance-docs.github.io/apidocs/delivery/en/#change-log

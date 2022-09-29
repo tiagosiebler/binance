@@ -55,6 +55,7 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
     case 'usdm':
     case 'usdmtest':
     case 'coinm':
+    case 'coinmtest':
       return '15PC4ZJy';
 
     case 'voptions':
@@ -141,7 +142,7 @@ const BINANCE_BASE_URLS: Record<BinanceBaseUrlKey, string> = {
 
   // COINM Futures
   coinm: 'https://dapi.binance.com',
-  // testnet is same as `usdmtest`
+  coinmtest: 'https://testnet.binancefuture.com',
 
   // Vanilla Options
   voptions: 'https://vapi.binance.com',
@@ -163,6 +164,7 @@ export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
       return 'fapi/v1/time';
 
     case 'coinm':
+    case 'coinmtest':
       return 'dapi/v1/time';
 
     case 'voptions':

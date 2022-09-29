@@ -54,6 +54,10 @@ import { WebsocketClient } from '../src/websocket-client';
       console.log('usdmTestnet user data event: ', data);
       return;
     }
+    if (data.wsMarket.includes('coinmTestnet')) {
+      console.log('coinmTestnet user data event: ', data);
+      return;
+    }
     if (isWsFormattedFuturesUserDataEvent(data)) {
       console.log('usdm user data event: ', data);
       return;
