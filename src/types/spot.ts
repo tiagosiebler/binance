@@ -903,10 +903,105 @@ export interface CreateSubAccountParams {
   subAccountString: string;
 }
 
+export interface CreateBrokerSubAccountParams {
+  tag?: string;
+}
+
+export interface GetBrokerSubAccountParams {
+  subAccountId?: string;
+  page?: number;
+  size?: number;
+}
+
+export interface GetApiKeyBrokerSubAccountParams {
+  subAccountId: string;
+  subAccountApiKey?: string;
+  page?: number;
+  size?: number;
+}
+
+export interface CreateApiKeyBrokerSubAccountParams {
+  subAccountId: string;
+  canTrade: boolean;
+  marginTrade?: boolean;
+  futuresTrade?: boolean;
+}
+export interface ApiKeyBrokerSubAccount {
+  subAccountId: string;
+  apiKey: string;
+  canTrade: boolean;
+  marginTrade: boolean;
+  futuresTrade: boolean;
+}
+
+export interface EnableUniversalTransferApiKeyBrokerSubAccountParams {
+  subAccountId: string;
+  subAccountApiKey: string;
+  canUniversalTransfer: boolean;
+}
+
+export interface EnableMarginApiKeyBrokerSubAccountParams {
+  subAccountId: string;
+  margin: boolean;
+}
+export interface UniversalTransferBrokerParams {
+  fromId?: string;
+  toId?: string;
+  fromAccountType: string;
+  toAccountType: string;
+  asset: string;
+  amount: number;
+}
+
+export interface GetUniversalTransferBrokerParams {
+  fromId?: string;
+  toId?: string;
+  clientTranId?: string;
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  limit?: number;
+  showAllStatus?: boolean;
+}
+
 export interface VirtualSubAccount {
   email: string;
 }
 
+export interface BrokerSubAccount {
+  subaccountId: string;
+  email: string;
+  makerCommission?: string;
+  takerCommission?: string;
+  marginMakerCommission?: string;
+  marginTakerCommission?: string;
+  createTime?: number;
+  tag: string;
+}
+
+export interface CreateApiKeyBrokerSubAccountResponse {
+  subaccountId: string;
+  apiKey: string;
+  secretKey: string;
+  canTrade: boolean;
+  marginTrade: boolean;
+  futuresTrade: boolean;
+}
+
+export interface EnableUniversalTransferApiKeyBrokerSubAccountResponse {
+  subAccountId: string;
+  apikey: string;
+  canUniversalTransfer: boolean;
+}
+
+export interface GetBrokerInfoResponse {
+  maxMakerCommission: string;
+  minMakerCommission: string;
+  maxTakerCommission: string;
+  minTakerCommission: string;
+  subAccountQty: number;
+  maxSubAccountQty: number;
+}
 export interface SubAccountListParams {
   email?: string;
   isFreeze?: StringBoolean;
@@ -1303,6 +1398,29 @@ export interface StakingBasicParams {
   product: StakingProductType;
   current?: number;
   size?: number;
+}
+
+export interface FlexibleSavingBasicParams {
+  status?: string;
+  featured?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface FlexibleProductPositionParams {
+  status?: string;
+  featured?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface PurchaseFlexibleProductParams {
+  productId: string;
+  amount: number;
+}
+
+export interface PurchaseFlexibleProductResponse {
+  purchaseId: number;
 }
 
 export interface StakingHistory {
