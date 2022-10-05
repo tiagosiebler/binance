@@ -23,6 +23,7 @@ import {
   AddBSwapLiquidityParams,
   AggregateTrade,
   AllCoinsInformationResponse,
+  ApiKeyBrokerSubAccount,
   APIPermissions,
   APITradingStatus,
   AssetDetail,
@@ -32,11 +33,15 @@ import {
   BasicMarginAssetParams,
   BasicSubAccount,
   BasicTimeRangeParam,
+  BrokerSubAccount,
   BSwapLiquidity,
   BSwapOperations,
   BSwapOperationsParams,
   CancelSpotOrderResult,
   ConvertDustParams,
+  CreateApiKeyBrokerSubAccountParams,
+  CreateApiKeyBrokerSubAccountResponse,
+  CreateBrokerSubAccountParams,
   CreateSubAccountParams,
   CrossMarginAccountTransferParams,
   CurrentAvgPrice,
@@ -50,11 +55,19 @@ import {
   DustConversion,
   DustInfo,
   DustLog,
+  EnableMarginApiKeyBrokerSubAccountParams,
   EnableOrDisableIPRestrictionForSubAccountParams,
+  EnableUniversalTransferApiKeyBrokerSubAccountParams,
+  EnableUniversalTransferApiKeyBrokerSubAccountResponse,
   ExchangeInfo,
   ExchangeInfoParams,
+  FlexibleSavingBasicParams,
   FuturesPositionRisk,
+  GetApiKeyBrokerSubAccountParams,
+  GetBrokerInfoResponse,
+  GetBrokerSubAccountParams,
   GetOCOParams,
+  GetUniversalTransferBrokerParams,
   IsolatedMarginAccountInfo,
   IsolatedMarginAccountTransferParams,
   MarginAccountLoanParams,
@@ -65,6 +78,8 @@ import {
   OrderResponseACK,
   OrderResponseFull,
   OrderResponseResult,
+  PurchaseFlexibleProductParams,
+  PurchaseFlexibleProductResponse,
   QueryCrossMarginAccountDetailsParams,
   QueryCrossMarginPairParams,
   QueryCrossMarginPairResponse,
@@ -132,6 +147,7 @@ import {
   SymbolPrice,
   SymbolTradeFee,
   SystemStatusResponse,
+  UniversalTransferBrokerParams,
   UniversalTransferHistoryParams,
   UniversalTransferParams,
   VirtualSubAccount,
@@ -517,6 +533,60 @@ export class MainClient extends BaseRestClient {
   getBrokerUserCustomisedId(market: 'spot' | 'futures') {
     const prefix = market === 'spot' ? 'sapi' : 'fapi';
     return this.getPrivate(prefix + '/v1/apiReferral/userCustomization');
+  }
+
+  createBrokerSubAccount(
+    params: CreateBrokerSubAccountParams
+  ): Promise<BrokerSubAccount> {
+    return this.postPrivate('sapi/v1/broker/subAccount', params);
+  }
+
+  getBrokerSubAccount(
+    params: GetBrokerSubAccountParams
+  ): Promise<BrokerSubAccount[]> {
+    return this.getPrivate('sapi/v1/broker/subAccount', params);
+  }
+  getApiKeyBrokerSubAccount(
+    params: GetApiKeyBrokerSubAccountParams
+  ): Promise<ApiKeyBrokerSubAccount[]> {
+    return this.getPrivate('sapi/v1/broker/subAccountApi', params);
+  }
+
+  createApiKeyBrokerSubAccount(
+    params: CreateApiKeyBrokerSubAccountParams
+  ): Promise<CreateApiKeyBrokerSubAccountResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccountApi', params);
+  }
+
+  enableUniversalTransferApiKeyBrokerSubAccount(
+    params: EnableUniversalTransferApiKeyBrokerSubAccountParams
+  ): Promise<EnableUniversalTransferApiKeyBrokerSubAccountResponse> {
+    return this.postPrivate(
+      'sapi/v1/broker/subAccountApi/permission/universalTransfer',
+      params
+    );
+  }
+
+  enableMarginApiKeyBrokerSubAccount(
+    params: EnableMarginApiKeyBrokerSubAccountParams
+  ): Promise<BrokerSubAccount> {
+    return this.postPrivate('sapi/v1/broker/subAccount/margin', params);
+  }
+
+  universalTransferBroker(
+    params: UniversalTransferBrokerParams
+  ): Promise<BrokerSubAccount> {
+    return this.postPrivate('sapi/v1/broker/universalTransfer', params);
+  }
+
+  getUniversalTransferBroker(
+    params: GetUniversalTransferBrokerParams
+  ): Promise<BrokerSubAccount> {
+    return this.getPrivate('sapi/v1/broker/universalTransfer', params);
+  }
+
+  getBrokerInfo(): Promise<GetBrokerInfoResponse> {
+    return this.getPrivate('sapi/v1/broker/info');
   }
 
   // USD & Coin-M can be found under API getIncome() (find "API rebate" in results)
@@ -958,9 +1028,21 @@ export class MainClient extends BaseRestClient {
    * Savings Endpoints
    *
    **/
-
-  //TODO: https://binance-docs.github.io/apidocs/spot/en/#savings-endpoints
-
+  getFlexibleSavingProducts(
+    params: FlexibleSavingBasicParams
+  ): Promise<StakingProduct[]> {
+    return this.getPrivate(`sapi/v1/lending/daily/product/list`, params);
+  }
+  purchaseFlexibleProduct(
+    params: PurchaseFlexibleProductParams
+  ): Promise<PurchaseFlexibleProductResponse> {
+    return this.postPrivate(`sapi/v1/lending/daily/purchase`, params);
+  }
+  getFlexibleProductPosition(params: {
+    asset?: string;
+  }): Promise<StakingProduct[]> {
+    return this.getPrivate(`sapi/v1/lending/daily/token/position`, params);
+  }
   /**
    *
    * Mining Endpoints
