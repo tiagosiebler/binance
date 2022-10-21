@@ -907,6 +907,28 @@ export interface CreateBrokerSubAccountParams {
   tag?: string;
 }
 
+export interface EnableMarginBrokerSubAccountParams {
+  subAccountId: string;
+  margin: boolean;
+}
+
+export interface EnableMarginBrokerSubAccountResponse {
+  subAccountId: string;
+  enableMargin: boolean;
+  updateTime: number;
+}
+
+export interface EnableFuturesBrokerSubAccountParams {
+  subAccountId: string;
+  futures: boolean;
+}
+
+export interface EnableFuturesBrokerSubAccountResponse {
+  subAccountId: string;
+  enableFutures: boolean;
+  updateTime: number;
+}
+
 export interface GetBrokerSubAccountParams {
   subAccountId?: string;
   page?: number;
@@ -926,6 +948,30 @@ export interface CreateApiKeyBrokerSubAccountParams {
   marginTrade?: boolean;
   futuresTrade?: boolean;
 }
+
+export interface DeleteApiKeyBrokerSubAccountParams {
+  subAccountId: string;
+  subAccountApiKey: string;
+}
+
+export interface ChangePermissionApiKeyBrokerSubAccountParams {
+  subAccountId: string;
+  subAccountApiKey: string;
+  canTrade: boolean;
+  marginTrade: boolean;
+  futuresTrade: boolean;
+}
+
+export interface ChangePermissionApiKeyBrokerSubAccountResponse {
+  subAccountId: string;
+  apikey: string;
+  canTrade: boolean;
+  marginTrade: boolean;
+  futuresTrade: boolean;
+}
+//TODO
+
+//TODO
 export interface ApiKeyBrokerSubAccount {
   subAccountId: string;
   apiKey: string;
@@ -1419,10 +1465,45 @@ export interface PurchaseFlexibleProductParams {
   amount: number;
 }
 
+export interface RedeemFlexibleProductParams {
+  productId: string;
+  amount: number;
+  type: 'FAST' | 'NORMAL';
+}
+
+export interface LeftDailyPurchaseQuotaFlexibleProductResponse {
+  asset: string;
+  leftQuota: string;
+}
+
 export interface PurchaseFlexibleProductResponse {
   purchaseId: number;
 }
 
+export interface FixedAndActivityProjectParams {
+  asset?: string;
+  type: ProjectType;
+  status?: ProjectStatus;
+  isSortAsc?: boolean;
+  sortBy?: ProjectSortBy;
+  current?: number;
+  size?: number;
+}
+export interface FixedAndActivityProjectPositionParams {
+  asset?: string;
+  projectId?: string;
+  status?: StakingStatus;
+}
+
+export type LendingType = 'DAILY' | 'ACTIVITY' | 'CUSTOMIZED_FIXED';
+export interface PurchaseRecordParams {
+  lendingType: LendingType;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
 export interface StakingHistory {
   positionId: numberInString;
   time: number;
@@ -1449,6 +1530,13 @@ export type StakingProductType = 'STAKING' | 'F_DEFI' | 'L_DEFI';
 export type BSwapType = 'SINGLE' | 'COMBINATION';
 export type BSwapOperationType = 'ADD' | 'REMOVE';
 
+export type ProjectStatus = 'ALL' | 'SUBSCRIBABLE' | 'UNSUBSCRIBABLE';
+export type ProjectType = 'ACTIVITY' | 'CUSTOMIZED_FIXED';
+export type ProjectSortBy =
+  | 'START_TIME'
+  | 'LOT_SIZE'
+  | 'INTEREST_RATE'
+  | 'DURATION';
 export interface BSwapOperationsParams {
   operationId?: number;
   poolId?: number;
