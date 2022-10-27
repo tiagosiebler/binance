@@ -1927,7 +1927,7 @@ export class WebsocketClient extends EventEmitter {
         ...loggerCategory,
         error: e
       });
-      this.logger.error(`Failed to get margin user data listen key`, { ...loggerCategory, error: e });
+      this.emit('error', { wsKey: 'coinm' + '_' + 'userData', error: e });
     }
   }
 }
