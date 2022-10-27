@@ -10,7 +10,7 @@ import {
   WsMarket,
   WsRawMessage,
   WsResponse,
-  WsUserDataEvents,
+  WsUserDataEvents
 } from './types/websockets';
 import { USDMClient } from './usdm-client';
 
@@ -20,11 +20,12 @@ import {
   appendEventMarket,
   getContextFromWsKey,
   getWsKeyWithContext,
-  RestClientOptions,
+  RestClientOptions
 } from './util/requestUtils';
 import { terminateWs } from './util/ws-utils';
 
 import WsStore from './util/WsStore';
+import { CoinMClient } from './coinm-client';
 
 const wsBaseEndpoints: Record<WsMarket, string> = {
   spot: 'wss://stream.binance.com:9443',
@@ -35,7 +36,7 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
   coinm: 'wss://dstream.binance.com',
   coinmTestnet: 'wss://dstream.binancefuture.com',
   options: 'wss://vstream.binance.com',
-  optionsTestnet: 'wss://testnetws.binanceops.com',
+  optionsTestnet: 'wss://testnetws.binanceops.com'
 };
 
 const loggerCategory = { category: 'binance-ws' };
@@ -94,26 +95,31 @@ interface RestClientStore {
   margin: MainClient;
   usdmFutures: USDMClient;
   usdmFuturesTestnet: USDMClient;
-  // coinmFutures: USDMClient;
-  // coinmFuturesTestnet: USDMClient;
+  coinmFutures: CoinMClient;
+  coinmFuturesTestnet: CoinMClient;
   // options: MainClient;
 }
 
 export declare interface WebsocketClient {
   on(event: 'reply', listener: (event: WsResponse) => void): this;
+
   on(event: 'message', listener: (event: WsRawMessage) => void): this;
+
   on(
     event: 'formattedMessage',
     listener: (event: WsFormattedMessage) => void
   ): this;
+
   on(
     event: 'formattedUserDataMessage',
     listener: (event: WsUserDataEvents) => void
   ): this;
+
   on(
     event: 'error',
     listener: (event: { wsKey: WsKey; error: any; rawEvent?: string }) => void
   ): this;
+
   on(
     event: 'open' | 'reconnected' | 'reconnecting' | 'close',
     listener: (event: { wsKey: WsKey; ws: WebSocket; event?: any }) => void
@@ -188,7 +194,7 @@ export class WebsocketClient extends EventEmitter {
       pongTimeout: 7500,
       pingInterval: 10000,
       reconnectTimeout: 500,
-      ...options,
+      ...options
     };
 
     this.listenKeyStateStore = {};
@@ -200,7 +206,7 @@ export class WebsocketClient extends EventEmitter {
       ...this.options,
       ...this.options.restOptions,
       api_key: this.options.api_key,
-      api_secret: this.options.api_secret,
+      api_secret: this.options.api_secret
     };
   }
 
@@ -257,7 +263,7 @@ export class WebsocketClient extends EventEmitter {
       this.logger.silly(`Sending upstream ws message: `, {
         ...loggerCategory,
         wsMessage,
-        wsKey,
+        wsKey
       });
       if (!wsKey) {
         throw new Error('No wsKey provided');
@@ -275,7 +281,7 @@ export class WebsocketClient extends EventEmitter {
         ...loggerCategory,
         wsMessage,
         wsKey,
-        exception: e,
+        exception: e
       });
     }
   }
@@ -301,7 +307,7 @@ export class WebsocketClient extends EventEmitter {
       this.logger.error(`Failed to send WS ping`, {
         ...loggerCategory,
         wsKey,
-        exception: e,
+        exception: e
       });
     }
   }
@@ -350,7 +356,7 @@ export class WebsocketClient extends EventEmitter {
       ...loggerCategory,
       wsKey,
       event,
-      wsConnectionState,
+      wsConnectionState
     });
 
     // User data sockets include the listen key. To prevent accummulation in memory we should clean up old disconnected states
@@ -418,7 +424,7 @@ export class WebsocketClient extends EventEmitter {
                 'ORDER_TRADE_UPDATE',
                 'ACCOUNT_UPDATE',
                 'ORDER_TRADE_UPDATE',
-                'ACCOUNT_CONFIG_UPDATE',
+                'ACCOUNT_CONFIG_UPDATE'
               ].includes(eventType)
             ) {
               this.emit('formattedUserDataMessage', beautifiedMessage);
@@ -432,7 +438,7 @@ export class WebsocketClient extends EventEmitter {
         this.emit('reply', {
           type: event.type,
           data: msg,
-          wsKey,
+          wsKey
         });
         return;
       }
@@ -444,7 +450,7 @@ export class WebsocketClient extends EventEmitter {
           parsedMessage: JSON.stringify(msg),
           rawEvent: event,
           wsKey,
-          source,
+          source
         }
       );
     } catch (e) {
@@ -453,7 +459,7 @@ export class WebsocketClient extends EventEmitter {
         rawEvent: event,
         wsKey,
         error: e,
-        source,
+        source
       });
       this.emit('error', { wsKey, error: e, rawEvent: event, source });
     }
@@ -468,7 +474,7 @@ export class WebsocketClient extends EventEmitter {
     this.wsStore.get(wsKey, true)!.activePongTimer = setTimeout(() => {
       this.logger.info('Pong timeout - closing socket to reconnect', {
         ...loggerCategory,
-        wsKey,
+        wsKey
       });
       this.close(wsKey, true);
     }, this.options.pongTimeout);
@@ -484,7 +490,7 @@ export class WebsocketClient extends EventEmitter {
       ...loggerCategory,
       wsKey,
       event,
-      source,
+      source
     });
     ws.pong();
   }
@@ -494,7 +500,7 @@ export class WebsocketClient extends EventEmitter {
       ...loggerCategory,
       wsKey,
       event,
-      source,
+      source
     });
     this.clearPongTimer(wsKey);
   }
@@ -531,7 +537,7 @@ export class WebsocketClient extends EventEmitter {
       case 'Unexpected server response: 401':
         this.logger.error(`${context} due to 401 authorization failure.`, {
           ...loggerCategory,
-          wsKey,
+          wsKey
         });
         break;
 
@@ -560,7 +566,7 @@ export class WebsocketClient extends EventEmitter {
     this.logger.info('Reconnecting to websocket with delay...', {
       ...loggerCategory,
       wsKey,
-      connectionDelayMs,
+      connectionDelayMs
     });
 
     setTimeout(() => {
@@ -570,7 +576,7 @@ export class WebsocketClient extends EventEmitter {
           ...loggerCategory,
           wsKey,
           market,
-          symbol,
+          symbol
         });
 
         // We'll set a new one once the new stream respawns, with a diff listenKey in the key
@@ -584,7 +590,7 @@ export class WebsocketClient extends EventEmitter {
       this.logger.info('Reconnecting to public websocket', {
         ...loggerCategory,
         wsKey,
-        wsUrl,
+        wsUrl
       });
       this.connectToWsUrl(wsUrl, wsKey);
     }, connectionDelayMs);
@@ -622,6 +628,7 @@ export class WebsocketClient extends EventEmitter {
 
     return wsBaseEndpoints[market];
   }
+
   //   // const networkKey = this.options.livenet ? 'livenet' : 'testnet';
   //   // if (this.isLinear() || wsKey.startsWith('linear')){
   //   //   if (wsKey === wsKeyLinearPublic) {
@@ -779,8 +786,25 @@ export class WebsocketClient extends EventEmitter {
     return this.restClients.usdmFutures;
   }
 
-  // private getCOINMRestClient(isTestnet?: boolean): COINMClient {
-  // }
+  private getCOINMRestClient(isTestnet?: boolean): CoinMClient {
+    if (isTestnet) {
+      if (!this.restClients.coinmFuturesTestnet) {
+        this.restClients.coinmFuturesTestnet = new CoinMClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+          isTestnet
+        );
+      }
+      return this.restClients.coinmFuturesTestnet;
+    }
+    if (!this.restClients.coinmFutures) {
+      this.restClients.coinmFutures = new CoinMClient(
+        this.getRestClientOptions(),
+        this.options.requestOptions
+      );
+    }
+    return this.restClients.coinmFutures;
+  }
 
   /**
    * Send WS message to subscribe to topics. Use subscribe() to call this.
@@ -789,7 +813,7 @@ export class WebsocketClient extends EventEmitter {
     const wsMessage = JSON.stringify({
       method: 'SUBSCRIBE',
       params: topics,
-      id: new Date().getTime(),
+      id: new Date().getTime()
     });
 
     this.tryWsSend(wsKey, wsMessage);
@@ -802,7 +826,7 @@ export class WebsocketClient extends EventEmitter {
     const wsMessage = JSON.stringify({
       op: 'UNSUBSCRIBE',
       params: topics,
-      id: new Date().getTime(),
+      id: new Date().getTime()
     });
 
     this.tryWsSend(wsKey, wsMessage);
@@ -814,7 +838,7 @@ export class WebsocketClient extends EventEmitter {
   public requestListSubscriptions(wsKey: WsKey, requestId: number) {
     const wsMessage = JSON.stringify({
       method: 'LIST_SUBSCRIPTIONS',
-      id: requestId,
+      id: requestId
     });
 
     this.tryWsSend(wsKey, wsMessage);
@@ -832,7 +856,7 @@ export class WebsocketClient extends EventEmitter {
     const wsMessage = JSON.stringify({
       method: 'SET_PROPERTY',
       params: [property, value],
-      id: requestId,
+      id: requestId
     });
 
     this.tryWsSend(wsKey, wsMessage);
@@ -849,7 +873,7 @@ export class WebsocketClient extends EventEmitter {
     const wsMessage = JSON.stringify({
       method: 'GET_PROPERTY',
       params: [property],
-      id: requestId,
+      id: requestId
     });
 
     this.tryWsSend(wsKey, wsMessage);
@@ -873,7 +897,7 @@ export class WebsocketClient extends EventEmitter {
       market,
       lastKeepAlive: 0,
       keepAliveTimer: undefined,
-      keepAliveFailures: 0,
+      keepAliveFailures: 0
     };
     return this.listenKeyStateStore[listenKey];
   }
@@ -931,12 +955,15 @@ export class WebsocketClient extends EventEmitter {
           { listenKey, symbol: symbol! }
         );
       case 'coinm':
-      case 'coinmTestnet':
       case 'options':
       case 'optionsTestnet':
       case 'usdm':
         return this.getUSDMRestClient().keepAliveFuturesUserDataListenKey();
       case 'usdmTestnet':
+        return this.getUSDMRestClient(
+          isTestnet
+        ).keepAliveFuturesUserDataListenKey();
+      case 'coinmTestnet':
         return this.getUSDMRestClient(
           isTestnet
         ).keepAliveFuturesUserDataListenKey();
@@ -994,7 +1021,7 @@ export class WebsocketClient extends EventEmitter {
           ...loggerCategory,
           listenKey,
           error: e,
-          keepAliveAttempts: listenKeyState.keepAliveFailures,
+          keepAliveAttempts: listenKeyState.keepAliveFailures
         }
       );
       setTimeout(
@@ -1064,7 +1091,19 @@ export class WebsocketClient extends EventEmitter {
           );
           break;
         case 'coinm':
+          ws = await this.subscribeCoinFuturesUserDataStream(
+            isTestnet,
+            forceNewConnection,
+            isReconnecting
+          );
+          break;
         case 'coinmTestnet':
+          ws = await this.subscribeCoinFuturesUserDataStream(
+            true,
+            forceNewConnection,
+            isReconnecting
+          );
+          break;
         case 'options':
         case 'optionsTestnet':
           throw new Error(
@@ -1082,7 +1121,7 @@ export class WebsocketClient extends EventEmitter {
         market,
         symbol,
         isTestnet,
-        error: e,
+        error: e
       });
       this.emit('error', { wsKey: market + '_' + 'userData', error: e });
     }
@@ -1097,7 +1136,7 @@ export class WebsocketClient extends EventEmitter {
           symbol,
           isTestnet,
           respawnAttempt,
-          delayInSeconds,
+          delayInSeconds
         }
       );
       setTimeout(
@@ -1152,7 +1191,7 @@ export class WebsocketClient extends EventEmitter {
     const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`,
+      `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`,
       wsKey,
       forceNewConnection
     );
@@ -1173,7 +1212,7 @@ export class WebsocketClient extends EventEmitter {
     const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`,
+      `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`,
       wsKey,
       forceNewConnection
     );
@@ -1216,7 +1255,7 @@ export class WebsocketClient extends EventEmitter {
     );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
+      `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
       forceNewConnection
     );
@@ -1242,7 +1281,7 @@ export class WebsocketClient extends EventEmitter {
     );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}_${contractType}@${streamName}_${interval}`,
+      `/ws/${lowerCaseSymbol}_${contractType}@${streamName}_${interval}`,
       wsKey,
       forceNewConnection
     );
@@ -1267,7 +1306,7 @@ export class WebsocketClient extends EventEmitter {
     );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
+      `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
       forceNewConnection
     );
@@ -1292,7 +1331,7 @@ export class WebsocketClient extends EventEmitter {
     );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
+      `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
       forceNewConnection
     );
@@ -1450,7 +1489,7 @@ export class WebsocketClient extends EventEmitter {
     const updateMsSuffx = updateMs === 100 ? `@${updateMs}ms` : '';
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`,
+      `/ws/${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`,
       wsKey,
       forceNewConnection
     );
@@ -1476,7 +1515,7 @@ export class WebsocketClient extends EventEmitter {
     const updateMsSuffx = updateMs === 100 ? `@${updateMs}ms` : '';
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}${updateMsSuffx}`,
+      `/ws/${lowerCaseSymbol}@${streamName}${updateMsSuffx}`,
       wsKey,
       forceNewConnection
     );
@@ -1671,7 +1710,7 @@ export class WebsocketClient extends EventEmitter {
     } catch (e) {
       this.logger.error(`Failed to connect to spot user data`, {
         ...loggerCategory,
-        error: e,
+        error: e
       });
       this.emit('error', { wsKey: 'spot' + '_' + 'userData', error: e });
     }
@@ -1720,7 +1759,7 @@ export class WebsocketClient extends EventEmitter {
     } catch (e) {
       this.logger.error(`Failed to connect to margin user data`, {
         ...loggerCategory,
-        error: e,
+        error: e
       });
       this.emit('error', { wsKey: 'margin' + '_' + 'userData', error: e });
     }
@@ -1738,7 +1777,7 @@ export class WebsocketClient extends EventEmitter {
       const lowerCaseSymbol = symbol.toLowerCase();
       const { listenKey } =
         await this.getSpotRestClient().getIsolatedMarginUserDataListenKey({
-          symbol: lowerCaseSymbol,
+          symbol: lowerCaseSymbol
         });
       const market: WsMarket = 'isolatedMargin';
       const wsKey = getWsKeyWithContext(
@@ -1773,11 +1812,11 @@ export class WebsocketClient extends EventEmitter {
       this.logger.error(`Failed to connect to isolated margin user data`, {
         ...loggerCategory,
         error: e,
-        symbol,
+        symbol
       });
       this.emit('error', {
         wsKey: 'isolatedMargin' + '_' + 'userData',
-        error: e,
+        error: e
       });
     }
   }
@@ -1836,35 +1875,59 @@ export class WebsocketClient extends EventEmitter {
     } catch (e) {
       this.logger.error(`Failed to connect to USD Futures user data`, {
         ...loggerCategory,
-        error: e,
+        error: e
       });
       this.emit('error', { wsKey: 'usdm' + '_' + 'userData', error: e });
     }
   }
 
-  // TODO: coinm futures, options; once rest clients are implemented
+  /**
+   * Subscribe to COIN-M Futures user data stream - listen key is automatically generated.
+   */
+  public async subscribeCoinFuturesUserDataStream(isTestnet?: boolean, forceNewConnection?: boolean, isReconnecting?: boolean): Promise<WebSocket> {
+    try {
 
-  //   /**
-  //  * Subscribe to COIN-M Futures user data stream - listen key is automatically generated.
-  //  */
-  //    public async subscribeCoinFuturesUserDataStream(isTestnet?: boolean, forceNewConnection?: boolean): Promise<WebSocket> {
-  //     try {
+      const { listenKey } = await this.getCOINMRestClient(isTestnet).getFuturesUserDataListenKey();
 
-  //       const { listenKey } = await this.getCOINMRestClient(isTestnet).getFuturesUserDataListenKey();
+      const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
+      const streamName = 'userData';
+      const wsKey = [market, streamName, listenKey].join('_');
 
-  //       const market: WsMarket = isTestnet? 'usdmTestnet' : 'usdm';
-  //       const streamName = 'userData';
-  //       const wsKey = [market, streamName, listenKey].join('_');
-  //       const wsBaseUrl = this.getWsBaseUrl(market, wsKey);
+      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
+        this.logger.silly(
+          'Existing usd futures user data connection in progress for listen key. Avoiding duplicate'
+        );
+        return this.getWs(wsKey);
+      }
 
-  //       const ws = this.connectToWsUrl(this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`, wsKey, forceNewConnection);
+      // Necessary so client knows this is a reconnect
+      this.setWsState(
+        wsKey,
+        isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING
+      );
+      const ws = this.connectToWsUrl(
+        this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
+        wsKey,
+        forceNewConnection
+      );
 
-  //       // Start & store timer to keep alive listen key (and handle expiration)
-  //       this.setKeepAliveListenKeyTimer(listenKey, market, ws, wsKey);
+      // Start & store timer to keep alive listen key (and handle expiration)
+      this.setKeepAliveListenKeyTimer(
+        listenKey,
+        market,
+        ws,
+        wsKey,
+        undefined,
+        isTestnet
+      );
 
-  //       return ws;
-  //     } catch (e) {
-  //       this.logger.error(`Failed to get margin user data listen key`, { ...loggerCategory, error: e });
-  //     }
-  //   }
+      return ws;
+    } catch (e) {
+      this.logger.error(`Failed to connect to COIN Futures user data`, {
+        ...loggerCategory,
+        error: e
+      });
+      this.emit('error', { wsKey: 'coinm' + '_' + 'userData', error: e });
+    }
+  }
 }
