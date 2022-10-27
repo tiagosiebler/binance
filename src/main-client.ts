@@ -636,7 +636,7 @@ export class MainClient extends BaseRestClient {
   }
 
   getHistoricalTrades(params: HistoricalTradesParams): Promise<RawTrade[]> {
-    return this.getPrivate('api/v3/historicalTrades', params);
+    return this.get('api/v3/historicalTrades', params);
   }
 
   getAggregateTrades(
