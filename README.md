@@ -5,11 +5,16 @@
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/binance)][1]
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/binance/badge)](https://www.codefactor.io/repository/github/tiagosiebler/binance)
 
+[![connector logo](https://github.com/tiagosiebler/binance/blob/master/docs/images/logo1.png?raw=true)][1]
+
 [1]: https://www.npmjs.com/package/binance
 
 Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser support.
 
-- Heavy integration testing with real API calls to support implementation stability.
+- Extremely robust connector with significant trading volume in production (livenet).
+- Heavy end-to-end testing with real API calls.
+  - End-to-end testing before any release.
+  - Real API calls in e2e tests.
 - Support REST APIs for Binance Spot, Margin, Isolated Margin & USDM Futures.
   - Automatically manage latency related authentication issues.
   - Strongly typed on most requests and responses.
