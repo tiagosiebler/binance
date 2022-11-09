@@ -9,8 +9,7 @@ import {
 import {
   WebsocketClient,
   DefaultLogger,
-  isWsFormatted24hrTicker,
-  isWsFormattedKline,
+  isWsFormattedMarkPriceUpdateArray,
 } from 'binance';
 */
 
