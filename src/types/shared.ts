@@ -170,14 +170,19 @@ export interface NewOCOParams {
   side: OrderSide;
   quantity: number;
   limitClientOrderId?: string;
+  limitStrategyId?: number;
+  limitStrategyType?: number;
   price: number;
   limitIcebergQty?: number;
+  trailingdelta?: number;
   stopClientOrderId?: string;
   stopPrice: number;
+  stopStrategyId?: number;
+  stopStrategyType?: number;
   stopLimitPrice?: number;
   stopIcebergQty?: number;
-  stopLimitTimeInForce: OrderTimeInForce;
-  newOrderRespType: OrderResponseType;
+  stopLimitTimeInForce?: OrderTimeInForce;
+  newOrderRespType?: OrderResponseType;
   /** For isolated margin trading only */
   isIsolated?: StringBoolean;
   /** Define a side effect, only for margin trading */
