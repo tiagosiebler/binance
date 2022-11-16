@@ -1,4 +1,4 @@
-# binance
+# Node.js & Typescript Binance API SDK
 
 [![Tests](https://circleci.com/gh/tiagosiebler/binance.svg?style=shield)](https://circleci.com/gh/tiagosiebler/binance)
 [![npm version](https://img.shields.io/npm/v/binance)][1] [![npm size](https://img.shields.io/bundlephobia/min/binance/latest)][1] [![npm downloads](https://img.shields.io/npm/dt/binance)][1]
@@ -16,7 +16,6 @@ Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser
   - End-to-end testing before any release.
   - Real API calls in e2e tests.
 - Support REST APIs for Binance Spot, Margin, Isolated Margin & USDM Futures.
-  - Automatically manage latency related authentication issues.
   - Strongly typed on most requests and responses.
 - Support Websockets for Binance Spot, Margin, Isolated Margin & USDM Futures.
   - Event driven messaging.
@@ -49,9 +48,10 @@ Refer to the [examples](./examples) folder for implementation demos.
 Check out my related projects:
 
 - Try my connectors:
-  - [ftx-api](https://www.npmjs.com/package/ftx-api)
-  - [bybit-api](https://www.npmjs.com/package/bybit-api)
   - [binance](https://www.npmjs.com/package/binance)
+  - [bybit-api](https://www.npmjs.com/package/bybit-api)
+  - [okx-api](https://www.npmjs.com/package/okx-api)
+  - [ftx-api](https://www.npmjs.com/package/ftx-api)
 - Try my misc utilities:
   - [orderbooks](https://www.npmjs.com/package/orderbooks)
 - Check out my examples:
