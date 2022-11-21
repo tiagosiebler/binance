@@ -226,14 +226,11 @@ export class WebsocketClient extends EventEmitter {
     if (typeof ws.on === 'function') {
       ws.on('ping', (event) => this.onWsPing(event, wsRefKey, ws, 'event'));
       ws.on('pong', (event) => this.onWsPong(event, wsRefKey, 'event'));
-      // ws.on('message', event => this.onWsMessage(event, wsRefKey, 'event'));
-      // ws.on('close', event => this.onWsClose(event, wsRefKey, ws, url));
-      // ws.on('error', event => this.onWsError(event, wsRefKey, ws));
-      // ws.on('open', event => this.onWsOpen(event, wsRefKey));
     }
 
     ws.onopen = (event) => this.onWsOpen(event, wsRefKey, url);
-    ws.onerror = (event) => this.onWsError(event, wsRefKey, ws);
+    ws.onerror = (event) =>
+      this.parseWsError('WS Error Event', event, wsRefKey, url);
     ws.onclose = (event) => this.onWsClose(event, wsRefKey, ws, url);
     ws.onmessage = (event) => this.onWsMessage(event, wsRefKey, 'function');
 
@@ -327,17 +324,9 @@ export class WebsocketClient extends EventEmitter {
       }
 
       wsState.activePingTimer = setInterval(
-        () => this.sendPing(wsKey),
+        () => this.sendPing(wsKey, wsUrl),
         this.options.pingInterval
       );
-    }
-  }
-
-  private onWsError(error: any, wsKey: WsKey, ws: WebSocket) {
-    this.logger.error('Websocket error', { ...loggerCategory, wsKey, error });
-    this.parseWsError('Websocket error', error, wsKey);
-    if (this.wsStore.isConnectionState(wsKey, READY_STATE_CONNECTED)) {
-      this.emit('error', { error, wsKey, ws });
     }
   }
 
@@ -456,19 +445,16 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  private sendPing(wsKey: WsKey) {
+  private sendPing(wsKey: WsKey, wsUrl: string) {
     this.clearPongTimer(wsKey);
 
     this.logger.silly('Sending ping', { ...loggerCategory, wsKey });
     this.tryWsPing(wsKey);
 
-    this.wsStore.get(wsKey, true)!.activePongTimer = setTimeout(() => {
-      this.logger.info('Pong timeout - closing socket to reconnect', {
-        ...loggerCategory,
-        wsKey,
-      });
-      this.close(wsKey, true);
-    }, this.options.pongTimeout);
+    this.wsStore.get(wsKey, true).activePongTimer = setTimeout(
+      () => this.executeReconnectableClose(wsKey, 'Pong timeout', wsUrl),
+      this.options.pongTimeout
+    );
   }
 
   private onWsPing(
@@ -500,38 +486,44 @@ export class WebsocketClient extends EventEmitter {
    * Closes a connection, if it's even open. If open, this will trigger a reconnect asynchronously.
    * If closed, trigger a reconnect immediately
    */
-  // private executeReconnectableClose(wsKey: WsKey, reason: string) {
-  //   this.logger.info(`${reason} - closing socket to reconnect`, {
-  //     ...loggerCategory,
-  //     wsKey,
-  //     reason,
-  //   });
+  private executeReconnectableClose(
+    wsKey: WsKey,
+    reason: string,
+    wsUrl: string
+  ) {
+    this.logger.info(`${reason} - closing socket to reconnect`, {
+      ...loggerCategory,
+      wsKey,
+      reason,
+    });
 
-  //   const wasOpen = this.wsStore.isWsOpen(wsKey);
+    const wasOpen = this.wsStore.isWsOpen(wsKey);
 
-  //   this.getWs(wsKey)?.terminate();
-  //   delete this.wsStore.get(wsKey, true).activePongTimer;
-  //   this.clearPingTimer(wsKey);
-  //   this.clearPongTimer(wsKey);
+    terminateWs(this.getWs(wsKey));
+    delete this.wsStore.get(wsKey, true).activePongTimer;
+    this.clearPingTimer(wsKey);
+    this.clearPongTimer(wsKey);
 
-  //   if (!wasOpen) {
-  //     this.logger.info(
-  //       `${reason} - socket already closed - trigger immediate reconnect`,
-  //       {
-  //         ...loggerCategory,
-  //         wsKey,
-  //         reason,
-  //       }
-  //     );
-  //     this.reconnectWithDelay(wsKey, this.options.reconnectTimeout);
-  //   }
-  // }
+    if (!wasOpen) {
+      this.logger.info(
+        `${reason} - socket already closed - trigger immediate reconnect`,
+        {
+          ...loggerCategory,
+          wsKey,
+          reason,
+        }
+      );
+      this.reconnectWithDelay(wsKey, this.options.reconnectTimeout, wsUrl);
+    }
+  }
 
   public close(wsKey: WsKey, willReconnect?: boolean) {
     this.logger.info('Closing connection', { ...loggerCategory, wsKey });
     this.setWsState(
       wsKey,
-      willReconnect ? READY_STATE_RECONNECTING : READY_STATE_CLOSING
+      willReconnect
+        ? WsConnectionStateEnum.RECONNECTING
+        : WsConnectionStateEnum.CLOSING
     );
     this.clearTimers(wsKey);
 
@@ -557,9 +549,17 @@ export class WebsocketClient extends EventEmitter {
     return this.close(wsKey, willReconnect);
   }
 
-  private parseWsError(context: string, error: any, wsKey: WsKey) {
+  private parseWsError(
+    context: string,
+    error: any,
+    wsKey: WsKey,
+    wsUrl: string
+  ) {
+    this.logger.error(context, { ...loggerCategory, wsKey, error });
+
     if (!error.message) {
       this.logger.error(`${context} due to unexpected error: `, error);
+      this.emit('error', { error, wsKey, wsUrl });
       return;
     }
 
@@ -572,14 +572,25 @@ export class WebsocketClient extends EventEmitter {
         break;
 
       default:
-        this.logger.error(
-          `${context} due to unexpected response error: ${
-            error.msg || error.message || error
-          }`,
-          { ...loggerCategory, wsKey, error }
-        );
+        if (
+          this.wsStore.getConnectionState(wsKey) !==
+          WsConnectionStateEnum.CLOSING
+        ) {
+          this.logger.error(
+            `${context} due to unexpected response error: "${
+              error?.msg || error?.message || error
+            }"`,
+            { ...loggerCategory, wsKey, error }
+          );
+          this.executeReconnectableClose(wsKey, 'unhandled onWsError', wsUrl);
+        } else {
+          this.logger.info(
+            `${wsKey} socket forcefully closed. Will not reconnect.`
+          );
+        }
         break;
     }
+    this.emit('error', { error, wsKey, wsUrl });
   }
 
   private reconnectWithDelay(
@@ -602,7 +613,13 @@ export class WebsocketClient extends EventEmitter {
       connectionDelayMs,
     });
 
-    setTimeout(() => {
+    if (this.wsStore.get(wsKey)?.activeReconnectTimer) {
+      this.clearReconnectTimer(wsKey);
+    }
+
+    this.wsStore.get(wsKey, true).activeReconnectTimer = setTimeout(() => {
+      this.clearReconnectTimer(wsKey);
+
       if (wsKey.includes('userData')) {
         const { market, symbol, isTestnet } = getContextFromWsKey(wsKey);
         this.logger.info('Reconnecting to user data stream', {
@@ -632,6 +649,7 @@ export class WebsocketClient extends EventEmitter {
   private clearTimers(wsKey: WsKey) {
     this.clearPingTimer(wsKey);
     this.clearPongTimer(wsKey);
+    this.clearReconnectTimer(wsKey);
   }
 
   // Send a ping at intervals
@@ -651,6 +669,15 @@ export class WebsocketClient extends EventEmitter {
       // @ts-ignore
       clearTimeout(wsState.activePongTimer);
       wsState.activePongTimer = undefined;
+    }
+  }
+
+  // Timer tracking that a reconnect is about to happen / in progress
+  private clearReconnectTimer(wsKey: WsKey) {
+    const wsState = this.wsStore.get(wsKey);
+    if (wsState?.activeReconnectTimer) {
+      clearTimeout(wsState.activeReconnectTimer);
+      wsState.activeReconnectTimer = undefined;
     }
   }
 
