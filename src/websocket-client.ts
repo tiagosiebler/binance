@@ -24,7 +24,7 @@ import {
 } from './util/requestUtils';
 import { terminateWs } from './util/ws-utils';
 
-import WsStore from './util/WsStore';
+import WsStore, { WsConnectionStateEnum } from './util/WsStore';
 import { CoinMClient } from './coinm-client';
 
 const wsBaseEndpoints: Record<WsMarket, string> = {
@@ -47,13 +47,13 @@ const READY_STATE_CONNECTED = 2;
 const READY_STATE_CLOSING = 3;
 const READY_STATE_RECONNECTING = 4;
 
-export enum WsConnectionState {
-  READY_STATE_INITIAL,
-  READY_STATE_CONNECTING,
-  READY_STATE_CONNECTED,
-  READY_STATE_CLOSING,
-  READY_STATE_RECONNECTING,
-}
+// export enum WsConnectionState {
+//   READY_STATE_INITIAL,
+//   READY_STATE_CONNECTING,
+//   READY_STATE_CONNECTED,
+//   READY_STATE_CLOSING,
+//   READY_STATE_RECONNECTING,
+// }
 
 export interface WSClientConfigurableOptions {
   api_key?: string;
@@ -508,6 +508,37 @@ export class WebsocketClient extends EventEmitter {
     this.clearPongTimer(wsKey);
   }
 
+  /**
+   * Closes a connection, if it's even open. If open, this will trigger a reconnect asynchronously.
+   * If closed, trigger a reconnect immediately
+   */
+  // private executeReconnectableClose(wsKey: WsKey, reason: string) {
+  //   this.logger.info(`${reason} - closing socket to reconnect`, {
+  //     ...loggerCategory,
+  //     wsKey,
+  //     reason,
+  //   });
+
+  //   const wasOpen = this.wsStore.isWsOpen(wsKey);
+
+  //   this.getWs(wsKey)?.terminate();
+  //   delete this.wsStore.get(wsKey, true).activePongTimer;
+  //   this.clearPingTimer(wsKey);
+  //   this.clearPongTimer(wsKey);
+
+  //   if (!wasOpen) {
+  //     this.logger.info(
+  //       `${reason} - socket already closed - trigger immediate reconnect`,
+  //       {
+  //         ...loggerCategory,
+  //         wsKey,
+  //         reason,
+  //       }
+  //     );
+  //     this.reconnectWithDelay(wsKey, this.options.reconnectTimeout);
+  //   }
+  // }
+
   public close(wsKey: WsKey, willReconnect?: boolean) {
     this.logger.info('Closing connection', { ...loggerCategory, wsKey });
     this.setWsState(
@@ -644,7 +675,7 @@ export class WebsocketClient extends EventEmitter {
     return this.wsStore.getWs(wsKey);
   }
 
-  private setWsState(wsKey: WsKey, state: WsConnectionState) {
+  private setWsState(wsKey: WsKey, state: WsConnectionStateEnum) {
     this.wsStore.setConnectionState(wsKey, state);
   }
 
