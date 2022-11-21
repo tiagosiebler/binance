@@ -104,6 +104,7 @@ export interface OrderBookParams {
 }
 
 export type KlineInterval =
+  | '1s'
   | '1m'
   | '3m'
   | '5m'
