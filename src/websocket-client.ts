@@ -520,6 +520,14 @@ export class WebsocketClient extends EventEmitter {
     terminateWs(this.getWs(wsKey));
   }
 
+  public closeAll(force?: boolean) {
+    const keys = this.wsStore.getKeys();
+    this.logger.info(`Closing all ws connections: ${keys}`);
+    keys.forEach((key) => {
+      this.close(key, force);
+    });
+  }
+
   public closeWs(ws: WebSocket, willReconnect?: boolean) {
     const wsKey = this.wsUrlKeyMap[ws.url];
     if (!wsKey) {
@@ -631,125 +639,6 @@ export class WebsocketClient extends EventEmitter {
 
     return wsBaseEndpoints[market];
   }
-
-  //   // const networkKey = this.options.livenet ? 'livenet' : 'testnet';
-  //   // if (this.isLinear() || wsKey.startsWith('linear')){
-  //   //   if (wsKey === wsKeyLinearPublic) {
-  //   //     return linearEndpoints.public[networkKey];
-  //   //   }
-
-  //   //   if (wsKey === wsKeyLinearPrivate) {
-  //   //     return linearEndpoints.private[networkKey];
-  //   //   }
-
-  //   //   this.logger.error('Unhandled linear wsKey: ', { ...loggerCategory, wsKey });
-  //   //   return linearEndpoints[networkKey];
-  //   // }
-  //   // return inverseEndpoints[networkKey];
-  // }
-
-  // private getWsKeyForTopic(baseUrlKey: BinanceBaseUrlKey, topic: string) {
-  //   return isSpotBase(baseUrlKey) ? wsKeySpot : getLinearWsKeyForTopic(topic);
-  // }
-
-  // public subscribeSpotPublic(wsTopics: string[] | string) {
-  //   return this.subscribe('spot', wsTopics);
-  // }
-
-  // public unsubscribeSpotPublic(wsTopics: string[] | string) {
-  //   return this.unsubscribe('spot', wsTopics);
-  // }
-
-  // TODO: force these through single stream, instead of general one
-  /**
-   * Add topic/topics to WS subscription list
-   */
-  // public subscribe(baseUrlKey: BinanceBaseUrlKey, wsTopics: string[] | string) {
-  //   const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
-  //   topics.forEach(topic => this.wsStore.addTopic(
-  //     this.getWsKeyForTopic(baseUrlKey, topic),//wsKeySpot
-  //     topic
-  //   ));
-
-  //   // attempt to send subscription topic per websocket
-  //   this.wsStore.getKeys().forEach((wsKey: WsKey) => {
-  //     // if connected, send subscription request
-  //     if (this.wsStore.isConnectionState(wsKey, READY_STATE_CONNECTED)) {
-  //       return this.requestSubscribeTopics(wsKey, topics);
-  //     }
-
-  //     // start connection process if it hasn't yet begun. Topics are automatically subscribed to on-connect
-  //     if (
-  //       !this.wsStore.isConnectionState(wsKey, READY_STATE_CONNECTING) &&
-  //       !this.wsStore.isConnectionState(wsKey, READY_STATE_RECONNECTING)
-  //     ) {
-  //       return this.connectSingleStream(wsKey);
-  //     }
-  //   });
-  // }
-
-  /**
-   * Remove topic/topics from WS subscription list
-   */
-  // public unsubscribe(baseUrlKey: BinanceBaseUrlKey, wsTopics: string[] | string) {
-  //   const topics = Array.isArray(wsTopics) ? wsTopics : [wsTopics];
-  //   topics.forEach(topic => this.wsStore.deleteTopic(
-  //     this.getWsKeyForTopic(baseUrlKey, topic),
-  //     topic
-  //   ));
-
-  //   this.wsStore.getKeys().forEach((wsKey: WsKey) => {
-  //     // unsubscribe request only necessary if active connection exists
-  //     if (this.wsStore.isConnectionState(wsKey, READY_STATE_CONNECTED)) {
-  //       this.requestUnsubscribeTopics(wsKey, topics);
-  //     }
-  //   });
-  // }
-
-  // /**
-  //  * Request connection of all dependent websockets, instead of waiting for automatic connection by library
-  //  */
-  // public connectAll(): Promise<WebSocket | undefined>[] | undefined {
-  //   return [this.connectSingleStream(wsKeySpot)];
-
-  //   // if (this.isInverse()) {
-  //   //   return [this.connect(wsKeySpot)];
-  //   // }
-
-  //   // if (this.isLinear()) {
-  //   //   return [this.connect(wsKeyLinearPublic), this.connect(wsKeyLinearPrivate)];
-  //   // }
-  // }
-
-  // private async connectSingleStream(streamName: string): Promise<WebSocket | undefined> {
-  //   try {
-  //     if (this.wsStore.isWsOpen(streamName)) {
-  //       this.logger.error('Refused to connect to ws with existing active connection', { ...loggerCategory, wsKey: streamName })
-  //       return this.wsStore.getWs(streamName);
-  //     }
-
-  //     if (this.wsStore.isConnectionState(streamName, READY_STATE_CONNECTING)) {
-  //       this.logger.error('Refused to connect to ws, connection attempt already active', { ...loggerCategory, wsKey: streamName })
-  //       return;
-  //     }
-
-  //     if (
-  //       !this.wsStore.getConnectionState(streamName) ||
-  //       this.wsStore.isConnectionState(streamName, READY_STATE_INITIAL)
-  //     ) {
-  //       this.setWsState(streamName, READY_STATE_CONNECTING);
-  //     }
-
-  //     const url = this.getWsUrl(streamName) + '/stream?';
-  //     //+ authParams;
-  //     const ws = this.connectToWsUrl(url, streamName);
-
-  //     return this.wsStore.setWs(streamName, ws);
-  //   } catch (err) {
-  //     this.parseWsError('Connection failed', err, streamName);
-  //     this.reconnectWithDelay(streamName, this.options.reconnectTimeout!);
-  //   }
-  // }
 
   public getWs(wsKey: WsKey): WebSocket | undefined {
     return this.wsStore.getWs(wsKey);
