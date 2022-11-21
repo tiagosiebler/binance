@@ -41,20 +41,6 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
 
 const loggerCategory = { category: 'binance-ws' };
 
-const READY_STATE_INITIAL = 0;
-const READY_STATE_CONNECTING = 1;
-const READY_STATE_CONNECTED = 2;
-const READY_STATE_CLOSING = 3;
-const READY_STATE_RECONNECTING = 4;
-
-// export enum WsConnectionState {
-//   READY_STATE_INITIAL,
-//   READY_STATE_CONNECTING,
-//   READY_STATE_CONNECTED,
-//   READY_STATE_CLOSING,
-//   READY_STATE_RECONNECTING,
-// }
-
 export interface WSClientConfigurableOptions {
   api_key?: string;
   api_secret?: string;
@@ -317,7 +303,9 @@ export class WebsocketClient extends EventEmitter {
 
   private onWsOpen(ws: WebSocket, wsKey: WsKey, wsUrl: string) {
     this.logger.silly(`onWsOpen(): ${wsUrl} : ${wsKey}`);
-    if (this.wsStore.isConnectionState(wsKey, READY_STATE_RECONNECTING)) {
+    if (
+      this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.RECONNECTING)
+    ) {
       this.logger.info('Websocket reconnected', { ...loggerCategory, wsKey });
       this.emit('reconnected', { wsKey, ws });
     } else {
@@ -325,7 +313,7 @@ export class WebsocketClient extends EventEmitter {
       this.emit('open', { wsKey, ws });
     }
 
-    this.setWsState(wsKey, READY_STATE_CONNECTED);
+    this.setWsState(wsKey, WsConnectionStateEnum.CONNECTED);
 
     const topics = [...this.wsStore.getTopics(wsKey)];
     if (topics.length) {
@@ -368,11 +356,11 @@ export class WebsocketClient extends EventEmitter {
       this.wsStore.delete(wsKey);
     }
 
-    if (wsConnectionState !== READY_STATE_CLOSING) {
+    if (wsConnectionState !== WsConnectionStateEnum.CLOSING) {
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!, wsUrl);
       this.emit('reconnecting', { wsKey, event, ws });
     } else {
-      this.setWsState(wsKey, READY_STATE_INITIAL);
+      this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
       this.emit('close', { wsKey, event, ws });
     }
   }
@@ -601,8 +589,11 @@ export class WebsocketClient extends EventEmitter {
   ) {
     this.clearTimers(wsKey);
 
-    if (this.wsStore.getConnectionState(wsKey) !== READY_STATE_CONNECTING) {
-      this.setWsState(wsKey, READY_STATE_RECONNECTING);
+    if (
+      this.wsStore.getConnectionState(wsKey) !==
+      WsConnectionStateEnum.CONNECTING
+    ) {
+      this.setWsState(wsKey, WsConnectionStateEnum.RECONNECTING);
     }
 
     this.logger.info('Reconnecting to websocket with delay...', {
@@ -1601,7 +1592,9 @@ export class WebsocketClient extends EventEmitter {
 
     this.setWsState(
       wsKey,
-      isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING
+      isReconnecting
+        ? WsConnectionStateEnum.RECONNECTING
+        : WsConnectionStateEnum.CONNECTING
     );
     const ws = this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
@@ -1667,7 +1660,9 @@ export class WebsocketClient extends EventEmitter {
 
       this.setWsState(
         wsKey,
-        isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING
+        isReconnecting
+          ? WsConnectionStateEnum.RECONNECTING
+          : WsConnectionStateEnum.CONNECTING
       );
       const ws = this.connectToWsUrl(
         this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
@@ -1719,7 +1714,9 @@ export class WebsocketClient extends EventEmitter {
 
       this.setWsState(
         wsKey,
-        isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING
+        isReconnecting
+          ? WsConnectionStateEnum.RECONNECTING
+          : WsConnectionStateEnum.CONNECTING
       );
       const ws = this.connectToWsUrl(
         this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
@@ -1776,7 +1773,9 @@ export class WebsocketClient extends EventEmitter {
       // Necessary so client knows this is a reconnect
       this.setWsState(
         wsKey,
-        isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING
+        isReconnecting
+          ? WsConnectionStateEnum.RECONNECTING
+          : WsConnectionStateEnum.CONNECTING
       );
       const ws = this.connectToWsUrl(
         this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
@@ -1831,7 +1830,9 @@ export class WebsocketClient extends EventEmitter {
       // Necessary so client knows this is a reconnect
       this.setWsState(
         wsKey,
-        isReconnecting ? READY_STATE_RECONNECTING : READY_STATE_CONNECTING
+        isReconnecting
+          ? WsConnectionStateEnum.RECONNECTING
+          : WsConnectionStateEnum.CONNECTING
       );
       const ws = this.connectToWsUrl(
         this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
