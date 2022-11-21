@@ -44,6 +44,8 @@ export default abstract class BaseRestClient {
       syncIntervalMs: 3600000,
       // if true, we'll throw errors if any params are undefined
       strictParamValidation: false,
+      // disable the time sync mechanism by default
+      disableTimeSync: true,
       ...options,
     };
 
