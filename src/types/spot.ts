@@ -551,7 +551,7 @@ export interface OrderResponseResult {
   price: numberInString;
   origQty: numberInString;
   executedQty: numberInString;
-  cumulativeQuoteQty: numberInString;
+  cummulativeQuoteQty: numberInString;
   status: OrderStatus;
   timeInForce: OrderTimeInForce;
   type: OrderType;
@@ -574,7 +574,7 @@ export interface OrderResponseFull {
   price: numberInString;
   origQty: numberInString;
   executedQty: numberInString;
-  cumulativeQuoteQty: numberInString;
+  cummulativeQuoteQty: numberInString;
   status: OrderStatus;
   timeInForce: OrderTimeInForce;
   type: OrderType;
@@ -594,7 +594,7 @@ export interface CancelSpotOrderResult {
   price: numberInString;
   origQty: numberInString;
   executedQty: numberInString;
-  cumulativeQuoteQty: numberInString;
+  cummulativeQuoteQty: numberInString;
   status: OrderStatus;
   timeInForce: OrderTimeInForce;
   type: OrderType;
