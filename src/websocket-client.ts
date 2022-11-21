@@ -199,6 +199,9 @@ export class WebsocketClient extends EventEmitter {
 
     this.listenKeyStateStore = {};
     this.wsUrlKeyMap = {};
+
+    // add default error handling so this doesn't crash node (if the user didn't set a handler)
+    this.on('error', () => {});
   }
 
   private getRestClientOptions(): RestClientOptions {
