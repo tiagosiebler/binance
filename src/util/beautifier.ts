@@ -6,7 +6,6 @@ export default class Beautifier {
   private floatKeysHashMap: Record<string, boolean>;
 
   constructor() {
-
     this.floatKeys = [
       'accumulatedQuantity',
       'accumulatedRealisedPreFee',
@@ -36,7 +35,7 @@ export default class Beautifier {
       'commissionAmount',
       'crossWalletBalance',
       'currentClose',
-      'cumulativeQuoteAssetTransactedQty',
+      'cummulativeQuoteAssetTransactedQty',
       'entryPrice',
       'executedQty',
       'free',
@@ -121,12 +120,12 @@ export default class Beautifier {
       'withdrawMax',
       'withdrawMin',
       'withdrawIntegerMultiple',
-      'withdrawing'
+      'withdrawing',
     ];
 
     // Map so we don't have to perform indexOf for each iteration
     this.floatKeysHashMap = {};
-    this.floatKeys.forEach(keyName => {
+    this.floatKeys.forEach((keyName) => {
       this.floatKeysHashMap[keyName] = true;
     });
 
@@ -139,7 +138,7 @@ export default class Beautifier {
         l: 'lastTradeId',
         T: 'timestamp',
         m: 'maker',
-        M: 'bestPriceMatch'
+        M: 'bestPriceMatch',
       },
       bookTickerEvent: {
         e: 'eventType',
@@ -148,7 +147,7 @@ export default class Beautifier {
         b: 'bidPrice',
         B: 'bidQty',
         a: 'askPrice',
-        A: 'askQty'
+        A: 'askQty',
       },
       klines: {
         0: 'openTime',
@@ -162,21 +161,21 @@ export default class Beautifier {
         8: 'trades',
         9: 'takerBaseAssetVolume',
         10: 'takerQuoteAssetVolume',
-        11: 'ignored'
+        11: 'ignored',
       },
       bids: [
         {
           0: 'price',
           1: 'quantity',
-          2: 'ignored'
-        }
+          2: 'ignored',
+        },
       ],
       asks: [
         {
           0: 'price',
           1: 'quantity',
-          2: 'ignored'
-        }
+          2: 'ignored',
+        },
       ],
       depthUpdateEvent: {
         e: 'eventType',
@@ -185,40 +184,40 @@ export default class Beautifier {
         U: 'firstUpdateId',
         u: 'lastUpdateId',
         b: 'bidDepthDelta',
-        a: 'askDepthDelta'
+        a: 'askDepthDelta',
       },
       bidDepthDelta: [
         {
           0: 'price',
           1: 'quantity',
-          2: 'ignored'
-        }
+          2: 'ignored',
+        },
       ],
       askDepthDelta: [
         {
           0: 'price',
           1: 'quantity',
-          2: 'ignored'
-        }
+          2: 'ignored',
+        },
       ],
       klineEvent: {
         e: 'eventType',
         E: 'eventTime',
         s: 'symbol',
-        k: 'kline'
+        k: 'kline',
       },
       continuous_klineEvent: {
         e: 'eventType',
         E: 'eventTime',
         ps: 'symbol',
         ct: 'contractType',
-        k: 'kline'
+        k: 'kline',
       },
       indexPrice_klineEvent: {
         e: 'eventType',
         E: 'eventTime',
         ps: 'symbol',
-        k: 'kline'
+        k: 'kline',
       },
       kline: {
         t: 'startTime',
@@ -237,7 +236,7 @@ export default class Beautifier {
         q: 'quoteVolume',
         V: 'volumeActive',
         Q: 'quoteVolumeActive',
-        B: 'ignored'
+        B: 'ignored',
       },
       aggTradeEvent: {
         e: 'eventType',
@@ -250,7 +249,7 @@ export default class Beautifier {
         l: 'lastTradeId',
         T: 'time',
         m: 'maker',
-        M: 'ignored'
+        M: 'ignored',
       },
       outboundAccountInfoEvent: {
         e: 'eventType',
@@ -263,13 +262,13 @@ export default class Beautifier {
         W: 'canWithdraw',
         D: 'canDeposit',
         B: 'balances',
-        u: 'lastUpdateTime'
+        u: 'lastUpdateTime',
       },
       outboundAccountPositionEvent: {
         e: 'eventType',
         E: 'eventTime',
         u: 'lastUpdateTime',
-        B: 'balances'
+        B: 'balances',
       },
       balanceUpdateEvent: {
         e: 'eventType',
@@ -282,7 +281,7 @@ export default class Beautifier {
         e: 'eventType',
         E: 'eventTime',
         i: 'symbol',
-        p: 'indexPrice'
+        p: 'indexPrice',
       },
       listStatusEvent: {
         e: 'eventType',
@@ -387,7 +386,7 @@ export default class Beautifier {
           iw: 'isolatedWalletAmount',
           mp: 'markPrice',
           up: 'unrealisedPnl',
-          mm: 'maintenanceMarginRequired'
+          mm: 'maintenanceMarginRequired',
         },
       ],
       listenKeyExpiredEvent: {
@@ -424,8 +423,8 @@ export default class Beautifier {
         {
           a: 'asset',
           f: 'availableBalance',
-          l: 'onOrderBalance'
-        }
+          l: 'onOrderBalance',
+        },
       ],
       executionReportEvent: {
         e: 'eventType',
@@ -457,7 +456,7 @@ export default class Beautifier {
         m: 'isMaker',
         M: 'ignoreThis2',
         O: 'orderCreationTime',
-        Z: 'cumulativeQuoteAssetTransactedQty',
+        Z: 'cummulativeQuoteAssetTransactedQty',
         Y: 'lastQuoteAssetTransactedQty',
         Q: 'orderQuoteQty',
       },
@@ -472,7 +471,7 @@ export default class Beautifier {
         a: 'sellerOrderId',
         T: 'time',
         m: 'maker',
-        M: 'ignored'
+        M: 'ignored',
       },
       '24hrTickerEvent': {
         e: 'eventType',
@@ -511,12 +510,12 @@ export default class Beautifier {
         v: 'baseAssetVolume',
         q: 'quoteAssetVolume',
       },
-      'forceOrderEvent': {
+      forceOrderEvent: {
         e: 'eventType',
         E: 'eventTime',
         o: 'liquidationOrder',
       },
-      'liquidationOrder': {
+      liquidationOrder: {
         s: 'symbol',
         S: 'side',
         o: 'orderType',
@@ -528,7 +527,7 @@ export default class Beautifier {
         l: 'lastFilledQuantity',
         z: 'orderFilledAccumulatedQuantity',
         T: 'orderTradeTime',
-      }
+      },
     };
   }
 
@@ -576,7 +575,7 @@ export default class Beautifier {
       } else if (type === 'string' || type === 'number' || type === 'boolean') {
         beautifedArray.push(this.beautifyValueWithKey(parentKey || key, val));
       } else {
-        beautifedArray.push(this.beautifyObjectValues(val))
+        beautifedArray.push(this.beautifyObjectValues(val));
       }
     }
     return beautifedArray;
@@ -584,7 +583,11 @@ export default class Beautifier {
 
   beautify(data: any, key?: string | number) {
     if (typeof key !== 'string' && typeof key !== 'number') {
-      console.warn(`beautify(object, ${key}) is not valid key - beautification failed `, data, key);
+      console.warn(
+        `beautify(object, ${key}) is not valid key - beautification failed `,
+        data,
+        key
+      );
       return data;
     }
     const knownBeautification = this.beautificationMap[key];
@@ -607,7 +610,7 @@ export default class Beautifier {
       let newKey = knownBeautification[key] || key;
       if (Array.isArray(newKey)) {
         newKey = newKey[0];
-      };
+      }
 
       if (!Array.isArray(value)) {
         if (valueType === 'object' && value !== null) {
@@ -621,25 +624,24 @@ export default class Beautifier {
       const newArray: any[] = [];
       if (Array.isArray(this.beautificationMap[newKey])) {
         for (const elementValue of value) {
-          const mappedBeautification = this.beautificationMap[knownBeautification[key]];
+          const mappedBeautification =
+            this.beautificationMap[knownBeautification[key]];
           const childMapping = mappedBeautification[0];
 
           if (typeof childMapping === 'object' && childMapping !== null) {
             const mappedResult = {};
             for (const childElementKey in elementValue) {
               const newKey = childMapping[childElementKey] || childElementKey;
-              mappedResult[newKey] = this.beautify(elementValue[childElementKey], newKey);
+              mappedResult[newKey] = this.beautify(
+                elementValue[childElementKey],
+                newKey
+              );
             }
             newArray.push(mappedResult);
             continue;
           }
 
-          newArray.push(
-            this.beautify(
-              elementValue,
-              childMapping
-            )
-          );
+          newArray.push(this.beautify(elementValue, childMapping));
         }
       }
       newItem[newKey] = newArray;
@@ -650,9 +652,13 @@ export default class Beautifier {
   /**
    * Entry point to beautify WS message. EventType is determined automatically unless this is a combined stream event.
    */
-  beautifyWsMessage(data: any, eventType?: string, isCombined?: boolean): WsFormattedMessage {
+  beautifyWsMessage(
+    data: any,
+    eventType?: string,
+    isCombined?: boolean
+  ): WsFormattedMessage {
     if (Array.isArray(data)) {
-      return data.map(event => {
+      return data.map((event) => {
         if (event.e) {
           return this.beautify(event, event.e + 'Event');
         }

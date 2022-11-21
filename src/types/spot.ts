@@ -551,7 +551,7 @@ export interface OrderResponseResult {
   price: numberInString;
   origQty: numberInString;
   executedQty: numberInString;
-  cumulativeQuoteQty: numberInString;
+  cummulativeQuoteQty: numberInString;
   status: OrderStatus;
   timeInForce: OrderTimeInForce;
   type: OrderType;
@@ -574,7 +574,7 @@ export interface OrderResponseFull {
   price: numberInString;
   origQty: numberInString;
   executedQty: numberInString;
-  cumulativeQuoteQty: numberInString;
+  cummulativeQuoteQty: numberInString;
   status: OrderStatus;
   timeInForce: OrderTimeInForce;
   type: OrderType;
@@ -594,7 +594,7 @@ export interface CancelSpotOrderResult {
   price: numberInString;
   origQty: numberInString;
   executedQty: numberInString;
-  cumulativeQuoteQty: numberInString;
+  cummulativeQuoteQty: numberInString;
   status: OrderStatus;
   timeInForce: OrderTimeInForce;
   type: OrderType;
@@ -940,6 +940,28 @@ export interface EnableUniversalTransferApiKeyBrokerSubAccountParams {
   canUniversalTransfer: boolean;
 }
 
+export interface EnableMarginBrokerSubAccountParams {
+  subAccountId: string;
+  margin: boolean;
+}
+
+export interface EnableMarginBrokerSubAccountResponse {
+  subAccountId: string;
+  enableMargin: boolean;
+  updateTime: number;
+}
+
+export interface EnableFuturesBrokerSubAccountParams {
+  subAccountId: string;
+  futures: boolean;
+}
+
+export interface EnableFuturesBrokerSubAccountResponse {
+  subAccountId: string;
+  enableFutures: boolean;
+  updateTime: number;
+}
+
 export interface EnableMarginApiKeyBrokerSubAccountParams {
   subAccountId: string;
   margin: boolean;
@@ -962,6 +984,27 @@ export interface GetUniversalTransferBrokerParams {
   page?: number;
   limit?: number;
   showAllStatus?: boolean;
+}
+
+export interface DeleteApiKeyBrokerSubAccountParams {
+  subAccountId: string;
+  subAccountApiKey: string;
+}
+
+export interface ChangePermissionApiKeyBrokerSubAccountParams {
+  subAccountId: string;
+  subAccountApiKey: string;
+  canTrade: boolean;
+  marginTrade: boolean;
+  futuresTrade: boolean;
+}
+
+export interface ChangePermissionApiKeyBrokerSubAccountResponse {
+  subAccountId: string;
+  apikey: string;
+  canTrade: boolean;
+  marginTrade: boolean;
+  futuresTrade: boolean;
 }
 
 export interface VirtualSubAccount {
@@ -1421,6 +1464,51 @@ export interface PurchaseFlexibleProductParams {
 
 export interface PurchaseFlexibleProductResponse {
   purchaseId: number;
+}
+
+export interface RedeemFlexibleProductParams {
+  productId: string;
+  amount: number;
+  type: 'FAST' | 'NORMAL';
+}
+
+export interface LeftDailyPurchaseQuotaFlexibleProductResponse {
+  asset: string;
+  leftQuota: string;
+}
+
+export type ProjectStatus = 'ALL' | 'SUBSCRIBABLE' | 'UNSUBSCRIBABLE';
+export type ProjectType = 'ACTIVITY' | 'CUSTOMIZED_FIXED';
+export type ProjectSortBy =
+  | 'START_TIME'
+  | 'LOT_SIZE'
+  | 'INTEREST_RATE'
+  | 'DURATION';
+
+export interface FixedAndActivityProjectParams {
+  asset?: string;
+  type: ProjectType;
+  status?: ProjectStatus;
+  isSortAsc?: boolean;
+  sortBy?: ProjectSortBy;
+  current?: number;
+  size?: number;
+}
+export interface FixedAndActivityProjectPositionParams {
+  asset?: string;
+  projectId?: string;
+  status?: StakingStatus;
+}
+
+export type LendingType = 'DAILY' | 'ACTIVITY' | 'CUSTOMIZED_FIXED';
+
+export interface PurchaseRecordParams {
+  lendingType: LendingType;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
 }
 
 export interface StakingHistory {
