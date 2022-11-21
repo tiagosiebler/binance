@@ -38,6 +38,8 @@ import {
   BSwapOperations,
   BSwapOperationsParams,
   CancelSpotOrderResult,
+  ChangePermissionApiKeyBrokerSubAccountParams,
+  ChangePermissionApiKeyBrokerSubAccountResponse,
   ConvertDustParams,
   CreateApiKeyBrokerSubAccountParams,
   CreateApiKeyBrokerSubAccountResponse,
@@ -48,6 +50,7 @@ import {
   DailyAccountSnapshot,
   DailyAccountSnapshotParams,
   DailyChangeStatistic,
+  DeleteApiKeyBrokerSubAccountParams,
   DepositAddressParams,
   DepositAddressResponse,
   DepositHistory,
@@ -55,12 +58,18 @@ import {
   DustConversion,
   DustInfo,
   DustLog,
+  EnableFuturesBrokerSubAccountParams,
+  EnableFuturesBrokerSubAccountResponse,
   EnableMarginApiKeyBrokerSubAccountParams,
+  EnableMarginBrokerSubAccountParams,
+  EnableMarginBrokerSubAccountResponse,
   EnableOrDisableIPRestrictionForSubAccountParams,
   EnableUniversalTransferApiKeyBrokerSubAccountParams,
   EnableUniversalTransferApiKeyBrokerSubAccountResponse,
   ExchangeInfo,
   ExchangeInfoParams,
+  FixedAndActivityProjectParams,
+  FixedAndActivityProjectPositionParams,
   FlexibleSavingBasicParams,
   FuturesPositionRisk,
   GetApiKeyBrokerSubAccountParams,
@@ -70,6 +79,7 @@ import {
   GetUniversalTransferBrokerParams,
   IsolatedMarginAccountInfo,
   IsolatedMarginAccountTransferParams,
+  LeftDailyPurchaseQuotaFlexibleProductResponse,
   MarginAccountLoanParams,
   MarginRecordResponse,
   MarginTransactionResponse,
@@ -80,6 +90,7 @@ import {
   OrderResponseResult,
   PurchaseFlexibleProductParams,
   PurchaseFlexibleProductResponse,
+  PurchaseRecordParams,
   QueryCrossMarginAccountDetailsParams,
   QueryCrossMarginPairParams,
   QueryCrossMarginPairResponse,
@@ -91,6 +102,7 @@ import {
   QueryMaxTransferOutAmountResponse,
   RawAccountTrade,
   RawTrade,
+  RedeemFlexibleProductParams,
   RemoveBSwapLiquidityParams,
   SpotOrder,
   StakingBasicParams,
@@ -546,6 +558,7 @@ export class MainClient extends BaseRestClient {
   ): Promise<BrokerSubAccount[]> {
     return this.getPrivate('sapi/v1/broker/subAccount', params);
   }
+
   getApiKeyBrokerSubAccount(
     params: GetApiKeyBrokerSubAccountParams
   ): Promise<ApiKeyBrokerSubAccount[]> {
@@ -558,6 +571,24 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/broker/subAccountApi', params);
   }
 
+  deleteApiKeyBrokerSubAccount(
+    params: DeleteApiKeyBrokerSubAccountParams
+  ): Promise<{}> {
+    return this.deletePrivate('sapi/v1/broker/subAccountApi', params);
+  }
+
+  changePermissionApiKeyBrokerSubAccount(
+    params: ChangePermissionApiKeyBrokerSubAccountParams
+  ): Promise<ChangePermissionApiKeyBrokerSubAccountResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccountApi/permission', params);
+  }
+
+  changeComissionBrokerSubAccount(
+    params: ChangePermissionApiKeyBrokerSubAccountParams
+  ): Promise<ChangePermissionApiKeyBrokerSubAccountResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccountApi/permission', params);
+  }
+
   enableUniversalTransferApiKeyBrokerSubAccount(
     params: EnableUniversalTransferApiKeyBrokerSubAccountParams
   ): Promise<EnableUniversalTransferApiKeyBrokerSubAccountResponse> {
@@ -565,6 +596,18 @@ export class MainClient extends BaseRestClient {
       'sapi/v1/broker/subAccountApi/permission/universalTransfer',
       params
     );
+  }
+
+  enableMarginBrokerSubAccount(
+    params: EnableMarginBrokerSubAccountParams
+  ): Promise<EnableMarginBrokerSubAccountResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccount/futures', params);
+  }
+
+  enableFuturesBrokerSubAccount(
+    params: EnableFuturesBrokerSubAccountParams
+  ): Promise<EnableFuturesBrokerSubAccountResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccount', params);
   }
 
   enableMarginApiKeyBrokerSubAccount(
@@ -1033,16 +1076,83 @@ export class MainClient extends BaseRestClient {
   ): Promise<StakingProduct[]> {
     return this.getPrivate(`sapi/v1/lending/daily/product/list`, params);
   }
+
   purchaseFlexibleProduct(
     params: PurchaseFlexibleProductParams
   ): Promise<PurchaseFlexibleProductResponse> {
     return this.postPrivate(`sapi/v1/lending/daily/purchase`, params);
   }
+
+  redeemFlexibleProduct(params: RedeemFlexibleProductParams): Promise<{}> {
+    return this.postPrivate(`sapi/v1/lending/daily/redeem`, params);
+  }
+
   getFlexibleProductPosition(params: {
     asset?: string;
   }): Promise<StakingProduct[]> {
     return this.getPrivate(`sapi/v1/lending/daily/token/position`, params);
   }
+
+  getLeftDailyPurchaseQuotaFlexibleProduct(params: {
+    productId: string;
+  }): Promise<LeftDailyPurchaseQuotaFlexibleProductResponse> {
+    return this.getPrivate(`sapi/v1/lending/daily/userLeftQuota`, params);
+  }
+
+  getLeftDailyRedemptionQuotaFlexibleProduct(params: {
+    productId: string;
+  }): Promise<
+    LeftDailyPurchaseQuotaFlexibleProductResponse & {
+      dailyQuota: string;
+      minRedemptionAmount: string;
+    }
+  > {
+    return this.getPrivate(`sapi/v1/lending/daily/userRedemptionQuota`, params);
+  }
+
+  purchaseFixedAndActivityProject(params: {
+    projectId: string;
+    lot: number;
+  }): Promise<PurchaseFlexibleProductResponse> {
+    return this.postPrivate(`sapi/v1/lending/customizedFixed/purchase`, params);
+  }
+
+  getFixedAndActivityProjects(
+    params: FixedAndActivityProjectParams
+  ): Promise<any[]> {
+    return this.getPrivate(`sapi/v1/lending/project/list`, params);
+  }
+
+  getFixedAndActivityProductPosition(
+    params: FixedAndActivityProjectPositionParams
+  ): Promise<any[]> {
+    return this.getPrivate(`sapi/v1/lending/project/position/list`, params);
+  }
+
+  getLendingAccount(): Promise<StakingProduct[]> {
+    return this.getPrivate(`sapi/v1/lending/union/account`);
+  }
+
+  getPurchaseRecord(params: PurchaseRecordParams): Promise<any[]> {
+    return this.getPrivate(`sapi/v1/lending/union/purchaseRecord`, params);
+  }
+
+  getRedemptionRecord(params: PurchaseRecordParams): Promise<any[]> {
+    return this.getPrivate(`sapi/v1/lending/union/redemptionRecord`, params);
+  }
+
+  getInterestHistory(params: PurchaseRecordParams): Promise<any[]> {
+    return this.getPrivate(`sapi/v1/lending/union/interestHistory`, params);
+  }
+
+  changeFixedAndActivityPositionToDailyPosition(params: {
+    projectId: string;
+    lot: number;
+    positionId?: number;
+  }): Promise<PurchaseFlexibleProductResponse> {
+    return this.postPrivate(`sapi/v1/lending/positionChanged`, params);
+  }
+
   /**
    *
    * Mining Endpoints
