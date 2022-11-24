@@ -8,6 +8,7 @@ import {
   OrderBookParams,
   HistoricalTradesParams,
   KlinesParams,
+  Kline,
   RecentTradesParams,
   CancelOrderParams,
   CancelOCOParams,
@@ -37,7 +38,6 @@ import {
   FuturesOrderBook,
   RawFuturesTrade,
   AggregateFuturesTrade,
-  FuturesKline,
   FundingRateHistory,
   FuturesSymbolOrderBookTicker,
   OpenInterest,
@@ -134,23 +134,21 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/aggTrades', params);
   }
 
-  getKlines(params: KlinesParams): Promise<FuturesKline[]> {
+  getKlines(params: KlinesParams): Promise<Kline[]> {
     return this.get('fapi/v1/klines', params);
   }
 
   getContinuousContractKlines(
     params: ContinuousContractKlinesParams
-  ): Promise<FuturesKline[]> {
+  ): Promise<Kline[]> {
     return this.get('fapi/v1/continuousKlines', params);
   }
 
-  getIndexPriceKlines(params: IndexPriceKlinesParams): Promise<FuturesKline[]> {
+  getIndexPriceKlines(params: IndexPriceKlinesParams): Promise<Kline[]> {
     return this.get('fapi/v1/indexPriceKlines', params);
   }
 
-  getMarkPriceKlines(
-    params: SymbolKlinePaginatedParams
-  ): Promise<FuturesKline[]> {
+  getMarkPriceKlines(params: SymbolKlinePaginatedParams): Promise<Kline[]> {
     return this.get('fapi/v1/markPriceKlines', params);
   }
 
