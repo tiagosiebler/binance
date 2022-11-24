@@ -277,21 +277,6 @@ export interface AggregateFuturesTrade {
   M: boolean;
 }
 
-export type FuturesKline = [
-  number, // open time
-  numberInString, // open
-  numberInString, // high
-  numberInString, // low
-  numberInString, // close
-  numberInString, // volume
-  number, // close time
-  numberInString, // quote asset volume
-  number, // number of trades
-  numberInString, // taker buy base asset vol
-  numberInString, // taker buy quote asest vol
-  numberInString // ignore?
-];
-
 export interface MarkPrice {
   symbol: string;
   markPrice: numberInString;

@@ -11,6 +11,7 @@ import {
   GetOrderParams,
   HistoricalTradesParams,
   KlinesParams,
+  Kline,
   NewOCOParams,
   OrderBookParams,
   OrderIdProperty,
@@ -688,7 +689,7 @@ export class MainClient extends BaseRestClient {
     return this.get('api/v3/aggTrades', params);
   }
 
-  getKlines(params: KlinesParams): Promise<any> {
+  getKlines(params: KlinesParams): Promise<Kline[]> {
     return this.get('api/v3/klines', params);
   }
 

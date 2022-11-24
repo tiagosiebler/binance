@@ -141,6 +141,24 @@ export interface KlinesParams {
   endTime?: number;
   limit?: number;
 }
+
+export type Kline = [
+  number, // open time
+  numberInString, // open
+  numberInString, // high
+  numberInString, // low
+  numberInString, // close
+  numberInString, // volume
+  number, // close time
+  numberInString, // quote asset volume
+  number, // number of trades
+  numberInString, // taker buy base asset vol
+  numberInString, // taker buy quote asset vol
+  numberInString // ignore?
+];
+
+/** @deprecated `FuturesKline` will be removed soon. Use `Kline` instead. **/
+export type FuturesKline = Kline;
 export interface RecentTradesParams {
   symbol: string;
   limit?: number;
