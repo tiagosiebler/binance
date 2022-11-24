@@ -157,6 +157,8 @@ export type Kline = [
   numberInString // ignore?
 ];
 
+/** @deprecated `FuturesKline` will be removed soon. Use `Kline` instead. **/
+export type FuturesKline = Kline;
 export interface RecentTradesParams {
   symbol: string;
   limit?: number;
