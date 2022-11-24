@@ -10,6 +10,7 @@ import {
   WsMessageKlineRaw,
   WsMessageMarkPriceUpdateEventFormatted,
   WsMessageSpotUserDataEventFormatted,
+  WsMessageTradeFormatted,
   WsRawMessage,
   WsUserDataEvents,
 } from '..';
@@ -39,6 +40,12 @@ export function isWsFormattedMarkPriceUpdate(
   data: WsFormattedMessage
 ): data is WsMessageMarkPriceUpdateEventFormatted[] {
   return isWsFormattedMarkPriceUpdateArray(data);
+}
+
+export function isWsFormattedTrade(
+  data: WsFormattedMessage
+): data is WsMessageTradeFormatted {
+  return !Array.isArray(data) && data.eventType === 'trade';
 }
 
 export function isWsFormattedKline(
