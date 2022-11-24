@@ -51,6 +51,7 @@ Check out my related projects:
   - [binance](https://www.npmjs.com/package/binance)
   - [bybit-api](https://www.npmjs.com/package/bybit-api)
   - [okx-api](https://www.npmjs.com/package/okx-api)
+  - [bitget-api](https://www.npmjs.com/package/bitget-api)
   - [ftx-api](https://www.npmjs.com/package/ftx-api)
 - Try my misc utilities:
   - [orderbooks](https://www.npmjs.com/package/orderbooks)
