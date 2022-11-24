@@ -1479,7 +1479,7 @@ export class WebsocketClient extends EventEmitter {
   }
 
   /**
-   * Subscribe to candles for a symbol in spot markets.
+   * Subscribe to trades for a symbol in spot markets.
    */
   public subscribeSpotTrades(
     symbol: string,
