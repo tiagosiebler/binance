@@ -1,3 +1,4 @@
+
 import {
   ExchangeFilter,
   ExchangeSymbol,
@@ -811,6 +812,15 @@ export interface SubAccountList {
   isAssetManagementSubAccount: boolean;
 }
 
+export interface SubAccountTransferHistoryList {
+  fromId?: string;
+  toId?: string;
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  limit?: number;
+}
+
 export interface SubAccountBasicTransfer {
   from: string;
   to: string;
@@ -901,6 +911,15 @@ export interface BasicSubAccount {
 
 export interface CreateSubAccountParams {
   subAccountString: string;
+}
+
+export interface GetBrokerSubAccountHistoryParams {
+  fromId?: string;
+  toId?: string;
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface CreateBrokerSubAccountParams {
@@ -1009,6 +1028,10 @@ export interface ChangePermissionApiKeyBrokerSubAccountResponse {
 
 export interface VirtualSubAccount {
   email: string;
+}
+
+export interface BrokerSubAccountHistory {
+  subAccountsHistory: SubAccountTransferHistoryList[]
 }
 
 export interface BrokerSubAccount {

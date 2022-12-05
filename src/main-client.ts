@@ -35,6 +35,7 @@ import {
   BasicSubAccount,
   BasicTimeRangeParam,
   BrokerSubAccount,
+  BrokerSubAccountHistory,
   BSwapLiquidity,
   BSwapOperations,
   BSwapOperationsParams,
@@ -76,6 +77,7 @@ import {
   GetApiKeyBrokerSubAccountParams,
   GetBrokerInfoResponse,
   GetBrokerSubAccountParams,
+  GetBrokerSubAccountHistoryParams,
   GetOCOParams,
   GetUniversalTransferBrokerParams,
   IsolatedMarginAccountInfo,
@@ -168,6 +170,7 @@ import {
   WithdrawHistory,
   WithdrawHistoryParams,
   WithdrawParams,
+  
 } from './types/spot';
 
 import {
@@ -552,6 +555,12 @@ export class MainClient extends BaseRestClient {
     params: CreateBrokerSubAccountParams
   ): Promise<BrokerSubAccount> {
     return this.postPrivate('sapi/v1/broker/subAccount', params);
+  }
+
+  getBrokerSubAccountHistory(
+    params: GetBrokerSubAccountHistoryParams
+  ): Promise<BrokerSubAccountHistory[]> {
+    return this.getPrivate('sapi/v1/broker/transfer', params);
   }
 
   getBrokerSubAccount(
