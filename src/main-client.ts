@@ -557,7 +557,7 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/broker/subAccount', params);
   }
 
-  GetBrokerSubAccountHistory(
+  getBrokerSubAccountHistory(
     params: GetBrokerSubAccountHistoryParams
   ): Promise<BrokerSubAccountHistory[]> {
     return this.getPrivate('sapi/v1/broker/transfer', params);

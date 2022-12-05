@@ -1,4 +1,4 @@
-import { ARNString } from 'aws-sdk/clients/cognitoidentity';
+
 import {
   ExchangeFilter,
   ExchangeSymbol,
