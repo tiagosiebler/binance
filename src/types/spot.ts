@@ -162,6 +162,19 @@ export interface WithdrawParams {
   amount: number;
   transactionFeeFlag?: boolean;
   name?: string;
+  walletType?: number;
+}
+
+export interface transferBrokerSubAccountParams {
+  fromId?: string;
+  toId?: string;
+  clientTranId?: string;
+  asset: string;
+  amount: number;
+}
+
+export interface transferBrokerSubAccount {
+  txnId: numberInString;
 }
 
 export enum EnumDepositStatus {
