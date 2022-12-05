@@ -165,7 +165,7 @@ export interface WithdrawParams {
   walletType?: number;
 }
 
-export interface transferBrokerSubAccountParams {
+export interface TransferBrokerSubAccountParams {
   fromId?: string;
   toId?: string;
   clientTranId?: string;
@@ -173,7 +173,7 @@ export interface transferBrokerSubAccountParams {
   amount: number;
 }
 
-export interface transferBrokerSubAccount {
+export interface TransferBrokerSubAccount {
   txnId: numberInString;
 }
 
