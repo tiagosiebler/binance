@@ -91,8 +91,8 @@ import {
   OrderResponseACK,
   OrderResponseFull,
   OrderResponseResult,
-  transferBrokerSubAccountParams,
-  transferBrokerSubAccount,
+  TransferBrokerSubAccountParams,
+  TransferBrokerSubAccount,
   PurchaseFlexibleProductParams,
   PurchaseFlexibleProductResponse,
   PurchaseRecordParams,
@@ -629,8 +629,8 @@ export class MainClient extends BaseRestClient {
   }
 
   transferBrokerSubAccount(
-    params: transferBrokerSubAccountParams
-  ): Promise<transferBrokerSubAccount> {
+    params: TransferBrokerSubAccountParams
+  ): Promise<TransferBrokerSubAccount> {
     return this.postPrivate('sapi/v1/broker/transfer', params);
   }
 
