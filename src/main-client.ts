@@ -36,6 +36,7 @@ import {
   BasicTimeRangeParam,
   BrokerSubAccount,
   BrokerSubAccountHistory,
+  BrokerSubAccountDepositHistory,
   BSwapLiquidity,
   BSwapOperations,
   BSwapOperationsParams,
@@ -78,6 +79,7 @@ import {
   GetBrokerInfoResponse,
   GetBrokerSubAccountParams,
   GetBrokerSubAccountHistoryParams,
+  GetBrokerSubAccountDepositHistoryParams,
   GetOCOParams,
   GetUniversalTransferBrokerParams,
   IsolatedMarginAccountInfo,
@@ -546,6 +548,12 @@ export class MainClient extends BaseRestClient {
     ifNewUser: boolean;
   }> {
     return this.getPrivate('sapi/v1/apiReferral/ifNewUser');
+  }
+
+  getBrokerSubAccountDepositHistory(
+    params?: GetBrokerSubAccountDepositHistoryParams
+  ): Promise<BrokerSubAccountDepositHistory> {
+    return this.getPrivate('sapi/v1/broker/subAccount/depositHist', params);
   }
 
   getBrokerUserCustomisedId(market: 'spot' | 'futures') {
