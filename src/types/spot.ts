@@ -825,6 +825,20 @@ export interface SubAccountList {
   isAssetManagementSubAccount: boolean;
 }
 
+export interface SubAccountDepositHistoryList {
+  subAccountId: string,
+  amount: string,
+  coin: string,
+  network: string,
+  status: number,
+  address: string,
+  addressTag: string,
+  txId: string,
+  insertTime: number,
+  sourceAddress: string,
+  confirmTimes: string
+}
+
 export interface SubAccountTransferHistoryList {
   fromId?: string;
   toId?: string;
@@ -1018,6 +1032,16 @@ export interface GetUniversalTransferBrokerParams {
   showAllStatus?: boolean;
 }
 
+export interface GetBrokerSubAccountDepositHistoryParams {
+  subaccounId?: string;
+  coin?: string;
+  status?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+  offset?: number;
+}
+
 export interface DeleteApiKeyBrokerSubAccountParams {
   subAccountId: string;
   subAccountApiKey: string;
@@ -1056,6 +1080,10 @@ export interface BrokerSubAccount {
   marginTakerCommission?: string;
   createTime?: number;
   tag: string;
+}
+
+export interface BrokerSubAccountDepositHistory {
+  subAccountDepositHistoryList: SubAccountDepositHistoryList[];
 }
 
 export interface CreateApiKeyBrokerSubAccountResponse {
