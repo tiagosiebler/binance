@@ -91,6 +91,8 @@ import {
   OrderResponseACK,
   OrderResponseFull,
   OrderResponseResult,
+  TransferBrokerSubAccountParams,
+  TransferBrokerSubAccount,
   PurchaseFlexibleProductParams,
   PurchaseFlexibleProductResponse,
   PurchaseRecordParams,
@@ -624,6 +626,12 @@ export class MainClient extends BaseRestClient {
     params: EnableMarginApiKeyBrokerSubAccountParams
   ): Promise<BrokerSubAccount> {
     return this.postPrivate('sapi/v1/broker/subAccount/margin', params);
+  }
+
+  transferBrokerSubAccount(
+    params: TransferBrokerSubAccountParams
+  ): Promise<TransferBrokerSubAccount> {
+    return this.postPrivate('sapi/v1/broker/transfer', params);
   }
 
   universalTransferBroker(
