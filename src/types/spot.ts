@@ -947,6 +947,7 @@ export interface GetBrokerSubAccountHistoryParams {
   endTime?: number;
   page?: number;
   limit?: number;
+  showAllStatus?: boolean;
 }
 
 export interface CreateBrokerSubAccountParams {
@@ -1033,7 +1034,7 @@ export interface GetUniversalTransferBrokerParams {
 }
 
 export interface GetBrokerSubAccountDepositHistoryParams {
-  subaccounId?: string;
+  subAccountId?: string;
   coin?: string;
   status?: number;
   startTime?: number;
@@ -1512,6 +1513,7 @@ export interface FlexibleSavingBasicParams {
   featured?: number;
   current?: number;
   size?: number;
+  asset?: string;
 }
 
 export interface FlexibleProductPositionParams {
