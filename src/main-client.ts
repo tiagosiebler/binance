@@ -552,7 +552,7 @@ export class MainClient extends BaseRestClient {
 
   getBrokerSubAccountDepositHistory(
     params?: GetBrokerSubAccountDepositHistoryParams
-  ): Promise<BrokerSubAccountDepositHistory> {
+  ): Promise<BrokerSubAccountDepositHistory[]> {
     return this.getPrivate('sapi/v1/broker/subAccount/depositHist', params);
   }
 
