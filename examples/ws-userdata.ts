@@ -2,7 +2,7 @@ import {
   DefaultLogger,
   isWsFormattedFuturesUserDataEvent,
   isWsFormattedSpotUserDataEvent,
-  isWsFormattedUserDataEvent,
+  isWsFormattedUserDataEvent, isWsFormattedSpotUserDataExecutionReport,
   WsUserDataEvents,
 } from '../src';
 import { WebsocketClient } from '../src/websocket-client';
@@ -37,9 +37,12 @@ import { WebsocketClient } from '../src/websocket-client';
     // if (data.wsMarket.includes('spot')) {
 
     // or use a type guard, if one exists (PRs welcome)
+    if (isWsFormattedSpotUserDataExecutionReport(data)) {
+      console.log('spot user execution report event: ', data);
+      return;
+    }
     if (isWsFormattedSpotUserDataEvent(data)) {
       console.log('spot user data event: ', data);
-      // spot user data event
       return;
     }
     if (data.wsMarket.includes('margin')) {
