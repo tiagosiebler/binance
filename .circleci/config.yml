@@ -4,6 +4,7 @@ jobs:
   test:
     docker:
       - image: cimg/node:15.1
+    resource_class: tiagosiebler/noobuntu
     steps:
       - checkout
       - restore_cache:
