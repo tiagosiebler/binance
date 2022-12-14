@@ -13,15 +13,6 @@ jobs:
           keys:
             - node-deps-v1-{{ .Branch }}-{{checksum "package-lock.json"}}
       - run:
-          name: install nvm
-          command: wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash;
-      - run:
-          name: setup path
-          command: source /home/circleci/.bashrc
-      - run:
-          name: setup node
-          command: nvm install 18.12.1
-      - run:
           name: install packages
           command: npm ci --ignore-scripts
       - save_cache:
