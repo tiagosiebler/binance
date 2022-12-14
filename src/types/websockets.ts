@@ -77,6 +77,7 @@ export type WsRawMessage =
   | WsMessageFuturesUserDataAccountConfigUpdateEventRaw;
 
 export type WsFormattedMessage =
+  | WsUserDataEvents
   | WsMessageKlineFormatted
   | WsMessageAggTradeFormatted
   | WsMessageTradeFormatted
@@ -86,8 +87,6 @@ export type WsFormattedMessage =
   | WsMessage24hrTickerFormatted[]
   | WsMessageBookTickerEventFormatted
   | WsMessagePartialBookDepthEventFormatted
-  | WsMessageSpotUserDataEventFormatted
-  | WsMessageFuturesUserDataEventFormatted
   | WsMessageIndexPriceUpdateEventFormatted
   | WsMessageMarkPriceUpdateEventFormatted
   | WsMessageMarkPriceUpdateEventFormatted[]

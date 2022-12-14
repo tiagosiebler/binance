@@ -2,22 +2,41 @@ import {
   WsFormattedMessage,
   WsMessage24hrMiniTickerRaw,
   WsMessage24hrTickerFormatted,
+  WsMessageAggTradeFormatted,
+  WsMessageFuturesUserDataAccountConfigUpdateEventFormatted,
   WsMessageFuturesUserDataAccountConfigUpdateEventRaw,
+  WsMessageFuturesUserDataAccountUpdateFormatted,
   WsMessageFuturesUserDataAccountUpdateRaw,
   WsMessageFuturesUserDataEventFormatted,
+  WsMessageFuturesUserDataListenKeyExpiredFormatted,
+  WsMessageFuturesUserDataMarginCallFormatted,
   WsMessageFuturesUserDataOrderTradeUpdateEventRaw,
+  WsMessageFuturesUserDataTradeUpdateEventFormatted,
   WsMessageKlineFormatted,
   WsMessageKlineRaw,
   WsMessageMarkPriceUpdateEventFormatted,
+  WsMessageSpotBalanceUpdateFormatted,
+  WsMessageSpotOutboundAccountPositionFormatted,
   WsMessageSpotUserDataEventFormatted,
+  WsMessageSpotUserDataExecutionReportEventFormatted,
+  WsMessageSpotUserDataListStatusEventFormatted,
   WsMessageTradeFormatted,
   WsRawMessage,
   WsUserDataEvents,
-} from '..';
+} from '../types/websockets';
 
-/*
-  Use type guards to narrow down types with minimal efforts.
-*/
+/**
+ * Use type guards to narrow down types with minimal efforts.
+ *
+ * The file is organised by Typeguards starting with `WsFormattedMessage` typeguards in the first half
+ * and `WsRawMessage` typeguards in the second half.
+ *
+ */
+
+
+/**
+ * Typeguards for WsFormattedMessage event types:
+ */
 
 export function isWsFormattedMarkPriceUpdateEvent(
   data: WsFormattedMessage
@@ -68,6 +87,13 @@ export function isWsFormatted24hrTickerArray(
   );
 }
 
+/**
+ * Typeguard to validate a 'Compressed/Aggregate' trade
+ */
+export function isWsAggTradeFormatted(data: WsFormattedMessage): data is WsMessageAggTradeFormatted {
+    return !Array.isArray(data) && data.eventType === 'aggTrade';
+}
+
 export function isWsFormattedUserDataEvent(
   data: WsFormattedMessage
 ): data is WsUserDataEvents {
@@ -85,6 +111,56 @@ export function isWsFormattedFuturesUserDataEvent(
 ): data is WsMessageFuturesUserDataEventFormatted {
   return isWsFormattedUserDataEvent(data) && data.wsMarket.includes('usdm');
 }
+
+export function isWsFormattedSpotUserDataExecutionReport(data: WsFormattedMessage):
+    data is WsMessageSpotUserDataExecutionReportEventFormatted {
+    return isWsFormattedSpotUserDataEvent(data) && data.eventType === 'executionReport';
+}
+
+export function isWsFormattedSpotOutboundAccountPosition(data: WsFormattedMessage):
+    data is WsMessageSpotOutboundAccountPositionFormatted {
+    return isWsFormattedSpotUserDataEvent(data) && data.eventType === 'outboundAccountPosition';
+}
+
+export function isWsFormattedSpotBalanceUpdate(data: WsFormattedMessage):
+    data is WsMessageSpotBalanceUpdateFormatted {
+    return isWsFormattedSpotUserDataEvent(data) && data.eventType === 'balanceUpdate';
+}
+
+export function isWsFormattedSpotUserDataListStatusEvent(data: WsFormattedMessage):
+    data is WsMessageSpotUserDataListStatusEventFormatted {
+    return isWsFormattedSpotUserDataEvent(data) && data.eventType === 'listStatus';
+}
+
+export function isWsFormattedFuturesUserDataAccountUpdate(data: WsFormattedMessage):
+    data is WsMessageFuturesUserDataAccountUpdateFormatted {
+    return isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'ACCOUNT_UPDATE';
+}
+
+export function isWsFormattedFuturesUserDataMarginCall(data: WsFormattedMessage):
+    data is WsMessageFuturesUserDataMarginCallFormatted {
+    return isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'MARGIN_CALL';
+}
+
+export function isWsFormattedFuturesUserDataTradeUpdateEvent(data: WsFormattedMessage):
+    data is WsMessageFuturesUserDataTradeUpdateEventFormatted {
+    return isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'ORDER_TRADE_UPDATE';
+}
+
+export function isWsFormattedFuturesUserDataAccountConfigUpdateEvent(data: WsFormattedMessage):
+    data is WsMessageFuturesUserDataAccountConfigUpdateEventFormatted {
+    return isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'ACCOUNT_CONFIG_UPDATE';
+}
+
+export function isWsFormattedFuturesUserDataListenKeyExpired(data: WsFormattedMessage):
+    data is WsMessageFuturesUserDataListenKeyExpiredFormatted {
+    return isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'listenKeyExpired';
+}
+
+
+/**
+ * Typeguards for WsRawMessage event types:
+ */
 
 /**
  * Typeguard to validate all symbol 24hrMiniTicker raw event
