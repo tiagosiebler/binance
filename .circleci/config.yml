@@ -17,7 +17,7 @@ jobs:
           command: wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash;
       - run:
           name: setup path
-          command: source ~/.bashrc
+          command: export NVM_DIR="$HOME/.nvm" [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
       - run:
           name: setup node
           command: nvm install 18.12.1
