@@ -3,6 +3,7 @@ import {
   WsMessage24hrMiniTickerRaw,
   WsMessage24hrTickerFormatted,
   WsMessageAggTradeFormatted,
+  WsMessageForceOrderFormatted,
   WsMessageFuturesUserDataAccountConfigUpdateEventFormatted,
   WsMessageFuturesUserDataAccountConfigUpdateEventRaw,
   WsMessageFuturesUserDataAccountUpdateFormatted,
@@ -32,7 +33,6 @@ import {
  * and `WsRawMessage` typeguards in the second half.
  *
  */
-
 
 /**
  * Typeguards for WsFormattedMessage event types:
@@ -79,6 +79,12 @@ export function isWsFormatted24hrTicker(
   return !Array.isArray(data) && data.eventType === '24hrTicker';
 }
 
+export function wsWsFormattedForceOrder(
+  data: WsFormattedMessage
+): data is WsMessageForceOrderFormatted {
+  return !Array.isArray(data) && data.eventType === 'forceOrder';
+}
+
 export function isWsFormatted24hrTickerArray(
   data: WsFormattedMessage
 ): data is WsMessage24hrTickerFormatted[] {
@@ -90,8 +96,10 @@ export function isWsFormatted24hrTickerArray(
 /**
  * Typeguard to validate a 'Compressed/Aggregate' trade
  */
-export function isWsAggTradeFormatted(data: WsFormattedMessage): data is WsMessageAggTradeFormatted {
-    return !Array.isArray(data) && data.eventType === 'aggTrade';
+export function isWsAggTradeFormatted(
+  data: WsFormattedMessage
+): data is WsMessageAggTradeFormatted {
+  return !Array.isArray(data) && data.eventType === 'aggTrade';
 }
 
 export function isWsFormattedUserDataEvent(
@@ -112,51 +120,82 @@ export function isWsFormattedFuturesUserDataEvent(
   return isWsFormattedUserDataEvent(data) && data.wsMarket.includes('usdm');
 }
 
-export function isWsFormattedSpotUserDataExecutionReport(data: WsFormattedMessage):
-    data is WsMessageSpotUserDataExecutionReportEventFormatted {
-    return isWsFormattedSpotUserDataEvent(data) && data.eventType === 'executionReport';
+export function isWsFormattedSpotUserDataExecutionReport(
+  data: WsFormattedMessage
+): data is WsMessageSpotUserDataExecutionReportEventFormatted {
+  return (
+    isWsFormattedSpotUserDataEvent(data) && data.eventType === 'executionReport'
+  );
 }
 
-export function isWsFormattedSpotOutboundAccountPosition(data: WsFormattedMessage):
-    data is WsMessageSpotOutboundAccountPositionFormatted {
-    return isWsFormattedSpotUserDataEvent(data) && data.eventType === 'outboundAccountPosition';
+export function isWsFormattedSpotOutboundAccountPosition(
+  data: WsFormattedMessage
+): data is WsMessageSpotOutboundAccountPositionFormatted {
+  return (
+    isWsFormattedSpotUserDataEvent(data) &&
+    data.eventType === 'outboundAccountPosition'
+  );
 }
 
-export function isWsFormattedSpotBalanceUpdate(data: WsFormattedMessage):
-    data is WsMessageSpotBalanceUpdateFormatted {
-    return isWsFormattedSpotUserDataEvent(data) && data.eventType === 'balanceUpdate';
+export function isWsFormattedSpotBalanceUpdate(
+  data: WsFormattedMessage
+): data is WsMessageSpotBalanceUpdateFormatted {
+  return (
+    isWsFormattedSpotUserDataEvent(data) && data.eventType === 'balanceUpdate'
+  );
 }
 
-export function isWsFormattedSpotUserDataListStatusEvent(data: WsFormattedMessage):
-    data is WsMessageSpotUserDataListStatusEventFormatted {
-    return isWsFormattedSpotUserDataEvent(data) && data.eventType === 'listStatus';
+export function isWsFormattedSpotUserDataListStatusEvent(
+  data: WsFormattedMessage
+): data is WsMessageSpotUserDataListStatusEventFormatted {
+  return (
+    isWsFormattedSpotUserDataEvent(data) && data.eventType === 'listStatus'
+  );
 }
 
-export function isWsFormattedFuturesUserDataAccountUpdate(data: WsFormattedMessage):
-    data is WsMessageFuturesUserDataAccountUpdateFormatted {
-    return isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'ACCOUNT_UPDATE';
+export function isWsFormattedFuturesUserDataAccountUpdate(
+  data: WsFormattedMessage
+): data is WsMessageFuturesUserDataAccountUpdateFormatted {
+  return (
+    isWsFormattedFuturesUserDataEvent(data) &&
+    data.eventType === 'ACCOUNT_UPDATE'
+  );
 }
 
-export function isWsFormattedFuturesUserDataMarginCall(data: WsFormattedMessage):
-    data is WsMessageFuturesUserDataMarginCallFormatted {
-    return isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'MARGIN_CALL';
+export function isWsFormattedFuturesUserDataMarginCall(
+  data: WsFormattedMessage
+): data is WsMessageFuturesUserDataMarginCallFormatted {
+  return (
+    isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'MARGIN_CALL'
+  );
 }
 
-export function isWsFormattedFuturesUserDataTradeUpdateEvent(data: WsFormattedMessage):
-    data is WsMessageFuturesUserDataTradeUpdateEventFormatted {
-    return isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'ORDER_TRADE_UPDATE';
+export function isWsFormattedFuturesUserDataTradeUpdateEvent(
+  data: WsFormattedMessage
+): data is WsMessageFuturesUserDataTradeUpdateEventFormatted {
+  return (
+    isWsFormattedFuturesUserDataEvent(data) &&
+    data.eventType === 'ORDER_TRADE_UPDATE'
+  );
 }
 
-export function isWsFormattedFuturesUserDataAccountConfigUpdateEvent(data: WsFormattedMessage):
-    data is WsMessageFuturesUserDataAccountConfigUpdateEventFormatted {
-    return isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'ACCOUNT_CONFIG_UPDATE';
+export function isWsFormattedFuturesUserDataAccountConfigUpdateEvent(
+  data: WsFormattedMessage
+): data is WsMessageFuturesUserDataAccountConfigUpdateEventFormatted {
+  return (
+    isWsFormattedFuturesUserDataEvent(data) &&
+    data.eventType === 'ACCOUNT_CONFIG_UPDATE'
+  );
 }
 
-export function isWsFormattedFuturesUserDataListenKeyExpired(data: WsFormattedMessage):
-    data is WsMessageFuturesUserDataListenKeyExpiredFormatted {
-    return isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'listenKeyExpired';
+export function isWsFormattedFuturesUserDataListenKeyExpired(
+  data: WsFormattedMessage
+): data is WsMessageFuturesUserDataListenKeyExpiredFormatted {
+  return (
+    isWsFormattedFuturesUserDataEvent(data) &&
+    data.eventType === 'listenKeyExpired'
+  );
 }
-
 
 /**
  * Typeguards for WsRawMessage event types:
