@@ -79,7 +79,7 @@ export function isWsFormatted24hrTicker(
   return !Array.isArray(data) && data.eventType === '24hrTicker';
 }
 
-export function wsWsFormattedForceOrder(
+export function isWsFormattedForceOrder(
   data: WsFormattedMessage
 ): data is WsMessageForceOrderFormatted {
   return !Array.isArray(data) && data.eventType === 'forceOrder';
