@@ -11,4 +11,5 @@ export * from './usdm-client';
 export * from './util/requestUtils';
 export * from './util/typeGuards';
 export * from './util/WsStore';
+export * from './util/usdm';
 export * from './websocket-client';

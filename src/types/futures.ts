@@ -11,7 +11,12 @@ import {
   OrderTimeInForce,
   OrderType,
   RateLimiter,
-  SymbolFilter,
+  SymbolIcebergPartsFilter,
+  SymbolLotSizeFilter,
+  SymbolMarketLotSizeFilter,
+  SymbolMaxIcebergOrdersFilter,
+  SymbolMaxPositionFilter,
+  SymbolPriceFilter,
 } from './shared';
 
 export type FuturesContractType =
@@ -214,6 +219,40 @@ export type ContractStatus =
   | 'SETTLING'
   | 'CLOSE';
 
+export interface FuturesSymbolPercentPriceFilter {
+  filterType: 'PERCENT_PRICE';
+  multiplierUp: numberInString;
+  multiplierDown: numberInString;
+  multiplierDecimal: numberInString;
+}
+
+export interface FuturesSymbolMaxOrdersFilter {
+  filterType: 'MAX_NUM_ORDERS';
+  limit: number;
+}
+
+export interface FuturesSymbolMaxAlgoOrdersFilter {
+  filterType: 'MAX_NUM_ALGO_ORDERS';
+  limit: number;
+}
+
+export interface FuturesSymbolMinNotionalFilter {
+  filterType: 'MIN_NOTIONAL';
+  notional: numberInString;
+}
+
+export type FuturesSymbolFilter =
+  | SymbolPriceFilter
+  | FuturesSymbolPercentPriceFilter
+  | SymbolLotSizeFilter
+  | FuturesSymbolMinNotionalFilter
+  | SymbolIcebergPartsFilter
+  | SymbolMarketLotSizeFilter
+  | FuturesSymbolMaxOrdersFilter
+  | FuturesSymbolMaxAlgoOrdersFilter
+  | SymbolMaxIcebergOrdersFilter
+  | SymbolMaxPositionFilter;
+
 export interface FuturesSymbolExchangeInfo {
   symbol: string;
   pair: string;
@@ -234,7 +273,7 @@ export interface FuturesSymbolExchangeInfo {
   underlyingSubType: string[]; // DEFI / NFT / BSC / HOT / etc
   settlePlan: number;
   triggerProtect: numberInString;
-  filters: SymbolFilter[];
+  filters: FuturesSymbolFilter[];
   OrderType: OrderType[];
   timeInForce: OrderTimeInForce[];
   liquidationFee: numberInString;

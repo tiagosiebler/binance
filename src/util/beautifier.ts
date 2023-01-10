@@ -72,6 +72,7 @@ export default class Beautifier {
       'minQty',
       'multiplierDown',
       'multiplierUp',
+      'multiplierDecimal',
       'newTraderRebateCommission',
       'notional',
       'oldTraderRebateCommission',
