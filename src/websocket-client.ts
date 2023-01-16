@@ -22,7 +22,7 @@ import {
   getWsKeyWithContext,
   RestClientOptions,
 } from './util/requestUtils';
-import { terminateWs } from './util/ws-utils';
+import { safeTerminateWs } from './util/ws-utils';
 
 import WsStore, { WsConnectionStateEnum } from './util/WsStore';
 import { CoinMClient } from './coinm-client';
@@ -113,7 +113,7 @@ export declare interface WebsocketClient {
 }
 
 interface ListenKeyPersistenceState {
-  keepAliveTimer: NodeJS.Timer | undefined;
+  keepAliveTimer: ReturnType<typeof setInterval> | undefined;
   lastKeepAlive: number;
   market: WsMarket;
   keepAliveFailures: number;
@@ -320,7 +320,7 @@ export class WebsocketClient extends EventEmitter {
     if (!this.options.disableHeartbeat) {
       const wsState = this.wsStore.get(wsKey, true)!;
       if (wsState.activePingTimer) {
-        clearInterval(wsState.activePingTimer as any);
+        clearInterval(wsState.activePingTimer);
       }
 
       wsState.activePingTimer = setInterval(
@@ -343,6 +343,7 @@ export class WebsocketClient extends EventEmitter {
     const { isUserData } = getContextFromWsKey(wsKey);
     if (isUserData) {
       this.wsStore.delete(wsKey);
+      this.clearUserDataKeepAliveTimer;
     }
 
     if (wsConnectionState !== WsConnectionStateEnum.CLOSING) {
@@ -499,7 +500,7 @@ export class WebsocketClient extends EventEmitter {
 
     const wasOpen = this.wsStore.isWsOpen(wsKey);
 
-    terminateWs(this.getWs(wsKey));
+    safeTerminateWs(this.getWs(wsKey));
     delete this.wsStore.get(wsKey, true).activePongTimer;
     this.clearPingTimer(wsKey);
     this.clearPongTimer(wsKey);
@@ -525,10 +526,16 @@ export class WebsocketClient extends EventEmitter {
         ? WsConnectionStateEnum.RECONNECTING
         : WsConnectionStateEnum.CLOSING
     );
+
     this.clearTimers(wsKey);
 
-    this.getWs(wsKey)?.close();
-    terminateWs(this.getWs(wsKey));
+    const { listenKey } = getContextFromWsKey(wsKey);
+    if (listenKey) {
+      this.teardownUserDataListenKey(listenKey, this.getWs(wsKey));
+    } else {
+      this.getWs(wsKey)?.close();
+      safeTerminateWs(this.getWs(wsKey));
+    }
   }
 
   public closeAll(force?: boolean) {
@@ -656,7 +663,6 @@ export class WebsocketClient extends EventEmitter {
   private clearPingTimer(wsKey: WsKey) {
     const wsState = this.wsStore.get(wsKey);
     if (wsState?.activePingTimer) {
-      // @ts-ignore
       clearInterval(wsState.activePingTimer);
       wsState.activePingTimer = undefined;
     }
@@ -678,6 +684,17 @@ export class WebsocketClient extends EventEmitter {
     if (wsState?.activeReconnectTimer) {
       clearTimeout(wsState.activeReconnectTimer);
       wsState.activeReconnectTimer = undefined;
+    }
+  }
+
+  private clearUserDataKeepAliveTimer(listenKey: string): void {
+    const state = this.listenKeyStateStore[listenKey];
+    if (!state) {
+      return;
+    }
+
+    if (state.keepAliveTimer) {
+      clearInterval(state.keepAliveTimer);
     }
   }
 
@@ -951,13 +968,13 @@ export class WebsocketClient extends EventEmitter {
           'FATAL: Failed to keep WS alive for listen key after 3 attempts',
           { ...loggerCategory, listenKey, error: e }
         );
-        this.teardownUserDataListenKey(listenKey, market, ws);
+        this.teardownUserDataListenKey(listenKey, ws);
         this.respawnUserDataStream(market, symbol);
         return;
       }
 
       this.logger.warning(
-        'User key refresh failed due to error, trying again with short delay',
+        'Userdata keep alive request failed due to error, trying again with short delay',
         {
           ...loggerCategory,
           listenKey,
@@ -973,17 +990,12 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  private teardownUserDataListenKey(
-    listenKey: string,
-    market: WsMarket,
-    ws: WebSocket
-  ) {
-    const listenKeyState = this.getListenKeyState(listenKey, market);
-    clearInterval(listenKeyState.keepAliveFailures);
-
-    terminateWs(ws);
-
-    delete this.listenKeyStateStore[listenKey];
+  private teardownUserDataListenKey(listenKey: string, ws: WebSocket) {
+    if (listenKey) {
+      this.clearUserDataKeepAliveTimer(listenKey);
+      delete this.listenKeyStateStore[listenKey];
+      safeTerminateWs(ws);
+    }
   }
 
   private async respawnUserDataStream(
