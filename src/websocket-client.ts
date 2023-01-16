@@ -528,12 +528,12 @@ export class WebsocketClient extends EventEmitter {
     );
 
     this.clearTimers(wsKey);
+    this.getWs(wsKey)?.close();
 
     const { listenKey } = getContextFromWsKey(wsKey);
     if (listenKey) {
       this.teardownUserDataListenKey(listenKey, this.getWs(wsKey));
     } else {
-      this.getWs(wsKey)?.close();
       safeTerminateWs(this.getWs(wsKey));
     }
   }
