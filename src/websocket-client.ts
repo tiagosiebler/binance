@@ -694,6 +694,9 @@ export class WebsocketClient extends EventEmitter {
     }
 
     if (state.keepAliveTimer) {
+      this.logger.silly(
+        `Clearing old listen key interval timer for ${listenKey}`
+      );
       clearInterval(state.keepAliveTimer);
     }
   }
@@ -869,11 +872,10 @@ export class WebsocketClient extends EventEmitter {
     isTestnet?: boolean
   ) {
     const listenKeyState = this.getListenKeyState(listenKey, market);
-    // this.logger.silly(`setKeepAliveListenKeytimer for ${market} listenKey ${wsKey}`);
 
-    if (listenKeyState.keepAliveTimer) {
-      clearInterval(listenKeyState.keepAliveTimer);
-    }
+    this.clearUserDataKeepAliveTimer(listenKey);
+
+    this.logger.silly(`Created new listen key interval timer for ${listenKey}`);
 
     // Set timer to keep WS alive every 50 minutes
     // @ts-ignore
@@ -1799,8 +1801,12 @@ export class WebsocketClient extends EventEmitter {
       const { listenKey } = await restClient.getFuturesUserDataListenKey();
 
       const market: WsMarket = isTestnet ? 'usdmTestnet' : 'usdm';
-      const streamName = 'userData';
-      const wsKey = [market, streamName, listenKey].join('_');
+      const wsKey = getWsKeyWithContext(
+        market,
+        'userData',
+        undefined,
+        listenKey
+      );
 
       if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
         this.logger.silly(
@@ -1856,8 +1862,12 @@ export class WebsocketClient extends EventEmitter {
       ).getFuturesUserDataListenKey();
 
       const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
-      const streamName = 'userData';
-      const wsKey = [market, streamName, listenKey].join('_');
+      const wsKey = getWsKeyWithContext(
+        market,
+        'userData',
+        undefined,
+        listenKey
+      );
 
       if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
         this.logger.silly(
