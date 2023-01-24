@@ -519,7 +519,11 @@ export class WebsocketClient extends EventEmitter {
   }
 
   public close(wsKey: WsKey, willReconnect?: boolean) {
-    this.logger.info('Closing connection', { ...loggerCategory, wsKey });
+    this.logger.info('Closing connection', {
+      ...loggerCategory,
+      wsKey,
+      willReconnect,
+    });
     this.setWsState(
       wsKey,
       willReconnect
@@ -878,7 +882,7 @@ export class WebsocketClient extends EventEmitter {
     this.logger.silly(`Created new listen key interval timer for ${listenKey}`);
 
     // Set timer to keep WS alive every 50 minutes
-    // @ts-ignore
+    const minutes50 = 1000 * 60 * 50;
     listenKeyState.keepAliveTimer = setInterval(
       () =>
         this.checkKeepAliveListenKey(
@@ -889,7 +893,8 @@ export class WebsocketClient extends EventEmitter {
           symbol,
           isTestnet
         ),
-      1000 * 60 * 50
+      minutes50
+      // 1000 * 60
     );
   }
 
@@ -946,6 +951,9 @@ export class WebsocketClient extends EventEmitter {
     const listenKeyState = this.getListenKeyState(listenKey, market);
 
     try {
+      // Simple way to test keep alive failure handling:
+      // throw new Error(`Fake keep alive failure`);
+
       await this.sendKeepAliveForMarket(
         listenKey,
         market,
@@ -970,13 +978,19 @@ export class WebsocketClient extends EventEmitter {
           'FATAL: Failed to keep WS alive for listen key after 3 attempts',
           { ...loggerCategory, listenKey, error: e }
         );
-        this.teardownUserDataListenKey(listenKey, ws);
+
+        // reconnect follows a less automatic workflow. Kill connection first, with instruction NOT to reconnect automatically
+        this.close(wsKey, false);
+
+        // respawn a connection with a potentially new listen key (since the old one may be invalid now)
         this.respawnUserDataStream(market, symbol);
+
         return;
       }
 
+      const reconnectDelaySeconds = 1000 * 15;
       this.logger.warning(
-        'Userdata keep alive request failed due to error, trying again with short delay',
+        `Userdata keep alive request failed due to error, trying again with short delay (${reconnectDelaySeconds} seconds)`,
         {
           ...loggerCategory,
           listenKey,
@@ -984,10 +998,11 @@ export class WebsocketClient extends EventEmitter {
           keepAliveAttempts: listenKeyState.keepAliveFailures,
         }
       );
+
       setTimeout(
         () =>
           this.checkKeepAliveListenKey(listenKey, market, ws, wsKey, symbol),
-        1000 * 15
+        reconnectDelaySeconds
       );
     }
   }
