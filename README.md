@@ -11,23 +11,27 @@
 
 Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser support.
 
-- Extremely robust connector with significant trading volume in production (livenet).
-- Heavy end-to-end testing with real API calls.
-  - End-to-end testing before any release.
-  - Real API calls in e2e tests.
-- Support REST APIs for Binance Spot, Margin, Isolated Margin & USDM Futures.
+- Extremely robust & performant connector with significant trading volume in production (livenet).
+- Actively maintained with a modern, promise-driven interface.
+- Support for seamless HMAC and RSA authentication.
+  - Passing a private key as a secret will automatically revert to RSA authentication.
+- Supports REST APIs for Binance Spot, Margin, Isolated Margin & USDM Futures.
   - Strongly typed on most requests and responses.
-- Support Websockets for Binance Spot, Margin, Isolated Margin & USDM Futures.
+- Supports Websockets for Binance Spot, Margin, Isolated Margin & USDM Futures.
   - Event driven messaging.
   - Smart websocket persistence
     - Automatically handle silent websocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
     - Automatically handle listenKey persistence and expiration/refresh.
     - Emit `reconnected` event when dropped connection is restored.
-  - Strongly typed on most websocket events.
+  - Strongly typed on most websocket events, with typeguards available for TypeScript users.
   - Optional:
-    - Automatic beautification of websocket events (from one-letter keys to descriptive words, and strings with floats to numbers).
+    - Automatic beautification of Websocket events (from one-letter keys to descriptive words, and strings with floats to numbers).
     - Automatic beautification of REST responses (parsing numbers in strings to numbers).
+- Heavy end-to-end testing with real API calls.
+  - End-to-end testing before any release.
+  - Real API calls in e2e tests.
 - Proxy support via axios integration.
+- Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
 
 ## Installation
 
