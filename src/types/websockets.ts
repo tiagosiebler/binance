@@ -688,7 +688,7 @@ export interface WsMessageFuturesUserDataTradeUpdateEventFormatted
     clientOrderId: string;
     orderSide: OrderSide;
     orderType: FuturesOrderType;
-    orderTimeInForce: OrderTimeInForce;
+    timeInForce: OrderTimeInForce;
     originalQuantity: number;
     originalPrice: number;
     averagePrice: number;
