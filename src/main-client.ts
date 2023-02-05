@@ -690,7 +690,7 @@ export class MainClient extends BaseRestClient {
     if (symbol) {
       urlSuffix += '?symbol=' + symbol;
     } else if (symbols) {
-      urlSuffix += '?' + symbols;
+      urlSuffix += '?symbols=' + symbols;
     }
 
     return this.get('api/v3/exchangeInfo' + urlSuffix);
