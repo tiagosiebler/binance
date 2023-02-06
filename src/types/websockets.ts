@@ -371,9 +371,9 @@ export interface WsMessageSpotOutboundAccountPositionRaw extends WsSharedBase {
 }
 
 interface SpotBalanceFormatted {
-  a: string;
-  f: number;
-  l: number;
+  asset: string;
+  availableBalance: number;
+  onOrderBalance: number;
 }
 
 export interface WsMessageSpotOutboundAccountPositionFormatted
