@@ -404,7 +404,6 @@ export class WebsocketClient extends EventEmitter {
                 'MARGIN_CALL',
                 'ORDER_TRADE_UPDATE',
                 'ACCOUNT_UPDATE',
-                'ORDER_TRADE_UPDATE',
                 'ACCOUNT_CONFIG_UPDATE',
               ].includes(eventType)
             ) {
