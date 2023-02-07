@@ -1147,7 +1147,7 @@ export class WebsocketClient extends EventEmitter {
 
   /**
    * Subscribe to trades for a symbol in a market category
-   * IMPORTANT: This topic is not listed in the api docs and might stop working without warning
+   * IMPORTANT: This topic for usdm and coinm is not listed in the api docs and might stop working without warning
    */
    public subscribeTrades(
     symbol: string,
