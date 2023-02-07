@@ -675,6 +675,9 @@ export interface WsMessageFuturesUserDataOrderTradeUpdateEventRaw
     AP: numberInString;
     cr: numberInString;
     rp: numberInString;
+    pP: boolean; // ignore
+    si: numberInString; // ignore
+    ss: numberInString; // ignore
   };
 }
 
