@@ -1147,6 +1147,25 @@ export class WebsocketClient extends EventEmitter {
   }
 
   /**
+   * Subscribe to trades for a symbol in a market category
+   * IMPORTANT: This topic is not listed in the api docs and might stop working without warning
+   */
+   public subscribeTrades(
+    symbol: string,
+    market: 'spot' | 'usdm' | 'coinm',
+    forceNewConnection?: boolean
+  ): WebSocket {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'trade';
+    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    return this.connectToWsUrl(
+      this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
+      wsKey,
+      forceNewConnection
+    );
+  }
+
+  /**
    * Subscribe to coin index for a symbol in COINM Futures markets
    */
   public subscribeCoinIndexPrice(
@@ -1514,15 +1533,7 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     forceNewConnection?: boolean
   ): WebSocket {
-    const lowerCaseSymbol = symbol.toLowerCase();
-    const market: WsMarket = 'spot';
-    const streamName = 'trade';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
-      wsKey,
-      forceNewConnection
-    );
+    return this.subscribeTrades(symbol, 'spot', forceNewConnection);
   }
 
   /**
