@@ -11,10 +11,15 @@ import { WebsocketClient } from '../src/websocket-client';
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';
 
+/**
+ * This extended example for using the user data stream demonstrates one way to handle failures in the first connection attempt of the user data stream.
+ * In most cases this is overkill!
+ */
 (async () => {
   const key = process.env.APIKEY || 'APIKEY';
   const secret = process.env.APISECRET || 'APISECRET';
 
+  // optionally block some silly logs from showing in the logger
   const ignoredSillyLogMsgs = [
     'Sending ping',
     'Received pong, clearing pong timer',
@@ -25,9 +30,9 @@ import { WebsocketClient } from '../src/websocket-client';
   const logger = {
     ...DefaultLogger,
     silly: (msg, context) => {
-      // if (ignoredSillyLogMsgs.includes(msg)) {
-      //   return;
-      // }
+      if (ignoredSillyLogMsgs.includes(msg)) {
+        return;
+      }
       console.log(JSON.stringify({ msg, context }));
     },
   };
@@ -93,7 +98,11 @@ import { WebsocketClient } from '../src/websocket-client';
     console.log('formattedMsg: ', JSON.stringify(data, null, 2));
   });
 
+  let didConnectUserDataSuccessfully = false;
   wsClient.on('open', (data) => {
+    if (data.wsKey.includes('userData')) {
+      didConnectUserDataSuccessfully = true;
+    }
     console.log('connection opened open:', data.wsKey, data.ws.target.url);
   });
 
@@ -101,37 +110,33 @@ import { WebsocketClient } from '../src/websocket-client';
   wsClient.on('reply', (data) => {
     console.log('log reply: ', JSON.stringify(data, null, 2));
   });
-
   wsClient.on('reconnecting', (data) => {
     console.log('ws automatically reconnecting.... ', data?.wsKey);
   });
-
   wsClient.on('reconnected', (data) => {
-    if (
-      typeof data?.wsKey === 'string' &&
-      data.wsKey.toLowerCase().includes('userdata')
-    ) {
-      console.log('ws for user data stream has reconnected ', data?.wsKey);
-      // This is a good place to check your own state is still in sync with the account state on the exchange, in case any events were missed while the library was reconnecting:
-      // - fetch balances
-      // - fetch positions
-      // - fetch orders
-    } else {
-      console.log('ws has reconnected ', data?.wsKey);
-    }
+    console.log('ws has reconnected ', data?.wsKey);
   });
-
   wsClient.on('error', (data) => {
     console.error('ws saw error: ', data);
+
+    // Note: manually re-subscribing like this may only be needed if the FIRST user data connection attempt failed
+    // Capture exceptions using the error event, and handle this.
+    if (!didConnectUserDataSuccessfully && data.wsKey.includes('userData')) {
+      setTimeout(() => {
+        console.warn(
+          `Retrying connection to userdata ws ${data.wsKey} in 1 second...`
+        );
+        if (data.wsKey.includes('spot')) {
+          wsClient.subscribeSpotUserDataStream();
+        } else if (data.wsKey.includes('usdm')) {
+          wsClient.subscribeUsdFuturesUserDataStream();
+        }
+      }, 1000);
+    }
   });
 
   wsClient.subscribeSpotUserDataStream();
   // wsClient.subscribeMarginUserDataStream();
   // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
   wsClient.subscribeUsdFuturesUserDataStream();
-
-  // setTimeout(() => {
-  //   console.log('killing all connections');
-  //   wsClient.closeAll();
-  // }, 1000 * 15);
 })();
