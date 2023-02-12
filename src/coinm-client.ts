@@ -7,13 +7,83 @@ import {
   PositionRisk,
   SymbolOrPair
 } from './types/coin';
-import { BinanceBaseUrlKey } from './types/shared';
-import BaseRestClient from './util/BaseRestClient';
+import {
+  BasicSymbolPaginatedParams,
+  BasicSymbolParam,
+  BinanceBaseUrlKey,
+  GetOrderParams,
+  OrderBookParams,
+  HistoricalTradesParams,
+  KlinesParams,
+  Kline,
+  RecentTradesParams,
+  CancelOrderParams,
+  CancelOCOParams,
+  NewOCOParams,
+  SymbolFromPaginatedRequestFromId,
+  OrderIdProperty,
+  GetAllOrdersParams,
+  GenericCodeMsgError,
+} from './types/shared';
+
+
+import {
+  ContinuousContractKlinesParams,
+  IndexPriceKlinesParams,
+  SymbolKlinePaginatedParams,
+  FuturesDataPaginatedParams,
+  MultiAssetsMode,
+  NewFuturesOrderParams,
+  CancelMultipleOrdersParams,
+  CancelOrdersTimeoutParams,
+  SetLeverageParams,
+  SetMarginTypeParams,
+  SetIsolatedMarginParams,
+  GetPositionMarginChangeHistoryParams,
+  GetIncomeHistoryParams,
+  GetForceOrdersParams,
+  FuturesExchangeInfo,
+  FuturesOrderBook,
+  RawFuturesTrade,
+  AggregateFuturesTrade,
+  FundingRateHistory,
+  FuturesSymbolOrderBookTicker,
+  OpenInterest,
+  ModeChangeResult,
+  PositionModeParams,
+  PositionModeResponse,
+  MultiAssetModeResponse,
+  NewOrderResult,
+  NewOrderError,
+  OrderResult,
+  CancelFuturesOrderResult,
+  CancelAllOpenOrdersResult,
+  FuturesAccountBalance,
+  FuturesAccountInformation,
+  SetLeverageResult,
+  SetIsolatedMarginResult,
+  FuturesPosition,
+  FuturesPositionTrade,
+  ForceOrderResult,
+  SymbolLeverageBracketsResult,
+  IncomeHistory,
+  RebateDataOverview,
+  SetCancelTimeoutResult,
+  ChangeStats24hr,
+  MarkPrice,
+} from './types/futures';
+
 import {
   asArray,
+  generateNewOrderId,
+  getOrderIdPrefix,
   getServerTimeEndpoint,
-  RestClientOptions
+  logInvalidOrderId,
+  RestClientOptions,
 } from './util/requestUtils';
+
+import BaseRestClient from './util/BaseRestClient';
+import { SymbolPrice } from './types/spot';
 
 export class CoinMClient extends BaseRestClient {
   private clientId: BinanceBaseUrlKey;
@@ -40,35 +110,81 @@ export class CoinMClient extends BaseRestClient {
     );
   }
 
-  getFuturesUserDataListenKey(): Promise<{ listenKey: string }> {
-    return this.post('dapi/v1/listenKey');
+  /**
+   *
+   * Market Data Endpoints
+   *
+   **/
+
+  testConnectivity(): Promise<{}> {
+    return this.get('dapi/v1/ping');
   }
 
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#change-log
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#general-info
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#testnet
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#general-api-information
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#limits
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#endpoint-security-type
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#signed-trade-and-user_data-endpoint-security
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#public-endpoints-info
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#filters
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#market-data-endpoints
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#test-connectivity
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#check-server-time
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#exchange-information
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#order-book
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#recent-trades-list
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#old-trades-lookup-market_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#compressed-aggregate-trades-list
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#index-price-and-mark-price
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#get-funding-rate-history-of-perpetual-futures
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#continuous-contract-kline-candlestick-data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#index-price-kline-candlestick-data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#mark-price-kline-candlestick-data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#24hr-ticker-price-change-statistics
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#symbol-price-ticker
+  getExchangeInfo(): Promise<FuturesExchangeInfo> {
+    return this.get('dapi/v1/exchangeInfo');
+  }
+
+  getOrderBook(params: OrderBookParams): Promise<FuturesOrderBook> {
+    return this.get('dapi/v1/depth', params);
+  }
+
+  getRecentTrades(params: RecentTradesParams): Promise<RawFuturesTrade[]> {
+    return this.get('dapi/v1/trades', params);
+  }
+
+  getHistoricalTrades(
+    params: HistoricalTradesParams
+  ): Promise<RawFuturesTrade[]> {
+    return this.get('dapi/v1/historicalTrades', params);
+  }
+
+  getAggregateTrades(
+    params: SymbolFromPaginatedRequestFromId
+  ): Promise<AggregateFuturesTrade[]> {
+    return this.get('dapi/v1/aggTrades', params);
+  }
+
+  getKlines(params: KlinesParams): Promise<Kline[]> {
+    return this.get('dapi/v1/klines', params);
+  }
+
+  getContinuousContractKlines(
+    params: ContinuousContractKlinesParams
+  ): Promise<Kline[]> {
+    return this.get('dapi/v1/continuousKlines', params);
+  }
+
+  getIndexPriceKlines(params: IndexPriceKlinesParams): Promise<Kline[]> {
+    return this.get('dapi/v1/indexPriceKlines', params);
+  }
+
+  getMarkPriceKlines(params: SymbolKlinePaginatedParams): Promise<Kline[]> {
+    return this.get('dapi/v1/markPriceKlines', params);
+  }
+
+  getMarkPrice(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<MarkPrice | MarkPrice[]> {
+    return this.get('dapi/v1/premiumIndex', params);
+  }
+
+  getFundingRateHistory(
+    params?: Partial<BasicSymbolPaginatedParams>
+  ): Promise<FundingRateHistory[]> {
+    return this.get('dapi/v1/fundingRate', params);
+  }
+
+  get24hrChangeStatististics(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
+    return this.get('dapi/v1/ticker/24hr', params);
+  }
+
+  getSymbolPriceTicker(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<SymbolPrice | SymbolPrice[]> {
+    return this.get('dapi/v1/ticker/price', params);
+  }
 
   getSymbolOrderBookTicker(
     params?: SymbolOrPair
@@ -82,57 +198,156 @@ export class CoinMClient extends BaseRestClient {
     return this.get('dapi/v1/openInterest', params);
   }
 
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#open-interest-statistics
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#top-trader-long-short-ratio-accounts
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#top-trader-long-short-ratio-positions
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#long-short-ratio
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#taker-buy-sell-volume
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#basis
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#websocket-market-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#live-subscribing-unsubscribing-to-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#aggregate-trade-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#index-price-stream
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#mark-price-stream
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#mark-price-of-all-symbols-of-a-pair
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#kline-candlestick-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#continuous-contract-kline-candlestick-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#index-kline-candlestick-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#mark-price-kline-candlestick-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#individual-symbol-mini-ticker-stream
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#all-market-mini-tickers-stream
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#individual-symbol-ticker-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#all-market-tickers-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#individual-symbol-book-ticker-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#all-book-tickers-stream
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#liquidation-order-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#all-market-liquidation-order-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#partial-book-depth-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#diff-book-depth-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#how-to-manage-a-local-order-book-correctly
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#account-trades-endpoints
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#new-future-account-transfer
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#get-future-account-transaction-history-list
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#change-position-mode-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#get-current-position-mode-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#new-order-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#modify-order-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#place-multiple-orders-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#modify-multiple-orders-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#get-order-modify-history-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#query-order-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#cancel-order-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#cancel-all-open-orders-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#cancel-multiple-orders-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#auto-cancel-all-open-orders-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#query-current-open-order-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#current-all-open-orders-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#all-orders-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#futures-account-balance-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#account-information-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#change-initial-leverage-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#change-margin-type-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#modify-isolated-position-margin-trade
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#get-position-margin-change-history-trade
+  getOpenInterestStatistics(params: FuturesDataPaginatedParams): Promise<any> {
+    return this.get('futures/data/openInterestHist', params);
+  }
+
+  getTopTradersLongShortAccountRatio(
+    params: FuturesDataPaginatedParams
+  ): Promise<any> {
+    return this.get('futures/data/topLongShortAccountRatio', params);
+  }
+
+  getTopTradersLongShortPositionRatio(
+    params: FuturesDataPaginatedParams
+  ): Promise<any> {
+    return this.get('futures/data/topLongShortPositionRatio', params);
+  }
+
+  getGlobalLongShortAccountRatio(
+    params: FuturesDataPaginatedParams
+  ): Promise<any> {
+    return this.get('futures/data/globalLongShortAccountRatio', params);
+  }
+
+  getTakerBuySellVolume(params: FuturesDataPaginatedParams): Promise<any> {
+    return this.get('futures/data/takerlongshortRatio', params);
+  }
+
+  getHistoricalBlvtNavKlines(params: SymbolKlinePaginatedParams): Promise<any> {
+    return this.get('dapi/v1/lvtKlines', params);
+  }
+
+  getCompositeSymbolIndex(params?: Partial<BasicSymbolParam>): Promise<any> {
+    return this.get('dapi/v1/indexInfo', params);
+  }
+
+  /**
+   *
+   * USD-Futures Account/Trade Endpoints
+   *
+   **/
+
+  setPositionMode(params: PositionModeParams): Promise<ModeChangeResult> {
+    return this.postPrivate('dapi/v1/positionSide/dual', params);
+  }
+
+  getCurrentPositionMode(): Promise<PositionModeResponse> {
+    return this.getPrivate('dapi/v1/positionSide/dual');
+  }
+
+  setMultiAssetsMode(params: {
+    multiAssetsMargin: MultiAssetsMode;
+  }): Promise<ModeChangeResult> {
+    return this.postPrivate('dapi/v1/multiAssetsMargin', params);
+  }
+
+  getMultiAssetsMode(): Promise<MultiAssetModeResponse> {
+    return this.getPrivate('dapi/v1/multiAssetsMargin');
+  }
+
+  submitNewOrder(
+    params: NewFuturesOrderParams
+  ): Promise<NewOrderResult | NewOrderError> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.postPrivate('dapi/v1/order', params);
+  }
+
+  /**
+   * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
+   *
+   * Known issue: `quantity` and `price` should be sent as strings
+   */
+  submitMultipleOrders(
+    orders: NewFuturesOrderParams<string>[]
+  ): Promise<(NewOrderResult | NewOrderError)[]> {
+    const stringOrders = orders.map((order) => {
+      const orderToStringify = { ...order };
+      this.validateOrderId(orderToStringify, 'newClientOrderId');
+      return JSON.stringify(orderToStringify);
+    });
+    const requestBody = {
+      batchOrders: `[${stringOrders.join(',')}]`,
+    };
+    return this.postPrivate('dapi/v1/batchOrders', requestBody);
+  }
+
+  getOrder(params: GetOrderParams): Promise<OrderResult> {
+    return this.getPrivate('dapi/v1/order', params);
+  }
+
+  cancelOrder(params: CancelOrderParams): Promise<CancelFuturesOrderResult> {
+    return this.deletePrivate('dapi/v1/order', params);
+  }
+
+  cancelAllOpenOrders(
+    params: BasicSymbolParam
+  ): Promise<CancelAllOpenOrdersResult> {
+    return this.deletePrivate('dapi/v1/allOpenOrders', params);
+  }
+
+  cancelMultipleOrders(
+    params: CancelMultipleOrdersParams
+  ): Promise<(CancelFuturesOrderResult | GenericCodeMsgError)[]> {
+    return this.deletePrivate('dapi/v1/batchOrders', params);
+  }
+
+  // Auto-cancel all open orders
+  setCancelOrdersOnTimeout(
+    params: CancelOrdersTimeoutParams
+  ): Promise<SetCancelTimeoutResult> {
+    return this.postPrivate('dapi/v1/countdownCancelAll', params);
+  }
+
+  getCurrentOpenOrder(params: GetOrderParams): Promise<OrderResult> {
+    return this.getPrivate('dapi/v1/openOrder', params);
+  }
+
+  getAllOpenOrders(params?: Partial<BasicSymbolParam>): Promise<OrderResult[]> {
+    return this.getPrivate('dapi/v1/openOrders', params);
+  }
+
+  getAllOrders(params: GetAllOrdersParams): Promise<OrderResult[]> {
+    return this.getPrivate('dapi/v1/allOrders', params);
+  }
+
+  getBalance(): Promise<FuturesAccountBalance[]> {
+    return this.getPrivate('dapi/v2/balance');
+  }
+
+  getAccountInformation(): Promise<FuturesAccountInformation> {
+    return this.getPrivate('dapi/v2/account');
+  }
+
+  setLeverage(params: SetLeverageParams): Promise<SetLeverageResult> {
+    return this.postPrivate('dapi/v1/leverage', params);
+  }
+
+  setMarginType(params: SetMarginTypeParams): Promise<ModeChangeResult> {
+    return this.postPrivate('dapi/v1/marginType', params);
+  }
+
+  setIsolatedPositionMargin(
+    params: SetIsolatedMarginParams
+  ): Promise<SetIsolatedMarginResult> {
+    return this.postPrivate('dapi/v1/positionMargin', params);
+  }
+
+  getPositionMarginChangeHistory(
+    params: GetPositionMarginChangeHistoryParams
+  ): Promise<any> {
+    return this.getPrivate('dapi/v1/positionMargin/history', params);
+  }
 
   getPositions(): Promise<PositionRisk[]> {
     return this.getPrivate('dapi/v1/positionRisk');
@@ -144,25 +359,171 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/userTrades', params);
   }
 
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#get-income-history-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#notional-bracket-for-symbol-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#notional-bracket-for-pair-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#user-39-s-force-orders-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#position-adl-quantile-estimation-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#user-commission-rate-user_data
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#user-data-streams
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#start-user-data-stream-user_stream
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#keepalive-user-data-stream-user_stream
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#close-user-data-stream-user_stream
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#event-margin-call
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#event-balance-and-position-update
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#event-order-update
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#websocket-user-data-request
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#request-user-39-s-account-information
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#request-user-39-s-account-balance
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#request-user-39-s-position
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#event-account-configuration-update-leverage-update
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#portfolio-margin-endpoints
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#portfolio-margin-exchange-information
-  //TODO - https://binance-docs.github.io/apidocs/delivery/en/#portfolio-margin-account-information-user_data
+  getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
+    return this.getPrivate('dapi/v1/income', params);
+  }
+
+  getNotionalAndLeverageBrackets(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<SymbolLeverageBracketsResult[] | SymbolLeverageBracketsResult> {
+    return this.getPrivate('dapi/v1/leverageBracket', params);
+  }
+
+  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
+    return this.getPrivate('dapi/v1/adlQuantile', params);
+  }
+
+  getForceOrders(params?: GetForceOrdersParams): Promise<ForceOrderResult[]> {
+    return this.getPrivate('dapi/v1/forceOrders', params);
+  }
+
+  getApiQuantitativeRulesIndicators(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<any> {
+    return this.getPrivate('dapi/v1/apiTradingStatus', params);
+  }
+
+  getAccountComissionRate(
+    params: BasicSymbolParam
+  ): Promise<RebateDataOverview> {
+    return this.getPrivate('dapi/v1/commissionRate', params);
+  }
+
+  /**
+   *
+   * Broker Futures Endpoints
+   *
+   **/
+
+  // 1 == USDT-Margined, 2 == Coin-margined
+  getBrokerIfNewFuturesUser(
+    brokerId: string,
+    type: 1 | 2 = 1
+  ): Promise<{ brokerId: string; rebateWorking: boolean; ifNewUser: boolean }> {
+    return this.getPrivate('dapi/v1/apiReferral/ifNewUser', {
+      brokerId,
+      type,
+    });
+  }
+
+  setBrokerCustomIdForClient(
+    customerId: string,
+    email: string
+  ): Promise<{ customerId: string; email: string }> {
+    return this.postPrivate('dapi/v1/apiReferral/customization', {
+      customerId,
+      email,
+    });
+  }
+
+  getBrokerClientCustomIds(
+    customerId: string,
+    email: string,
+    page?: number,
+    limit?: number
+  ): Promise<any> {
+    return this.getPrivate('dapi/v1/apiReferral/customization', {
+      customerId,
+      email,
+      page,
+      limit,
+    });
+  }
+
+  getBrokerUserCustomId(brokerId: string): Promise<any> {
+    return this.getPrivate('dapi/v1/apiReferral/userCustomization', {
+      brokerId,
+    });
+  }
+
+  getBrokerRebateDataOverview(type: 1 | 2 = 1): Promise<RebateDataOverview> {
+    return this.getPrivate('dapi/v1/apiReferral/overview', {
+      type,
+    });
+  }
+
+  getBrokerUserTradeVolume(
+    type: 1 | 2 = 1,
+    startTime?: number,
+    endTime?: number,
+    limit?: number
+  ): Promise<any> {
+    return this.getPrivate('dapi/v1/apiReferral/tradeVol', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+
+  getBrokerRebateVolume(
+    type: 1 | 2 = 1,
+    startTime?: number,
+    endTime?: number,
+    limit?: number
+  ): Promise<any> {
+    return this.getPrivate('dapi/v1/apiReferral/rebateVol', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+
+  getBrokerTradeDetail(
+    type: 1 | 2 = 1,
+    startTime?: number,
+    endTime?: number,
+    limit?: number
+  ): Promise<any> {
+    return this.getPrivate('dapi/v1/apiReferral/traderSummary', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+
+  /**
+   *
+   * User Data Stream Endpoints
+   *
+   **/
+
+  // COIN-M Futures
+
+  getFuturesUserDataListenKey(): Promise<{ listenKey: string }> {
+    return this.post('dapi/v1/listenKey');
+  }
+
+  keepAliveFuturesUserDataListenKey(): Promise<{}> {
+    return this.put('dapi/v1/listenKey');
+  }
+
+  closeFuturesUserDataListenKey(): Promise<{}> {
+    return this.delete('dapi/v1/listenKey');
+  }
+
+  /**
+   * Validate syntax meets requirements set by binance. Log warning if not.
+   */
+  private validateOrderId(
+    params:
+      | NewFuturesOrderParams
+      | CancelOrderParams
+      | NewOCOParams
+      | CancelOCOParams,
+    orderIdProperty: OrderIdProperty
+  ): void {
+    const apiCategory = this.clientId;
+    if (!params[orderIdProperty]) {
+      params[orderIdProperty] = generateNewOrderId(apiCategory);
+      return;
+    }
+
+    const expectedOrderIdPrefix = `x-${getOrderIdPrefix(apiCategory)}`;
+    if (!params[orderIdProperty].startsWith(expectedOrderIdPrefix)) {
+      logInvalidOrderId(orderIdProperty, expectedOrderIdPrefix, params);
+    }
+  }
 }
