@@ -17,7 +17,8 @@ Node.js SDK for the Binance APIs and WebSockets, with TypeScript & browser suppo
   - Passing a private key as a secret will automatically revert to RSA authentication.
 - Supports REST APIs for Binance Spot, Margin, Isolated Margin, USDM & CoinM Futures.
   - Strongly typed on most requests and responses.
-- Supports Websockets for Binance Spot, Margin, Isolated Margin & USDM & CoinM Futures.
+  - Automated end-to-end tests on most API calls, ensuring no breaking changes are released.
+- Supports Websockets for Binance Spot, Margin, Isolated Margin, USDM & CoinM Futures.
   - Event driven messaging.
   - Smart websocket persistence
     - Automatically handle silent websocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
