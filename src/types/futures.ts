@@ -59,6 +59,24 @@ export interface FuturesDataPaginatedParams {
   endTime?: number;
 }
 
+export interface FuturesCoinMTakerBuySellVolumeParams {
+  pair: string;
+  contractType: 'ALL' | 'CURRENT_QUARTER' | 'NEXT_QUARTER' | 'PERPETUAL';
+  period: '5m' | '15m' | '30m' | '1h' | '2h' | '4h' | '6h' | '12h' | '1d';
+  limit?: number;
+  startTime?: number;
+  endTime?: number;
+}
+
+export interface FuturesCoinMBasisParams {
+  pair: string;
+  contractType: 'CURRENT_QUARTER' | 'NEXT_QUARTER' | 'PERPETUAL';
+  period: '5m' | '15m' | '30m' | '1h' | '2h' | '4h' | '6h' | '12h' | '1d';
+  limit?: number;
+  startTime?: number;
+  endTime?: number;
+}
+
 export enum EnumDualSideMode {
   HedgeMode = 'true',
   OneWayMode = 'false',
@@ -106,6 +124,15 @@ export interface NewFuturesOrderParams<numberType = number> {
   workingType?: WorkingType;
   priceProtect?: BooleanStringCapitalised;
   newOrderRespType?: OrderResponseType;
+}
+
+export interface ModifyFuturesOrderParams<numberType = number> {
+  orderId?: number;
+  origClientOrderId?: string;
+  symbol: string;
+  side: OrderSide;
+  quantity?: numberType;
+  price?: numberType;
 }
 
 export enum EnumPositionMarginChangeType {
@@ -422,6 +449,31 @@ export interface OrderResult {
   priceProtect: boolean;
 }
 
+export interface ModifyFuturesOrderResult {
+  orderId: number;
+  symbol: string;
+  pair: string;
+  status: OrderStatus;
+  clientOrderId: string;
+  price: numberInString;
+  avgPrice: numberInString;
+  origQty: numberInString;
+  executedQty: numberInString;
+  cumQty: numberInString;
+  cumBase: numberInString;
+  timeInForce: OrderTimeInForce;
+  type: FuturesOrderType;
+  reduceOnly: boolean;
+  closePosition: boolean;
+  side: OrderSide;
+  positionSide: PositionSide;
+  stopPrice: numberInString;
+  workingType: WorkingType;
+  priceProtect: boolean;
+  origType: FuturesOrderType;
+  updateTime: number;
+}
+
 export interface CancelFuturesOrderResult {
   clientOrderId: string;
   cumQty: numberInString;
@@ -463,6 +515,18 @@ export interface FuturesAccountBalance {
   marginAvailable: boolean;
   updateTime: numberInString;
 }
+
+export interface FuturesCoinMAccountBalance {
+  accountAlias: string;
+  asset: string;
+  balance: numberInString;
+  withdrawAvailable: numberInString;
+  crossWalletBalance: numberInString;
+  crossUnPnl: numberInString;
+  availableBalance: numberInString;
+  updateTime: number;
+}
+
 export interface FuturesAccountAsset {
   asset: string;
   walletBalance: numberInString;
@@ -500,6 +564,22 @@ export interface FuturesAccountPosition {
   askNotional: numberInString;
 }
 
+export interface FuturesCoinMAccountPosition {
+  symbol: string;
+  positionAmt: numberInString;
+  initialMargin: numberInString;
+  maintMargin: numberInString;
+  unrealizedProfit: numberInString;
+  positionInitialMargin: numberInString;
+  openOrderInitialMargin: numberInString;
+  leverage: numberInString;
+  isolated: boolean;
+  positionSide: PositionSide;
+  entryPrice: numberInString;
+  maxQty: numberInString;
+  updateTime: number;
+}
+
 export interface FuturesAccountInformation {
   feeTier: numberInString;
   canTrade: boolean;
@@ -519,6 +599,16 @@ export interface FuturesAccountInformation {
   maxWithdrawAmount: numberInString;
   assets: FuturesAccountAsset[];
   positions: FuturesAccountPosition[];
+}
+
+export interface FuturesCoinMAccountInformation {
+  assets: Omit<FuturesAccountAsset, 'marginAvailable' | 'updateTime'>[];
+  positions: FuturesCoinMAccountPosition[];
+  canTrade: boolean;
+  canDeposit: boolean;
+  canWithdraw: boolean;
+  feeTier: number;
+  updateTime: number;
 }
 
 export interface FuturesPosition {
@@ -625,4 +715,30 @@ export interface ChangeStats24hr {
   firstId: number; // First tradeId
   lastId: number; // Last tradeId
   count: number;
+}
+
+export interface OrderAmendmentDetailPrice {
+  before: numberInString;
+  after: numberInString;
+}
+
+export interface OrderAmendmentDetailQty {
+  before: numberInString;
+  after: numberInString;
+}
+
+export interface OrderAmendmentDetail {
+  price: OrderAmendmentDetailPrice;
+  origQty: OrderAmendmentDetailQty;
+  count: number;
+}
+
+export interface OrderAmendment {
+  amendmentId: number;
+  symbol: string;
+  pair: string;
+  orderId: number;
+  clientOrderId: string;
+  time: number;
+  amendment: OrderAmendmentDetail;
 }

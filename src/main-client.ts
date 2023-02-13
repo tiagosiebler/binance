@@ -17,6 +17,7 @@ import {
   OrderIdProperty,
   RecentTradesParams,
   SymbolFromPaginatedRequestFromId,
+  SymbolPrice,
 } from './types/shared';
 
 import {
@@ -163,7 +164,6 @@ import {
   SubAccountUSDMPositionRisk,
   SubAccountUSDMSummary,
   SymbolOrderBookTicker,
-  SymbolPrice,
   SymbolTradeFee,
   SystemStatusResponse,
   UniversalTransferBrokerParams,
@@ -174,7 +174,6 @@ import {
   WithdrawHistory,
   WithdrawHistoryParams,
   WithdrawParams,
-  
 } from './types/spot';
 
 import {

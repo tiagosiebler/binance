@@ -17,6 +17,7 @@ import {
   OrderIdProperty,
   GetAllOrdersParams,
   GenericCodeMsgError,
+  SymbolPrice,
 } from './types/shared';
 
 import {
@@ -74,7 +75,6 @@ import {
 } from './util/requestUtils';
 
 import BaseRestClient from './util/BaseRestClient';
-import { SymbolPrice } from './types/spot';
 
 export class USDMClient extends BaseRestClient {
   private clientId: BinanceBaseUrlKey;
@@ -134,6 +134,21 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/aggTrades', params);
   }
 
+  /**
+   * Index Price and Mark Price
+   */
+  getMarkPrice(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<MarkPrice | MarkPrice[]> {
+    return this.get('fapi/v1/premiumIndex', params);
+  }
+
+  getFundingRateHistory(
+    params?: Partial<BasicSymbolPaginatedParams>
+  ): Promise<FundingRateHistory[]> {
+    return this.get('fapi/v1/fundingRate', params);
+  }
+
   getKlines(params: KlinesParams): Promise<Kline[]> {
     return this.get('fapi/v1/klines', params);
   }
@@ -152,19 +167,16 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/markPriceKlines', params);
   }
 
-  getMarkPrice(
-    params?: Partial<BasicSymbolParam>
-  ): Promise<MarkPrice | MarkPrice[]> {
-    return this.get('fapi/v1/premiumIndex', params);
-  }
-
-  getFundingRateHistory(
-    params?: Partial<BasicSymbolPaginatedParams>
-  ): Promise<FundingRateHistory[]> {
-    return this.get('fapi/v1/fundingRate', params);
-  }
-
+  /**
+   * @deprecated use get24hrChangeStatistics() instead (method without the typo)
+   */
   get24hrChangeStatististics(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
+    return this.get24hrChangeStatistics(params);
+  }
+
+  get24hrChangeStatistics(
     params?: Partial<BasicSymbolParam>
   ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get('fapi/v1/ticker/24hr', params);

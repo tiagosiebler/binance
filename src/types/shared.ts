@@ -97,6 +97,11 @@ export interface BasicSymbolPaginatedParams {
   limit?: number;
 }
 
+export interface SymbolPrice {
+  symbol: string;
+  price: numberInString;
+}
+
 // used by spot and usdm
 export interface OrderBookParams {
   symbol: string;
@@ -126,6 +131,16 @@ export interface GetOrderParams {
   orderId?: number;
   origClientOrderId?: string;
   isIsolated?: StringBoolean;
+}
+
+export interface GetOrderModifyHistoryParams {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  isIsolated?: StringBoolean;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
 }
 
 export interface HistoricalTradesParams {

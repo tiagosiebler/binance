@@ -9,15 +9,15 @@
 
 [1]: https://www.npmjs.com/package/binance
 
-Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser support.
+Node.js SDK for the Binance APIs and WebSockets, with TypeScript & browser support.
 
 - Extremely robust & performant connector with significant trading volume in production (livenet).
 - Actively maintained with a modern, promise-driven interface.
 - Support for seamless HMAC and RSA authentication.
   - Passing a private key as a secret will automatically revert to RSA authentication.
-- Supports REST APIs for Binance Spot, Margin, Isolated Margin & USDM Futures.
+- Supports REST APIs for Binance Spot, Margin, Isolated Margin, USDM & CoinM Futures.
   - Strongly typed on most requests and responses.
-- Supports Websockets for Binance Spot, Margin, Isolated Margin & USDM Futures.
+- Supports Websockets for Binance Spot, Margin, Isolated Margin & USDM & CoinM Futures.
   - Event driven messaging.
   - Smart websocket persistence
     - Automatically handle silent websocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
@@ -27,7 +27,7 @@ Node.js connector for the Binance APIs and WebSockets, with TypeScript & browser
   - Optional:
     - Automatic beautification of Websocket events (from one-letter keys to descriptive words, and strings with floats to numbers).
     - Automatic beautification of REST responses (parsing numbers in strings to numbers).
-- Heavy end-to-end testing with real API calls.
+- Heavy automated end-to-end testing with real API calls.
   - End-to-end testing before any release.
   - Real API calls in e2e tests.
 - Proxy support via axios integration.
