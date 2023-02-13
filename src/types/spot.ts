@@ -1,4 +1,3 @@
-
 import {
   ExchangeFilter,
   ExchangeSymbol,
@@ -535,11 +534,6 @@ export interface DailyChangeStatistic {
   count: number;
 }
 
-export interface SymbolPrice {
-  symbol: string;
-  price: numberInString;
-}
-
 export interface SymbolOrderBookTicker {
   symbol: string;
   bidPrice: numberInString;
@@ -826,17 +820,17 @@ export interface SubAccountList {
 }
 
 export interface SubAccountDepositHistoryList {
-  subAccountId: string,
-  amount: string,
-  coin: string,
-  network: string,
-  status: number,
-  address: string,
-  addressTag: string,
-  txId: string,
-  insertTime: number,
-  sourceAddress: string,
-  confirmTimes: string
+  subAccountId: string;
+  amount: string;
+  coin: string;
+  network: string;
+  status: number;
+  address: string;
+  addressTag: string;
+  txId: string;
+  insertTime: number;
+  sourceAddress: string;
+  confirmTimes: string;
 }
 
 export interface SubAccountTransferHistoryList {
@@ -1069,7 +1063,7 @@ export interface VirtualSubAccount {
 }
 
 export interface BrokerSubAccountHistory {
-  subAccountsHistory: SubAccountTransferHistoryList[]
+  subAccountsHistory: SubAccountTransferHistoryList[];
 }
 
 export interface BrokerSubAccount {

@@ -5,7 +5,7 @@ import {
   CoinMPositionTrade,
   CoinMSymbolOrderBookTicker,
   PositionRisk,
-  SymbolOrPair
+  SymbolOrPair,
 } from './types/coin';
 import {
   BasicSymbolPaginatedParams,
@@ -24,15 +24,15 @@ import {
   OrderIdProperty,
   GetAllOrdersParams,
   GenericCodeMsgError,
+  GetOrderModifyHistoryParams,
+  SymbolPrice,
 } from './types/shared';
-
 
 import {
   ContinuousContractKlinesParams,
   IndexPriceKlinesParams,
   SymbolKlinePaginatedParams,
   FuturesDataPaginatedParams,
-  MultiAssetsMode,
   NewFuturesOrderParams,
   CancelMultipleOrdersParams,
   CancelOrdersTimeoutParams,
@@ -47,23 +47,16 @@ import {
   RawFuturesTrade,
   AggregateFuturesTrade,
   FundingRateHistory,
-  FuturesSymbolOrderBookTicker,
-  OpenInterest,
   ModeChangeResult,
   PositionModeParams,
   PositionModeResponse,
-  MultiAssetModeResponse,
   NewOrderResult,
   NewOrderError,
   OrderResult,
   CancelFuturesOrderResult,
   CancelAllOpenOrdersResult,
-  FuturesAccountBalance,
-  FuturesAccountInformation,
   SetLeverageResult,
   SetIsolatedMarginResult,
-  FuturesPosition,
-  FuturesPositionTrade,
   ForceOrderResult,
   SymbolLeverageBracketsResult,
   IncomeHistory,
@@ -71,6 +64,13 @@ import {
   SetCancelTimeoutResult,
   ChangeStats24hr,
   MarkPrice,
+  FuturesCoinMTakerBuySellVolumeParams,
+  FuturesCoinMBasisParams,
+  ModifyFuturesOrderResult,
+  ModifyFuturesOrderParams,
+  OrderAmendment,
+  FuturesCoinMAccountBalance,
+  FuturesCoinMAccountInformation,
 } from './types/futures';
 
 import {
@@ -83,7 +83,6 @@ import {
 } from './util/requestUtils';
 
 import BaseRestClient from './util/BaseRestClient';
-import { SymbolPrice } from './types/spot';
 
 export class CoinMClient extends BaseRestClient {
   private clientId: BinanceBaseUrlKey;
@@ -144,6 +143,21 @@ export class CoinMClient extends BaseRestClient {
     return this.get('dapi/v1/aggTrades', params);
   }
 
+  /**
+   * Index Price and Mark Price
+   */
+  getMarkPrice(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<MarkPrice | MarkPrice[]> {
+    return this.get('dapi/v1/premiumIndex', params);
+  }
+
+  getFundingRateHistory(
+    params?: Partial<BasicSymbolPaginatedParams>
+  ): Promise<FundingRateHistory[]> {
+    return this.get('dapi/v1/fundingRate', params);
+  }
+
   getKlines(params: KlinesParams): Promise<Kline[]> {
     return this.get('dapi/v1/klines', params);
   }
@@ -162,19 +176,16 @@ export class CoinMClient extends BaseRestClient {
     return this.get('dapi/v1/markPriceKlines', params);
   }
 
-  getMarkPrice(
-    params?: Partial<BasicSymbolParam>
-  ): Promise<MarkPrice | MarkPrice[]> {
-    return this.get('dapi/v1/premiumIndex', params);
-  }
-
-  getFundingRateHistory(
-    params?: Partial<BasicSymbolPaginatedParams>
-  ): Promise<FundingRateHistory[]> {
-    return this.get('dapi/v1/fundingRate', params);
-  }
-
+  /**
+   * @deprecated use get24hrChangeStatistics() instead (method without the typo)
+   */
   get24hrChangeStatististics(
+    params?: Partial<BasicSymbolParam>
+  ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
+    return this.get24hrChangeStatistics(params);
+  }
+
+  get24hrChangeStatistics(
     params?: Partial<BasicSymbolParam>
   ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get('dapi/v1/ticker/24hr', params);
@@ -220,16 +231,14 @@ export class CoinMClient extends BaseRestClient {
     return this.get('futures/data/globalLongShortAccountRatio', params);
   }
 
-  getTakerBuySellVolume(params: FuturesDataPaginatedParams): Promise<any> {
-    return this.get('futures/data/takerlongshortRatio', params);
+  getTakerBuySellVolume(
+    params: FuturesCoinMTakerBuySellVolumeParams
+  ): Promise<any> {
+    return this.get('futures/data/takerBuySellVol', params);
   }
 
-  getHistoricalBlvtNavKlines(params: SymbolKlinePaginatedParams): Promise<any> {
-    return this.get('dapi/v1/lvtKlines', params);
-  }
-
-  getCompositeSymbolIndex(params?: Partial<BasicSymbolParam>): Promise<any> {
-    return this.get('dapi/v1/indexInfo', params);
+  getCompositeSymbolIndex(params: FuturesCoinMBasisParams): Promise<any> {
+    return this.get('futures/data/basis', params);
   }
 
   /**
@@ -246,21 +255,20 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/positionSide/dual');
   }
 
-  setMultiAssetsMode(params: {
-    multiAssetsMargin: MultiAssetsMode;
-  }): Promise<ModeChangeResult> {
-    return this.postPrivate('dapi/v1/multiAssetsMargin', params);
-  }
-
-  getMultiAssetsMode(): Promise<MultiAssetModeResponse> {
-    return this.getPrivate('dapi/v1/multiAssetsMargin');
-  }
-
   submitNewOrder(
     params: NewFuturesOrderParams
   ): Promise<NewOrderResult | NewOrderError> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('dapi/v1/order', params);
+  }
+
+  /**
+   * Order modify function, currently only LIMIT order modification is supported, modified orders will be reordered in the match queue
+   */
+  modifyOrder(
+    params: ModifyFuturesOrderParams
+  ): Promise<ModifyFuturesOrderResult> {
+    return this.putPrivate('dapi/v1/order', params);
   }
 
   /**
@@ -280,6 +288,28 @@ export class CoinMClient extends BaseRestClient {
       batchOrders: `[${stringOrders.join(',')}]`,
     };
     return this.postPrivate('dapi/v1/batchOrders', requestBody);
+  }
+
+  /**
+   * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
+   */
+  modifyMultipleOrders(
+    orders: ModifyFuturesOrderParams[]
+  ): Promise<(ModifyFuturesOrderResult | NewOrderError)[]> {
+    const stringOrders = orders.map((order) => {
+      const orderToStringify = { ...order };
+      return JSON.stringify(orderToStringify);
+    });
+    const requestBody = {
+      batchOrders: `[${stringOrders.join(',')}]`,
+    };
+    return this.putPrivate('dapi/v1/batchOrders', requestBody);
+  }
+
+  getOrderModifyHistory(
+    params: GetOrderModifyHistoryParams
+  ): Promise<OrderAmendment[]> {
+    return this.getPrivate('dapi/v1/orderAmendment', params);
   }
 
   getOrder(params: GetOrderParams): Promise<OrderResult> {
@@ -321,12 +351,12 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/allOrders', params);
   }
 
-  getBalance(): Promise<FuturesAccountBalance[]> {
-    return this.getPrivate('dapi/v2/balance');
+  getBalance(): Promise<FuturesCoinMAccountBalance[]> {
+    return this.getPrivate('dapi/v1/balance');
   }
 
-  getAccountInformation(): Promise<FuturesAccountInformation> {
-    return this.getPrivate('dapi/v2/account');
+  getAccountInformation(): Promise<FuturesCoinMAccountInformation> {
+    return this.getPrivate('dapi/v1/account');
   }
 
   setLeverage(params: SetLeverageParams): Promise<SetLeverageResult> {
@@ -363,24 +393,21 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/income', params);
   }
 
+  /**
+   * Notional Bracket for Symbol (NOT "pair")
+   */
   getNotionalAndLeverageBrackets(
     params?: Partial<BasicSymbolParam>
   ): Promise<SymbolLeverageBracketsResult[] | SymbolLeverageBracketsResult> {
-    return this.getPrivate('dapi/v1/leverageBracket', params);
-  }
-
-  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
-    return this.getPrivate('dapi/v1/adlQuantile', params);
+    return this.getPrivate('dapi/v2/leverageBracket', params);
   }
 
   getForceOrders(params?: GetForceOrdersParams): Promise<ForceOrderResult[]> {
     return this.getPrivate('dapi/v1/forceOrders', params);
   }
 
-  getApiQuantitativeRulesIndicators(
-    params?: Partial<BasicSymbolParam>
-  ): Promise<any> {
-    return this.getPrivate('dapi/v1/apiTradingStatus', params);
+  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
+    return this.getPrivate('dapi/v1/adlQuantile', params);
   }
 
   getAccountComissionRate(
@@ -489,8 +516,6 @@ export class CoinMClient extends BaseRestClient {
    * User Data Stream Endpoints
    *
    **/
-
-  // COIN-M Futures
 
   getFuturesUserDataListenKey(): Promise<{ listenKey: string }> {
     return this.post('dapi/v1/listenKey');
