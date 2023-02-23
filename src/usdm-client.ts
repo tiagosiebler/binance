@@ -363,9 +363,12 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/income', params);
   }
 
+  /**
+   * Contrary to what the docs say - if symbol is provided, this returns an array with length 1 (assuming the symbol exists)
+   */
   getNotionalAndLeverageBrackets(
     params?: Partial<BasicSymbolParam>
-  ): Promise<SymbolLeverageBracketsResult[] | SymbolLeverageBracketsResult> {
+  ): Promise<SymbolLeverageBracketsResult[]> {
     return this.getPrivate('fapi/v1/leverageBracket', params);
   }
 
