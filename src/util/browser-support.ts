@@ -1,4 +1,3 @@
-
 function str2ab(str) {
   const buf = new ArrayBuffer(str.length);
   const bufView = new Uint8Array(buf);
@@ -8,25 +7,35 @@ function str2ab(str) {
   return buf;
 }
 
-export async function signMessage(message: string, secret: string): Promise<string> {
+export async function signMessage(
+  message: string,
+  secret: string
+): Promise<string> {
   const encoder = new TextEncoder();
 
-  if (secret.includes('BEGIN PRIVATE KEY')) {
-    const pemHeader = "-----BEGIN PRIVATE KEY-----";
-    const pemFooter = "-----END PRIVATE KEY-----";
-    const pemContents = secret.substring(pemHeader.length, secret.length - pemFooter.length);
+  if (secret.includes('PRIVATE KEY')) {
+    const pemHeader = '-----BEGIN PRIVATE KEY-----';
+    const pemFooter = '-----END PRIVATE KEY-----';
+    const pemContents = secret.substring(
+      pemHeader.length,
+      secret.length - pemFooter.length
+    );
     const binaryDerString = window.atob(pemContents);
     const binaryDer = str2ab(binaryDerString);
 
     const key = await window.crypto.subtle.importKey(
       'pkcs8',
       binaryDer,
-      {name: 'RSASSA-PKCS1-v1_5', hash: {name: 'SHA-256'}},
+      { name: 'RSASSA-PKCS1-v1_5', hash: { name: 'SHA-256' } },
       false,
       ['sign']
     );
 
-    const signature = await window.crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, encoder.encode(message));
+    const signature = await window.crypto.subtle.sign(
+      'RSASSA-PKCS1-v1_5',
+      key,
+      encoder.encode(message)
+    );
 
     return btoa(String.fromCharCode(...new Uint8Array(signature)));
   }
@@ -34,15 +43,20 @@ export async function signMessage(message: string, secret: string): Promise<stri
   const key = await window.crypto.subtle.importKey(
     'raw',
     encoder.encode(secret),
-    {name: 'HMAC', hash: {name: 'SHA-256'}},
+    { name: 'HMAC', hash: { name: 'SHA-256' } },
     false,
     ['sign']
   );
 
-  const signature = await window.crypto.subtle.sign('HMAC', key, encoder.encode(message));
+  const signature = await window.crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(message)
+  );
 
-  return Array.prototype.map.call(
-    new Uint8Array(signature),
-    (x: any) => ('00'+x.toString(16)).slice(-2)
-  ).join('');
-};
+  return Array.prototype.map
+    .call(new Uint8Array(signature), (x: any) =>
+      ('00' + x.toString(16)).slice(-2)
+    )
+    .join('');
+}
