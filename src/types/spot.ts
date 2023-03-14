@@ -320,31 +320,35 @@ export interface DustLog {
 }
 
 export enum EnumUniversalTransferType {
-  SpotToC2C = 'MAIN_C2C',
-  SpotToUSDM = 'MAIN_UMFUTURE',
-  SpotToCOINM = 'MAIN_CMFUTURE',
-  SpotToMargin = 'MAIN_MARGIN',
-  SpotToMining = 'MAIN_MINING',
-  C2CToSpot = 'C2C_MAIN',
-  C2CToUSDM = 'C2C_UMFUTURE',
-  C2CToMining = 'C2C_MINING',
-  C2CToMargin = 'C2C_MARGIN',
-  USDMToSpot = 'UMFUTURE_MAIN',
-  USDMToC2C = 'UMFUTURE_C2C',
-  USDMToMargin = 'UMFUTURE_MARGIN',
-  COINMToSpot = 'CMFUTURE_MAIN',
-  COINMToMargin = 'CMFUTURE_MARGIN',
-  MarginToSpot = 'MARGIN_MAIN',
-  MarginToUSDM = 'MARGIN_UMFUTURE',
-  MarginToCOINM = 'MARGIN_CMFUTURE',
-  MarginToMining = 'MARGIN_MINING',
-  MarginToC2C = 'MARGIN_C2C',
-  MiningToSpot = 'MINING_MAIN',
-  MiningToUSDM = 'MINING_UMFUTURE',
-  MiningToC2C = 'MINING_C2C',
-  MiningToMargin = 'MINING_MARGIN',
-  SpotToPay = 'MAIN_PAY',
-  PayToSpot = 'PAY_MAIN',
+    SpotToUSDM = "MAIN_UMFUTURE",
+    SpotToCOINM = "MAIN_CMFUTURE",
+    SpotToMargin = "MAIN_MARGIN",
+    SpotToFunding = "MAIN_FUNDING",
+    SpotToOptions = "MAIN_OPTION",
+    FundingToSpot = "FUNDING_MAIN",
+    FundingToUSDM = "FUNDING_UMFUTURE",
+    FundingToCOINM = "FUNDING_CMFUTURE",
+    FundingToMargin = "FUNDING_MARGIN",
+    FundingToOptions = "FUNDING_OPTION",
+    USDMToSpot = "UMFUTURE_MAIN",
+    USDMToFunding = "UMFUTURE_FUNDING",
+    USDMToMargin = "UMFUTURE_MARGIN",
+    USDMToOptions = "UMFUTURE_OPTION",
+    COINMToSpot = "CMFUTURE_MAIN",
+    COINMToFunding = "CMFUTURE_FUNDING",
+    COINMToMargin = "CMFUTURE_MARGIN",
+    MarginToSpot = "MARGIN_MAIN",
+    MarginToUSDM = "MARGIN_UMFUTURE",
+    MarginToCOINM = "MARGIN_CMFUTURE",
+    MarginToIsolatedMargin = "MARGIN_ISOLATEDMARGIN ",
+    MarginToFunding = "MARGIN_FUNDING",
+    MarginToOptions = "MARGIN_OPTION",
+    IsolatedMarginToMargin = "ISOLATEDMARGIN_MARGIN",
+    IsolatedMarginToIsolatedMargin = "ISOLATEDMARGIN_ISOLATEDMARGIN",
+    OptionsToSpot = "OPTION_MAIN",
+    OptionsToUSDM = "OPTION_UMFUTURE",
+    OptionsToFunding = "OPTION_FUNDING",
+    OptionsToMargin = "OPTION_MARGIN"
 }
 
 export type UniversalTransferType = `${EnumUniversalTransferType}`;
@@ -352,7 +356,9 @@ export type UniversalTransferType = `${EnumUniversalTransferType}`;
 export interface UniversalTransferParams {
   type: UniversalTransferType;
   asset: string;
-  amount: string;
+  amount: number;
+  fromSymbol: string;
+  toSymbol: string;
 }
 
 export interface UniversalTransferHistoryParams {
