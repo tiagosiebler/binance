@@ -52,6 +52,10 @@ export interface WSClientConfigurableOptions {
   reconnectTimeout?: number;
   restOptions?: RestClientOptions;
   requestOptions?: AxiosRequestConfig;
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  } 
   wsUrl?: string;
 }
 
@@ -219,8 +223,10 @@ export class WebsocketClient extends EventEmitter {
       `connectToWsUrl(): Opening WS connection to URL: ${url}`,
       { ...loggerCategory, wsRefKey }
     );
+    
+    const { protocols = [], ...wsOptions } = this.options.wsOptions || {};
 
-    const ws = new WebSocket(url);
+    const ws = new WebSocket(url, protocols, wsOptions);
     this.wsUrlKeyMap[url] = wsRefKey;
 
     if (typeof ws.on === 'function') {
