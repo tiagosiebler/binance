@@ -3,6 +3,7 @@ import {
   DefaultLogger,
   isWsFormatted24hrTicker,
   isWsFormattedKline,
+  isWsFormatted24hrTickerArray,
 } from '../src';
 
 // or, with the npm package
@@ -27,15 +28,18 @@ import {
     // silly: () => {},
   };
 
-  const wsClient = new WebsocketClient({
-    // api_key: key,
-    // api_secret: secret,
-    beautify: true,
-  }, logger);
+  const wsClient = new WebsocketClient(
+    {
+      // api_key: key,
+      // api_secret: secret,
+      beautify: true,
+    },
+    logger
+  );
 
-  wsClient.on('message', (data) => {
-    // console.log('raw message received ', JSON.stringify(data, null, 2));
-  });
+  // wsClient.on('message', (data) => {
+  //   console.log('raw message received ', JSON.stringify(data, null, 2));
+  // });
 
   wsClient.on('formattedMessage', (data) => {
     // manually handle events and narrow down to desired types
@@ -54,6 +58,12 @@ import {
       return;
     }
 
+    if (isWsFormatted24hrTickerArray(data)) {
+      console.log('24hrTicker all symbols received ');
+      console.table(data.sort((a, b) => a.symbol.localeCompare(b.symbol)));
+      return;
+    }
+
     console.log('log formattedMessage: ', data);
   });
 
@@ -66,16 +76,17 @@ import {
     console.log('log reply: ', JSON.stringify(data, null, 2));
   });
   wsClient.on('reconnecting', (data) => {
-    console.log('ws automatically reconnecting.... ', data?.wsKey );
+    console.log('ws automatically reconnecting.... ', data?.wsKey);
   });
   wsClient.on('reconnected', (data) => {
-    console.log('ws has reconnected ', data?.wsKey );
+    console.log('ws has reconnected ', data?.wsKey);
   });
 
   // wsClient.subscribeCoinIndexPrice(coinMSymbol);
+  // wsClient.subscribeSpotAllBookTickers();
 
   // wsClient.subscribeSpotKline(market, '1m');
-  wsClient.subscribeKlines(market, '1m', 'usdm');
+  // wsClient.subscribeKlines(market, '1m', 'usdm');
   // wsClient.subscribeMarkPrice(market, 'usdm');
   // wsClient.subscribeMarkPrice(coinMSymbol, 'coinm');
   // wsClient.subscribeAllMarketMarkPrice('usdm');
@@ -93,7 +104,7 @@ import {
   // wsClient.subscribeAllMini24hrTickers('usdm');
   // wsClient.subscribeAllMini24hrTickers('coinm');
   // wsClient.subscribeAllMini24hrTickers('spot');
-  // wsClient.subscribeAll24hrTickers('usdm');
+  wsClient.subscribeAll24hrTickers('usdm');
   // wsClient.subscribeAll24hrTickers('coinm');
   // wsClient.subscribeAll24hrTickers('spot');
   // wsClient.subscribeAllLiquidationOrders('usdm');
@@ -101,5 +112,4 @@ import {
   // wsClient.subscribeSpotSymbol24hrTicker(market);
   // wsClient.subscribeAggregateTrades(market, 'usdm');
   // wsClient.subscribeSpotPartialBookDepth('ETHBTC', 5, 1000);
-
 })();
