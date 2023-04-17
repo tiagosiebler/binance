@@ -7,8 +7,6 @@ const key = process.env.APIKEY || 'APIKEY';
 const secret = process.env.APISECRET || 'APISECRET';
 
 const client = new USDMClient({
-  // api_key: 'apikeyhere',
-  // api_secret: 'apisecrethere',
   api_secret: secret,
   api_key: key,
   beautifyResponses: true,

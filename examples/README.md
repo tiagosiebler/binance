@@ -14,3 +14,10 @@ Samples that API credentials using `process.env.APIKEY` can be spawned with envi
 ```
 APIKEY="apikeypastedhere" APISECRET="apisecretpastedhere" ts-node examples/ws-userdata.ts
 ```
+
+
+## REST USDM Examples
+
+- `rest-future-bracket-order.ts` Creates three order, entry, TP, SL and submit them all at once using `submitMultipleOrders`
+- `rest-usdm-order.ts` Creates single entry, using `submitNewOrder`
+- `rest-usdm-order-sl.ts` Modify current Stop Loss order(HedgeMode only)
