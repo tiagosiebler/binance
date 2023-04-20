@@ -55,7 +55,7 @@ export interface WSClientConfigurableOptions {
   wsOptions?: {
     protocols?: string[];
     agent?: any;
-  } 
+  };
   wsUrl?: string;
 }
 
@@ -97,22 +97,22 @@ export declare interface WebsocketClient {
 
   on(
     event: 'formattedMessage',
-    listener: (event: WsFormattedMessage) => void
+    listener: (event: WsFormattedMessage) => void,
   ): this;
 
   on(
     event: 'formattedUserDataMessage',
-    listener: (event: WsUserDataEvents) => void
+    listener: (event: WsUserDataEvents) => void,
   ): this;
 
   on(
     event: 'error',
-    listener: (event: { wsKey: WsKey; error: any; rawEvent?: string }) => void
+    listener: (event: { wsKey: WsKey; error: any; rawEvent?: string }) => void,
   ): this;
 
   on(
     event: 'open' | 'reconnected' | 'reconnecting' | 'close',
-    listener: (event: { wsKey: WsKey; ws: WebSocket; event?: any }) => void
+    listener: (event: { wsKey: WsKey; ws: WebSocket; event?: any }) => void,
   ): this;
 }
 
@@ -170,7 +170,7 @@ export class WebsocketClient extends EventEmitter {
 
   constructor(
     options: WSClientConfigurableOptions,
-    logger?: typeof DefaultLogger
+    logger?: typeof DefaultLogger,
   ) {
     super();
 
@@ -206,7 +206,7 @@ export class WebsocketClient extends EventEmitter {
   public connectToWsUrl(
     url: string,
     wsKey?: WsKey,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const wsRefKey = wsKey || url;
 
@@ -214,16 +214,16 @@ export class WebsocketClient extends EventEmitter {
     if (oldWs && this.wsStore.isWsOpen(wsRefKey) && !forceNewConnection) {
       this.logger.silly(
         `connectToWsUrl(): Returning existing open WS connection`,
-        { ...loggerCategory, wsRefKey }
+        { ...loggerCategory, wsRefKey },
       );
       return oldWs;
     }
 
     this.logger.silly(
       `connectToWsUrl(): Opening WS connection to URL: ${url}`,
-      { ...loggerCategory, wsRefKey }
+      { ...loggerCategory, wsRefKey },
     );
-    
+
     const { protocols = [], ...wsOptions } = this.options.wsOptions || {};
 
     const ws = new WebSocket(url, protocols, wsOptions);
@@ -247,6 +247,8 @@ export class WebsocketClient extends EventEmitter {
     // Add ws connection with key to store
     this.wsStore.setWs(wsRefKey, ws);
 
+    ws.wsKey = wsRefKey;
+
     return ws;
   }
 
@@ -264,7 +266,7 @@ export class WebsocketClient extends EventEmitter {
       const ws = this.getWs(wsKey);
       if (!ws) {
         throw new Error(
-          `No active websocket connection exists for wsKey: ${wsKey}`
+          `No active websocket connection exists for wsKey: ${wsKey}`,
         );
       }
       ws.send(wsMessage);
@@ -288,7 +290,7 @@ export class WebsocketClient extends EventEmitter {
       const ws = this.getWs(wsKey);
       if (!ws) {
         throw new Error(
-          `No active websocket connection exists for wsKey: ${wsKey}`
+          `No active websocket connection exists for wsKey: ${wsKey}`,
         );
       }
 
@@ -331,7 +333,7 @@ export class WebsocketClient extends EventEmitter {
 
       wsState.activePingTimer = setInterval(
         () => this.sendPing(wsKey, wsUrl),
-        this.options.pingInterval
+        this.options.pingInterval,
       );
     }
   }
@@ -364,7 +366,7 @@ export class WebsocketClient extends EventEmitter {
   private onWsMessage(
     event: MessageEvent,
     wsKey: WsKey,
-    source: WsEventInternalSrc
+    source: WsEventInternalSrc,
   ) {
     try {
       this.clearPongTimer(wsKey);
@@ -382,7 +384,7 @@ export class WebsocketClient extends EventEmitter {
         if (eventType === 'listenKeyExpired') {
           const { market } = getContextFromWsKey(wsKey);
           this.logger.info(
-            `${market} listenKey expired - attempting to respawn user data stream: ${wsKey}`
+            `${market} listenKey expired - attempting to respawn user data stream: ${wsKey}`,
           );
 
           // Just closing the connection (with the last parameter as true) will handle cleanup and respawn
@@ -394,7 +396,7 @@ export class WebsocketClient extends EventEmitter {
           const beautifiedMessage = this.beautifier.beautifyWsMessage(
             msg,
             eventType,
-            false
+            false,
           ) as WsFormattedMessage;
           this.emit('formattedMessage', beautifiedMessage);
 
@@ -437,7 +439,7 @@ export class WebsocketClient extends EventEmitter {
           rawEvent: event,
           wsKey,
           source,
-        }
+        },
       );
     } catch (e) {
       this.logger.error('Exception parsing ws message: ', {
@@ -459,7 +461,7 @@ export class WebsocketClient extends EventEmitter {
 
     this.wsStore.get(wsKey, true).activePongTimer = setTimeout(
       () => this.executeReconnectableClose(wsKey, 'Pong timeout', wsUrl),
-      this.options.pongTimeout
+      this.options.pongTimeout,
     );
   }
 
@@ -467,7 +469,7 @@ export class WebsocketClient extends EventEmitter {
     event: any,
     wsKey: WsKey,
     ws: WebSocket,
-    source: WsEventInternalSrc
+    source: WsEventInternalSrc,
   ) {
     this.logger.silly('Received ping, sending pong frame', {
       ...loggerCategory,
@@ -495,7 +497,7 @@ export class WebsocketClient extends EventEmitter {
   private executeReconnectableClose(
     wsKey: WsKey,
     reason: string,
-    wsUrl: string
+    wsUrl: string,
   ) {
     this.logger.info(`${reason} - closing socket to reconnect`, {
       ...loggerCategory,
@@ -517,7 +519,7 @@ export class WebsocketClient extends EventEmitter {
           ...loggerCategory,
           wsKey,
           reason,
-        }
+        },
       );
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout, wsUrl);
     }
@@ -533,7 +535,7 @@ export class WebsocketClient extends EventEmitter {
       wsKey,
       willReconnect
         ? WsConnectionStateEnum.RECONNECTING
-        : WsConnectionStateEnum.CLOSING
+        : WsConnectionStateEnum.CLOSING,
     );
 
     this.clearTimers(wsKey);
@@ -559,7 +561,7 @@ export class WebsocketClient extends EventEmitter {
     const wsKey = this.wsUrlKeyMap[ws.url];
     if (!wsKey) {
       throw new Error(
-        `Cannot close websocket as it has no known wsKey attached.`
+        `Cannot close websocket as it has no known wsKey attached.`,
       );
     }
     return this.close(wsKey, willReconnect);
@@ -569,7 +571,7 @@ export class WebsocketClient extends EventEmitter {
     context: string,
     error: any,
     wsKey: WsKey,
-    wsUrl: string
+    wsUrl: string,
   ) {
     this.logger.error(context, { ...loggerCategory, wsKey, error });
 
@@ -596,12 +598,12 @@ export class WebsocketClient extends EventEmitter {
             `${context} due to unexpected response error: "${
               error?.msg || error?.message || error
             }"`,
-            { ...loggerCategory, wsKey, error }
+            { ...loggerCategory, wsKey, error },
           );
           this.executeReconnectableClose(wsKey, 'unhandled onWsError', wsUrl);
         } else {
           this.logger.info(
-            `${wsKey} socket forcefully closed. Will not reconnect.`
+            `${wsKey} socket forcefully closed. Will not reconnect.`,
           );
         }
         break;
@@ -612,7 +614,7 @@ export class WebsocketClient extends EventEmitter {
   private reconnectWithDelay(
     wsKey: WsKey,
     connectionDelayMs: number,
-    wsUrl: string
+    wsUrl: string,
   ) {
     this.clearTimers(wsKey);
 
@@ -704,7 +706,7 @@ export class WebsocketClient extends EventEmitter {
 
     if (state.keepAliveTimer) {
       this.logger.silly(
-        `Clearing old listen key interval timer for ${listenKey}`
+        `Clearing old listen key interval timer for ${listenKey}`,
       );
       clearInterval(state.keepAliveTimer);
     }
@@ -730,7 +732,7 @@ export class WebsocketClient extends EventEmitter {
     if (!this.restClients.spot) {
       this.restClients.spot = new MainClient(
         this.getRestClientOptions(),
-        this.options.requestOptions
+        this.options.requestOptions,
       );
     }
     return this.restClients.spot;
@@ -742,7 +744,7 @@ export class WebsocketClient extends EventEmitter {
         this.restClients.usdmFuturesTestnet = new USDMClient(
           this.getRestClientOptions(),
           this.options.requestOptions,
-          isTestnet
+          isTestnet,
         );
       }
       return this.restClients.usdmFuturesTestnet;
@@ -750,7 +752,7 @@ export class WebsocketClient extends EventEmitter {
     if (!this.restClients.usdmFutures) {
       this.restClients.usdmFutures = new USDMClient(
         this.getRestClientOptions(),
-        this.options.requestOptions
+        this.options.requestOptions,
       );
     }
     return this.restClients.usdmFutures;
@@ -762,7 +764,7 @@ export class WebsocketClient extends EventEmitter {
         this.restClients.coinmFuturesTestnet = new CoinMClient(
           this.getRestClientOptions(),
           this.options.requestOptions,
-          isTestnet
+          isTestnet,
         );
       }
       return this.restClients.coinmFuturesTestnet;
@@ -770,7 +772,7 @@ export class WebsocketClient extends EventEmitter {
     if (!this.restClients.coinmFutures) {
       this.restClients.coinmFutures = new CoinMClient(
         this.getRestClientOptions(),
-        this.options.requestOptions
+        this.options.requestOptions,
       );
     }
     return this.restClients.coinmFutures;
@@ -821,7 +823,7 @@ export class WebsocketClient extends EventEmitter {
     wsKey: WsKey,
     property: 'combined' | string,
     value: any,
-    requestId: number
+    requestId: number,
   ) {
     const wsMessage = JSON.stringify({
       method: 'SET_PROPERTY',
@@ -838,7 +840,7 @@ export class WebsocketClient extends EventEmitter {
   public requestGetProperty(
     wsKey: WsKey,
     property: 'combined' | string,
-    requestId: number
+    requestId: number,
   ) {
     const wsMessage = JSON.stringify({
       method: 'GET_PROPERTY',
@@ -857,7 +859,7 @@ export class WebsocketClient extends EventEmitter {
 
   private getListenKeyState(
     listenKey: string,
-    market: WsMarket
+    market: WsMarket,
   ): ListenKeyPersistenceState {
     const state = this.listenKeyStateStore[listenKey];
     if (state) {
@@ -878,7 +880,7 @@ export class WebsocketClient extends EventEmitter {
     ws: WebSocket,
     wsKey: WsKey,
     symbol?: string,
-    isTestnet?: boolean
+    isTestnet?: boolean,
   ) {
     const listenKeyState = this.getListenKeyState(listenKey, market);
 
@@ -896,9 +898,9 @@ export class WebsocketClient extends EventEmitter {
           ws,
           wsKey,
           symbol,
-          isTestnet
+          isTestnet,
         ),
-      minutes50
+      minutes50,
       // 1000 * 60
     );
   }
@@ -909,20 +911,20 @@ export class WebsocketClient extends EventEmitter {
     ws: WebSocket,
     wsKey: WsKey,
     symbol?: string,
-    isTestnet?: boolean
+    isTestnet?: boolean,
   ) {
     switch (market) {
       case 'spot':
         return this.getSpotRestClient().keepAliveSpotUserDataListenKey(
-          listenKey
+          listenKey,
         );
       case 'margin':
         return this.getSpotRestClient().keepAliveMarginUserDataListenKey(
-          listenKey
+          listenKey,
         );
       case 'isolatedMargin':
         return this.getSpotRestClient().keepAliveIsolatedMarginUserDataListenKey(
-          { listenKey, symbol: symbol! }
+          { listenKey, symbol: symbol! },
         );
       case 'coinm':
       case 'options':
@@ -931,16 +933,16 @@ export class WebsocketClient extends EventEmitter {
         return this.getUSDMRestClient().keepAliveFuturesUserDataListenKey();
       case 'usdmTestnet':
         return this.getUSDMRestClient(
-          isTestnet
+          isTestnet,
         ).keepAliveFuturesUserDataListenKey();
       case 'coinmTestnet':
         return this.getUSDMRestClient(
-          isTestnet
+          isTestnet,
         ).keepAliveFuturesUserDataListenKey();
       default:
         throwUnhandledSwitch(
           market,
-          `Failed to send keep alive for user data stream in unhandled market ${market}`
+          `Failed to send keep alive for user data stream in unhandled market ${market}`,
         );
     }
   }
@@ -951,7 +953,7 @@ export class WebsocketClient extends EventEmitter {
     ws: WebSocket,
     wsKey: WsKey,
     symbol?: string,
-    isTestnet?: boolean
+    isTestnet?: boolean,
   ) {
     const listenKeyState = this.getListenKeyState(listenKey, market);
 
@@ -965,14 +967,14 @@ export class WebsocketClient extends EventEmitter {
         ws,
         wsKey,
         symbol,
-        isTestnet
+        isTestnet,
       );
 
       listenKeyState.lastKeepAlive = Date.now();
       listenKeyState.keepAliveFailures = 0;
       this.logger.info(
         `Completed keep alive cycle for listenKey(${listenKey}) in market(${market})`,
-        { ...loggerCategory, listenKey }
+        { ...loggerCategory, listenKey },
       );
     } catch (e) {
       listenKeyState.keepAliveFailures++;
@@ -981,7 +983,7 @@ export class WebsocketClient extends EventEmitter {
       if (listenKeyState.keepAliveFailures >= 3) {
         this.logger.error(
           'FATAL: Failed to keep WS alive for listen key after 3 attempts',
-          { ...loggerCategory, listenKey, error: e }
+          { ...loggerCategory, listenKey, error: e },
         );
 
         // reconnect follows a less automatic workflow. Kill connection first, with instruction NOT to reconnect automatically
@@ -1001,13 +1003,13 @@ export class WebsocketClient extends EventEmitter {
           listenKey,
           error: e,
           keepAliveAttempts: listenKeyState.keepAliveFailures,
-        }
+        },
       );
 
       setTimeout(
         () =>
           this.checkKeepAliveListenKey(listenKey, market, ws, wsKey, symbol),
-        reconnectDelaySeconds
+        reconnectDelaySeconds,
       );
     }
   }
@@ -1024,7 +1026,7 @@ export class WebsocketClient extends EventEmitter {
     market: WsMarket,
     symbol?: string,
     isTestnet?: boolean,
-    respawnAttempt?: number
+    respawnAttempt?: number,
   ): Promise<void> {
     const forceNewConnection = true;
     const isReconnecting = true;
@@ -1035,59 +1037,59 @@ export class WebsocketClient extends EventEmitter {
         case 'spot':
           ws = await this.subscribeSpotUserDataStream(
             forceNewConnection,
-            isReconnecting
+            isReconnecting,
           );
           break;
         case 'margin':
           ws = await this.subscribeMarginUserDataStream(
             forceNewConnection,
-            isReconnecting
+            isReconnecting,
           );
           break;
         case 'isolatedMargin':
           ws = await this.subscribeIsolatedMarginUserDataStream(
             symbol!,
             forceNewConnection,
-            isReconnecting
+            isReconnecting,
           );
           break;
         case 'usdm':
           ws = await this.subscribeUsdFuturesUserDataStream(
             isTestnet,
             forceNewConnection,
-            isReconnecting
+            isReconnecting,
           );
           break;
         case 'usdmTestnet':
           ws = await this.subscribeUsdFuturesUserDataStream(
             true,
             forceNewConnection,
-            isReconnecting
+            isReconnecting,
           );
           break;
         case 'coinm':
           ws = await this.subscribeCoinFuturesUserDataStream(
             isTestnet,
             forceNewConnection,
-            isReconnecting
+            isReconnecting,
           );
           break;
         case 'coinmTestnet':
           ws = await this.subscribeCoinFuturesUserDataStream(
             true,
             forceNewConnection,
-            isReconnecting
+            isReconnecting,
           );
           break;
         case 'options':
         case 'optionsTestnet':
           throw new Error(
-            'TODO: respawn other user data streams once subscribe methods have been aded'
+            'TODO: respawn other user data streams once subscribe methods have been aded',
           );
         default:
           throwUnhandledSwitch(
             market,
-            `Failed to respawn user data stream - unhandled market: ${market}`
+            `Failed to respawn user data stream - unhandled market: ${market}`,
           );
       }
     } catch (e) {
@@ -1112,7 +1114,7 @@ export class WebsocketClient extends EventEmitter {
           isTestnet,
           respawnAttempt,
           delayInSeconds,
-        }
+        },
       );
       setTimeout(
         () =>
@@ -1120,9 +1122,9 @@ export class WebsocketClient extends EventEmitter {
             market,
             symbol,
             isTestnet,
-            respawnAttempt ? respawnAttempt + 1 : 1
+            respawnAttempt ? respawnAttempt + 1 : 1,
           ),
-        1000 * delayInSeconds
+        1000 * delayInSeconds,
       );
     }
   }
@@ -1139,7 +1141,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeAggregateTrades(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'aggTrade';
@@ -1147,7 +1149,7 @@ export class WebsocketClient extends EventEmitter {
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1158,7 +1160,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeTrades(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'trade';
@@ -1166,7 +1168,7 @@ export class WebsocketClient extends EventEmitter {
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1176,7 +1178,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeCoinIndexPrice(
     symbol: string,
     updateSpeedMs: 1000 | 3000 = 3000,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'indexPrice';
@@ -1187,7 +1189,7 @@ export class WebsocketClient extends EventEmitter {
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1198,7 +1200,7 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     market: 'usdm' | 'coinm',
     updateSpeedMs: 1000 | 3000 = 3000,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'markPrice';
@@ -1208,7 +1210,7 @@ export class WebsocketClient extends EventEmitter {
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1218,7 +1220,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeAllMarketMarkPrice(
     market: 'usdm' | 'coinm',
     updateSpeedMs: 1000 | 3000 = 3000,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = '!markPrice@arr';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
@@ -1226,7 +1228,7 @@ export class WebsocketClient extends EventEmitter {
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${streamName}${speedSuffix}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1237,7 +1239,7 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     interval: KlineInterval,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'kline';
@@ -1245,13 +1247,13 @@ export class WebsocketClient extends EventEmitter {
       market,
       streamName,
       lowerCaseSymbol,
-      interval
+      interval,
     );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1263,7 +1265,7 @@ export class WebsocketClient extends EventEmitter {
     contractType: 'perpetual' | 'current_quarter' | 'next_quarter',
     interval: KlineInterval,
     market: 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'continuousKline';
@@ -1271,13 +1273,13 @@ export class WebsocketClient extends EventEmitter {
       market,
       streamName,
       lowerCaseSymbol,
-      interval
+      interval,
     );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}_${contractType}@${streamName}_${interval}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1287,7 +1289,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeIndexKlines(
     symbol: string,
     interval: KlineInterval,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'indexPriceKline';
@@ -1296,13 +1298,13 @@ export class WebsocketClient extends EventEmitter {
       market,
       streamName,
       lowerCaseSymbol,
-      interval
+      interval,
     );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1312,7 +1314,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeMarkPriceKlines(
     symbol: string,
     interval: KlineInterval,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'markPrice_kline';
@@ -1321,13 +1323,13 @@ export class WebsocketClient extends EventEmitter {
       market,
       streamName,
       lowerCaseSymbol,
-      interval
+      interval,
     );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1337,7 +1339,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSymbolMini24hrTicker(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'miniTicker';
@@ -1345,7 +1347,7 @@ export class WebsocketClient extends EventEmitter {
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1354,14 +1356,14 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeAllMini24hrTickers(
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'miniTicker';
     const wsKey = getWsKeyWithContext(market, streamName);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}@arr`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1371,7 +1373,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSymbol24hrTicker(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'ticker';
@@ -1379,7 +1381,7 @@ export class WebsocketClient extends EventEmitter {
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1388,14 +1390,14 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeAll24hrTickers(
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'ticker';
     const wsKey = getWsKeyWithContext(market, streamName);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}@arr`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1405,7 +1407,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSymbolBookTicker(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'bookTicker';
@@ -1413,7 +1415,7 @@ export class WebsocketClient extends EventEmitter {
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1422,14 +1424,14 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeAllBookTickers(
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'bookTicker';
     const wsKey = getWsKeyWithContext(market, streamName);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1439,7 +1441,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSymbolLiquidationOrders(
     symbol: string,
     market: 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'forceOrder';
@@ -1447,7 +1449,7 @@ export class WebsocketClient extends EventEmitter {
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1456,14 +1458,14 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeAllLiquidationOrders(
     market: 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'forceOrder@arr';
     const wsKey = getWsKeyWithContext(market, streamName);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1475,7 +1477,7 @@ export class WebsocketClient extends EventEmitter {
     levels: 5 | 10 | 20,
     updateMs: 100 | 250 | 500 | 1000,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'depth';
@@ -1485,7 +1487,7 @@ export class WebsocketClient extends EventEmitter {
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1496,7 +1498,7 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     updateMs: 1000 | 100 = 1000,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'depth';
@@ -1504,14 +1506,14 @@ export class WebsocketClient extends EventEmitter {
       market,
       'diffBookDepth',
       lowerCaseSymbol,
-      String(updateMs)
+      String(updateMs),
     );
     const updateMsSuffx = updateMs === 100 ? `@${updateMs}ms` : '';
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}${updateMsSuffx}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1526,7 +1528,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeSpotAggregateTrades(
     symbol: string,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     return this.subscribeAggregateTrades(symbol, 'spot', forceNewConnection);
   }
@@ -1536,7 +1538,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeSpotTrades(
     symbol: string,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     return this.subscribeTrades(symbol, 'spot', forceNewConnection);
   }
@@ -1547,7 +1549,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSpotKline(
     symbol: string,
     interval: KlineInterval,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     return this.subscribeKlines(symbol, interval, 'spot', forceNewConnection);
   }
@@ -1557,12 +1559,12 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeSpotSymbolMini24hrTicker(
     symbol: string,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     return this.subscribeSymbolMini24hrTicker(
       symbol,
       'spot',
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1570,7 +1572,7 @@ export class WebsocketClient extends EventEmitter {
    * Subscribe to mini 24hr mini ticker in spot markets.
    */
   public subscribeSpotAllMini24hrTickers(
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     return this.subscribeAllMini24hrTickers('spot', forceNewConnection);
   }
@@ -1580,7 +1582,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeSpotSymbol24hrTicker(
     symbol: string,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     return this.subscribeSymbol24hrTicker(symbol, 'spot', forceNewConnection);
   }
@@ -1597,7 +1599,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeSpotSymbolBookTicker(
     symbol: string,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     return this.subscribeSymbolBookTicker(symbol, 'spot', forceNewConnection);
   }
@@ -1616,14 +1618,14 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     levels: 5 | 10 | 20,
     updateMs: 1000 | 100 = 1000,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     return this.subscribePartialBookDepths(
       symbol,
       levels,
       updateMs,
       'spot',
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1633,13 +1635,13 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSpotDiffBookDepth(
     symbol: string,
     updateMs: 1000 | 100 = 1000,
-    forceNewConnection?: boolean
+    forceNewConnection?: boolean,
   ): WebSocket {
     return this.subscribeDiffBookDepth(
       symbol,
       updateMs,
       'spot',
-      forceNewConnection
+      forceNewConnection,
     );
   }
 
@@ -1650,14 +1652,14 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSpotUserDataStreamWithListenKey(
     listenKey: string,
     forceNewConnection?: boolean,
-    isReconnecting?: boolean
+    isReconnecting?: boolean,
   ): WebSocket | undefined {
     const market: WsMarket = 'spot';
     const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
 
     if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
       this.logger.silly(
-        'Existing spot user data connection in progress for listen key. Avoiding duplicate'
+        'Existing spot user data connection in progress for listen key. Avoiding duplicate',
       );
       return this.getWs(wsKey);
     }
@@ -1666,12 +1668,12 @@ export class WebsocketClient extends EventEmitter {
       wsKey,
       isReconnecting
         ? WsConnectionStateEnum.RECONNECTING
-        : WsConnectionStateEnum.CONNECTING
+        : WsConnectionStateEnum.CONNECTING,
     );
     const ws = this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
       wsKey,
-      forceNewConnection
+      forceNewConnection,
     );
 
     // Start & store timer to keep alive listen key (and handle expiration)
@@ -1685,7 +1687,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public async subscribeSpotUserDataStream(
     forceNewConnection?: boolean,
-    isReconnecting?: boolean
+    isReconnecting?: boolean,
   ): Promise<WebSocket | undefined> {
     try {
       const { listenKey } =
@@ -1693,7 +1695,7 @@ export class WebsocketClient extends EventEmitter {
       return this.subscribeSpotUserDataStreamWithListenKey(
         listenKey,
         forceNewConnection,
-        isReconnecting
+        isReconnecting,
       );
     } catch (e) {
       this.logger.error(`Failed to connect to spot user data`, {
@@ -1709,7 +1711,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public async subscribeMarginUserDataStream(
     forceNewConnection?: boolean,
-    isReconnecting?: boolean
+    isReconnecting?: boolean,
   ): Promise<WebSocket> {
     try {
       const { listenKey } =
@@ -1720,12 +1722,12 @@ export class WebsocketClient extends EventEmitter {
         market,
         'userData',
         undefined,
-        listenKey
+        listenKey,
       );
 
       if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
         this.logger.silly(
-          'Existing margin user data connection in progress for listen key. Avoiding duplicate'
+          'Existing margin user data connection in progress for listen key. Avoiding duplicate',
         );
         return this.getWs(wsKey);
       }
@@ -1734,12 +1736,12 @@ export class WebsocketClient extends EventEmitter {
         wsKey,
         isReconnecting
           ? WsConnectionStateEnum.RECONNECTING
-          : WsConnectionStateEnum.CONNECTING
+          : WsConnectionStateEnum.CONNECTING,
       );
       const ws = this.connectToWsUrl(
         this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
         wsKey,
-        forceNewConnection
+        forceNewConnection,
       );
 
       // Start & store timer to keep alive listen key (and handle expiration)
@@ -1761,7 +1763,7 @@ export class WebsocketClient extends EventEmitter {
   public async subscribeIsolatedMarginUserDataStream(
     symbol: string,
     forceNewConnection?: boolean,
-    isReconnecting?: boolean
+    isReconnecting?: boolean,
   ): Promise<WebSocket> {
     try {
       const lowerCaseSymbol = symbol.toLowerCase();
@@ -1774,12 +1776,12 @@ export class WebsocketClient extends EventEmitter {
         market,
         'userData',
         lowerCaseSymbol,
-        listenKey
+        listenKey,
       );
 
       if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
         this.logger.silly(
-          'Existing isolated margin user data connection in progress for listen key. Avoiding duplicate'
+          'Existing isolated margin user data connection in progress for listen key. Avoiding duplicate',
         );
         return this.getWs(wsKey);
       }
@@ -1788,12 +1790,12 @@ export class WebsocketClient extends EventEmitter {
         wsKey,
         isReconnecting
           ? WsConnectionStateEnum.RECONNECTING
-          : WsConnectionStateEnum.CONNECTING
+          : WsConnectionStateEnum.CONNECTING,
       );
       const ws = this.connectToWsUrl(
         this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
         wsKey,
-        forceNewConnection
+        forceNewConnection,
       );
 
       // Start & store timer to keep alive listen key (and handle expiration)
@@ -1825,7 +1827,7 @@ export class WebsocketClient extends EventEmitter {
   public async subscribeUsdFuturesUserDataStream(
     isTestnet?: boolean,
     forceNewConnection?: boolean,
-    isReconnecting?: boolean
+    isReconnecting?: boolean,
   ): Promise<WebSocket> {
     try {
       const restClient = this.getUSDMRestClient(isTestnet);
@@ -1836,12 +1838,12 @@ export class WebsocketClient extends EventEmitter {
         market,
         'userData',
         undefined,
-        listenKey
+        listenKey,
       );
 
       if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
         this.logger.silly(
-          'Existing usd futures user data connection in progress for listen key. Avoiding duplicate'
+          'Existing usd futures user data connection in progress for listen key. Avoiding duplicate',
         );
         return this.getWs(wsKey);
       }
@@ -1851,12 +1853,12 @@ export class WebsocketClient extends EventEmitter {
         wsKey,
         isReconnecting
           ? WsConnectionStateEnum.RECONNECTING
-          : WsConnectionStateEnum.CONNECTING
+          : WsConnectionStateEnum.CONNECTING,
       );
       const ws = this.connectToWsUrl(
         this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
         wsKey,
-        forceNewConnection
+        forceNewConnection,
       );
 
       // Start & store timer to keep alive listen key (and handle expiration)
@@ -1866,7 +1868,7 @@ export class WebsocketClient extends EventEmitter {
         ws,
         wsKey,
         undefined,
-        isTestnet
+        isTestnet,
       );
 
       return ws;
@@ -1885,11 +1887,11 @@ export class WebsocketClient extends EventEmitter {
   public async subscribeCoinFuturesUserDataStream(
     isTestnet?: boolean,
     forceNewConnection?: boolean,
-    isReconnecting?: boolean
+    isReconnecting?: boolean,
   ): Promise<WebSocket> {
     try {
       const { listenKey } = await this.getCOINMRestClient(
-        isTestnet
+        isTestnet,
       ).getFuturesUserDataListenKey();
 
       const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
@@ -1897,12 +1899,12 @@ export class WebsocketClient extends EventEmitter {
         market,
         'userData',
         undefined,
-        listenKey
+        listenKey,
       );
 
       if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
         this.logger.silly(
-          'Existing usd futures user data connection in progress for listen key. Avoiding duplicate'
+          'Existing usd futures user data connection in progress for listen key. Avoiding duplicate',
         );
         return this.getWs(wsKey);
       }
@@ -1912,12 +1914,12 @@ export class WebsocketClient extends EventEmitter {
         wsKey,
         isReconnecting
           ? WsConnectionStateEnum.RECONNECTING
-          : WsConnectionStateEnum.CONNECTING
+          : WsConnectionStateEnum.CONNECTING,
       );
       const ws = this.connectToWsUrl(
         this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
         wsKey,
-        forceNewConnection
+        forceNewConnection,
       );
 
       // Start & store timer to keep alive listen key (and handle expiration)
@@ -1927,7 +1929,7 @@ export class WebsocketClient extends EventEmitter {
         ws,
         wsKey,
         undefined,
-        isTestnet
+        isTestnet,
       );
 
       return ws;
