@@ -826,6 +826,7 @@ export interface SubAccountList {
 }
 
 export interface SubAccountDepositHistoryList {
+  depositId: number;
   subAccountId: string;
   amount: string;
   coin: string;
@@ -1081,10 +1082,6 @@ export interface BrokerSubAccount {
   marginTakerCommission?: string;
   createTime?: number;
   tag: string;
-}
-
-export interface BrokerSubAccountDepositHistory {
-  subAccountDepositHistoryList: SubAccountDepositHistoryList[];
 }
 
 export interface CreateApiKeyBrokerSubAccountResponse {

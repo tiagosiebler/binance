@@ -39,7 +39,6 @@ import {
   BasicTimeRangeParam,
   BrokerSubAccount,
   BrokerSubAccountHistory,
-  BrokerSubAccountDepositHistory,
   BSwapLiquidity,
   BSwapOperations,
   BSwapOperationsParams,
@@ -180,6 +179,7 @@ import {
   GetFutureAccountTransferHistoryParams,
   FutureAccountTransfer,
   GetLoanCoinPaginatedHistoryParams,
+  SubAccountDepositHistoryList,
 } from './types/spot';
 
 import {
@@ -557,7 +557,7 @@ export class MainClient extends BaseRestClient {
 
   getBrokerSubAccountDepositHistory(
     params?: GetBrokerSubAccountDepositHistoryParams,
-  ): Promise<BrokerSubAccountDepositHistory[]> {
+  ): Promise<SubAccountDepositHistoryList[]> {
     return this.getPrivate('sapi/v1/broker/subAccount/depositHist', params);
   }
 
