@@ -67,7 +67,7 @@ interface CandleStoreEvent {
 }
 
 /** These are the events produced by the candle store, which can be used to implement this abstraction layer */
-declare interface CandleStore {
+export declare interface CandleEmitter extends EventEmitter {
   on(event: 'candleClose', listener: (event: CandleStoreEvent) => void): this;
   on(event: 'candleUpdate', listener: (event: CandleStoreEvent) => void): this;
 }
@@ -76,12 +76,15 @@ declare interface CandleStore {
 interface CandleStoreOptions {
   /** Keep a ceiling on how many candles are stored, before old ones are discarded (prevent the store from growing forever into infinity) */
   maxStoredCandles?: number;
+  eventEmitter: EventEmitter;
 }
+
+/**
 
 /**
  * A general store for symbol/interval candles, including handling the currently open candle, with some utility methods
  */
-class CandleStore extends EventEmitter {
+export class CandleStore {
   private symbol: string;
 
   // Closed candles are stored as an array of candles per interval in this store.
@@ -92,12 +95,14 @@ class CandleStore extends EventEmitter {
   private openCandles: Record<string, EngineCandle | null> = {};
 
   private maxStoredCandles: number;
+  private emitter: EventEmitter;
 
-  constructor(symbol: string, options?: CandleStoreOptions) {
-    super();
+  constructor(symbol: string, options: CandleStoreOptions) {
+    // super();
     this.symbol = symbol;
 
     this.maxStoredCandles = options?.maxStoredCandles || 3;
+    this.emitter = options.eventEmitter;
   }
 
   /**
@@ -108,7 +113,12 @@ class CandleStore extends EventEmitter {
       (a, b) => a.closeTime - b.closeTime,
     );
 
+    this.initCandleStores(interval);
     this.closedCandles[interval] = ascendingCandles;
+  }
+
+  public setOpenCandle(candle: EngineCandle | null, interval: string): void {
+    this.openCandles[interval] = candle;
   }
 
   /**
@@ -123,19 +133,31 @@ class CandleStore extends EventEmitter {
   ): void {
     const evt = { symbol: this.symbol, interval };
 
+    this.initCandleStores(interval);
+
     if (!isCandleClosed) {
-      this.openCandles[interval] = candle;
-      this.emit('candleUpdate', evt);
+      this.setOpenCandle(candle, interval);
+      this.emitter.emit('candleUpdate', evt);
       // console.log(this.symbol, `Open candle update`);
       return;
     }
 
-    this.openCandles[interval] = null;
+    this.setOpenCandle(null, interval);
     this.closedCandles[interval].push(candle);
 
     this.trimExcessCandles(interval);
 
-    this.emit('candleClose', evt);
+    this.emitter.emit('candleClose', evt);
+    // console.log(`Emit candle closed evt`, evt);
+  }
+
+  private initCandleStores(interval: string) {
+    if (
+      !this.closedCandles[interval] ||
+      !Array.isArray(this.closedCandles[interval])
+    ) {
+      this.closedCandles[interval] = [];
+    }
   }
 
   /**
@@ -144,12 +166,8 @@ class CandleStore extends EventEmitter {
    */
   public trimExcessCandles(interval: string): void {
     const maxStored = this.maxStoredCandles;
-    if (
-      !this.closedCandles[interval] ||
-      !Array.isArray(this.closedCandles[interval])
-    ) {
-      this.closedCandles[interval] = [];
-    }
+
+    this.initCandleStores(interval);
 
     const totalCandles = this.closedCandles[interval]?.length;
     if (totalCandles <= maxStored) {
@@ -172,6 +190,8 @@ class CandleStore extends EventEmitter {
   ): EngineCandle[] {
     const candles = this.closedCandles[interval];
     const openCandle = this.openCandles[interval];
+
+    this.initCandleStores(interval);
 
     if (!candles) {
       return [];
@@ -215,27 +235,28 @@ function getCandleStore(symbol: string): CandleStore {
   return allCandleStores[symbol];
 }
 
+const eventEmitter = new EventEmitter();
+
+// Hook up event consumers on the shared event emitter
+eventEmitter.on('candleClose', (e) => onCandleClosed(e.symbol, e.interval));
+eventEmitter.on('candleUpdate', (e) => {
+  // console.log('candle updated', {
+  //   dt: new Date(),
+  //   symbol: e.symbol,
+  //   interval: e.interval,
+  // });
+});
+
 /** Ensure a candle store exists for this symbol & attach consumers to the store */
 function initCandleStoreIfMissing(symbol: string): void {
   if (allCandleStores[symbol]) {
     return;
   }
 
+  // Inject your own event emitter and initialise one candle store per symbol (it supports multiple intervals)
   allCandleStores[symbol] = new CandleStore(symbol, {
     maxStoredCandles: maxStoredCandles,
-  });
-
-  // Hook up event consumers on each candle store
-  allCandleStores[symbol].on('candleClose', (e) =>
-    onCandleClosed(e.symbol, e.interval),
-  );
-
-  allCandleStores[symbol].on('candleUpdate', (e) => {
-    // console.log('candle updated', {
-    //   dt: new Date(),
-    //   symbol: e.symbol,
-    //   interval: e.interval,
-    // });
+    eventEmitter: eventEmitter,
   });
 }
 
