@@ -169,7 +169,7 @@ export type Kline = [
   number, // number of trades
   numberInString, // taker buy base asset vol
   numberInString, // taker buy quote asset vol
-  numberInString // ignore?
+  numberInString, // ignore?
 ];
 
 /** @deprecated `FuturesKline` will be removed soon. Use `Kline` instead. **/
@@ -343,10 +343,22 @@ export type OrderBookPriceFormatted = number;
 export type OrderBookAmountFormatted = number;
 export type OrderBookRowFormatted = [
   OrderBookPriceFormatted,
-  OrderBookAmountFormatted
+  OrderBookAmountFormatted,
 ];
 
 export interface GenericCodeMsgError {
   code: number;
   msg: string;
+}
+
+export interface RowsWithTotal<T> {
+  rows: T[];
+  total: number;
+}
+
+export interface CoinStartEndLimit {
+  coin?: string;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
 }
