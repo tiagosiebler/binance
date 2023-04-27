@@ -82,7 +82,7 @@ export class USDMClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
-    useTestnet?: boolean
+    useTestnet?: boolean,
   ) {
     const clientId = useTestnet ? 'usdmtest' : 'usdm';
     super(clientId, restClientOptions, requestOptions);
@@ -96,7 +96,7 @@ export class USDMClient extends BaseRestClient {
    */
   async getServerTime(): Promise<number> {
     return this.get(getServerTimeEndpoint(this.clientId)).then(
-      (response) => response.serverTime
+      (response) => response.serverTime,
     );
   }
 
@@ -123,13 +123,13 @@ export class USDMClient extends BaseRestClient {
   }
 
   getHistoricalTrades(
-    params: HistoricalTradesParams
+    params: HistoricalTradesParams,
   ): Promise<RawFuturesTrade[]> {
     return this.get('fapi/v1/historicalTrades', params);
   }
 
   getAggregateTrades(
-    params: SymbolFromPaginatedRequestFromId
+    params: SymbolFromPaginatedRequestFromId,
   ): Promise<AggregateFuturesTrade[]> {
     return this.get('fapi/v1/aggTrades', params);
   }
@@ -138,13 +138,13 @@ export class USDMClient extends BaseRestClient {
    * Index Price and Mark Price
    */
   getMarkPrice(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<MarkPrice | MarkPrice[]> {
     return this.get('fapi/v1/premiumIndex', params);
   }
 
   getFundingRateHistory(
-    params?: Partial<BasicSymbolPaginatedParams>
+    params?: Partial<BasicSymbolPaginatedParams>,
   ): Promise<FundingRateHistory[]> {
     return this.get('fapi/v1/fundingRate', params);
   }
@@ -154,7 +154,7 @@ export class USDMClient extends BaseRestClient {
   }
 
   getContinuousContractKlines(
-    params: ContinuousContractKlinesParams
+    params: ContinuousContractKlinesParams,
   ): Promise<Kline[]> {
     return this.get('fapi/v1/continuousKlines', params);
   }
@@ -171,25 +171,35 @@ export class USDMClient extends BaseRestClient {
    * @deprecated use get24hrChangeStatistics() instead (method without the typo)
    */
   get24hrChangeStatististics(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get24hrChangeStatistics(params);
   }
 
   get24hrChangeStatistics(
-    params?: Partial<BasicSymbolParam>
+    params: Partial<BasicSymbolParam>,
+  ): Promise<ChangeStats24hr[]>;
+  get24hrChangeStatistics(
+    params?: Partial<BasicSymbolParam>,
+  ): Promise<ChangeStats24hr | ChangeStats24hr[]>;
+  get24hrChangeStatistics(
+    params: Partial<BasicSymbolParam>,
+  ): Promise<ChangeStats24hr>;
+
+  get24hrChangeStatistics(
+    params?: Partial<BasicSymbolParam>,
   ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get('fapi/v1/ticker/24hr', params);
   }
 
   getSymbolPriceTicker(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<SymbolPrice | SymbolPrice[]> {
     return this.get('fapi/v1/ticker/price', params);
   }
 
   getSymbolOrderBookTicker(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<FuturesSymbolOrderBookTicker | FuturesSymbolOrderBookTicker[]> {
     return this.get('fapi/v1/ticker/bookTicker', params);
   }
@@ -203,19 +213,19 @@ export class USDMClient extends BaseRestClient {
   }
 
   getTopTradersLongShortAccountRatio(
-    params: FuturesDataPaginatedParams
+    params: FuturesDataPaginatedParams,
   ): Promise<any> {
     return this.get('futures/data/topLongShortAccountRatio', params);
   }
 
   getTopTradersLongShortPositionRatio(
-    params: FuturesDataPaginatedParams
+    params: FuturesDataPaginatedParams,
   ): Promise<any> {
     return this.get('futures/data/topLongShortPositionRatio', params);
   }
 
   getGlobalLongShortAccountRatio(
-    params: FuturesDataPaginatedParams
+    params: FuturesDataPaginatedParams,
   ): Promise<any> {
     return this.get('futures/data/globalLongShortAccountRatio', params);
   }
@@ -257,7 +267,7 @@ export class USDMClient extends BaseRestClient {
   }
 
   submitNewOrder(
-    params: NewFuturesOrderParams
+    params: NewFuturesOrderParams,
   ): Promise<NewOrderResult | NewOrderError> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('fapi/v1/order', params);
@@ -269,7 +279,7 @@ export class USDMClient extends BaseRestClient {
    * Known issue: `quantity` and `price` should be sent as strings
    */
   submitMultipleOrders(
-    orders: NewFuturesOrderParams<string>[]
+    orders: NewFuturesOrderParams<string>[],
   ): Promise<(NewOrderResult | NewOrderError)[]> {
     const stringOrders = orders.map((order) => {
       const orderToStringify = { ...order };
@@ -291,20 +301,20 @@ export class USDMClient extends BaseRestClient {
   }
 
   cancelAllOpenOrders(
-    params: BasicSymbolParam
+    params: BasicSymbolParam,
   ): Promise<CancelAllOpenOrdersResult> {
     return this.deletePrivate('fapi/v1/allOpenOrders', params);
   }
 
   cancelMultipleOrders(
-    params: CancelMultipleOrdersParams
+    params: CancelMultipleOrdersParams,
   ): Promise<(CancelFuturesOrderResult | GenericCodeMsgError)[]> {
     return this.deletePrivate('fapi/v1/batchOrders', params);
   }
 
   // Auto-cancel all open orders
   setCancelOrdersOnTimeout(
-    params: CancelOrdersTimeoutParams
+    params: CancelOrdersTimeoutParams,
   ): Promise<SetCancelTimeoutResult> {
     return this.postPrivate('fapi/v1/countdownCancelAll', params);
   }
@@ -338,13 +348,13 @@ export class USDMClient extends BaseRestClient {
   }
 
   setIsolatedPositionMargin(
-    params: SetIsolatedMarginParams
+    params: SetIsolatedMarginParams,
   ): Promise<SetIsolatedMarginResult> {
     return this.postPrivate('fapi/v1/positionMargin', params);
   }
 
   getPositionMarginChangeHistory(
-    params: GetPositionMarginChangeHistoryParams
+    params: GetPositionMarginChangeHistoryParams,
   ): Promise<any> {
     return this.getPrivate('fapi/v1/positionMargin/history', params);
   }
@@ -354,7 +364,7 @@ export class USDMClient extends BaseRestClient {
   }
 
   getAccountTrades(
-    params: SymbolFromPaginatedRequestFromId
+    params: SymbolFromPaginatedRequestFromId,
   ): Promise<FuturesPositionTrade[]> {
     return this.getPrivate('fapi/v1/userTrades', params);
   }
@@ -367,7 +377,7 @@ export class USDMClient extends BaseRestClient {
    * Contrary to what the docs say - if symbol is provided, this returns an array with length 1 (assuming the symbol exists)
    */
   getNotionalAndLeverageBrackets(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<SymbolLeverageBracketsResult[]> {
     return this.getPrivate('fapi/v1/leverageBracket', params);
   }
@@ -381,13 +391,13 @@ export class USDMClient extends BaseRestClient {
   }
 
   getApiQuantitativeRulesIndicators(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<any> {
     return this.getPrivate('fapi/v1/apiTradingStatus', params);
   }
 
   getAccountComissionRate(
-    params: BasicSymbolParam
+    params: BasicSymbolParam,
   ): Promise<RebateDataOverview> {
     return this.getPrivate('fapi/v1/commissionRate', params);
   }
@@ -401,7 +411,7 @@ export class USDMClient extends BaseRestClient {
   // 1 == USDT-Margined, 2 == Coin-margined
   getBrokerIfNewFuturesUser(
     brokerId: string,
-    type: 1 | 2 = 1
+    type: 1 | 2 = 1,
   ): Promise<{ brokerId: string; rebateWorking: boolean; ifNewUser: boolean }> {
     return this.getPrivate('fapi/v1/apiReferral/ifNewUser', {
       brokerId,
@@ -411,7 +421,7 @@ export class USDMClient extends BaseRestClient {
 
   setBrokerCustomIdForClient(
     customerId: string,
-    email: string
+    email: string,
   ): Promise<{ customerId: string; email: string }> {
     return this.postPrivate('fapi/v1/apiReferral/customization', {
       customerId,
@@ -423,7 +433,7 @@ export class USDMClient extends BaseRestClient {
     customerId: string,
     email: string,
     page?: number,
-    limit?: number
+    limit?: number,
   ): Promise<any> {
     return this.getPrivate('fapi/v1/apiReferral/customization', {
       customerId,
@@ -449,7 +459,7 @@ export class USDMClient extends BaseRestClient {
     type: 1 | 2 = 1,
     startTime?: number,
     endTime?: number,
-    limit?: number
+    limit?: number,
   ): Promise<any> {
     return this.getPrivate('fapi/v1/apiReferral/tradeVol', {
       type,
@@ -463,7 +473,7 @@ export class USDMClient extends BaseRestClient {
     type: 1 | 2 = 1,
     startTime?: number,
     endTime?: number,
-    limit?: number
+    limit?: number,
   ): Promise<any> {
     return this.getPrivate('fapi/v1/apiReferral/rebateVol', {
       type,
@@ -477,7 +487,7 @@ export class USDMClient extends BaseRestClient {
     type: 1 | 2 = 1,
     startTime?: number,
     endTime?: number,
-    limit?: number
+    limit?: number,
   ): Promise<any> {
     return this.getPrivate('fapi/v1/apiReferral/traderSummary', {
       type,
@@ -516,7 +526,7 @@ export class USDMClient extends BaseRestClient {
       | CancelOrderParams
       | NewOCOParams
       | CancelOCOParams,
-    orderIdProperty: OrderIdProperty
+    orderIdProperty: OrderIdProperty,
   ): void {
     const apiCategory = this.clientId;
     if (!params[orderIdProperty]) {

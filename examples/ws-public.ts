@@ -4,6 +4,7 @@ import {
   isWsFormatted24hrTicker,
   isWsFormattedKline,
   isWsFormatted24hrTickerArray,
+  isWsFormattedRollingWindowTickerArray,
 } from '../src';
 
 // or, with the npm package
@@ -25,7 +26,9 @@ import {
 
   const logger = {
     ...DefaultLogger,
-    // silly: () => {},
+    silly: (...params) => {
+      console.log(new Date(), 'sillyLog', ...params);
+    },
   };
 
   const wsClient = new WebsocketClient(
@@ -34,12 +37,12 @@ import {
       // api_secret: secret,
       beautify: true,
     },
-    logger
+    logger,
   );
 
-  // wsClient.on('message', (data) => {
-  //   console.log('raw message received ', JSON.stringify(data, null, 2));
-  // });
+  wsClient.on('message', (data) => {
+    console.log('raw message received ', JSON.stringify(data[0], null, 2));
+  });
 
   wsClient.on('formattedMessage', (data) => {
     // manually handle events and narrow down to desired types
@@ -64,7 +67,16 @@ import {
       return;
     }
 
+    if (isWsFormattedRollingWindowTickerArray(data)) {
+      console.log(
+        'rolling window ticker, first value',
+        JSON.stringify(data[0], null, 2),
+      );
+      return;
+    }
+
     console.log('log formattedMessage: ', data);
+    // console.log('log formattedMessage: ', JSON.stringify(data[0], null, 2));
   });
 
   wsClient.on('open', (data) => {
@@ -104,7 +116,7 @@ import {
   // wsClient.subscribeAllMini24hrTickers('usdm');
   // wsClient.subscribeAllMini24hrTickers('coinm');
   // wsClient.subscribeAllMini24hrTickers('spot');
-  wsClient.subscribeAll24hrTickers('usdm');
+  // wsClient.subscribeAll24hrTickers('usdm');
   // wsClient.subscribeAll24hrTickers('coinm');
   // wsClient.subscribeAll24hrTickers('spot');
   // wsClient.subscribeAllLiquidationOrders('usdm');
@@ -112,4 +124,6 @@ import {
   // wsClient.subscribeSpotSymbol24hrTicker(market);
   // wsClient.subscribeAggregateTrades(market, 'usdm');
   // wsClient.subscribeSpotPartialBookDepth('ETHBTC', 5, 1000);
+
+  wsClient.subscribeAllRollingWindowTickers('spot', '1d');
 })();

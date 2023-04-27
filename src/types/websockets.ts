@@ -66,6 +66,7 @@ export type WsRawMessage =
   | WsMessage24hrMiniTickerRaw[]
   | WsMessage24hrTickerRaw
   | WsMessage24hrTickerRaw[]
+  | WsMessageRollingWindowTickerRaw[]
   | WsMessageBookTickerEventRaw
   | WsMessagePartialBookDepthEventRaw
   | WsRawSpotUserDataEventRaw
@@ -82,15 +83,16 @@ export type WsFormattedMessage =
   | WsMessageAggTradeFormatted
   | WsMessageTradeFormatted
   | WsMessage24hrMiniTickerFormatted
-  | WsMessage24hrMiniTickerFormatted[]
   | WsMessage24hrTickerFormatted
-  | WsMessage24hrTickerFormatted[]
   | WsMessageBookTickerEventFormatted
   | WsMessagePartialBookDepthEventFormatted
   | WsMessageIndexPriceUpdateEventFormatted
   | WsMessageMarkPriceUpdateEventFormatted
-  | WsMessageMarkPriceUpdateEventFormatted[]
-  | WsMessageForceOrderFormatted;
+  | WsMessageForceOrderFormatted
+  | WsMessage24hrMiniTickerFormatted[]
+  | WsMessage24hrTickerFormatted[]
+  | WsMessageRollingWindowTickerFormatted[]
+  | WsMessageMarkPriceUpdateEventFormatted[];
 
 export type WsUserDataEvents =
   | WsMessageSpotUserDataEventFormatted
@@ -317,6 +319,46 @@ export interface WsMessage24hrTickerFormatted extends WsSharedBase {
   firstTradeId: number;
   lastTradeId: number;
   trades: number;
+}
+
+export interface WsMessageRollingWindowTickerRaw extends WsSharedBase {
+  e: '1hTicker' | '4hTicker' | '1dTicker';
+  E: number;
+  s: string;
+  p: string;
+  P: string;
+  w: string;
+  o: string;
+  h: string;
+  l: string;
+  c: string;
+  v: string;
+  q: string;
+  O: number;
+  C: number;
+  F: number;
+  L: number;
+  n: number;
+}
+
+export interface WsMessageRollingWindowTickerFormatted extends WsSharedBase {
+  eventType: '1hTicker' | '4hTicker' | '1dTicker';
+  eventTime: number;
+  symbol: string;
+  priceChange: number;
+  priceChangePercent: number;
+  weightedAveragePrice: number;
+  openPrice: number;
+  highPrice: number;
+  lowPrice: number;
+  lastPrice: number;
+  totalTradedBaseAssetVolume: number;
+  totalTradedQuoteAssetVolume: number;
+  statisticsOpenTime: number;
+  statisticsCloseTime: number;
+  firstTradeId: number;
+  lastTradeId: number;
+  totalTrades: number;
 }
 
 export interface WsMessageBookTickerEventRaw extends WsSharedBase {

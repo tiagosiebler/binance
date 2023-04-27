@@ -16,6 +16,8 @@ import {
   WsMessageKlineFormatted,
   WsMessageKlineRaw,
   WsMessageMarkPriceUpdateEventFormatted,
+  WsMessageRollingWindowTickerFormatted,
+  WsMessageRollingWindowTickerRaw,
   WsMessageSpotBalanceUpdateFormatted,
   WsMessageSpotOutboundAccountPositionFormatted,
   WsMessageSpotUserDataEventFormatted,
@@ -39,57 +41,69 @@ import {
  */
 
 export function isWsFormattedMarkPriceUpdateEvent(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageMarkPriceUpdateEventFormatted {
   return !Array.isArray(data) && data.eventType === 'markPriceUpdate';
 }
 
 export function isWsFormattedMarkPriceUpdateArray(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageMarkPriceUpdateEventFormatted[] {
   return (
     Array.isArray(data) &&
     data.length !== 0 &&
-    isWsFormattedMarkPriceUpdateEvent(data[0])
+    data[0].eventType === 'markPriceUpdate'
   );
 }
 
 /** @deprecated, use isWsFormattedMarkPriceUpdateEvent or isWsFormattedMarkPriceUpdateArray */
 export function isWsFormattedMarkPriceUpdate(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageMarkPriceUpdateEventFormatted[] {
   return isWsFormattedMarkPriceUpdateArray(data);
 }
 
 export function isWsFormattedTrade(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageTradeFormatted {
   return !Array.isArray(data) && data.eventType === 'trade';
 }
 
 export function isWsFormattedKline(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageKlineFormatted {
   return !Array.isArray(data) && data.eventType === 'kline';
 }
 
 export function isWsFormatted24hrTicker(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessage24hrTickerFormatted {
   return !Array.isArray(data) && data.eventType === '24hrTicker';
 }
 
 export function isWsFormattedForceOrder(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageForceOrderFormatted {
   return !Array.isArray(data) && data.eventType === 'forceOrder';
 }
 
 export function isWsFormatted24hrTickerArray(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessage24hrTickerFormatted[] {
   return (
-    Array.isArray(data) && data.length !== 0 && isWsFormatted24hrTicker(data[0])
+    Array.isArray(data) &&
+    data.length !== 0 &&
+    data[0].eventType === '24hrTicker'
+  );
+}
+
+export function isWsFormattedRollingWindowTickerArray(
+  data: WsFormattedMessage,
+): data is WsMessageRollingWindowTickerFormatted[] {
+  return (
+    Array.isArray(data) &&
+    data.length !== 0 &&
+    ['1hTicker', '4hTicker', '1dTicker'].includes(data[0].eventType)
   );
 }
 
@@ -97,31 +111,31 @@ export function isWsFormatted24hrTickerArray(
  * Typeguard to validate a 'Compressed/Aggregate' trade
  */
 export function isWsAggTradeFormatted(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageAggTradeFormatted {
   return !Array.isArray(data) && data.eventType === 'aggTrade';
 }
 
 export function isWsFormattedUserDataEvent(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsUserDataEvents {
   return !Array.isArray(data) && data.wsKey.includes('userData');
 }
 
 export function isWsFormattedSpotUserDataEvent(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageSpotUserDataEventFormatted {
   return isWsFormattedUserDataEvent(data) && data.wsMarket.includes('spot');
 }
 
 export function isWsFormattedFuturesUserDataEvent(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageFuturesUserDataEventFormatted {
   return isWsFormattedUserDataEvent(data) && data.wsMarket.includes('usdm');
 }
 
 export function isWsFormattedSpotUserDataExecutionReport(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageSpotUserDataExecutionReportEventFormatted {
   return (
     isWsFormattedSpotUserDataEvent(data) && data.eventType === 'executionReport'
@@ -129,7 +143,7 @@ export function isWsFormattedSpotUserDataExecutionReport(
 }
 
 export function isWsFormattedSpotOutboundAccountPosition(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageSpotOutboundAccountPositionFormatted {
   return (
     isWsFormattedSpotUserDataEvent(data) &&
@@ -138,7 +152,7 @@ export function isWsFormattedSpotOutboundAccountPosition(
 }
 
 export function isWsFormattedSpotBalanceUpdate(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageSpotBalanceUpdateFormatted {
   return (
     isWsFormattedSpotUserDataEvent(data) && data.eventType === 'balanceUpdate'
@@ -146,7 +160,7 @@ export function isWsFormattedSpotBalanceUpdate(
 }
 
 export function isWsFormattedSpotUserDataListStatusEvent(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageSpotUserDataListStatusEventFormatted {
   return (
     isWsFormattedSpotUserDataEvent(data) && data.eventType === 'listStatus'
@@ -154,7 +168,7 @@ export function isWsFormattedSpotUserDataListStatusEvent(
 }
 
 export function isWsFormattedFuturesUserDataAccountUpdate(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageFuturesUserDataAccountUpdateFormatted {
   return (
     isWsFormattedFuturesUserDataEvent(data) &&
@@ -163,7 +177,7 @@ export function isWsFormattedFuturesUserDataAccountUpdate(
 }
 
 export function isWsFormattedFuturesUserDataMarginCall(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageFuturesUserDataMarginCallFormatted {
   return (
     isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'MARGIN_CALL'
@@ -171,7 +185,7 @@ export function isWsFormattedFuturesUserDataMarginCall(
 }
 
 export function isWsFormattedFuturesUserDataTradeUpdateEvent(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageFuturesUserDataTradeUpdateEventFormatted {
   return (
     isWsFormattedFuturesUserDataEvent(data) &&
@@ -180,7 +194,7 @@ export function isWsFormattedFuturesUserDataTradeUpdateEvent(
 }
 
 export function isWsFormattedFuturesUserDataAccountConfigUpdateEvent(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageFuturesUserDataAccountConfigUpdateEventFormatted {
   return (
     isWsFormattedFuturesUserDataEvent(data) &&
@@ -189,7 +203,7 @@ export function isWsFormattedFuturesUserDataAccountConfigUpdateEvent(
 }
 
 export function isWsFormattedFuturesUserDataListenKeyExpired(
-  data: WsFormattedMessage
+  data: WsFormattedMessage,
 ): data is WsMessageFuturesUserDataListenKeyExpiredFormatted {
   return (
     isWsFormattedFuturesUserDataEvent(data) &&
@@ -205,16 +219,25 @@ export function isWsFormattedFuturesUserDataListenKeyExpired(
  * Typeguard to validate all symbol 24hrMiniTicker raw event
  */
 export function isAll24hrMiniTickerRaw(
-  data: WsRawMessage
+  data: WsRawMessage,
 ): data is WsMessage24hrMiniTickerRaw[] {
   return Array.isArray(data) && data[0].e === '24hrMiniTicker';
+}
+
+export function isAllRollingWindowTickerRaw(
+  data: WsRawMessage,
+): data is WsMessageRollingWindowTickerRaw[] {
+  return (
+    Array.isArray(data) &&
+    ['1hTicker', '4hTicker', '1dTicker'].includes(data[0].e)
+  );
 }
 
 /**
  * Typeguard to validate a single 24hrMiniTicker raw event
  */
 export function is24hrMiniTickerRaw(
-  data: WsRawMessage
+  data: WsRawMessage,
 ): data is WsMessage24hrMiniTickerRaw {
   return !Array.isArray(data) && data.e === '24hrMiniTicker';
 }
@@ -230,7 +253,7 @@ export function isKlineRaw(data: WsRawMessage): data is WsMessageKlineRaw {
  * Typeguard to validate a single ORDER_TRADE_UPDATE raw event
  */
 export function isOrderTradeUpdateRaw(
-  data: WsRawMessage
+  data: WsRawMessage,
 ): data is WsMessageFuturesUserDataOrderTradeUpdateEventRaw {
   return !Array.isArray(data) && data.e === 'ORDER_TRADE_UPDATE';
 }
@@ -239,7 +262,7 @@ export function isOrderTradeUpdateRaw(
  * Typeguard to validate a single ACCOUNT_CONFIG_UPDATE raw event
  */
 export function isAccountConfigUpdateRaw(
-  data: WsRawMessage
+  data: WsRawMessage,
 ): data is WsMessageFuturesUserDataAccountConfigUpdateEventRaw {
   return !Array.isArray(data) && data.e === 'ACCOUNT_CONFIG_UPDATE';
 }
@@ -248,7 +271,7 @@ export function isAccountConfigUpdateRaw(
  * Typeguard to validate a single ACCOUNT_UPDATE raw event
  */
 export function isAccountUpdateRaw(
-  data: WsRawMessage
+  data: WsRawMessage,
 ): data is WsMessageFuturesUserDataAccountUpdateRaw {
   return !Array.isArray(data) && data.e === 'ACCOUNT_UPDATE';
 }

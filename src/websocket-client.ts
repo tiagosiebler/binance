@@ -1402,6 +1402,28 @@ export class WebsocketClient extends EventEmitter {
   }
 
   /**
+   * Subscribe to rolling window ticker statistics for all market symbols,
+   * computed over multiple windows. Note that only tickers that have
+   * changed will be present in the array.
+   *
+   * Notes:
+   * - Supported window sizes: 1h,4h,1d.
+   * - Supported markets: spot
+   */
+  public subscribeAllRollingWindowTickers(
+    market: 'spot',
+    windowSize: '1h' | '4h' | '1d',
+    forceNewConnection?: boolean,
+  ): WebSocket {
+    const streamName = 'ticker';
+    const wsKey = getWsKeyWithContext(market, streamName, windowSize);
+
+    const wsUrl =
+      this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}_${windowSize}@arr`;
+    return this.connectToWsUrl(wsUrl, wsKey, forceNewConnection);
+  }
+
+  /**
    * Subscribe to best bid/ask for symbol in spot markets.
    */
   public subscribeSymbolBookTicker(

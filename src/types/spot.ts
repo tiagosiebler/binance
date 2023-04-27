@@ -320,35 +320,35 @@ export interface DustLog {
 }
 
 export enum EnumUniversalTransferType {
-    SpotToUSDM = "MAIN_UMFUTURE",
-    SpotToCOINM = "MAIN_CMFUTURE",
-    SpotToMargin = "MAIN_MARGIN",
-    SpotToFunding = "MAIN_FUNDING",
-    SpotToOptions = "MAIN_OPTION",
-    FundingToSpot = "FUNDING_MAIN",
-    FundingToUSDM = "FUNDING_UMFUTURE",
-    FundingToCOINM = "FUNDING_CMFUTURE",
-    FundingToMargin = "FUNDING_MARGIN",
-    FundingToOptions = "FUNDING_OPTION",
-    USDMToSpot = "UMFUTURE_MAIN",
-    USDMToFunding = "UMFUTURE_FUNDING",
-    USDMToMargin = "UMFUTURE_MARGIN",
-    USDMToOptions = "UMFUTURE_OPTION",
-    COINMToSpot = "CMFUTURE_MAIN",
-    COINMToFunding = "CMFUTURE_FUNDING",
-    COINMToMargin = "CMFUTURE_MARGIN",
-    MarginToSpot = "MARGIN_MAIN",
-    MarginToUSDM = "MARGIN_UMFUTURE",
-    MarginToCOINM = "MARGIN_CMFUTURE",
-    MarginToIsolatedMargin = "MARGIN_ISOLATEDMARGIN ",
-    MarginToFunding = "MARGIN_FUNDING",
-    MarginToOptions = "MARGIN_OPTION",
-    IsolatedMarginToMargin = "ISOLATEDMARGIN_MARGIN",
-    IsolatedMarginToIsolatedMargin = "ISOLATEDMARGIN_ISOLATEDMARGIN",
-    OptionsToSpot = "OPTION_MAIN",
-    OptionsToUSDM = "OPTION_UMFUTURE",
-    OptionsToFunding = "OPTION_FUNDING",
-    OptionsToMargin = "OPTION_MARGIN"
+  SpotToUSDM = 'MAIN_UMFUTURE',
+  SpotToCOINM = 'MAIN_CMFUTURE',
+  SpotToMargin = 'MAIN_MARGIN',
+  SpotToFunding = 'MAIN_FUNDING',
+  SpotToOptions = 'MAIN_OPTION',
+  FundingToSpot = 'FUNDING_MAIN',
+  FundingToUSDM = 'FUNDING_UMFUTURE',
+  FundingToCOINM = 'FUNDING_CMFUTURE',
+  FundingToMargin = 'FUNDING_MARGIN',
+  FundingToOptions = 'FUNDING_OPTION',
+  USDMToSpot = 'UMFUTURE_MAIN',
+  USDMToFunding = 'UMFUTURE_FUNDING',
+  USDMToMargin = 'UMFUTURE_MARGIN',
+  USDMToOptions = 'UMFUTURE_OPTION',
+  COINMToSpot = 'CMFUTURE_MAIN',
+  COINMToFunding = 'CMFUTURE_FUNDING',
+  COINMToMargin = 'CMFUTURE_MARGIN',
+  MarginToSpot = 'MARGIN_MAIN',
+  MarginToUSDM = 'MARGIN_UMFUTURE',
+  MarginToCOINM = 'MARGIN_CMFUTURE',
+  MarginToIsolatedMargin = 'MARGIN_ISOLATEDMARGIN ',
+  MarginToFunding = 'MARGIN_FUNDING',
+  MarginToOptions = 'MARGIN_OPTION',
+  IsolatedMarginToMargin = 'ISOLATEDMARGIN_MARGIN',
+  IsolatedMarginToIsolatedMargin = 'ISOLATEDMARGIN_ISOLATEDMARGIN',
+  OptionsToSpot = 'OPTION_MAIN',
+  OptionsToUSDM = 'OPTION_UMFUTURE',
+  OptionsToFunding = 'OPTION_FUNDING',
+  OptionsToMargin = 'OPTION_MARGIN',
 }
 
 export type UniversalTransferType = `${EnumUniversalTransferType}`;
@@ -826,6 +826,7 @@ export interface SubAccountList {
 }
 
 export interface SubAccountDepositHistoryList {
+  depositId: number;
   subAccountId: string;
   amount: string;
   coin: string;
@@ -1081,10 +1082,6 @@ export interface BrokerSubAccount {
   marginTakerCommission?: string;
   createTime?: number;
   tag: string;
-}
-
-export interface BrokerSubAccountDepositHistory {
-  subAccountDepositHistoryList: SubAccountDepositHistoryList[];
 }
 
 export interface CreateApiKeyBrokerSubAccountResponse {
@@ -1577,6 +1574,43 @@ export interface PurchaseRecordParams {
   size?: number;
 }
 
+export interface NewFutureAccountTransferParams {
+  asset: string;
+  amount: number;
+  type: 1 | 2 | 3 | 4;
+}
+
+export interface GetFutureAccountTransferHistoryParams {
+  asset: string;
+  startTime: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface FutureAccountTransfer {
+  asset: string;
+  tranId: number;
+  amount: string;
+  type: string;
+  timestamp: number;
+  status: 'PENDING' | 'CONFIRMED' | 'FAILED';
+}
+
+export interface GetLoanCoinPaginatedHistoryParams {
+  loanCoin?: string;
+  collateralCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
+/**
+ *
+ * STAKING
+ *
+ */
+
 export interface StakingHistory {
   positionId: numberInString;
   time: number;
@@ -1588,15 +1622,18 @@ export interface StakingHistory {
   type?: string;
   status: string;
 }
+
 export interface StakingPersonalLeftQuota {
   leftPersonalQuota: numberInString;
 }
+
 export interface StakingHistoryParams extends StakingBasicParams {
   txnType: StakingTxnType;
   asset?: string;
   startTime?: number;
   endTime?: number;
 }
+
 export type StakingTxnType = 'SUBSCRIPTION' | 'REDEMPTION' | 'INTEREST';
 export type StakingStatus = 'HOLDING' | 'REDEEMED';
 export type StakingProductType = 'STAKING' | 'F_DEFI' | 'L_DEFI';
