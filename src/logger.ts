@@ -1,21 +1,20 @@
 export type LogParams = null | any;
 
 export const DefaultLogger = {
-  silly: (...params: LogParams): void => {
-  },
+  silly: (...params: LogParams): void => {},
   debug: (...params: LogParams): void => {
-    console.log(params);
+    console.log(new Date(), params);
   },
   notice: (...params: LogParams): void => {
-    console.log(params);
+    console.log(new Date(), params);
   },
   info: (...params: LogParams): void => {
-    console.info(params);
+    console.info(new Date(), params);
   },
   warning: (...params: LogParams): void => {
-    console.error(params);
+    console.error(new Date(), params);
   },
   error: (...params: LogParams): void => {
-    console.error(params);
-  }
+    console.error(new Date(), params);
+  },
 };
