@@ -759,6 +759,9 @@ export interface WsMessageFuturesUserDataTradeUpdateEventFormatted
     trailingStopActivationPrice: number;
     trailingStopCallbackRate: number;
     realisedProfit: number;
+    pP?: boolean; // ignore
+    si?: number; // ignore
+    ss?: number; // ignore
   };
 }
 
