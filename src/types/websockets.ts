@@ -756,9 +756,9 @@ export interface WsMessageFuturesUserDataTradeUpdateEventFormatted
     originalOrderType: FuturesOrderType;
     positionSide: PositionSide;
     isCloseAll: boolean;
-    trailingStopActivationPrice: number;
-    trailingStopCallbackRate: number;
     realisedProfit: number;
+    trailingStopActivationPrice?: number;
+    trailingStopCallbackRate?: number;
     pP?: boolean; // ignore
     si?: number; // ignore
     ss?: number; // ignore
