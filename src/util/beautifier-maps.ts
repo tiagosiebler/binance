@@ -205,7 +205,7 @@ export const BEAUTIFIER_EVENT_MAP = {
   ACCOUNT_UPDATEEvent: {
     e: 'eventType',
     E: 'eventTime',
-    T: 'transactionId',
+    T: 'transactionTime',
     a: 'updateData',
   },
   MARGIN_CALLEvent: {

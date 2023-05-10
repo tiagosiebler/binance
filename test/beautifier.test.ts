@@ -721,7 +721,7 @@ describe('Beautifier', () => {
         expect(beautifier.beautifyWsMessage(data, data.e)).toStrictEqual({
           eventTime: 1628067033658,
           eventType: 'ACCOUNT_UPDATE',
-          transactionId: 1628067033652,
+          transactionTime: 1628067033652,
           updateData: {
             updateEventType: 'ADMIN_DEPOSIT',
             updatedBalances: [

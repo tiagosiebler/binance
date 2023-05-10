@@ -673,7 +673,7 @@ export interface WsMessageFuturesUserDataAccountUpdateFormatted
   extends WsSharedBase {
   eventType: 'ACCOUNT_UPDATE';
   eventTime: number;
-  transactionId: number;
+  transactionTime: number;
   updateData: {
     updateEventType: AccountUpdateEventType;
     updatedBalances: WsAccountUpdatedBalance[];
