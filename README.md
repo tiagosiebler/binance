@@ -5,7 +5,7 @@
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/binance)][1]
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/binance/badge)](https://www.codefactor.io/repository/github/tiagosiebler/binance)
 
-[![connector logo](https://github.com/tiagosiebler/binance/blob/master/docs/images/logo1.png?raw=true)][1]
+[![connector logo](https://github.com/tiagosiebler/binance/blob/master/docs/images/logo2.png?raw=true)][1]
 
 [1]: https://www.npmjs.com/package/binance
 
@@ -218,7 +218,7 @@ const wsClient = new WebsocketClient(
     // Disable ping/pong ws heartbeat mechanism (not recommended)
     // disableHeartbeat: true
   },
-  logger
+  logger,
 );
 
 // receive raw events
@@ -308,7 +308,37 @@ const ws = new WebsocketClient(
 );
 ```
 
-## Browser Usage
+## Browser/Frontend Usage
+
+### Import
+
+This is the "modern" way, allowing the package to be directly imported into frontend projects with full typescript support.
+
+1. Install these dependencies
+   ```sh
+   npm install crypto-browserify stream-browserify
+   ```
+2. Add this to your `tsconfig.json`
+   ```json
+   {
+     "compilerOptions": {
+       "paths": {
+         "crypto": [
+           "./node_modules/crypto-browserify"
+         ],
+         "stream": [
+           "./node_modules/stream-browserify"
+         ]
+   }
+   ```
+3. Declare this in the global context of your application (ex: in polyfills for angular)
+   ```js
+   (window as any).global = window;
+   ```
+
+### Webpack
+
+This is the "old" way of using this package on webpages. This will build a minified js bundle that can be pulled in using a script tag on a website.
 
 Build a bundle using webpack:
 
@@ -341,4 +371,4 @@ Contributions are encouraged, I will review any incoming pull requests. See the 
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/ftx-api,tiagosiebler/bybit-api,tiagosiebler/binance,tiagosiebler/orderbooks,tiagosiebler/okx-api,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/ftx-api&tiagosiebler/bybit-api&tiagosiebler/binance&tiagosiebler/orderbooks&tiagosiebler/okx-api&tiagosiebler/awesome-crypto-examples&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bitget-api,tiagosiebler/ftx-api,tiagosiebler/bybit-api,tiagosiebler/binance,tiagosiebler/orderbooks,tiagosiebler/okx-api,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/ftx-api&tiagosiebler/bitget-api&tiagosiebler/bybit-api&tiagosiebler/binance&tiagosiebler/orderbooks&tiagosiebler/okx-api&tiagosiebler/awesome-crypto-examples&Date)

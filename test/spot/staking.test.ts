@@ -1,4 +1,5 @@
 import { MainClient } from '../../src/index';
+import { getTestProxy } from '../proxy.util';
 
 describe('Staking API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
@@ -6,13 +7,13 @@ describe('Staking API Endpoints', () => {
 
   const api = new MainClient(
     {
-      disableTimeSync: true,
       api_key: API_KEY,
       api_secret: API_SECRET,
     },
     {
       timeout: 1000 * 60,
-    }
+      httpsAgent: getTestProxy(),
+    },
   );
 
   beforeEach(() => {
@@ -28,7 +29,7 @@ describe('Staking API Endpoints', () => {
 
       expect(result.length).toBe(25);
       expect(Object.keys(result[0]).sort()).toEqual(
-        ['projectId', 'detail', 'quota'].sort()
+        ['projectId', 'detail', 'quota'].sort(),
       );
     });
 
@@ -53,10 +54,10 @@ describe('Staking API Endpoints', () => {
             .filter(
               (e) =>
                 ['positionId', 'time', 'asset', 'amount', 'status'].indexOf(
-                  e
-                ) >= 0
+                  e,
+                ) >= 0,
             )
-            .sort()
+            .sort(),
         ).toEqual(['positionId', 'time', 'asset', 'amount', 'status'].sort());
       }
     });

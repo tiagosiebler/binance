@@ -36,7 +36,7 @@ export default abstract class BaseRestClient {
   constructor(
     baseUrlKey: BinanceBaseUrlKey,
     options: RestClientOptions = {},
-    requestOptions: AxiosRequestConfig = {}
+    requestOptions: AxiosRequestConfig = {},
   ) {
     this.options = {
       recvWindow: 5000,
@@ -71,7 +71,7 @@ export default abstract class BaseRestClient {
 
     if (this.key && !this.secret) {
       throw new Error(
-        'API Key & Secret are both required for private enpoints'
+        'API Key & Secret are both required for private enpoints',
       );
     }
 
@@ -98,7 +98,7 @@ export default abstract class BaseRestClient {
   }
 
   abstract getServerTime(
-    baseUrlKeyOverride?: BinanceBaseUrlKey
+    baseUrlKeyOverride?: BinanceBaseUrlKey,
   ): Promise<number>;
 
   public getBaseUrlKey(): BinanceBaseUrlKey {
@@ -130,7 +130,7 @@ export default abstract class BaseRestClient {
   public getForBaseUrl(
     endpoint: string,
     baseUrlKey: BinanceBaseUrlKey,
-    params?: any
+    params?: any,
   ) {
     const baseUrl = getRestBaseUrl(baseUrlKey, {});
     return this._call('GET', endpoint, params, false, baseUrl);
@@ -172,13 +172,13 @@ export default abstract class BaseRestClient {
     endpoint: string,
     params?: any,
     isPrivate?: boolean,
-    baseUrlOverride?: string
+    baseUrlOverride?: string,
   ): GenericAPIResponse {
     const timestamp = Date.now() + (this.getTimeOffset() || 0);
 
     if (isPrivate && (!this.key || !this.secret)) {
       throw new Error(
-        'Private endpoints require api and private keys to be set'
+        'Private endpoints require api and private keys to be set',
       );
     }
 
@@ -190,7 +190,7 @@ export default abstract class BaseRestClient {
         this.secret,
         this.options.recvWindow,
         timestamp,
-        this.options.strictParamValidation
+        this.options.strictParamValidation,
       );
 
     const baseUrl = baseUrlOverride || this.baseUrl;
@@ -211,7 +211,7 @@ export default abstract class BaseRestClient {
       options.data = serialiseParams(
         requestBody,
         this.options.strictParamValidation,
-        true
+        true,
       );
     }
 
@@ -247,7 +247,7 @@ export default abstract class BaseRestClient {
         } catch (e) {
           console.error(
             'BaseRestClient response beautify failed: ',
-            JSON.stringify({ response: response, error: e })
+            JSON.stringify({ response: response, error: e }),
           );
         }
         return response;
@@ -299,7 +299,7 @@ export default abstract class BaseRestClient {
   // TODO: cleanup?
   private updateApiLimitState(
     responseHeaders: Record<string, any>,
-    requestedUrl: string
+    requestedUrl: string,
   ) {
     const delta: Record<string, any> = {};
     for (const headerKey in this.apiLimitTrackers) {

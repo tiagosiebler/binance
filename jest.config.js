@@ -13,6 +13,7 @@ module.exports = {
   moduleDirectories: ['node_modules', 'src', 'test'],
   testMatch: ['**/test/**/*.test.ts?(x)'],
   testPathIgnorePatterns: ['node_modules/', 'dist/', '.json'],
+  testTimeout: 15000,
   collectCoverageFrom: [
     'src/**/*.ts'
   ],

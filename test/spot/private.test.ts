@@ -1,4 +1,9 @@
-import { MainClient, NewSpotOrderParams } from '../../src/index';
+import {
+  MainClient,
+  NewSpotOrderParams,
+  getHttpsProxyAgent,
+} from '../../src/index';
+import { getTestProxy } from '../proxy.util';
 
 describe('Private Spot REST API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
@@ -6,13 +11,13 @@ describe('Private Spot REST API Endpoints', () => {
 
   const api = new MainClient(
     {
-      disableTimeSync: true,
       api_key: API_KEY,
       api_secret: API_SECRET,
     },
     {
       timeout: 1000 * 60,
-    }
+      httpsAgent: getTestProxy(),
+    },
   );
 
   const symbol = 'BTCUSDT';
@@ -63,7 +68,7 @@ describe('Private Spot REST API Endpoints', () => {
 
     it('getAccountTradeList(symbol)', async () => {
       expect(await api.getAccountTradeList({ symbol })).toMatchObject(
-        expect.any(Array)
+        expect.any(Array),
       );
     });
 
@@ -71,7 +76,7 @@ describe('Private Spot REST API Endpoints', () => {
       expect(
         await api.getDailyAccountSnapshot({
           type: 'SPOT',
-        })
+        }),
       ).toMatchObject({
         code: 200,
         msg: expect.any(String),
@@ -123,7 +128,7 @@ describe('Private Spot REST API Endpoints', () => {
       expect(
         await api.getUniversalTransferHistory({
           type: 'MAIN_UMFUTURE',
-        })
+        }),
       ).toMatchObject({
         rows: expect.any(Array),
       });
@@ -137,7 +142,7 @@ describe('Private Spot REST API Endpoints', () => {
 
     it('getApiKeyPermissions()', async () => {
       expect(await api.getApiKeyPermissions()).toMatchObject(
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });
@@ -151,7 +156,7 @@ describe('Private Spot REST API Endpoints', () => {
 
     it('getSubAccountSpotAssetTransferHistory()', async () => {
       expect(await api.getSubAccountSpotAssetTransferHistory()).toMatchObject(
-        expect.any(Array)
+        expect.any(Array),
       );
     });
 
@@ -165,7 +170,7 @@ describe('Private Spot REST API Endpoints', () => {
 
     it('getSubAccountStatusOnMarginOrFutures()', async () => {
       expect(await api.getSubAccountStatusOnMarginOrFutures()).toMatchObject(
-        expect.any(Array)
+        expect.any(Array),
       );
     });
 
@@ -203,7 +208,7 @@ describe('Private Spot REST API Endpoints', () => {
       it('should keep alive user data key', async () => {
         const { listenKey } = await api.getSpotUserDataListenKey();
         expect(
-          await api.keepAliveSpotUserDataListenKey(listenKey)
+          await api.keepAliveSpotUserDataListenKey(listenKey),
         ).toStrictEqual({});
       });
 
@@ -212,10 +217,10 @@ describe('Private Spot REST API Endpoints', () => {
         expect(listenKey).toStrictEqual(expect.any(String));
 
         expect(await api.closeSpotUserDataListenKey(listenKey)).toStrictEqual(
-          {}
+          {},
         );
         expect(
-          api.keepAliveSpotUserDataListenKey(listenKey)
+          api.keepAliveSpotUserDataListenKey(listenKey),
         ).rejects.toMatchObject({
           code: -1125,
           message: 'This listenKey does not exist.',
@@ -232,7 +237,7 @@ describe('Private Spot REST API Endpoints', () => {
       it('should keep alive user data key', async () => {
         const { listenKey } = await api.getMarginUserDataListenKey();
         expect(
-          await api.keepAliveMarginUserDataListenKey(listenKey)
+          await api.keepAliveMarginUserDataListenKey(listenKey),
         ).toStrictEqual({});
       });
 
@@ -241,10 +246,10 @@ describe('Private Spot REST API Endpoints', () => {
         expect(listenKey).toStrictEqual(expect.any(String));
 
         expect(await api.closeMarginUserDataListenKey(listenKey)).toStrictEqual(
-          {}
+          {},
         );
         expect(
-          api.keepAliveMarginUserDataListenKey(listenKey)
+          api.keepAliveMarginUserDataListenKey(listenKey),
         ).rejects.toMatchObject({
           code: -1105,
           message: 'This listenKey does not exist.',
@@ -268,7 +273,7 @@ describe('Private Spot REST API Endpoints', () => {
           await api.keepAliveIsolatedMarginUserDataListenKey({
             symbol,
             listenKey,
-          })
+          }),
         ).toStrictEqual({});
       });
 
@@ -277,10 +282,10 @@ describe('Private Spot REST API Endpoints', () => {
           symbol,
         });
         expect(
-          await api.closeIsolatedMarginUserDataListenKey({ symbol, listenKey })
+          await api.closeIsolatedMarginUserDataListenKey({ symbol, listenKey }),
         ).toStrictEqual({});
         expect(
-          api.keepAliveIsolatedMarginUserDataListenKey({ symbol, listenKey })
+          api.keepAliveIsolatedMarginUserDataListenKey({ symbol, listenKey }),
         ).rejects.toMatchObject({
           code: -1105,
           message: 'This listenKey does not exist.',

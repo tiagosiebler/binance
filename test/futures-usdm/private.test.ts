@@ -1,15 +1,18 @@
 import { NewFuturesOrderParams } from '../../src/types/futures';
 import { USDMClient } from '../../src/usdm-client';
+import { getTestProxy } from '../proxy.util';
 
 describe('Private Futures USDM REST API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
   const API_SECRET = process.env.API_SECRET_COM;
 
-  const api = new USDMClient({
-    disableTimeSync: true,
-    api_key: API_KEY,
-    api_secret: API_SECRET,
-  });
+  const api = new USDMClient(
+    {
+      api_key: API_KEY,
+      api_secret: API_SECRET,
+    },
+    { httpsAgent: getTestProxy() },
+  );
 
   const symbol = 'BTCUSDT';
 
@@ -71,13 +74,13 @@ describe('Private Futures USDM REST API Endpoints', () => {
 
     it('getNotionalAndLeverageBrackets()', async () => {
       expect(await api.getNotionalAndLeverageBrackets()).toMatchObject(
-        expect.any(Array)
+        expect.any(Array),
       );
     });
 
     it('getADLQuantileEstimation()', async () => {
       expect(await api.getADLQuantileEstimation()).toMatchObject(
-        expect.any(Array)
+        expect.any(Array),
       );
     });
 
@@ -102,7 +105,7 @@ describe('Private Futures USDM REST API Endpoints', () => {
 
     it('cancelOrder()', async () => {
       expect(
-        api.cancelOrder({ symbol, orderId: 123456 })
+        api.cancelOrder({ symbol, orderId: 123456 }),
       ).rejects.toMatchObject({
         code: -2011,
         message: 'Unknown order sent.',
