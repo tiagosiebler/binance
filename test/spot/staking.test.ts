@@ -4,7 +4,6 @@ import { getTestProxy } from '../proxy.util';
 describe('Staking API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
   const API_SECRET = process.env.API_SECRET_COM;
-  const useProxy = process.env.PROXY_ENABLED === 'true';
 
   const api = new MainClient(
     {
@@ -14,7 +13,7 @@ describe('Staking API Endpoints', () => {
     },
     {
       timeout: 1000 * 60,
-      httpsAgent: useProxy ? getTestProxy() : undefined,
+      httpsAgent: getTestProxy(),
     },
   );
 

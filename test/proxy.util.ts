@@ -1,6 +1,9 @@
 import { getHttpsProxyAgent } from '../src';
 
 export function getTestProxy() {
+  if (process.env.PROXY_ENABLED !== 'true') {
+    return;
+  }
   const host = process.env.PROXY_HOST;
   const port = process.env.PROXY_PORT;
   const user = process.env.PROXY_USER;

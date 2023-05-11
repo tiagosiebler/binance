@@ -8,7 +8,6 @@ import { getTestProxy } from '../proxy.util';
 describe('Private Spot REST API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
   const API_SECRET = process.env.API_SECRET_COM;
-  const useProxy = process.env.PROXY_ENABLED === 'true';
 
   const api = new MainClient(
     {
@@ -18,7 +17,7 @@ describe('Private Spot REST API Endpoints', () => {
     },
     {
       timeout: 1000 * 60,
-      httpsAgent: useProxy ? getTestProxy() : undefined,
+      httpsAgent: getTestProxy(),
     },
   );
 

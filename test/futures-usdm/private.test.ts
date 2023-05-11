@@ -5,7 +5,6 @@ import { getTestProxy } from '../proxy.util';
 describe('Private Futures USDM REST API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
   const API_SECRET = process.env.API_SECRET_COM;
-  const useProxy = process.env.PROXY_ENABLED === 'true';
 
   const api = new USDMClient(
     {
@@ -13,7 +12,7 @@ describe('Private Futures USDM REST API Endpoints', () => {
       api_key: API_KEY,
       api_secret: API_SECRET,
     },
-    useProxy ? { httpsAgent: getTestProxy() } : undefined,
+    { httpsAgent: getTestProxy() },
   );
 
   const symbol = 'BTCUSDT';
