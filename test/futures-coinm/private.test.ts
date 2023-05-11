@@ -1,15 +1,20 @@
 import { CoinMClient } from '../../src';
 import { CoinMSymbolOrderBookTicker } from '../../src/types/coin';
+import { getTestProxy } from '../proxy.util';
 
 describe('Private Futures USDM REST API Endpoints', () => {
   const API_KEY = process.env.API_KEY_COM;
   const API_SECRET = process.env.API_SECRET_COM;
 
-  const api = new CoinMClient({
-    disableTimeSync: true,
-    api_key: API_KEY,
-    api_secret: API_SECRET,
-  });
+  const useProxy = process.env.PROXY_ENABLED === 'true';
+  const api = new CoinMClient(
+    {
+      disableTimeSync: true,
+      api_key: API_KEY,
+      api_secret: API_SECRET,
+    },
+    useProxy ? { httpsAgent: getTestProxy() } : undefined,
+  );
   let book: CoinMSymbolOrderBookTicker[];
 
   beforeAll(async () => {
