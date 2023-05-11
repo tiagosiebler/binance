@@ -5,7 +5,7 @@
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/binance)][1]
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/binance/badge)](https://www.codefactor.io/repository/github/tiagosiebler/binance)
 
-[![connector logo](https://github.com/tiagosiebler/binance/blob/master/docs/images/logo1.png?raw=true)][1]
+[![connector logo](https://github.com/tiagosiebler/binance/blob/master/docs/images/logo2.png?raw=true)][1]
 
 [1]: https://www.npmjs.com/package/binance
 
@@ -218,7 +218,7 @@ const wsClient = new WebsocketClient(
     // Disable ping/pong ws heartbeat mechanism (not recommended)
     // disableHeartbeat: true
   },
-  logger
+  logger,
 );
 
 // receive raw events
