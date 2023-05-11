@@ -1,12 +1,17 @@
-import { notAuthenticatedError, successResponseList, successResponseObject } from "../response.util";
-import { USDMClient } from "../../src/usdm-client";
+import {
+  notAuthenticatedError,
+  successResponseList,
+  successResponseObject,
+} from '../response.util';
+import { USDMClient } from '../../src/usdm-client';
+import { getTestProxy } from '../proxy.util';
 
 describe('Public Futures USDM REST API Endpoints', () => {
-  const api = new USDMClient({ disableTimeSync: true });
+  const api = new USDMClient({}, { httpsAgent: getTestProxy() });
 
   const symbol = 'BTCUSDT';
   const interval = '15m';
-  const timestampOneHourAgo = (new Date().getTime() / 1000) - (1000 * 60 * 60);
+  const timestampOneHourAgo = new Date().getTime() / 1000 - 1000 * 60 * 60;
   const from = Number(timestampOneHourAgo.toFixed(0));
 
   beforeEach(() => {
@@ -15,7 +20,9 @@ describe('Public Futures USDM REST API Endpoints', () => {
 
   describe('Misc', () => {
     it('should throw for unauthenticated private calls', async () => {
-      expect(() => api.getCurrentPositionMode()).rejects.toMatchObject(notAuthenticatedError());
+      expect(() => api.getCurrentPositionMode()).rejects.toMatchObject(
+        notAuthenticatedError(),
+      );
     });
 
     it('getServerTime() should return number', async () => {
@@ -43,11 +50,15 @@ describe('Public Futures USDM REST API Endpoints', () => {
     });
 
     it('getFundingRateHistory()', async () => {
-      expect(await api.getFundingRateHistory()).toMatchObject(expect.any(Array));
+      expect(await api.getFundingRateHistory()).toMatchObject(
+        expect.any(Array),
+      );
     });
 
     it('get24hrChangeStatististics()', async () => {
-      expect(await api.get24hrChangeStatististics()).toMatchObject(expect.any(Array));
+      expect(await api.get24hrChangeStatististics()).toMatchObject(
+        expect.any(Array),
+      );
     });
 
     it('getSymbolPriceTicker()', async () => {
@@ -55,11 +66,15 @@ describe('Public Futures USDM REST API Endpoints', () => {
     });
 
     it('getSymbolOrderBookTicker()', async () => {
-      expect(await api.getSymbolOrderBookTicker()).toMatchObject(expect.any(Array));
+      expect(await api.getSymbolOrderBookTicker()).toMatchObject(
+        expect.any(Array),
+      );
     });
 
     it('getCompositeSymbolIndex()', async () => {
-      expect(await api.getCompositeSymbolIndex()).toMatchObject(expect.any(Array));
+      expect(await api.getCompositeSymbolIndex()).toMatchObject(
+        expect.any(Array),
+      );
     });
   });
 });

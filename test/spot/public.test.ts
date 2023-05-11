@@ -1,12 +1,17 @@
-import { MainClient } from "../../src/index";
-import { notAuthenticatedError, successResponseList, successResponseObject } from "../response.util";
+import { MainClient } from '../../src/index';
+import { getTestProxy } from '../proxy.util';
+import {
+  notAuthenticatedError,
+  successResponseList,
+  successResponseObject,
+} from '../response.util';
 
 describe('Public Spot REST API Endpoints', () => {
-  const api = new MainClient({ disableTimeSync: true });
+  const api = new MainClient({}, { httpsAgent: getTestProxy() });
 
   const symbol = 'BTCUSDT';
   const interval = '15m';
-  const timestampOneHourAgo = (new Date().getTime() / 1000) - (1000 * 60 * 60);
+  const timestampOneHourAgo = new Date().getTime() / 1000 - 1000 * 60 * 60;
   const from = Number(timestampOneHourAgo.toFixed(0));
 
   beforeEach(() => {
@@ -15,7 +20,9 @@ describe('Public Spot REST API Endpoints', () => {
 
   describe('Misc', () => {
     it('should throw for unauthenticated private calls', async () => {
-      expect(() => api.getBalances()).rejects.toMatchObject(notAuthenticatedError());
+      expect(() => api.getBalances()).rejects.toMatchObject(
+        notAuthenticatedError(),
+      );
     });
 
     it('getServerTime() should return number', async () => {
@@ -23,7 +30,10 @@ describe('Public Spot REST API Endpoints', () => {
     });
 
     it('getSystemStatus()', async () => {
-      expect(await api.getSystemStatus()).toMatchObject({'msg': "normal", 'status': 0});
+      expect(await api.getSystemStatus()).toMatchObject({
+        msg: 'normal',
+        status: 0,
+      });
     });
 
     it('testConnectivity()', async () => {

@@ -11,7 +11,6 @@ describe('Private Spot REST API Endpoints', () => {
 
   const api = new MainClient(
     {
-      disableTimeSync: true,
       api_key: API_KEY,
       api_secret: API_SECRET,
     },

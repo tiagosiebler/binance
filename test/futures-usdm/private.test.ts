@@ -8,7 +8,6 @@ describe('Private Futures USDM REST API Endpoints', () => {
 
   const api = new USDMClient(
     {
-      disableTimeSync: true,
       api_key: API_KEY,
       api_secret: API_SECRET,
     },
