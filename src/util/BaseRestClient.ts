@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
+import JSONbig from "json-bigint";
 
 import { BinanceBaseUrlKey } from '../types/shared';
 import {
@@ -214,6 +215,8 @@ export default abstract class BaseRestClient {
         true,
       );
     }
+
+    options.transformResponse = (data: any) => JSONbig.parse(data);
 
     // console.log(
     //   'sending request: ',
