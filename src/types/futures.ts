@@ -613,7 +613,7 @@ export interface FuturesCoinMAccountInformation {
 
 export interface FuturesPosition {
   entryPrice: numberInString;
-  marginType: Lowercase<MarginType>;
+  marginType: 'isolated' | 'cross';
   isAutoAddMargin: 'false' | 'true';
   isolatedMargin: numberInString;
   leverage: numberInString;
