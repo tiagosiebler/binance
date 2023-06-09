@@ -20,10 +20,10 @@ export async function signMessage(
       pemHeader.length,
       secret.length - pemFooter.length
     );
-    const binaryDerString = window.atob(pemContents);
+    const binaryDerString = globalThis.atob(pemContents);
     const binaryDer = str2ab(binaryDerString);
 
-    const key = await window.crypto.subtle.importKey(
+    const key = await globalThis.crypto.subtle.importKey(
       'pkcs8',
       binaryDer,
       { name: 'RSASSA-PKCS1-v1_5', hash: { name: 'SHA-256' } },
@@ -31,7 +31,7 @@ export async function signMessage(
       ['sign']
     );
 
-    const signature = await window.crypto.subtle.sign(
+    const signature = await globalThis.crypto.subtle.sign(
       'RSASSA-PKCS1-v1_5',
       key,
       encoder.encode(message)
@@ -40,7 +40,7 @@ export async function signMessage(
     return btoa(String.fromCharCode(...new Uint8Array(signature)));
   }
 
-  const key = await window.crypto.subtle.importKey(
+  const key = await globalThis.crypto.subtle.importKey(
     'raw',
     encoder.encode(secret),
     { name: 'HMAC', hash: { name: 'SHA-256' } },
@@ -48,7 +48,7 @@ export async function signMessage(
     ['sign']
   );
 
-  const signature = await window.crypto.subtle.sign(
+  const signature = await globalThis.crypto.subtle.sign(
     'HMAC',
     key,
     encoder.encode(message)
