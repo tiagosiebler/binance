@@ -450,14 +450,20 @@ export interface SymbolExchangeInfo {
   baseAsset: string;
   baseAssetPrecision: number;
   quoteAsset: string;
+  quotePrecision: number;
   quoteAssetPrecision: number;
   orderTypes: OrderType[];
   icebergAllowed: boolean;
   ocoAllowed: boolean;
+  quoteOrderQtyMarketAllowed: boolean;
+  allowTrailingStop: boolean;
+  cancelReplaceAllowed: boolean;
   isSpotTradingAllowed: boolean;
   isMarginTradingAllowed: boolean;
   filters: SymbolFilter[];
   permissions: ('SPOT' | 'MARGIN')[];
+  defaultSelfTradePreventionMode: 'NONE' | 'EXPIRE_TAKER' | 'EXPIRE_BOTH' | 'EXPIRE_MAKER'
+  allowedSelfTradePreventionModes: ('NONE' | 'EXPIRE_TAKER' | 'EXPIRE_BOTH' | 'EXPIRE_MAKER')[];
 }
 
 export interface ExchangeInfo {
