@@ -1,10 +1,16 @@
-import { MainClient } from "../main-client";
-import { NewFuturesOrderParams } from "../types/futures";
-import { BinanceBaseUrlKey, CancelOCOParams, CancelOrderParams, NewOCOParams, OrderIdProperty } from "../types/shared";
-import { WsMarket } from "../types/websockets";
-import { USDMClient } from "../usdm-client";
-import { WsKey } from "../websocket-client";
-import { signMessage } from "./node-support";
+import { MainClient } from '../main-client';
+import { NewFuturesOrderParams } from '../types/futures';
+import {
+  BinanceBaseUrlKey,
+  CancelOCOParams,
+  CancelOrderParams,
+  NewOCOParams,
+  OrderIdProperty,
+} from '../types/shared';
+import { WsMarket } from '../types/websockets';
+import { USDMClient } from '../usdm-client';
+import { WsKey } from '../websocket-client';
+import { signMessage } from './node-support';
 import { nanoid } from 'nanoid';
 
 export type RestClient = MainClient | USDMClient;
@@ -20,7 +26,7 @@ export interface RestClientOptions {
   // how often to sync time drift with binance servers
   syncIntervalMs?: number | string;
 
-  // Default: false. Disable above sync mechanism if true.
+  // Default: true. Set to false to enable this mechanism, which is not recommended.
   disableTimeSync?: boolean;
 
   // Default: false. If true, we'll throw errors if any params are undefined
@@ -31,7 +37,7 @@ export interface RestClientOptions {
   baseUrl?: string;
 
   // manually override with one of the known base URLs in the library
-  baseUrlKey?: BinanceBaseUrlKey,
+  baseUrlKey?: BinanceBaseUrlKey;
 
   // Default: true. whether to try and post-process request exceptions.
   parseExceptions?: boolean;
@@ -65,25 +71,30 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
 }
 
 export function generateNewOrderId(network: BinanceBaseUrlKey): string {
-
   const id = nanoid(25);
   const prefixedId = 'x-' + getOrderIdPrefix(network) + id;
 
   return prefixedId;
 }
 
-export function serialiseParams(params: object = {}, strict_validation = false, encodeValues: boolean = false): string {
+export function serialiseParams(
+  params: object = {},
+  strict_validation = false,
+  encodeValues: boolean = false,
+): string {
   return Object.keys(params)
-    .map(key => {
+    .map((key) => {
       const value = params[key];
       if (strict_validation === true && typeof value === 'undefined') {
-        throw new Error('Failed to sign API request due to undefined parameter');
+        throw new Error(
+          'Failed to sign API request due to undefined parameter',
+        );
       }
       const encodedValue = encodeValues ? encodeURIComponent(value) : value;
       return `${key}=${encodedValue}`;
     })
     .join('&');
-};
+}
 
 export interface SignedRequestState {
   // Request body as an object, as originally provided by caller
@@ -110,9 +121,13 @@ export async function getRequestSignature(
     const requestParams = {
       ...data,
       timestamp,
-      recvWindow: requestRecvWindow
-    }
-    const serialisedParams = serialiseParams(requestParams, strictParamValidation, true);
+      recvWindow: requestRecvWindow,
+    };
+    const serialisedParams = serialiseParams(
+      requestParams,
+      strictParamValidation,
+      true,
+    );
     const signature = await signMessage(serialisedParams, secret);
     requestParams.signature = signature;
 
@@ -122,7 +137,7 @@ export async function getRequestSignature(
       timestamp: timestamp,
       signature: signature,
       recvWindow: requestRecvWindow,
-    }
+    };
   }
 
   return { requestBody: data, serialisedParams: undefined };
@@ -173,7 +188,10 @@ export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
   }
 }
 
-export function getRestBaseUrl(clientType: BinanceBaseUrlKey, restInverseOptions: RestClientOptions): string {
+export function getRestBaseUrl(
+  clientType: BinanceBaseUrlKey,
+  restInverseOptions: RestClientOptions,
+): string {
   if (restInverseOptions.baseUrl) {
     return restInverseOptions.baseUrl;
   }
@@ -185,7 +203,7 @@ export function getRestBaseUrl(clientType: BinanceBaseUrlKey, restInverseOptions
   return BINANCE_BASE_URLS[clientType];
 }
 
-export function isPublicEndpoint (endpoint: string): boolean {
+export function isPublicEndpoint(endpoint: string): boolean {
   if (endpoint.startsWith('v2/public')) {
     return true;
   }
@@ -207,9 +225,17 @@ export function isWsPong(response: any) {
 export function logInvalidOrderId(
   orderIdProperty: OrderIdProperty,
   expectedOrderIdPrefix: string,
-  params: NewFuturesOrderParams | CancelOrderParams | NewOCOParams | CancelOCOParams
+  params:
+    | NewFuturesOrderParams
+    | CancelOrderParams
+    | NewOCOParams
+    | CancelOCOParams,
 ) {
-  console.warn(`WARNING: '${orderIdProperty}' invalid - it should be prefixed with ${expectedOrderIdPrefix}. Use the 'client.generateNewOrderId()' REST client utility method to generate a fresh order ID on demand. Original request: ${JSON.stringify(params)}`);
+  console.warn(
+    `WARNING: '${orderIdProperty}' invalid - it should be prefixed with ${expectedOrderIdPrefix}. Use the 'client.generateNewOrderId()' REST client utility method to generate a fresh order ID on demand. Original request: ${JSON.stringify(
+      params,
+    )}`,
+  );
 }
 
 export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
@@ -227,7 +253,10 @@ export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
     return;
   }
 
-  if (wsKey.indexOf('partialBookDepth') !== -1 || wsKey.indexOf('depth') !== -1) {
+  if (
+    wsKey.indexOf('partialBookDepth') !== -1 ||
+    wsKey.indexOf('depth') !== -1
+  ) {
     wsMsg.e = 'partialBookDepth';
     return;
   }
@@ -241,12 +270,13 @@ interface WsContext {
   isTestnet: boolean | undefined;
   isUserData: boolean;
   streamName: string;
-  listenKey: string | undefined
+  listenKey: string | undefined;
   otherParams: undefined | string[];
 }
 
 export function getContextFromWsKey(wsKey: WsKey): WsContext {
-  const [market, streamName, symbol, listenKey, ...otherParams] = wsKey.split('_');
+  const [market, streamName, symbol, listenKey, ...otherParams] =
+    wsKey.split('_');
   return {
     symbol: symbol === 'undefined' ? undefined : symbol,
     market: market as WsMarket,
@@ -255,15 +285,21 @@ export function getContextFromWsKey(wsKey: WsKey): WsContext {
     streamName,
     listenKey: listenKey === 'undefined' ? undefined : listenKey,
     otherParams,
-  }
+  };
 }
 
-export function getWsKeyWithContext(market: WsMarket, streamName: string, symbol: string | undefined = undefined, listenKey: string | undefined = undefined, ...otherParams: (string | boolean)[]): WsKey {
+export function getWsKeyWithContext(
+  market: WsMarket,
+  streamName: string,
+  symbol: string | undefined = undefined,
+  listenKey: string | undefined = undefined,
+  ...otherParams: (string | boolean)[]
+): WsKey {
   return [market, streamName, symbol, listenKey, ...otherParams].join('_');
 }
 
 export function appendEventMarket(wsMsg: any, wsKey: WsKey) {
-  const { market } = getContextFromWsKey(wsKey)
+  const { market } = getContextFromWsKey(wsKey);
   wsMsg.wsMarket = market;
   wsMsg.wsKey = wsKey;
 }
