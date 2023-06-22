@@ -194,7 +194,7 @@ export interface CancelOCOParams {
   /** For isolated margin trading only */
   isIsolated?: string;
   orderListId?: number;
-  listClientOrderId?: number;
+  listClientOrderId?: string;
   newClientOrderId?: string;
 }
 
