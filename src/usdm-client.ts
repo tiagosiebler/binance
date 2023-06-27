@@ -309,7 +309,21 @@ export class USDMClient extends BaseRestClient {
   cancelMultipleOrders(
     params: CancelMultipleOrdersParams,
   ): Promise<(CancelFuturesOrderResult | GenericCodeMsgError)[]> {
-    return this.deletePrivate('fapi/v1/batchOrders', params);
+    const requestParams: object = {
+      ...params,
+    };
+
+    if (params.orderIdList) {
+      requestParams['orderIdList'] = JSON.stringify(params.orderIdList);
+    }
+
+    if (params.origClientOrderIdList) {
+      requestParams['origClientOrderIdList'] = JSON.stringify(
+        params.origClientOrderIdList,
+      );
+    }
+
+    return this.deletePrivate('fapi/v1/batchOrders', requestParams);
   }
 
   // Auto-cancel all open orders

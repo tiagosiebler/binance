@@ -90,7 +90,7 @@ export class CoinMClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
-    useTestnet?: boolean
+    useTestnet?: boolean,
   ) {
     const clientId = useTestnet ? 'coinmtest' : 'coinm';
 
@@ -105,7 +105,7 @@ export class CoinMClient extends BaseRestClient {
    */
   async getServerTime(): Promise<number> {
     return this.get(getServerTimeEndpoint(this.clientId)).then(
-      (response) => response.serverTime
+      (response) => response.serverTime,
     );
   }
 
@@ -132,13 +132,13 @@ export class CoinMClient extends BaseRestClient {
   }
 
   getHistoricalTrades(
-    params: HistoricalTradesParams
+    params: HistoricalTradesParams,
   ): Promise<RawFuturesTrade[]> {
     return this.get('dapi/v1/historicalTrades', params);
   }
 
   getAggregateTrades(
-    params: SymbolFromPaginatedRequestFromId
+    params: SymbolFromPaginatedRequestFromId,
   ): Promise<AggregateFuturesTrade[]> {
     return this.get('dapi/v1/aggTrades', params);
   }
@@ -147,13 +147,13 @@ export class CoinMClient extends BaseRestClient {
    * Index Price and Mark Price
    */
   getMarkPrice(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<MarkPrice | MarkPrice[]> {
     return this.get('dapi/v1/premiumIndex', params);
   }
 
   getFundingRateHistory(
-    params?: Partial<BasicSymbolPaginatedParams>
+    params?: Partial<BasicSymbolPaginatedParams>,
   ): Promise<FundingRateHistory[]> {
     return this.get('dapi/v1/fundingRate', params);
   }
@@ -163,7 +163,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   getContinuousContractKlines(
-    params: ContinuousContractKlinesParams
+    params: ContinuousContractKlinesParams,
   ): Promise<Kline[]> {
     return this.get('dapi/v1/continuousKlines', params);
   }
@@ -180,28 +180,28 @@ export class CoinMClient extends BaseRestClient {
    * @deprecated use get24hrChangeStatistics() instead (method without the typo)
    */
   get24hrChangeStatististics(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get24hrChangeStatistics(params);
   }
 
   get24hrChangeStatistics(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get('dapi/v1/ticker/24hr', params);
   }
 
   getSymbolPriceTicker(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<SymbolPrice | SymbolPrice[]> {
     return this.get('dapi/v1/ticker/price', params);
   }
 
   getSymbolOrderBookTicker(
-    params?: SymbolOrPair
+    params?: SymbolOrPair,
   ): Promise<CoinMSymbolOrderBookTicker[]> {
     return this.get('dapi/v1/ticker/bookTicker', params).then((e) =>
-      asArray(e)
+      asArray(e),
     );
   }
 
@@ -214,25 +214,25 @@ export class CoinMClient extends BaseRestClient {
   }
 
   getTopTradersLongShortAccountRatio(
-    params: FuturesDataPaginatedParams
+    params: FuturesDataPaginatedParams,
   ): Promise<any> {
     return this.get('futures/data/topLongShortAccountRatio', params);
   }
 
   getTopTradersLongShortPositionRatio(
-    params: FuturesDataPaginatedParams
+    params: FuturesDataPaginatedParams,
   ): Promise<any> {
     return this.get('futures/data/topLongShortPositionRatio', params);
   }
 
   getGlobalLongShortAccountRatio(
-    params: FuturesDataPaginatedParams
+    params: FuturesDataPaginatedParams,
   ): Promise<any> {
     return this.get('futures/data/globalLongShortAccountRatio', params);
   }
 
   getTakerBuySellVolume(
-    params: FuturesCoinMTakerBuySellVolumeParams
+    params: FuturesCoinMTakerBuySellVolumeParams,
   ): Promise<any> {
     return this.get('futures/data/takerBuySellVol', params);
   }
@@ -256,7 +256,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   submitNewOrder(
-    params: NewFuturesOrderParams
+    params: NewFuturesOrderParams,
   ): Promise<NewOrderResult | NewOrderError> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('dapi/v1/order', params);
@@ -266,7 +266,7 @@ export class CoinMClient extends BaseRestClient {
    * Order modify function, currently only LIMIT order modification is supported, modified orders will be reordered in the match queue
    */
   modifyOrder(
-    params: ModifyFuturesOrderParams
+    params: ModifyFuturesOrderParams,
   ): Promise<ModifyFuturesOrderResult> {
     return this.putPrivate('dapi/v1/order', params);
   }
@@ -277,7 +277,7 @@ export class CoinMClient extends BaseRestClient {
    * Known issue: `quantity` and `price` should be sent as strings
    */
   submitMultipleOrders(
-    orders: NewFuturesOrderParams<string>[]
+    orders: NewFuturesOrderParams<string>[],
   ): Promise<(NewOrderResult | NewOrderError)[]> {
     const stringOrders = orders.map((order) => {
       const orderToStringify = { ...order };
@@ -294,7 +294,7 @@ export class CoinMClient extends BaseRestClient {
    * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
    */
   modifyMultipleOrders(
-    orders: ModifyFuturesOrderParams[]
+    orders: ModifyFuturesOrderParams[],
   ): Promise<(ModifyFuturesOrderResult | NewOrderError)[]> {
     const stringOrders = orders.map((order) => {
       const orderToStringify = { ...order };
@@ -307,7 +307,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   getOrderModifyHistory(
-    params: GetOrderModifyHistoryParams
+    params: GetOrderModifyHistoryParams,
   ): Promise<OrderAmendment[]> {
     return this.getPrivate('dapi/v1/orderAmendment', params);
   }
@@ -321,20 +321,34 @@ export class CoinMClient extends BaseRestClient {
   }
 
   cancelAllOpenOrders(
-    params: BasicSymbolParam
+    params: BasicSymbolParam,
   ): Promise<CancelAllOpenOrdersResult> {
     return this.deletePrivate('dapi/v1/allOpenOrders', params);
   }
 
   cancelMultipleOrders(
-    params: CancelMultipleOrdersParams
+    params: CancelMultipleOrdersParams,
   ): Promise<(CancelFuturesOrderResult | GenericCodeMsgError)[]> {
-    return this.deletePrivate('dapi/v1/batchOrders', params);
+    const requestParams: object = {
+      ...params,
+    };
+
+    if (params.orderIdList) {
+      requestParams['orderIdList'] = JSON.stringify(params.orderIdList);
+    }
+
+    if (params.origClientOrderIdList) {
+      requestParams['origClientOrderIdList'] = JSON.stringify(
+        params.origClientOrderIdList,
+      );
+    }
+
+    return this.deletePrivate('dapi/v1/batchOrders', requestParams);
   }
 
   // Auto-cancel all open orders
   setCancelOrdersOnTimeout(
-    params: CancelOrdersTimeoutParams
+    params: CancelOrdersTimeoutParams,
   ): Promise<SetCancelTimeoutResult> {
     return this.postPrivate('dapi/v1/countdownCancelAll', params);
   }
@@ -368,13 +382,13 @@ export class CoinMClient extends BaseRestClient {
   }
 
   setIsolatedPositionMargin(
-    params: SetIsolatedMarginParams
+    params: SetIsolatedMarginParams,
   ): Promise<SetIsolatedMarginResult> {
     return this.postPrivate('dapi/v1/positionMargin', params);
   }
 
   getPositionMarginChangeHistory(
-    params: GetPositionMarginChangeHistoryParams
+    params: GetPositionMarginChangeHistoryParams,
   ): Promise<any> {
     return this.getPrivate('dapi/v1/positionMargin/history', params);
   }
@@ -384,7 +398,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   getAccountTrades(
-    params: CoinMAccountTradeParams
+    params: CoinMAccountTradeParams,
   ): Promise<CoinMPositionTrade[]> {
     return this.getPrivate('dapi/v1/userTrades', params);
   }
@@ -397,7 +411,7 @@ export class CoinMClient extends BaseRestClient {
    * Notional Bracket for Symbol (NOT "pair")
    */
   getNotionalAndLeverageBrackets(
-    params?: Partial<BasicSymbolParam>
+    params?: Partial<BasicSymbolParam>,
   ): Promise<SymbolLeverageBracketsResult[] | SymbolLeverageBracketsResult> {
     return this.getPrivate('dapi/v2/leverageBracket', params);
   }
@@ -411,7 +425,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   getAccountComissionRate(
-    params: BasicSymbolParam
+    params: BasicSymbolParam,
   ): Promise<RebateDataOverview> {
     return this.getPrivate('dapi/v1/commissionRate', params);
   }
@@ -425,7 +439,7 @@ export class CoinMClient extends BaseRestClient {
   // 1 == USDT-Margined, 2 == Coin-margined
   getBrokerIfNewFuturesUser(
     brokerId: string,
-    type: 1 | 2 = 1
+    type: 1 | 2 = 1,
   ): Promise<{ brokerId: string; rebateWorking: boolean; ifNewUser: boolean }> {
     return this.getPrivate('dapi/v1/apiReferral/ifNewUser', {
       brokerId,
@@ -435,7 +449,7 @@ export class CoinMClient extends BaseRestClient {
 
   setBrokerCustomIdForClient(
     customerId: string,
-    email: string
+    email: string,
   ): Promise<{ customerId: string; email: string }> {
     return this.postPrivate('dapi/v1/apiReferral/customization', {
       customerId,
@@ -447,7 +461,7 @@ export class CoinMClient extends BaseRestClient {
     customerId: string,
     email: string,
     page?: number,
-    limit?: number
+    limit?: number,
   ): Promise<any> {
     return this.getPrivate('dapi/v1/apiReferral/customization', {
       customerId,
@@ -473,7 +487,7 @@ export class CoinMClient extends BaseRestClient {
     type: 1 | 2 = 1,
     startTime?: number,
     endTime?: number,
-    limit?: number
+    limit?: number,
   ): Promise<any> {
     return this.getPrivate('dapi/v1/apiReferral/tradeVol', {
       type,
@@ -487,7 +501,7 @@ export class CoinMClient extends BaseRestClient {
     type: 1 | 2 = 1,
     startTime?: number,
     endTime?: number,
-    limit?: number
+    limit?: number,
   ): Promise<any> {
     return this.getPrivate('dapi/v1/apiReferral/rebateVol', {
       type,
@@ -501,7 +515,7 @@ export class CoinMClient extends BaseRestClient {
     type: 1 | 2 = 1,
     startTime?: number,
     endTime?: number,
-    limit?: number
+    limit?: number,
   ): Promise<any> {
     return this.getPrivate('dapi/v1/apiReferral/traderSummary', {
       type,
@@ -538,7 +552,7 @@ export class CoinMClient extends BaseRestClient {
       | CancelOrderParams
       | NewOCOParams
       | CancelOCOParams,
-    orderIdProperty: OrderIdProperty
+    orderIdProperty: OrderIdProperty,
   ): void {
     const apiCategory = this.clientId;
     if (!params[orderIdProperty]) {

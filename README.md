@@ -1,4 +1,4 @@
-# Node.js & Typescript Binance API SDK
+# Node.js & JavaScript SDK for Binance REST APIs & WebSockets
 
 [![Tests](https://circleci.com/gh/tiagosiebler/binance.svg?style=shield)](https://circleci.com/gh/tiagosiebler/binance)
 [![npm version](https://img.shields.io/npm/v/binance)][1] [![npm size](https://img.shields.io/bundlephobia/min/binance/latest)][1] [![npm downloads](https://img.shields.io/npm/dt/binance)][1]
@@ -9,15 +9,17 @@
 
 [1]: https://www.npmjs.com/package/binance
 
-Node.js SDK for the Binance APIs and WebSockets, with TypeScript & browser support.
+Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebSockets:
 
-- Extremely robust & performant connector with significant trading volume in production (livenet).
-- Actively maintained with a modern, promise-driven interface.
-- Support for seamless HMAC and RSA authentication.
-  - Passing a private key as a secret will automatically revert to RSA authentication.
-- Supports REST APIs for Binance Spot, Margin, Isolated Margin, USDM & CoinM Futures.
+- Extensive integration with Binance REST APIs and WebSockets.
+- TypeScript support (with type declarations for most API requests & responses).
+- Supports Binance REST APIs for Binance Spot, Margin, Isolated Margin, USDM & CoinM Futures.
   - Strongly typed on most requests and responses.
   - Automated end-to-end tests on most API calls, ensuring no breaking changes are released.
+- Extremely robust & performant JavaScript/Node.js Binance SDK with significant trading volume in production (livenet).
+- Actively maintained with a modern, promise-driven interface.
+- Support for seamless HMAC and RSA authentication for private Binance REST API and WebSocket calls.
+  - Passing a private key as a secret will automatically revert to RSA authentication.
 - Supports Websockets for Binance Spot, Margin, Isolated Margin, USDM & CoinM Futures.
   - Event driven messaging.
   - Smart websocket persistence
