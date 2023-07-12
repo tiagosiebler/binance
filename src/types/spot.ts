@@ -384,6 +384,7 @@ export interface NewSpotOrderParams {
   price?: number;
   newClientOrderId?: string;
   stopPrice?: number;
+  trailingDelta?: number;
   icebergQty?: number;
   newOrderRespType?: OrderResponseType;
   isIsolated?: StringBoolean;
