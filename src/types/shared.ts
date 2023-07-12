@@ -208,7 +208,7 @@ export interface NewOCOParams {
   limitStrategyType?: number;
   price: number;
   limitIcebergQty?: number;
-  trailingdelta?: number;
+  trailingDelta?: number;
   stopClientOrderId?: string;
   stopPrice: number;
   stopStrategyId?: number;
