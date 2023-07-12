@@ -29,7 +29,8 @@
     "Gavy Aggarwal (http://gavyaggarwal.com/)",
     "Tony Pettigrew (https://github.com/NeverEnder4)",
     "Chris <apexearth@gmail.com> (https://github.com/apexearth)",
-    "Bruno Lobo <me@brunolobo.xyz> (https://brunolobo.xyz)"
+    "Bruno Lobo <me@brunolobo.xyz> (https://brunolobo.xyz)",
+    "0xSmartCrypto <0xsmartcrypto@gmail.com> (https://twitter.com/0xSmartCrypto)"
   ],
   "dependencies": {
     "axios": "^0.21.0",
