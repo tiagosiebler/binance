@@ -181,8 +181,6 @@ walletType?: string;
 validTime?: string;
 }
 
-
-
 export interface EnableConvertSubAccountParams {
     subAccountId: string;
     convert: boolean;
@@ -190,6 +188,17 @@ export interface EnableConvertSubAccountParams {
 
 export interface AcceptQuoteRequestParams {
     quoteId: string;
+}
+
+export interface GetOrderStatusParams {
+    orderId?: string;
+    quoteId?: string;
+}
+
+export interface GetConvertTradeHistoryParams {
+    startTime: number;
+    endTime?: number;
+    limit?: string
 }
 
 export interface TransferBrokerSubAccount {
