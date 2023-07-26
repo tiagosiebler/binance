@@ -181,8 +181,8 @@ import {
   GetLoanCoinPaginatedHistoryParams,
   SubAccountDepositHistoryList,
   ConvertQuoteRequestParams,
-  getConvertTradeHistoryParams,
-  getOrderStatusParams,
+  GetConvertTradeHistoryParams,
+  GetOrderStatusParams,
   EnableConvertSubAccountParams,
   AcceptQuoteRequestParams,
 } from './types/spot';
@@ -334,13 +334,13 @@ export class MainClient extends BaseRestClient {
   }
 
   getOrderStatus(
-    params: getOrderStatusParams
+    params: GetOrderStatusParams
   ):Promise<any>; {
     return this.getPrivate('sapi/v1/convert/orderStatus', params);
   }
 
   getConvertTradeHistory(
-    params: getConvertTradeHistoryParams,
+    params: GetConvertTradeHistoryParams,
   ):Promise<any>; {
     return this.getPrivate('sapi/v1/convert/tradeFlow', params);
   }
