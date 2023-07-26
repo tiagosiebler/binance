@@ -180,6 +180,11 @@ import {
   FutureAccountTransfer,
   GetLoanCoinPaginatedHistoryParams,
   SubAccountDepositHistoryList,
+  ConvertQuoteRequestParams,
+  getConvertTradeHistoryParams,
+  getOrderStatusParams,
+  EnableConvertSubAccountParams,
+  AcceptQuoteRequestParams,
 } from './types/spot';
 
 import {
@@ -310,17 +315,34 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/account/apiRestrictions');
   }
 
-  convertQuoteRequest(
-    params: ) {
-    return this.postPrivate('sapi/v1/convert/getQuote', params);
-  }
   acceptQuoteRequest(
-    params: ) {
+    params: EnableConvertSubAccountParams,
+  ): Promise<any>; {
     return this.postPrivate('sapi/v1/convert/acceptQuote', params);
   }
+
   enableConvertSubAccount(
-    params: ) {
+    params: AcceptQuoteRequestParams
+  ): Promise<any>; {
     return this.postPrivate('sapi/v1/broker/subAccount/convert', params);
+  }
+
+  convertQuoteRequest(
+    params: ConvertQuoteRequestParams,
+  ): Promise<any>; {
+    return this.postPrivate('sapi/v1/convert/getQuote', params);
+  }
+
+  getOrderStatus(
+    params: getOrderStatusParams
+  ):Promise<any>; {
+    return this.getPrivate('sapi/v1/convert/orderStatus', params);
+  }
+
+  getConvertTradeHistory(
+    params: getConvertTradeHistoryParams,
+  ):Promise<any>; {
+    return this.getPrivate('sapi/v1/convert/tradeFlow', params);
   }
 
   /**
