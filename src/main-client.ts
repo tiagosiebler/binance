@@ -310,6 +310,19 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/account/apiRestrictions');
   }
 
+  convertQuoteRequest(
+    params: ) {
+    return this.postPrivate('sapi/v1/convert/getQuote', params);
+  }
+  acceptQuoteRequest(
+    params: ) {
+    return this.postPrivate('sapi/v1/convert/acceptQuote', params);
+  }
+  enableConvertSubAccount(
+    params: ) {
+    return this.postPrivate('sapi/v1/broker/subAccount/convert', params);
+  }
+
   /**
    *
    * Sub-Account Endpoints
