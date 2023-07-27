@@ -334,14 +334,14 @@ export class MainClient extends BaseRestClient {
   }
 
   getOrderStatus(
-    params: GetOrderStatusParams
-  ):Promise<any>; {
+    params: GetOrderStatusParams,
+  ): Promise<any>; {
     return this.getPrivate('sapi/v1/convert/orderStatus', params);
   }
 
   getConvertTradeHistory(
     params: GetConvertTradeHistoryParams,
-  ):Promise<any>; {
+  ): Promise<any>; {
     return this.getPrivate('sapi/v1/convert/tradeFlow', params);
   }
 
