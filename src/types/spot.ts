@@ -173,32 +173,32 @@ export interface TransferBrokerSubAccountParams {
 }
 
 export interface ConvertQuoteRequestParams {
-fromAsset: string;
-toAsset: string;
-fromAmount?: number;
-toAmount?: number;
-walletType?: string;
-validTime?: string;
+  fromAsset: string;
+  toAsset: string;
+  fromAmount?: number;
+  toAmount?: number;
+  walletType?: string;
+  validTime?: string;
 }
 
 export interface EnableConvertSubAccountParams {
-    subAccountId: string;
-    convert: boolean;
+  subAccountId: string;
+  convert: boolean;
 }
 
 export interface AcceptQuoteRequestParams {
-    quoteId: string;
+  quoteId: string;
 }
 
 export interface GetOrderStatusParams {
-    orderId?: string;
-    quoteId?: string;
+  orderId?: string;
+  quoteId?: string;
 }
 
 export interface GetConvertTradeHistoryParams {
-    startTime: number;
-    endTime?: number;
-    limit?: string
+  startTime: number;
+  endTime?: number;
+  limit?: string;
 }
 
 export interface TransferBrokerSubAccount {
@@ -492,8 +492,17 @@ export interface SymbolExchangeInfo {
   isMarginTradingAllowed: boolean;
   filters: SymbolFilter[];
   permissions: ('SPOT' | 'MARGIN')[];
-  defaultSelfTradePreventionMode: 'NONE' | 'EXPIRE_TAKER' | 'EXPIRE_BOTH' | 'EXPIRE_MAKER'
-  allowedSelfTradePreventionModes: ('NONE' | 'EXPIRE_TAKER' | 'EXPIRE_BOTH' | 'EXPIRE_MAKER')[];
+  defaultSelfTradePreventionMode:
+    | 'NONE'
+    | 'EXPIRE_TAKER'
+    | 'EXPIRE_BOTH'
+    | 'EXPIRE_MAKER';
+  allowedSelfTradePreventionModes: (
+    | 'NONE'
+    | 'EXPIRE_TAKER'
+    | 'EXPIRE_BOTH'
+    | 'EXPIRE_MAKER'
+  )[];
 }
 
 export interface ExchangeInfo {
