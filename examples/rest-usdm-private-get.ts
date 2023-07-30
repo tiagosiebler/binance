@@ -24,7 +24,7 @@ const client = new USDMClient({
     });
     console.log(
       'btcNotionalBrackets: ',
-      JSON.stringify(btcNotionalBrackets, null, 2)
+      JSON.stringify(btcNotionalBrackets, null, 2),
     );
   } catch (e) {
     console.error('request failed: ', e);

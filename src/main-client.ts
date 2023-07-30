@@ -315,33 +315,23 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/account/apiRestrictions');
   }
 
-  acceptQuoteRequest(
-    params: EnableConvertSubAccountParams,
-  ): Promise<any> {
+  acceptQuoteRequest(params: EnableConvertSubAccountParams): Promise<any> {
     return this.postPrivate('sapi/v1/convert/acceptQuote', params);
   }
 
-  enableConvertSubAccount(
-    params: AcceptQuoteRequestParams
-  ): Promise<any> {
+  enableConvertSubAccount(params: AcceptQuoteRequestParams): Promise<any> {
     return this.postPrivate('sapi/v1/broker/subAccount/convert', params);
   }
 
-  convertQuoteRequest(
-    params: ConvertQuoteRequestParams,
-  ): Promise<any> {
+  convertQuoteRequest(params: ConvertQuoteRequestParams): Promise<any> {
     return this.postPrivate('sapi/v1/convert/getQuote', params);
   }
 
-  getOrderStatus(
-    params: GetOrderStatusParams,
-  ): Promise<any> {
+  getOrderStatus(params: GetOrderStatusParams): Promise<any> {
     return this.getPrivate('sapi/v1/convert/orderStatus', params);
   }
 
-  getConvertTradeHistory(
-    params: GetConvertTradeHistoryParams,
-  ): Promise<any> {
+  getConvertTradeHistory(params: GetConvertTradeHistoryParams): Promise<any> {
     return this.getPrivate('sapi/v1/convert/tradeFlow', params);
   }
 
