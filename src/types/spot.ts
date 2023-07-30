@@ -172,6 +172,35 @@ export interface TransferBrokerSubAccountParams {
   amount: number;
 }
 
+export interface ConvertQuoteRequestParams {
+fromAsset: string;
+toAsset: string;
+fromAmount?: number;
+toAmount?: number;
+walletType?: string;
+validTime?: string;
+}
+
+export interface EnableConvertSubAccountParams {
+    subAccountId: string;
+    convert: boolean;
+}
+
+export interface AcceptQuoteRequestParams {
+    quoteId: string;
+}
+
+export interface GetOrderStatusParams {
+    orderId?: string;
+    quoteId?: string;
+}
+
+export interface GetConvertTradeHistoryParams {
+    startTime: number;
+    endTime?: number;
+    limit?: string
+}
+
 export interface TransferBrokerSubAccount {
   txnId: numberInString;
 }
