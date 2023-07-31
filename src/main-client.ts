@@ -315,11 +315,11 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/account/apiRestrictions');
   }
 
-  acceptQuoteRequest(params: EnableConvertSubAccountParams): Promise<any> {
+  acceptQuoteRequest(params: AcceptQuoteRequestParams): Promise<any> {
     return this.postPrivate('sapi/v1/convert/acceptQuote', params);
   }
 
-  enableConvertSubAccount(params: AcceptQuoteRequestParams): Promise<any> {
+  enableConvertSubAccount(params: EnableConvertSubAccountParams): Promise<any> {
     return this.postPrivate('sapi/v1/broker/subAccount/convert', params);
   }
 
