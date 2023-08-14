@@ -64,6 +64,7 @@ import {
   SetCancelTimeoutResult,
   ChangeStats24hr,
   MarkPrice,
+  HistoricOpenInterest,
 } from './types/futures';
 
 import {
@@ -208,7 +209,9 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/openInterest', params);
   }
 
-  getOpenInterestStatistics(params: FuturesDataPaginatedParams): Promise<any> {
+  getOpenInterestStatistics(
+    params: FuturesDataPaginatedParams,
+  ): Promise<HistoricOpenInterest[]> {
     return this.get('futures/data/openInterestHist', params);
   }
 

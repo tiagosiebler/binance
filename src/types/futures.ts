@@ -375,6 +375,13 @@ export interface OpenInterest {
   time: number;
 }
 
+export interface HistoricOpenInterest {
+  symbol: string;
+  sumOpenInterest: string;
+  sumOpenInterestValue: string;
+  timestamp: number;
+}
+
 export interface PositionModeParams {
   dualSidePosition: DualSideMode;
 }
