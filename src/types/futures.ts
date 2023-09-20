@@ -638,10 +638,11 @@ export interface FuturesPosition {
 
 export interface FuturesPositionTrade {
   buyer: boolean;
-  commision: numberInString;
-  commisionAsset: string;
+  commission: numberInString;
+  commissionAsset: string;
   id: number;
   maker: boolean;
+  marginAsset: string;
   orderId: number;
   price: numberInString;
   qty: numberInString;
