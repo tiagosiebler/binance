@@ -525,15 +525,15 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  public close(wsKey: WsKey, willReconnect?: boolean) {
+  public close(wsKey: WsKey, autoReconnectAfterClose?: boolean) {
     this.logger.info('Closing connection', {
       ...loggerCategory,
       wsKey,
-      willReconnect,
+      willReconnect: autoReconnectAfterClose,
     });
     this.setWsState(
       wsKey,
-      willReconnect
+      autoReconnectAfterClose
         ? WsConnectionStateEnum.RECONNECTING
         : WsConnectionStateEnum.CLOSING,
     );
@@ -549,22 +549,22 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  public closeAll(willReconnect?: boolean) {
+  public closeAll(autoReconnectAfterClose?: boolean) {
     const keys = this.wsStore.getKeys();
     this.logger.info(`Closing all ws connections: ${keys}`);
     keys.forEach((key) => {
-      this.close(key, willReconnect);
+      this.close(key, autoReconnectAfterClose);
     });
   }
 
-  public closeWs(ws: WebSocket, willReconnect?: boolean) {
-    const wsKey = this.wsUrlKeyMap[ws.url];
+  public closeWs(ws: WebSocket, autoReconnectAfterClose?: boolean) {
+    const wsKey = this.wsUrlKeyMap[ws.url] || ws?.wsKey;
     if (!wsKey) {
       throw new Error(
         `Cannot close websocket as it has no known wsKey attached.`,
       );
     }
-    return this.close(wsKey, willReconnect);
+    return this.close(wsKey, autoReconnectAfterClose);
   }
 
   private parseWsError(
