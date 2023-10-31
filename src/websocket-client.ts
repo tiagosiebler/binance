@@ -549,11 +549,11 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  public closeAll(force?: boolean) {
+  public closeAll(willReconnect?: boolean) {
     const keys = this.wsStore.getKeys();
     this.logger.info(`Closing all ws connections: ${keys}`);
     keys.forEach((key) => {
-      this.close(key, force);
+      this.close(key, willReconnect);
     });
   }
 
