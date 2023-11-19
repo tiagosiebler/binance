@@ -1135,6 +1135,23 @@ export class WebsocketClient extends EventEmitter {
    * --------------------------
    **/
 
+  /** 
+   * Subscribe to a universal market websocket stream
+   */
+
+  public subscribeEndpoint(
+    endpoint: string,
+    market: 'spot' | 'usdm' | 'coinm',
+    forceNewConnection?: boolean,
+  ): WebSocket {
+    const wsKey = getWsKeyWithContext(market, endpoint);
+    return this.connectToWsUrl(
+      this.getWsBaseUrl(market, wsKey) + `/ws/${endpoint}`,
+      wsKey,
+      forceNewConnection,
+    );
+  }
+
   /**
    * Subscribe to aggregate trades for a symbol in a market category
    */
