@@ -8,6 +8,7 @@ import {
   WsMessageFuturesUserDataAccountConfigUpdateEventRaw,
   WsMessageFuturesUserDataAccountUpdateFormatted,
   WsMessageFuturesUserDataAccountUpdateRaw,
+  WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted,
   WsMessageFuturesUserDataEventFormatted,
   WsMessageFuturesUserDataListenKeyExpiredFormatted,
   WsMessageFuturesUserDataMarginCallFormatted,
@@ -190,6 +191,15 @@ export function isWsFormattedFuturesUserDataTradeUpdateEvent(
   return (
     isWsFormattedFuturesUserDataEvent(data) &&
     data.eventType === 'ORDER_TRADE_UPDATE'
+  );
+}
+
+export function isWsFormattedFuturesUserDataCondOrderTriggerRejectEvent(
+  data: WsFormattedMessage,
+): data is WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted {
+  return (
+    isWsFormattedFuturesUserDataEvent(data) &&
+    data.eventType === 'CONDITIONAL_ORDER_TRIGGER_REJECT'
   );
 }
 

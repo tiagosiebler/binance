@@ -413,6 +413,7 @@ export class WebsocketClient extends EventEmitter {
                 'ACCOUNT_UPDATE',
                 'MARGIN_CALL',
                 'ORDER_TRADE_UPDATE',
+                'CONDITIONAL_ORDER_TRIGGER_REJECT'
               ].includes(eventType)
             ) {
               this.emit('formattedUserDataMessage', beautifiedMessage);
@@ -1134,6 +1135,23 @@ export class WebsocketClient extends EventEmitter {
    * Universal market websocket streams (may apply to one or more API markets)
    * --------------------------
    **/
+
+  /** 
+   * Subscribe to a universal market websocket stream
+   */
+
+  public subscribeEndpoint(
+    endpoint: string,
+    market: 'spot' | 'usdm' | 'coinm',
+    forceNewConnection?: boolean,
+  ): WebSocket {
+    const wsKey = getWsKeyWithContext(market, endpoint);
+    return this.connectToWsUrl(
+      this.getWsBaseUrl(market, wsKey) + `/ws/${endpoint}`,
+      wsKey,
+      forceNewConnection,
+    );
+  }
 
   /**
    * Subscribe to aggregate trades for a symbol in a market category

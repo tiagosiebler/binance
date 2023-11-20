@@ -48,7 +48,8 @@ export type WsMessageFuturesUserDataEventRaw =
   | WsMessageFuturesUserDataListenKeyExpiredRaw
   | WsMessageFuturesUserDataMarginCallRaw
   | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
-  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw;
+  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
+  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw;
 
 // TODO: consistent across USDM vs COINM?
 export type WsMessageFuturesUserDataEventFormatted =
@@ -56,7 +57,8 @@ export type WsMessageFuturesUserDataEventFormatted =
   | WsMessageFuturesUserDataListenKeyExpiredFormatted
   | WsMessageFuturesUserDataMarginCallFormatted
   | WsMessageFuturesUserDataTradeUpdateEventFormatted
-  | WsMessageFuturesUserDataAccountConfigUpdateEventFormatted;
+  | WsMessageFuturesUserDataAccountConfigUpdateEventFormatted
+  | WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted;
 
 export type WsRawMessage =
   | WsMessageKlineRaw
@@ -75,7 +77,8 @@ export type WsRawMessage =
   | WsMessageFuturesUserDataListenKeyExpiredRaw
   | WsMessageFuturesUserDataMarginCallRaw
   | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
-  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw;
+  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
+  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw;
 
 export type WsFormattedMessage =
   | WsUserDataEvents
@@ -679,6 +682,30 @@ export interface WsMessageFuturesUserDataAccountUpdateFormatted
     updatedBalances: WsAccountUpdatedBalance[];
     updatedPositions: WsUpdatedPosition[];
   };
+}
+
+export interface WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw
+  extends WsSharedBase {
+  e: 'CONDITIONAL_ORDER_TRIGGER_REJECT';
+  E: number;
+  T: number;
+  or: {
+    s: string;
+    i: number;
+    r: string;
+  }
+}
+
+export interface WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted
+  extends WsSharedBase {
+  eventType: 'CONDITIONAL_ORDER_TRIGGER_REJECT';
+  eventTime: number;
+  transactionTime: number;
+  order: {
+    symbol: string;
+    orderId: number;
+    reason: string;
+  }
 }
 
 export interface WsMessageFuturesUserDataOrderTradeUpdateEventRaw

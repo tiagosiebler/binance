@@ -220,6 +220,15 @@ export const BEAUTIFIER_EVENT_MAP = {
     T: 'transactionTime',
     o: 'order',
   },
+  CONDITIONAL_ORDER_TRIGGER_REJECTEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    T: 'transactionTime',
+    or: 'order',
+    s: 'symbol',
+    i: 'orderId',
+    r: 'reason',
+  },
   order: {
     s: 'symbol',
     c: 'clientOrderId',
