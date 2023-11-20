@@ -305,6 +305,7 @@ export interface FuturesSymbolExchangeInfo {
   timeInForce: OrderTimeInForce[];
   liquidationFee: numberInString;
   marketTakeBound: numberInString;
+  contractSize?:number;
 }
 
 export interface FuturesExchangeInfo {
