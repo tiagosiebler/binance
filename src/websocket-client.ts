@@ -413,6 +413,7 @@ export class WebsocketClient extends EventEmitter {
                 'ACCOUNT_UPDATE',
                 'MARGIN_CALL',
                 'ORDER_TRADE_UPDATE',
+                'CONDITIONAL_ORDER_TRIGGER_REJECT'
               ].includes(eventType)
             ) {
               this.emit('formattedUserDataMessage', beautifiedMessage);
