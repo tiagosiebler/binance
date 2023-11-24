@@ -610,7 +610,7 @@ export interface FuturesAccountInformation {
 }
 
 export interface FuturesCoinMAccountInformation {
-  assets: Omit<FuturesAccountAsset, 'marginAvailable' | 'updateTime'>[];
+  assets: Omit<FuturesAccountAsset, 'marginAvailable'>[];
   positions: FuturesCoinMAccountPosition[];
   canTrade: boolean;
   canDeposit: boolean;
@@ -689,6 +689,12 @@ export interface SymbolLeverageBracket {
 export interface SymbolLeverageBracketsResult {
   symbol: string;
   brackets: SymbolLeverageBracket[];
+}
+
+export interface UserCommissionRate {
+  symbol: string;
+  makerCommissionRate: numberInString;
+  takerCommissionRate: numberInString;
 }
 
 export interface RebateDataOverview {
