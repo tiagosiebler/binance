@@ -382,7 +382,7 @@ export class USDMClient extends BaseRestClient {
   }
 
   getAccountTrades(
-    params: SymbolFromPaginatedRequestFromId,
+    params: SymbolFromPaginatedRequestFromId & { orderId?: number },
   ): Promise<FuturesPositionTrade[]> {
     return this.getPrivate('fapi/v1/userTrades', params);
   }

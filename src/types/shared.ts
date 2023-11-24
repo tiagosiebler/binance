@@ -225,7 +225,6 @@ export interface NewOCOParams {
 
 export interface SymbolFromPaginatedRequestFromId {
   symbol: string;
-  orderId?: number;
   fromId?: number;
   startTime?: number;
   endTime?: number;
