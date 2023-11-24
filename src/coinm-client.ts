@@ -71,6 +71,7 @@ import {
   OrderAmendment,
   FuturesCoinMAccountBalance,
   FuturesCoinMAccountInformation,
+  UserCommissionRate,
 } from './types/futures';
 
 import {
@@ -426,7 +427,7 @@ export class CoinMClient extends BaseRestClient {
 
   getAccountComissionRate(
     params: BasicSymbolParam,
-  ): Promise<RebateDataOverview> {
+  ): Promise<UserCommissionRate> {
     return this.getPrivate('dapi/v1/commissionRate', params);
   }
 

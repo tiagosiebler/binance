@@ -65,6 +65,7 @@ import {
   ChangeStats24hr,
   MarkPrice,
   HistoricOpenInterest,
+  UserCommissionRate,
 } from './types/futures';
 
 import {
@@ -415,7 +416,7 @@ export class USDMClient extends BaseRestClient {
 
   getAccountComissionRate(
     params: BasicSymbolParam,
-  ): Promise<RebateDataOverview> {
+  ): Promise<UserCommissionRate> {
     return this.getPrivate('fapi/v1/commissionRate', params);
   }
 
