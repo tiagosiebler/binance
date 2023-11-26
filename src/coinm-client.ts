@@ -399,7 +399,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   getAccountTrades(
-    params: CoinMAccountTradeParams,
+    params: CoinMAccountTradeParams & { orderId?: number },
   ): Promise<CoinMPositionTrade[]> {
     return this.getPrivate('dapi/v1/userTrades', params);
   }
