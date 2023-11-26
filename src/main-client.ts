@@ -845,7 +845,7 @@ export class MainClient extends BaseRestClient {
   }
 
   getAccountTradeList(
-    params: SymbolFromPaginatedRequestFromId,
+    params: SymbolFromPaginatedRequestFromId & { orderId?: number },
   ): Promise<RawAccountTrade[]> {
     return this.getPrivate('api/v3/myTrades', params);
   }
