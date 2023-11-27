@@ -44,6 +44,9 @@ export interface RestClientOptions {
 
   // Default: false, if true will try to resolve known strings containing numbers to "number" type
   beautifyResponses?: boolean;
+
+  //Defailt: false, if true will try to filter off undefined values from request params
+  filterUndefinedParams?: boolean;
 }
 
 export type GenericAPIResponse<T = any> = Promise<T>;
@@ -81,19 +84,23 @@ export function serialiseParams(
   params: object = {},
   strict_validation = false,
   encodeValues: boolean = false,
+  filterUndefinedParams: boolean = false,
 ): string {
-  return Object.keys(params)
-    .map((key) => {
-      const value = params[key];
-      if (strict_validation === true && typeof value === 'undefined') {
-        throw new Error(
-          'Failed to sign API request due to undefined parameter',
-        );
-      }
-      const encodedValue = encodeValues ? encodeURIComponent(value) : value;
-      return `${key}=${encodedValue}`;
-    })
-    .join('&');
+  const paramKeys = !filterUndefinedParams 
+    ? Object.keys(params) 
+    : Object.keys(params).filter(key => typeof params[key] !== 'undefined');
+  
+  return paramKeys.map((key) => {
+    const value = params[key];
+    if (strict_validation === true && typeof value === 'undefined') {
+      throw new Error(
+        'Failed to sign API request due to undefined parameter',
+      );
+    }
+    const encodedValue = encodeValues ? encodeURIComponent(value) : value;
+    return `${key}=${encodedValue}`;
+  })
+  .join('&');
 }
 
 export interface SignedRequestState {
@@ -113,6 +120,7 @@ export async function getRequestSignature(
   recvWindow?: number,
   timestamp?: number,
   strictParamValidation?: boolean,
+  filterUndefinedParams?: boolean,
 ): Promise<SignedRequestState> {
   // Optional, set to 5000 by default. Increase if timestamp/recvWindow errors are seen.
   const requestRecvWindow = data?.recvWindow ?? recvWindow ?? 5000;
@@ -127,6 +135,7 @@ export async function getRequestSignature(
       requestParams,
       strictParamValidation,
       true,
+      filterUndefinedParams,
     );
     const signature = await signMessage(serialisedParams, secret);
     requestParams.signature = signature;

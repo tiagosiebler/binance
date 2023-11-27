@@ -191,6 +191,7 @@ export default abstract class BaseRestClient {
         this.options.recvWindow,
         timestamp,
         this.options.strictParamValidation,
+        this.options.filterUndefinedParams,
       );
 
     const baseUrl = baseUrlOverride || this.baseUrl;
