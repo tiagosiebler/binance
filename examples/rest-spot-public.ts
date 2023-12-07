@@ -29,7 +29,7 @@ const client = new MainClient({
     });
     console.log('getTickers many', manyTickers);
     const allTickers = await client.get24hrChangeStatististics();
-    console.log('getTickers all');
+    console.log('getTickers all', allTickers);
   } catch (e) {
     console.error('request failed: ', e);
   }

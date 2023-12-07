@@ -765,22 +765,17 @@ export class MainClient extends BaseRestClient {
     params?: Partial<BasicSymbolParam> | Partial<SymbolArrayParam>,
   ): Promise<DailyChangeStatistic | DailyChangeStatistic[]> {
     if (params && typeof params['symbol'] === 'string') {
-      return this.get(
-        'api/v3/ticker/24hr',
-        params,
-      ) as Promise<DailyChangeStatistic>;
+      return this.get('api/v3/ticker/24hr', params);
     }
 
     if (params && params['symbols'] && Array.isArray(params['symbols'])) {
       const symbols = (params as SymbolArrayParam).symbols;
       const symbolsQueryParam = JSON.stringify(symbols);
 
-      return this.get(
-        'api/v3/ticker/24hr?symbols=' + symbolsQueryParam,
-      ) as Promise<DailyChangeStatistic[]>;
+      return this.get('api/v3/ticker/24hr?symbols=' + symbolsQueryParam);
     }
 
-    return this.get('api/v3/ticker/24hr') as Promise<DailyChangeStatistic[]>;
+    return this.get('api/v3/ticker/24hr');
   }
 
   getSymbolPriceTicker(
