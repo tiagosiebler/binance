@@ -20,6 +20,7 @@ import {
   SymbolPrice,
   RowsWithTotal,
   CoinStartEndLimit,
+  SymbolArrayParam,
 } from './types/shared';
 
 import {
@@ -753,15 +754,28 @@ export class MainClient extends BaseRestClient {
   }
 
   get24hrChangeStatististics(
-    params?: Partial<BasicSymbolParam>,
+    params: BasicSymbolParam,
+  ): Promise<DailyChangeStatistic>;
+
+  get24hrChangeStatististics(
+    params?: SymbolArrayParam,
+  ): Promise<DailyChangeStatistic[]>;
+
+  get24hrChangeStatististics(
+    params?: Partial<BasicSymbolParam> | Partial<SymbolArrayParam>,
   ): Promise<DailyChangeStatistic | DailyChangeStatistic[]> {
-    if (!params?.symbol) {
-      return this.get('api/v3/ticker/24hr') as Promise<DailyChangeStatistic[]>;
+    if (params && typeof params['symbol'] === 'string') {
+      return this.get('api/v3/ticker/24hr', params);
     }
-    return this.get(
-      'api/v3/ticker/24hr',
-      params,
-    ) as Promise<DailyChangeStatistic>;
+
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const symbols = (params as SymbolArrayParam).symbols;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get('api/v3/ticker/24hr?symbols=' + symbolsQueryParam);
+    }
+
+    return this.get('api/v3/ticker/24hr');
   }
 
   getSymbolPriceTicker(
