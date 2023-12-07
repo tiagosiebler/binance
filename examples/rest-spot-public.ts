@@ -10,8 +10,26 @@ const client = new MainClient({
 
 (async () => {
   try {
-    console.log('getAvgPrice: ', await client.getAvgPrice({ symbol: 'BTCUSDT' }));
-    console.log('getExchangeInfo: ', JSON.stringify(await client.getExchangeInfo(), null, 2));
+    // console.log(
+    //   'getAvgPrice: ',
+    //   await client.getAvgPrice({ symbol: 'BTCUSDT' }),
+    // );
+    // console.log(
+    //   'getExchangeInfo: ',
+    //   JSON.stringify(await client.getExchangeInfo(), null, 2),
+    // );
+
+    const oneTicker = await client.get24hrChangeStatististics({
+      symbol: 'BTCUSDT',
+    });
+    console.log('getTickers', oneTicker);
+
+    const manyTickers = await client.get24hrChangeStatististics({
+      symbols: ['BTCUSDT', 'ETHUSDT'],
+    });
+    console.log('getTickers many', manyTickers);
+    const allTickers = await client.get24hrChangeStatististics();
+    console.log('getTickers all');
   } catch (e) {
     console.error('request failed: ', e);
   }

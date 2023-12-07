@@ -84,6 +84,10 @@ export interface BasicSymbolParam {
   isIsolated?: StringBoolean;
 }
 
+export interface SymbolArrayParam {
+  symbols: string[];
+}
+
 export interface BasicAssetPaginatedParams {
   asset?: string;
   startTime?: number;
