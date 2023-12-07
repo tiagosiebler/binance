@@ -272,7 +272,7 @@ export class USDMClient extends BaseRestClient {
 
   submitNewOrder(
     params: NewFuturesOrderParams,
-  ): Promise<NewOrderResult | NewOrderError> {
+  ): Promise<NewOrderResult> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('fapi/v1/order', params);
   }
