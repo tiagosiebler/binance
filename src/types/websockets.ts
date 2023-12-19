@@ -71,6 +71,7 @@ export type WsRawMessage =
   | WsMessageRollingWindowTickerRaw[]
   | WsMessageBookTickerEventRaw
   | WsMessagePartialBookDepthEventRaw
+  | WsMessageForceOrderRaw
   | WsRawSpotUserDataEventRaw
   | WsMessageIndexPriceUpdateEventRaw
   | WsMessageFuturesUserDataAccountUpdateRaw
@@ -864,4 +865,22 @@ export interface WsMessageForceOrderFormatted extends WsSharedBase {
   eventType: 'forceOrder';
   eventTime: number;
   liquidationOrder: WsLiquidationOrderFormatted;
+}
+
+export interface WsMessageForceOrderRaw extends WsSharedBase {
+  e: 'forceOrder';
+  E: number;
+  o: {
+    s: string;
+    S: string;
+    o: string;
+    f: string;
+    q: string;
+    p: string;
+    ap: string;
+    X: string;
+    l: string;
+    z: string;
+    T: number;
+  };
 }
