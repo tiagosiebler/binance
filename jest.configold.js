@@ -14,6 +14,7 @@ module.exports = {
   testMatch: ['**/test/**/*.test.ts?(x)'],
   testPathIgnorePatterns: ['node_modules/', 'dist/', '.json'],
   testTimeout: 15000,
+  transformIgnorePatterns: [ "node_modules/(?!axios)" ],
   collectCoverageFrom: [
     'src/**/*.ts'
   ],

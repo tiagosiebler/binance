@@ -63,6 +63,9 @@ export default abstract class BaseRestClient {
     this.secret = options.api_secret;
 
     if (this.key) {
+      if (!this.globalRequestOptions.headers) {
+        this.globalRequestOptions.headers = {};
+      }
       this.globalRequestOptions.headers['X-MBX-APIKEY'] = this.key;
     }
 
@@ -259,7 +262,10 @@ export default abstract class BaseRestClient {
   /**
    * @private generic handler to parse request exceptions
    */
-  private parseException(e: AxiosError, url: string): unknown {
+  private parseException(
+    e: AxiosError<{ code: string; msg: string }>,
+    url: string,
+  ): unknown {
     const { response, request, message } = e;
 
     if (response && response.headers) {
