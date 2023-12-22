@@ -340,18 +340,28 @@ export class WebsocketClient extends EventEmitter {
 
   private onWsClose(event: any, wsKey: WsKey, ws: WebSocket, wsUrl: string) {
     const wsConnectionState = this.wsStore.getConnectionState(wsKey);
+    const { market, listenKey, isUserData } = getContextFromWsKey(wsKey);
+
     this.logger.info('Websocket connection closed', {
       ...loggerCategory,
       wsKey,
-      event,
+      eventCloseCode: event?.target?._closeCode,
       wsConnectionState,
+      isUserData,
+      listenKey,
+      market,
     });
 
+    // Clear any timers before we initiate revival
+    this.clearTimers(wsKey);
+
     // User data sockets include the listen key. To prevent accummulation in memory we should clean up old disconnected states
-    const { isUserData } = getContextFromWsKey(wsKey);
     if (isUserData) {
       this.wsStore.delete(wsKey);
-      this.clearUserDataKeepAliveTimer;
+
+      if (listenKey) {
+        this.clearUserDataKeepAliveTimer(listenKey);
+      }
     }
 
     if (wsConnectionState !== WsConnectionStateEnum.CLOSING) {
@@ -413,7 +423,7 @@ export class WebsocketClient extends EventEmitter {
                 'ACCOUNT_UPDATE',
                 'MARGIN_CALL',
                 'ORDER_TRADE_UPDATE',
-                'CONDITIONAL_ORDER_TRIGGER_REJECT'
+                'CONDITIONAL_ORDER_TRIGGER_REJECT',
               ].includes(eventType)
             ) {
               this.emit('formattedUserDataMessage', beautifiedMessage);
@@ -1136,7 +1146,7 @@ export class WebsocketClient extends EventEmitter {
    * --------------------------
    **/
 
-  /** 
+  /**
    * Subscribe to a universal market websocket stream
    */
 
