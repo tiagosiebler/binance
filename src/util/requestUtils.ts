@@ -86,21 +86,22 @@ export function serialiseParams(
   encodeValues: boolean = false,
   filterUndefinedParams: boolean = false,
 ): string {
-  const paramKeys = !filterUndefinedParams 
-    ? Object.keys(params) 
-    : Object.keys(params).filter(key => typeof params[key] !== 'undefined');
-  
-  return paramKeys.map((key) => {
-    const value = params[key];
-    if (strict_validation === true && typeof value === 'undefined') {
-      throw new Error(
-        'Failed to sign API request due to undefined parameter',
-      );
-    }
-    const encodedValue = encodeValues ? encodeURIComponent(value) : value;
-    return `${key}=${encodedValue}`;
-  })
-  .join('&');
+  const paramKeys = !filterUndefinedParams
+    ? Object.keys(params)
+    : Object.keys(params).filter((key) => typeof params[key] !== 'undefined');
+
+  return paramKeys
+    .map((key) => {
+      const value = params[key];
+      if (strict_validation === true && typeof value === 'undefined') {
+        throw new Error(
+          'Failed to sign API request due to undefined parameter',
+        );
+      }
+      const encodedValue = encodeValues ? encodeURIComponent(value) : value;
+      return `${key}=${encodedValue}`;
+    })
+    .join('&');
 }
 
 export interface SignedRequestState {

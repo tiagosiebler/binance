@@ -118,6 +118,7 @@ export declare interface WebsocketClient {
 
 interface ListenKeyPersistenceState {
   keepAliveTimer: ReturnType<typeof setInterval> | undefined;
+  keepAliveRetryTimer: ReturnType<typeof setTimeout> | undefined;
   lastKeepAlive: number;
   market: WsMarket;
   keepAliveFailures: number;
@@ -398,16 +399,17 @@ export class WebsocketClient extends EventEmitter {
           );
 
           // Just closing the connection (with the last parameter as true) will handle cleanup and respawn
-          this.close(wsKey, true);
+          const shouldTriggerReconnect = true;
+          this.close(wsKey, shouldTriggerReconnect);
         }
 
         if (this.options.beautify) {
-          // call beautifier here and emit separate msg, if enabled
           const beautifiedMessage = this.beautifier.beautifyWsMessage(
             msg,
             eventType,
             false,
-          ) as WsFormattedMessage;
+          );
+
           this.emit('formattedMessage', beautifiedMessage);
 
           // emit a separate event for user data messages
@@ -485,7 +487,6 @@ export class WebsocketClient extends EventEmitter {
     this.logger.silly('Received ping, sending pong frame', {
       ...loggerCategory,
       wsKey,
-      event,
       source,
     });
     ws.pong();
@@ -495,7 +496,6 @@ export class WebsocketClient extends EventEmitter {
     this.logger.silly('Received pong, clearing pong timer', {
       ...loggerCategory,
       wsKey,
-      event,
       source,
     });
     this.clearPongTimer(wsKey);
@@ -519,7 +519,7 @@ export class WebsocketClient extends EventEmitter {
     const wasOpen = this.wsStore.isWsOpen(wsKey);
 
     safeTerminateWs(this.getWs(wsKey));
-    delete this.wsStore.get(wsKey, true).activePongTimer;
+
     this.clearPingTimer(wsKey);
     this.clearPongTimer(wsKey);
 
@@ -536,15 +536,15 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  public close(wsKey: WsKey, autoReconnectAfterClose?: boolean) {
+  public close(wsKey: WsKey, shouldReconnectAfterClose?: boolean) {
     this.logger.info('Closing connection', {
       ...loggerCategory,
       wsKey,
-      willReconnect: autoReconnectAfterClose,
+      willReconnect: shouldReconnectAfterClose,
     });
     this.setWsState(
       wsKey,
-      autoReconnectAfterClose
+      shouldReconnectAfterClose
         ? WsConnectionStateEnum.RECONNECTING
         : WsConnectionStateEnum.CLOSING,
     );
@@ -560,22 +560,22 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  public closeAll(autoReconnectAfterClose?: boolean) {
+  public closeAll(shouldReconnectAfterClose?: boolean) {
     const keys = this.wsStore.getKeys();
     this.logger.info(`Closing all ws connections: ${keys}`);
     keys.forEach((key) => {
-      this.close(key, autoReconnectAfterClose);
+      this.close(key, shouldReconnectAfterClose);
     });
   }
 
-  public closeWs(ws: WebSocket, autoReconnectAfterClose?: boolean) {
+  public closeWs(ws: WebSocket, shouldReconnectAfterClose?: boolean) {
     const wsKey = this.wsUrlKeyMap[ws.url] || ws?.wsKey;
     if (!wsKey) {
       throw new Error(
         `Cannot close websocket as it has no known wsKey attached.`,
       );
     }
-    return this.close(wsKey, autoReconnectAfterClose);
+    return this.close(wsKey, shouldReconnectAfterClose);
   }
 
   private parseWsError(
@@ -720,6 +720,13 @@ export class WebsocketClient extends EventEmitter {
         `Clearing old listen key interval timer for ${listenKey}`,
       );
       clearInterval(state.keepAliveTimer);
+    }
+
+    if (state.keepAliveRetryTimer) {
+      this.logger.silly(
+        `Clearing old listen key keepAliveRetry timer for ${listenKey}`,
+      );
+      clearTimeout(state.keepAliveRetryTimer);
     }
   }
 
@@ -880,6 +887,7 @@ export class WebsocketClient extends EventEmitter {
       market,
       lastKeepAlive: 0,
       keepAliveTimer: undefined,
+      keepAliveRetryTimer: undefined,
       keepAliveFailures: 0,
     };
     return this.listenKeyStateStore[listenKey];
@@ -969,6 +977,11 @@ export class WebsocketClient extends EventEmitter {
     const listenKeyState = this.getListenKeyState(listenKey, market);
 
     try {
+      if (listenKeyState.keepAliveRetryTimer) {
+        clearTimeout(listenKeyState.keepAliveRetryTimer);
+        listenKeyState.keepAliveRetryTimer = undefined;
+      }
+
       // Simple way to test keep alive failure handling:
       // throw new Error(`Fake keep alive failure`);
 
@@ -997,10 +1010,12 @@ export class WebsocketClient extends EventEmitter {
           { ...loggerCategory, listenKey, error: e },
         );
 
-        // reconnect follows a less automatic workflow. Kill connection first, with instruction NOT to reconnect automatically
-        this.close(wsKey, false);
+        // reconnect follows a less automatic workflow since this is tied to a listen key (which may need a new one).
+        // Kill connection first, with instruction NOT to reconnect automatically
+        const shouldReconnectAfterClose = false;
+        this.close(wsKey, shouldReconnectAfterClose);
 
-        // respawn a connection with a potentially new listen key (since the old one may be invalid now)
+        // Then respawn a connection with a potentially new listen key (since the old one may be invalid now)
         this.respawnUserDataStream(market, symbol);
 
         return;
@@ -1017,7 +1032,7 @@ export class WebsocketClient extends EventEmitter {
         },
       );
 
-      setTimeout(
+      listenKeyState.keepAliveRetryTimer = setTimeout(
         () =>
           this.checkKeepAliveListenKey(listenKey, market, ws, wsKey, symbol),
         reconnectDelaySeconds,
@@ -1095,7 +1110,7 @@ export class WebsocketClient extends EventEmitter {
         case 'options':
         case 'optionsTestnet':
           throw new Error(
-            'TODO: respawn other user data streams once subscribe methods have been aded',
+            'TODO: respawn other user data streams once subscribe methods have been added',
           );
         default:
           throwUnhandledSwitch(
