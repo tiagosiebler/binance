@@ -1003,6 +1003,28 @@ export class WebsocketClient extends EventEmitter {
     } catch (e) {
       listenKeyState.keepAliveFailures++;
 
+      // code: -1125,
+      // message: 'This listenKey does not exist.',
+      const errorCode = e?.code;
+      if (errorCode === -1125) {
+        this.logger.error(
+          'FATAL: Failed to keep WS alive for listen key - listen key expired/invalid. Respawning with fresh listen key...',
+          {
+            ...loggerCategory,
+            listenKey,
+            error: e,
+            errorCode,
+            errorMsg: e?.message,
+          },
+        );
+
+        const shouldReconnectAfterClose = false;
+        this.close(wsKey, shouldReconnectAfterClose);
+        this.respawnUserDataStream(market, symbol);
+
+        return;
+      }
+
       // If max failurees reached, tear down and respawn if allowed
       if (listenKeyState.keepAliveFailures >= 3) {
         this.logger.error(
@@ -1054,7 +1076,8 @@ export class WebsocketClient extends EventEmitter {
     isTestnet?: boolean,
     respawnAttempt?: number,
   ): Promise<void> {
-    const forceNewConnection = true;
+    // If another connection attempt is in progress for this listen key, don't initiate a retry or the risk is multiple connections on the same listen key
+    const forceNewConnection = false;
     const isReconnecting = true;
     let ws: WebSocket | undefined;
 
@@ -1803,6 +1826,7 @@ export class WebsocketClient extends EventEmitter {
           ? WsConnectionStateEnum.RECONNECTING
           : WsConnectionStateEnum.CONNECTING,
       );
+
       const ws = this.connectToWsUrl(
         this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
         wsKey,
