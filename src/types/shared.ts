@@ -23,7 +23,13 @@ export type BinanceBaseUrlKey =
 /**
  * Time in force. Note: `GTE_GTC` is not officially documented, use at your own risk.
  */
-export type OrderTimeInForce = 'GTC' | 'IOC' | 'FOK' | 'GTE_GTC';
+export type OrderTimeInForce =
+  | 'GTC'
+  | 'IOC'
+  | 'FOK'
+  | 'GTX'
+  | 'GTE_GTC'
+  | 'GTD';
 
 export type StringBoolean = 'TRUE' | 'FALSE';
 

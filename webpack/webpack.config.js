@@ -1,6 +1,5 @@
 const webpack = require('webpack');
 const path = require('path');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 function generateConfig(name) {
   var config = {
@@ -54,12 +53,12 @@ function generateConfig(name) {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
     }),
-    new BundleAnalyzerPlugin({
-      defaultSizes: 'stat',
-      analyzerMode: 'static',
-      reportFilename: '../doc/bundleReport.html',
-      openAnalyzer: false,
-    })
+    // new BundleAnalyzerPlugin({
+    //   defaultSizes: 'stat',
+    //   analyzerMode: 'static',
+    //   reportFilename: '../doc/bundleReport.html',
+    //   openAnalyzer: false,
+    // })
   ];
 
   return config;
