@@ -1558,7 +1558,13 @@ export class WebsocketClient extends EventEmitter {
   }
 
   /**
-   * Subscribe to partial book depths. Note, spot only supports 1000ms or 100ms for updateMs, while futures only support 100, 250 or 500ms.
+   * Subscribe to partial book depths (snapshots).
+   *
+   * Note:
+   * - spot only supports 1000ms or 100ms for updateMs
+   * - futures only support 100, 250 or 500ms for updateMs
+   *
+   * Use getContextFromWsKey(data.wsKey) to extract symbol from events
    */
   public subscribePartialBookDepths(
     symbol: string,
