@@ -694,7 +694,7 @@ export interface WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw
     s: string;
     i: number;
     r: string;
-  }
+  };
 }
 
 export interface WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted
@@ -706,7 +706,7 @@ export interface WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted
     symbol: string;
     orderId: number;
     reason: string;
-  }
+  };
 }
 
 export interface WsMessageFuturesUserDataOrderTradeUpdateEventRaw

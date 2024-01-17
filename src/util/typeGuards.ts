@@ -17,6 +17,7 @@ import {
   WsMessageKlineFormatted,
   WsMessageKlineRaw,
   WsMessageMarkPriceUpdateEventFormatted,
+  WsMessagePartialBookDepthEventFormatted,
   WsMessageRollingWindowTickerFormatted,
   WsMessageRollingWindowTickerRaw,
   WsMessageSpotBalanceUpdateFormatted,
@@ -115,6 +116,12 @@ export function isWsAggTradeFormatted(
   data: WsFormattedMessage,
 ): data is WsMessageAggTradeFormatted {
   return !Array.isArray(data) && data.eventType === 'aggTrade';
+}
+
+export function isWsPartialBookDepthEventFormatted(
+  data: WsFormattedMessage,
+): data is WsMessagePartialBookDepthEventFormatted {
+  return !Array.isArray(data) && data.eventType === 'partialBookDepth';
 }
 
 export function isWsFormattedUserDataEvent(
