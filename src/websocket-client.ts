@@ -299,6 +299,11 @@ export class WebsocketClient extends EventEmitter {
       if (ws.readyState === 1) {
         ws.ping();
         ws.pong();
+      } else {
+        this.logger.silly(
+          `WS ready state not open - refusing to send WS ping`,
+          { ...loggerCategory, wsKey, readyState: ws?.readyState },
+        );
       }
     } catch (e) {
       this.logger.error(`Failed to send WS ping`, {
