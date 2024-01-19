@@ -296,8 +296,15 @@ export class WebsocketClient extends EventEmitter {
       }
 
       // Binance allows unsolicited pongs, so we send both (though we expect a pong in response to our ping if the connection is still alive)
-      ws.ping();
-      ws.pong();
+      if (ws.readyState === 1) {
+        ws.ping();
+        ws.pong();
+      } else {
+        this.logger.silly(
+          `WS ready state not open - refusing to send WS ping`,
+          { ...loggerCategory, wsKey, readyState: ws?.readyState },
+        );
+      }
     } catch (e) {
       this.logger.error(`Failed to send WS ping`, {
         ...loggerCategory,
