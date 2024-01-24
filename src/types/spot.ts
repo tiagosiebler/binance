@@ -1,6 +1,7 @@
 import {
   ExchangeFilter,
   ExchangeSymbol,
+  GenericCodeMsgError,
   numberInString,
   OrderBookRow,
   OrderResponseType,
@@ -420,6 +421,14 @@ export interface NewSpotOrderParams {
   sideEffectType?: SideEffects;
 }
 
+export interface ReplaceSpotOrderParams extends NewSpotOrderParams {
+  cancelReplaceMode: 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
+  cancelNewClientOrderId?: string;
+  cancelOrigClientOrderId?: string;
+  cancelOrderId?: number;
+  cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
+}
+
 export interface GetOCOParams {
   symbol?: string;
   isIsolated?: StringBoolean;
@@ -642,6 +651,46 @@ export interface OrderResponseFull {
   marginBuyBorrowAsset?: string;
   isIsolated?: boolean;
   fills: OrderFill[];
+}
+
+export interface GenericReplaceSpotOrderResult<C,N> {
+  cancelResult: 'SUCCESS' | 'FAILURE';
+  newOrderResult: 'SUCCESS' | 'FAILURE' | 'NOT_ATTEMPTED';
+  cancelResponse: C;
+  newOrderResponse: N;
+}
+
+export interface ReplaceSpotOrderCancelStopFailure extends GenericReplaceSpotOrderResult<GenericCodeMsgError, null> {
+  cancelResult: 'FAILURE';
+  newOrderResult: 'NOT_ATTEMPTED';
+}
+
+export interface ReplaceSpotOrderNewFailure extends GenericReplaceSpotOrderResult<CancelSpotOrderResult, GenericCodeMsgError> {
+  cancelResult: 'SUCCESS';
+  newOrderResult: 'FAILURE';
+}
+
+export interface ReplaceSpotOrderCancelAllowFailure extends GenericReplaceSpotOrderResult<GenericCodeMsgError, OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+  cancelResult: 'FAILURE';
+  newOrderResult: 'SUCCESS';
+}
+
+export interface ReplaceSpotOrderCancelAllFailure extends GenericReplaceSpotOrderResult<GenericCodeMsgError, GenericCodeMsgError> {
+  cancelResult: 'FAILURE';
+  newOrderResult: 'FAILURE';
+}
+
+export interface ReplaceSpotOrderResultError {
+  data: 
+  | ReplaceSpotOrderCancelStopFailure 
+  | ReplaceSpotOrderNewFailure 
+  | ReplaceSpotOrderCancelAllowFailure 
+  | ReplaceSpotOrderCancelAllFailure
+}
+
+export interface ReplaceSpotOrderResultSuccess extends GenericReplaceSpotOrderResult<CancelSpotOrderResult, OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+  cancelResult: 'SUCCESS';
+  newOrderResult: 'SUCCESS';
 }
 
 export interface CancelSpotOrderResult {

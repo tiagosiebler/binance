@@ -66,6 +66,8 @@ import {
   MarkPrice,
   HistoricOpenInterest,
   UserCommissionRate,
+  ModifyFuturesOrderParams,
+  ModifyFuturesOrderResult,
 } from './types/futures';
 
 import {
@@ -277,6 +279,15 @@ export class USDMClient extends BaseRestClient {
     return this.postPrivate('fapi/v1/order', params);
   }
 
+    /**
+   * Order modify function, currently only LIMIT order modification is supported, modified orders will be reordered in the match queue
+   */
+    modifyOrder(
+      params: ModifyFuturesOrderParams,
+    ): Promise<ModifyFuturesOrderResult> {
+      return this.putPrivate('fapi/v1/order', params);
+    }
+    
   /**
    * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
    *

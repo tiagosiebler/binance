@@ -186,6 +186,9 @@ import {
   GetOrderStatusParams,
   EnableConvertSubAccountParams,
   AcceptQuoteRequestParams,
+  ReplaceSpotOrderParams,
+  ReplaceSpotOrderResultError,
+  ReplaceSpotOrderResultSuccess,
 } from './types/spot';
 
 import {
@@ -799,6 +802,12 @@ export class MainClient extends BaseRestClient {
   testNewOrder(params: NewSpotOrderParams): Promise<{}> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('api/v3/order/test', params);
+  }
+
+  replaceOrder(
+    params: ReplaceSpotOrderParams,
+  ): Promise<ReplaceSpotOrderResultSuccess> {
+    return this.postPrivate('api/v3/order/cancelReplace', params);
   }
 
   submitNewOrder(
