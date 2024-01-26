@@ -1153,23 +1153,23 @@ export class MainClient extends BaseRestClient {
   getFlexibleSavingProducts(
     params: FlexibleSavingBasicParams,
   ): Promise<StakingProduct[]> {
-    return this.getPrivate(`sapi/v1/lending/daily/product/list`, params);
+    return this.getPrivate(`sapi/v1/simple-earn/flexible/list`, params);
   }
 
   purchaseFlexibleProduct(
     params: PurchaseFlexibleProductParams,
   ): Promise<PurchaseFlexibleProductResponse> {
-    return this.postPrivate(`sapi/v1/lending/daily/purchase`, params);
+    return this.postPrivate(`sapi/v1/simple-earn/flexible/subscribe`, params);
   }
 
   redeemFlexibleProduct(params: RedeemFlexibleProductParams): Promise<{}> {
-    return this.postPrivate(`sapi/v1/lending/daily/redeem`, params);
+    return this.postPrivate(`sapi/v1/simple-earn/flexible/redeem`, params);
   }
 
   getFlexibleProductPosition(params: {
     asset?: string;
   }): Promise<StakingProduct[]> {
-    return this.getPrivate(`sapi/v1/lending/daily/token/position`, params);
+    return this.getPrivate(`sapi/v1/simple-earn/flexible/position`, params);
   }
 
   getLeftDailyPurchaseQuotaFlexibleProduct(params: {
