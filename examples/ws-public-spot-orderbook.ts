@@ -57,6 +57,9 @@ import {
   wsClient.on('reconnected', (data) => {
     console.log('ws has reconnected ', data?.wsKey);
   });
+  wsClient.on('error', (data) => {
+    console.error(`ws error: `, data?.wsKey, data);
+  });
 
   // Request subscription to the following symbol trade events:
   const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'];
