@@ -782,9 +782,28 @@ export class MainClient extends BaseRestClient {
   }
 
   getSymbolPriceTicker(
-    params?: Partial<BasicSymbolParam>,
+    params: BasicSymbolParam,
+  ): Promise<SymbolPrice>;
+
+  getSymbolPriceTicker(
+    params?: SymbolArrayParam,
+  ): Promise<SymbolPrice[]>;
+
+  getSymbolPriceTicker(
+    params?: Partial<BasicSymbolParam> | Partial<SymbolArrayParam>,
   ): Promise<SymbolPrice | SymbolPrice[]> {
-    return this.get('api/v3/ticker/price', params);
+    if (params && typeof params['symbol'] === 'string') {
+      return this.get('api/v3/ticker/price', params);
+    }
+
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const symbols = (params as SymbolArrayParam).symbols;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get('api/v3/ticker/price?symbols=' + symbolsQueryParam);
+    }
+
+    return this.get('api/v3/ticker/price');
   }
 
   getSymbolOrderBookTicker(
