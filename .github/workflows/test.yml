@@ -1,0 +1,35 @@
+name: 'Build & Test'
+
+on: [push]
+
+jobs:
+  build:
+    name: 'Build & Test'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout source code'
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org/'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm run test
+        env:
+          API_KEY_COM: ${{ secrets.API_KEY_COM }}
+          API_SECRET_COM: ${{ secrets.API_SECRET_COM }}
+          PROXY_ENABLED: ${{ secrets.PROXY_ENABLED }}
+          PROXY_HOST: ${{ secrets.PROXY_HOST }}
+          PROXY_PASS: ${{ secrets.PROXY_PASS }}
+          PROXY_PORT: ${{ secrets.PROXY_PORT }}
+          PROXY_USER: ${{ secrets.PROXY_USER }}
