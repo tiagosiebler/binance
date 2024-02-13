@@ -11,7 +11,7 @@ describe('Private Futures USDM REST API Endpoints', () => {
       api_key: API_KEY,
       api_secret: API_SECRET,
     },
-    { httpsAgent: getTestProxy() },
+    getTestProxy(),
   );
 
   const symbol = 'BTCUSDT';

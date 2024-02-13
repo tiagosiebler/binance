@@ -12,7 +12,7 @@ describe('Staking API Endpoints', () => {
     },
     {
       timeout: 1000 * 60,
-      httpsAgent: getTestProxy(),
+      ...getTestProxy(),
     },
   );
 
