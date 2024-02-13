@@ -7,7 +7,7 @@ import {
 } from '../response.util';
 
 describe('Public Spot REST API Endpoints', () => {
-  const api = new MainClient({}, { httpsAgent: getTestProxy() });
+  const api = new MainClient({}, getTestProxy());
 
   const symbol = 'BTCUSDT';
   const interval = '15m';
