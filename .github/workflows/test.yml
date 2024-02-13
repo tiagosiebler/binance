@@ -30,6 +30,6 @@ jobs:
           API_SECRET_COM: ${{ secrets.API_SECRET_COM }}
           PROXY_ENABLED: ${{ secrets.PROXY_ENABLED }}
           PROXY_HOST: ${{ secrets.PROXY_HOST }}
-          PROXY_PASS: ${{ secrets.PROXY_PASS }}
           PROXY_PORT: ${{ secrets.PROXY_PORT }}
           PROXY_USER: ${{ secrets.PROXY_USER }}
+          PROXY_PASS: ${{ secrets.PROXY_PASS }}
