@@ -1593,11 +1593,16 @@ export class WebsocketClient extends EventEmitter {
   }
 
   /**
-   * Subscribe to spot orderbook depth updates to locally manage an order book.
+   * Subscribe to orderbook depth updates to locally manage an order book.
+   *
+   * Note that the updatems parameter depends on which market you're trading
+   *
+   * - Spot: https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream
+   * - USDM Futures: https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams
    */
   public subscribeDiffBookDepth(
     symbol: string,
-    updateMs: 1000 | 100 = 1000,
+    updateMs: 100 | 250 | 500 | 1000 = 100,
     market: 'spot' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
