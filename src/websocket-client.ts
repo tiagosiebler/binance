@@ -1583,7 +1583,9 @@ export class WebsocketClient extends EventEmitter {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'depth';
     const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    const updateMsSuffx = updateMs === 100 ? `@${updateMs}ms` : '';
+
+    const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
+
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`,
@@ -1599,6 +1601,8 @@ export class WebsocketClient extends EventEmitter {
    *
    * - Spot: https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream
    * - USDM Futures: https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams
+   *
+   * Use getContextFromWsKey(data.wsKey) to extract symbol from events
    */
   public subscribeDiffBookDepth(
     symbol: string,
@@ -1614,7 +1618,9 @@ export class WebsocketClient extends EventEmitter {
       lowerCaseSymbol,
       String(updateMs),
     );
-    const updateMsSuffx = updateMs === 100 ? `@${updateMs}ms` : '';
+
+    const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
+
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}${updateMsSuffx}`,
