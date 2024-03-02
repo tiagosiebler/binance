@@ -32,7 +32,7 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
   margin: 'wss://stream.binance.com:9443',
   isolatedMargin: 'wss://stream.binance.com:9443',
   usdm: 'wss://fstream.binance.com',
-  usdmTestnet: 'wss://stream.binancefuture.com',
+  usdmTestnet: 'wss://fstream.binancefuture.com',
   coinm: 'wss://dstream.binance.com',
   coinmTestnet: 'wss://dstream.binancefuture.com',
   options: 'wss://vstream.binance.com',
