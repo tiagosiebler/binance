@@ -206,8 +206,11 @@ export class MainClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
+    useTestnet?: boolean,
   ) {
-    super('spot1', restClientOptions, requestOptions);
+    const clientId = useTestnet ? 'spottest' : 'spot1';
+
+    super(clientId, restClientOptions, requestOptions);
     return this;
   }
 

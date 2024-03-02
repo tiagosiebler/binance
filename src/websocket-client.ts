@@ -29,6 +29,7 @@ import { CoinMClient } from './coinm-client';
 
 const wsBaseEndpoints: Record<WsMarket, string> = {
   spot: 'wss://stream.binance.com:9443',
+  spotTestnet: 'wss://testnet.binance.vision',
   margin: 'wss://stream.binance.com:9443',
   isolatedMargin: 'wss://stream.binance.com:9443',
   usdm: 'wss://fstream.binance.com',
@@ -753,11 +754,12 @@ export class WebsocketClient extends EventEmitter {
     this.wsStore.setConnectionState(wsKey, state);
   }
 
-  private getSpotRestClient(): MainClient {
+  private getSpotRestClient(isTestnet?: boolean): MainClient {
     if (!this.restClients.spot) {
       this.restClients.spot = new MainClient(
         this.getRestClientOptions(),
         this.options.requestOptions,
+        isTestnet,
       );
     }
     return this.restClients.spot;
@@ -944,6 +946,10 @@ export class WebsocketClient extends EventEmitter {
         return this.getSpotRestClient().keepAliveSpotUserDataListenKey(
           listenKey,
         );
+      case 'spotTestnet':
+        return this.getSpotRestClient(true).keepAliveSpotUserDataListenKey(
+          listenKey,
+        );
       case 'margin':
         return this.getSpotRestClient().keepAliveMarginUserDataListenKey(
           listenKey,
@@ -1096,6 +1102,13 @@ export class WebsocketClient extends EventEmitter {
             isReconnecting,
           );
           break;
+        case 'spotTestnet':
+          ws = await this.subscribeSpotUserDataStream(
+            forceNewConnection,
+            isReconnecting,
+            true,
+          );
+          break;
         case 'margin':
           ws = await this.subscribeMarginUserDataStream(
             forceNewConnection,
@@ -1197,7 +1210,7 @@ export class WebsocketClient extends EventEmitter {
 
   public subscribeEndpoint(
     endpoint: string,
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const wsKey = getWsKeyWithContext(market, endpoint);
@@ -1213,7 +1226,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeAggregateTrades(
     symbol: string,
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
@@ -1232,7 +1245,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeTrades(
     symbol: string,
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
@@ -1311,7 +1324,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeKlines(
     symbol: string,
     interval: KlineInterval,
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
@@ -1411,7 +1424,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeSymbolMini24hrTicker(
     symbol: string,
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
@@ -1428,7 +1441,7 @@ export class WebsocketClient extends EventEmitter {
    * Subscribe to mini 24hr mini ticker in market category.
    */
   public subscribeAllMini24hrTickers(
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'miniTicker';
@@ -1445,7 +1458,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeSymbol24hrTicker(
     symbol: string,
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
@@ -1462,7 +1475,7 @@ export class WebsocketClient extends EventEmitter {
    * Subscribe to 24hr ticker in any market.
    */
   public subscribeAll24hrTickers(
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'ticker';
@@ -1484,7 +1497,7 @@ export class WebsocketClient extends EventEmitter {
    * - Supported markets: spot
    */
   public subscribeAllRollingWindowTickers(
-    market: 'spot',
+    market: 'spot' | 'spotTestnet',
     windowSize: '1h' | '4h' | '1d',
     forceNewConnection?: boolean,
   ): WebSocket {
@@ -1501,7 +1514,7 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeSymbolBookTicker(
     symbol: string,
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
@@ -1518,7 +1531,7 @@ export class WebsocketClient extends EventEmitter {
    * Subscribe to best bid/ask for all symbols in spot markets.
    */
   public subscribeAllBookTickers(
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'bookTicker';
@@ -1577,7 +1590,7 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     levels: 5 | 10 | 20,
     updateMs: 100 | 250 | 500 | 1000,
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
@@ -1607,7 +1620,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeDiffBookDepth(
     symbol: string,
     updateMs: 100 | 250 | 500 | 1000 = 100,
-    market: 'spot' | 'usdm' | 'coinm',
+    market: 'spot' | 'spotTestnet' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
@@ -1641,8 +1654,10 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSpotAggregateTrades(
     symbol: string,
     forceNewConnection?: boolean,
+    isTestnet?: boolean,
   ): WebSocket {
-    return this.subscribeAggregateTrades(symbol, 'spot', forceNewConnection);
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
+    return this.subscribeAggregateTrades(symbol, market, forceNewConnection);
   }
 
   /**
@@ -1651,8 +1666,10 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSpotTrades(
     symbol: string,
     forceNewConnection?: boolean,
+    isTestnet?: boolean,
   ): WebSocket {
-    return this.subscribeTrades(symbol, 'spot', forceNewConnection);
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
+    return this.subscribeTrades(symbol, market, forceNewConnection);
   }
 
   /**
@@ -1662,8 +1679,10 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     interval: KlineInterval,
     forceNewConnection?: boolean,
+    isTestnet?: boolean,
   ): WebSocket {
-    return this.subscribeKlines(symbol, interval, 'spot', forceNewConnection);
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
+    return this.subscribeKlines(symbol, interval, market, forceNewConnection);
   }
 
   /**
@@ -1672,10 +1691,12 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSpotSymbolMini24hrTicker(
     symbol: string,
     forceNewConnection?: boolean,
+    isTestnet?: boolean,
   ): WebSocket {
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
     return this.subscribeSymbolMini24hrTicker(
       symbol,
-      'spot',
+      market,
       forceNewConnection,
     );
   }
@@ -1685,8 +1706,10 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeSpotAllMini24hrTickers(
     forceNewConnection?: boolean,
+    isTestnet?: boolean,
   ): WebSocket {
-    return this.subscribeAllMini24hrTickers('spot', forceNewConnection);
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
+    return this.subscribeAllMini24hrTickers(market, forceNewConnection);
   }
 
   /**
@@ -1695,15 +1718,21 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSpotSymbol24hrTicker(
     symbol: string,
     forceNewConnection?: boolean,
+    isTestnet?: boolean,
   ): WebSocket {
-    return this.subscribeSymbol24hrTicker(symbol, 'spot', forceNewConnection);
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
+    return this.subscribeSymbol24hrTicker(symbol, market, forceNewConnection);
   }
 
   /**
    * Subscribe to 24hr ticker in spot markets.
    */
-  public subscribeSpotAll24hrTickers(forceNewConnection?: boolean): WebSocket {
-    return this.subscribeAll24hrTickers('spot', forceNewConnection);
+  public subscribeSpotAll24hrTickers(
+    forceNewConnection?: boolean,
+    isTestnet?: boolean,
+  ): WebSocket {
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
+    return this.subscribeAll24hrTickers(market, forceNewConnection);
   }
 
   /**
@@ -1712,15 +1741,18 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSpotSymbolBookTicker(
     symbol: string,
     forceNewConnection?: boolean,
+    isTestnet?: boolean,
   ): WebSocket {
-    return this.subscribeSymbolBookTicker(symbol, 'spot', forceNewConnection);
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
+    return this.subscribeSymbolBookTicker(symbol, market, forceNewConnection);
   }
 
   /**
    * Subscribe to best bid/ask for all symbols in spot markets.
    */
-  public subscribeSpotAllBookTickers(forceNewConnection?: boolean): WebSocket {
-    return this.subscribeAllBookTickers('spot', forceNewConnection);
+  public subscribeSpotAllBookTickers(forceNewConnection?: boolean, isTestnet?: boolean): WebSocket {
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
+    return this.subscribeAllBookTickers(market, forceNewConnection);
   }
 
   /**
@@ -1731,12 +1763,13 @@ export class WebsocketClient extends EventEmitter {
     levels: 5 | 10 | 20,
     updateMs: 1000 | 100 = 1000,
     forceNewConnection?: boolean,
+    isTestnet?: boolean,
   ): WebSocket {
     return this.subscribePartialBookDepths(
       symbol,
       levels,
       updateMs,
-      'spot',
+      isTestnet ? 'spotTestnet' : 'spot',
       forceNewConnection,
     );
   }
@@ -1748,11 +1781,12 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     updateMs: 1000 | 100 = 1000,
     forceNewConnection?: boolean,
+    isTestnet?: boolean,
   ): WebSocket {
     return this.subscribeDiffBookDepth(
       symbol,
       updateMs,
-      'spot',
+      isTestnet ? 'spotTestnet' : 'spot',
       forceNewConnection,
     );
   }
@@ -1765,8 +1799,9 @@ export class WebsocketClient extends EventEmitter {
     listenKey: string,
     forceNewConnection?: boolean,
     isReconnecting?: boolean,
+    isTestnet?: boolean,
   ): WebSocket | undefined {
-    const market: WsMarket = 'spot';
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
     const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
 
     if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
@@ -1789,7 +1824,14 @@ export class WebsocketClient extends EventEmitter {
     );
 
     // Start & store timer to keep alive listen key (and handle expiration)
-    this.setKeepAliveListenKeyTimer(listenKey, market, ws, wsKey);
+    this.setKeepAliveListenKeyTimer(
+      listenKey,
+      market,
+      ws,
+      wsKey,
+      undefined,
+      isTestnet,
+    );
 
     return ws;
   }
@@ -1800,21 +1842,25 @@ export class WebsocketClient extends EventEmitter {
   public async subscribeSpotUserDataStream(
     forceNewConnection?: boolean,
     isReconnecting?: boolean,
+    isTestnet?: boolean,
   ): Promise<WebSocket | undefined> {
+    const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
+
     try {
       const { listenKey } =
-        await this.getSpotRestClient().getSpotUserDataListenKey();
+        await this.getSpotRestClient(isTestnet).getSpotUserDataListenKey();
       return this.subscribeSpotUserDataStreamWithListenKey(
         listenKey,
         forceNewConnection,
         isReconnecting,
+        isTestnet,
       );
     } catch (e) {
       this.logger.error(`Failed to connect to spot user data`, {
         ...loggerCategory,
         error: e,
       });
-      this.emit('error', { wsKey: 'spot' + '_' + 'userData', error: e });
+      this.emit('error', { wsKey: market + '_' + 'userData', error: e });
     }
   }
 

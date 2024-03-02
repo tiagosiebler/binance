@@ -9,6 +9,7 @@ export type BooleanStringCapitalised = 'TRUE' | 'FALSE';
 
 export type BinanceBaseUrlKey =
   | 'spot'
+  | 'spottest'
   | 'spot1'
   | 'spot2'
   | 'spot3'
