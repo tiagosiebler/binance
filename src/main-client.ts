@@ -189,6 +189,9 @@ import {
   ReplaceSpotOrderParams,
   ReplaceSpotOrderResultError,
   ReplaceSpotOrderResultSuccess,
+  NewSpotSOROrderParams,
+  SOROrderResponseFull,
+  SORTestOrderResponse,
 } from './types/spot';
 
 import {
@@ -859,10 +862,45 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('api/v3/allOrderList', params);
   }
 
+  /**
+   * Query open OCO
+   */
   getAllOpenOCO(): Promise<any> {
     return this.getPrivate('api/v3/openOrderList');
   }
 
+  /**
+   * Places an order using smart order routing (SOR).
+   */
+  submitNewSOROrder(
+    params: NewSpotSOROrderParams,
+  ): Promise<SOROrderResponseFull> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.postPrivate('api/v3/sor/order', params);
+  }
+
+  /**
+   * Test new order creation and signature/recvWindow using smart order routing (SOR).
+   * Creates and validates a new order but does not send it into the matching engine.
+   */
+  testNewSOROrder(
+    params: NewSpotSOROrderParams & { computeCommissionRates?: boolean },
+  ): Promise<{} | SORTestOrderResponse> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.postPrivate('api/v3/sor/order/test', params);
+  }
+
+  /**
+   *
+   *
+   * Spot Account Endpoints
+   *
+   *
+   */
+
+  /**
+   * Get current account information
+   */
   getAccountInformation(): Promise<AccountInformation> {
     return this.getPrivate('api/v3/account');
   }

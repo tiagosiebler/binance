@@ -436,6 +436,25 @@ export interface GetOCOParams {
   origClientOrderId?: string;
 }
 
+export interface NewSpotSOROrderParams {
+  symbol: string;
+  side: OrderSide;
+  type: OrderType;
+  timeInForce?: OrderTimeInForce;
+  quantity: number;
+  price?: number;
+  newClientOrderId?: string;
+  strategyId?: number;
+  strategyType?: number;
+  icebergQty?: number;
+  newOrderRespType?: OrderResponseType;
+  selfTradePreventionMode?:
+    | 'EXPIRE_TAKER'
+    | 'EXPIRE_MAKER'
+    | 'EXPIRE_BOTH'
+    | 'NONE';
+}
+
 export type APILockTriggerCondition = 'GCR' | 'IFER' | 'UFR';
 
 export interface APITriggerConditionSymbolStatus {
@@ -653,42 +672,97 @@ export interface OrderResponseFull {
   fills: OrderFill[];
 }
 
-export interface GenericReplaceSpotOrderResult<C,N> {
+export interface SOROrderFill {
+  matchType: string;
+  price: numberInString;
+  qty: numberInString;
+  commission: numberInString;
+  commissionAsset: string;
+  tradeId: number;
+  allocId: number;
+}
+
+export type SOROrderResponseFull = OrderResponseFull & {
+  workingTime: number;
+  fills: SOROrderFill[];
+  workingFloor: string;
+  selfTradePreventionMode: string;
+  usedSor: true;
+};
+
+export interface SORTestOrderResponse {
+  standardCommissionForOrder: {
+    //Standard commission rates on trades from the order.
+    maker: numberInString;
+    taker: numberInString;
+  };
+  taxCommissionForOrder: {
+    //Tax commission rates for trades from the order.
+    maker: numberInString;
+    taker: numberInString;
+  };
+  discount: {
+    //Discount on standard commissions when paying in BNB.
+    enabledForAccount: boolean;
+    enabledForSymbol: boolean;
+    discountAsset: string;
+    discount: numberInString; //Standard commission is reduced by this rate when paying commission in BNB.
+  };
+}
+
+export interface GenericReplaceSpotOrderResult<C, N> {
   cancelResult: 'SUCCESS' | 'FAILURE';
   newOrderResult: 'SUCCESS' | 'FAILURE' | 'NOT_ATTEMPTED';
   cancelResponse: C;
   newOrderResponse: N;
 }
 
-export interface ReplaceSpotOrderCancelStopFailure extends GenericReplaceSpotOrderResult<GenericCodeMsgError, null> {
+export interface ReplaceSpotOrderCancelStopFailure
+  extends GenericReplaceSpotOrderResult<GenericCodeMsgError, null> {
   cancelResult: 'FAILURE';
   newOrderResult: 'NOT_ATTEMPTED';
 }
 
-export interface ReplaceSpotOrderNewFailure extends GenericReplaceSpotOrderResult<CancelSpotOrderResult, GenericCodeMsgError> {
+export interface ReplaceSpotOrderNewFailure
+  extends GenericReplaceSpotOrderResult<
+    CancelSpotOrderResult,
+    GenericCodeMsgError
+  > {
   cancelResult: 'SUCCESS';
   newOrderResult: 'FAILURE';
 }
 
-export interface ReplaceSpotOrderCancelAllowFailure extends GenericReplaceSpotOrderResult<GenericCodeMsgError, OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+export interface ReplaceSpotOrderCancelAllowFailure
+  extends GenericReplaceSpotOrderResult<
+    GenericCodeMsgError,
+    OrderResponseACK | OrderResponseResult | OrderResponseFull
+  > {
   cancelResult: 'FAILURE';
   newOrderResult: 'SUCCESS';
 }
 
-export interface ReplaceSpotOrderCancelAllFailure extends GenericReplaceSpotOrderResult<GenericCodeMsgError, GenericCodeMsgError> {
+export interface ReplaceSpotOrderCancelAllFailure
+  extends GenericReplaceSpotOrderResult<
+    GenericCodeMsgError,
+    GenericCodeMsgError
+  > {
   cancelResult: 'FAILURE';
   newOrderResult: 'FAILURE';
 }
 
 export interface ReplaceSpotOrderResultError {
-  data: 
-  | ReplaceSpotOrderCancelStopFailure 
-  | ReplaceSpotOrderNewFailure 
-  | ReplaceSpotOrderCancelAllowFailure 
-  | ReplaceSpotOrderCancelAllFailure
+  data:
+    | ReplaceSpotOrderCancelStopFailure
+    | ReplaceSpotOrderNewFailure
+    | ReplaceSpotOrderCancelAllowFailure
+    | ReplaceSpotOrderCancelAllFailure;
 }
 
-export interface ReplaceSpotOrderResultSuccess extends GenericReplaceSpotOrderResult<CancelSpotOrderResult, OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+export interface ReplaceSpotOrderResultSuccess
+  extends GenericReplaceSpotOrderResult<
+    CancelSpotOrderResult,
+    OrderResponseACK | OrderResponseResult | OrderResponseFull
+  > {
   cancelResult: 'SUCCESS';
   newOrderResult: 'SUCCESS';
 }
