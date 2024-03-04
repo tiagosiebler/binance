@@ -7,7 +7,7 @@ import { USDMClient } from '../../src/usdm-client';
 import { getTestProxy } from '../proxy.util';
 
 describe('Public Futures USDM REST API Endpoints', () => {
-  const api = new USDMClient({}, { httpsAgent: getTestProxy() });
+  const api = new USDMClient({}, getTestProxy());
 
   const symbol = 'BTCUSDT';
   const interval = '15m';

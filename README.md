@@ -1,6 +1,6 @@
 # Node.js & JavaScript SDK for Binance REST APIs & WebSockets
 
-[![Tests](https://circleci.com/gh/tiagosiebler/binance.svg?style=shield)](https://circleci.com/gh/tiagosiebler/binance)
+[![Build & Test](https://github.com/tiagosiebler/binance/actions/workflows/test.yml/badge.svg)](https://github.com/tiagosiebler/binance/actions/workflows/test.yml)
 [![npm version](https://img.shields.io/npm/v/binance)][1] [![npm size](https://img.shields.io/bundlephobia/min/binance/latest)][1] [![npm downloads](https://img.shields.io/npm/dt/binance)][1]
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/binance)][1]
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/binance/badge)](https://www.codefactor.io/repository/github/tiagosiebler/binance)

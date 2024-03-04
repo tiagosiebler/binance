@@ -16,7 +16,7 @@ describe('Private Spot REST API Endpoints', () => {
     },
     {
       timeout: 1000 * 60,
-      httpsAgent: getTestProxy(),
+      ...getTestProxy(),
     },
   );
 

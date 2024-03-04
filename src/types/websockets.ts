@@ -311,7 +311,7 @@ export interface WsMessage24hrTickerFormatted extends WsSharedBase {
   closeQuantity: number;
   bestBid: number;
   bestBidQuantity: number;
-  bestAsk: number;
+  bestAskPrice: number;
   bestAskQuantity: number;
   open: number;
   high: number;
