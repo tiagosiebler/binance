@@ -125,7 +125,7 @@ interface ListenKeyPersistenceState {
   keepAliveFailures: number;
 }
 
-function throwUnhandledSwitch(x: unknown, msg: string): never {
+function throwUnhandledSwitch(x: never, msg: string): never {
   throw new Error(msg);
 }
 
