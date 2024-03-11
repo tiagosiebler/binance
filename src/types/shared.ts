@@ -281,9 +281,11 @@ export interface SymbolLotSizeFilter {
 }
 
 export interface SymbolMinNotionalFilter {
-  filterType: 'MIN_NOTIONAL';
+  filterType: 'NOTIONAL';
   minNotional: numberInString;
-  applyToMarket: boolean;
+  maxNotional: numberInString;
+  applyMinToMarket: boolean;
+  applyMaxToMarket: boolean;
   avgPriceMins: number;
 }
 
