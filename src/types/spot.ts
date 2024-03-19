@@ -1691,6 +1691,7 @@ export interface FlexibleProductPositionParams {
 export interface PurchaseFlexibleProductParams {
   productId: string;
   amount: number;
+  autoSubscribe: boolean;
 }
 
 export interface PurchaseFlexibleProductResponse {
