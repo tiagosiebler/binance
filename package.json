@@ -1,7 +1,7 @@
 {
-  "name": "binance",
-  "version": "2.10.3",
-  "description": "Node.js & JavaScript SDK for Binance REST APIs & WebSockets, with TypeScript & end-to-end tests.",
+  "name": "binance-trading-lib",
+  "version": "1.0.0",
+  "description": "Spot Trading on Binance, Build with Node.js & JavaScript SDK for Binance REST APIs & WebSockets, with TypeScript & browser support, integration tests, beautification & more.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
@@ -19,18 +19,9 @@
     "prepublishOnly": "npm run build:clean",
     "betapublish": "npm publish --tag beta"
   },
-  "author": "Tiago Siebler (https://github.com/tiagosiebler)",
+  "author": "Quang Pham (https://github.com/qpssoft)",
   "contributors": [
-    "Zoey Garvey",
-    "Clifford Roche <clifford.roche@gmail.com> (http://www.cliffordroche.ca)",
-    "Aslam Hadi H <aslamhadi@gmail.com> (https://www.commitcode.com)",
-    "Andrey Vorobyov <vorandrew@gmail.com>",
-    "Dylan Sproule (https://github.com/dylansproule)",
-    "Gavy Aggarwal (http://gavyaggarwal.com/)",
-    "Tony Pettigrew (https://github.com/NeverEnder4)",
-    "Chris <apexearth@gmail.com> (https://github.com/apexearth)",
-    "Bruno Lobo <me@brunolobo.xyz> (https://brunolobo.xyz)",
-    "0xSmartCrypto <0xsmartcrypto@gmail.com> (https://twitter.com/0xSmartCrypto)"
+    "Tiago Siebler (https://github.com/tiagosiebler)"
   ],
   "dependencies": {
     "axios": "^1.6.2",
@@ -57,6 +48,7 @@
     "binance api",
     "binance futures api",
     "binance spot api",
+    "binance spot trading api",
     "binance margin api",
     "api",
     "websocket",
@@ -75,15 +67,15 @@
   ],
   "funding": {
     "type": "individual",
-    "url": "https://github.com/sponsors/tiagosiebler"
+    "url": "https://github.com/sponsors/qpssoft"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tiagosiebler/binance"
+    "url": "https://github.com/qpcrypto/binance-trading-lib"
   },
   "bugs": {
-    "url": "https://github.com/tiagosiebler/binance/issues"
+    "url": "https://github.com/qpcrypto/binance-trading-lib/issues"
   },
-  "homepage": "https://github.com/tiagosiebler/binance#readme"
+  "homepage": "https://github.com/qpcrypto/binance-trading-lib#readme"
 }

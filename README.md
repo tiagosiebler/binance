@@ -1,11 +1,11 @@
 # Node.js & JavaScript SDK for Binance REST APIs & WebSockets
 
-[![Build & Test](https://github.com/tiagosiebler/binance/actions/workflows/test.yml/badge.svg)](https://github.com/tiagosiebler/binance/actions/workflows/test.yml)
+[![Build & Test](https://github.com/qpcrypto/binance-trading-lib/actions/workflows/test.yml/badge.svg)](https://github.com/qpcrypto/binance-trading-lib/actions/workflows/test.yml)
 [![npm version](https://img.shields.io/npm/v/binance)][1] [![npm size](https://img.shields.io/bundlephobia/min/binance/latest)][1] [![npm downloads](https://img.shields.io/npm/dt/binance)][1]
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/binance)][1]
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/binance/badge)](https://www.codefactor.io/repository/github/tiagosiebler/binance)
 
-[![connector logo](https://github.com/tiagosiebler/binance/blob/master/docs/images/logo2.png?raw=true)][1]
+[![connector logo](https://github.com/qpcrypto/binance-trading-lib/blob/master/docs/images/logo2.png?raw=true)][1]
 
 [1]: https://www.npmjs.com/package/binance
 
@@ -38,7 +38,7 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
 
 ## Installation
 
-`npm install binance --save`
+`npm install binance-trading-lib --save`
 
 ## Examples
 
@@ -46,7 +46,7 @@ Refer to the [examples](./examples) folder for implementation demos.
 
 ## Issues & Discussion
 
-- Issues? Check the [issues tab](https://github.com/tiagosiebler/binance/issues).
+- Issues? Check the [issues tab](https://github.com/qpcrypto/binance-trading-lib/issues).
 - Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
 - Questions about Binance APIs & WebSockets? Ask in the official [Binance API](https://t.me/binance_api_english) group on telegram.
 
@@ -360,7 +360,7 @@ However, note that browser usage will lead to CORS errors due to Binance.
 
 #### tiagosiebler
 
-If you found this project interesting or useful, do consider [sponsoring me](https://github.com/sponsors/tiagosiebler) on github or registering with my [referral link](https://accounts.binance.com/en/register?ref=IVRLUZJO). Thank you!
+If you found this project interesting or useful, do consider [sponsoring me](https://github.com/sponsors/qpssoft) on github or registering with my [referral link](https://accounts.binance.com/en/register?ref=IVRLUZJO). Thank you!
 
 Or buy me a coffee using any of these:
 

@@ -1,5 +1,5 @@
 /**
- * Minimal example for using a socks proxy with the ws client, extracted from https://github.com/tiagosiebler/binance/pull/319
+ * Minimal example for using a socks proxy with the ws client, extracted from https://github.com/qpcrypto/binance-trading-lib/pull/319
  */
 import { WebsocketClient } from '../src';
 
