@@ -47,6 +47,9 @@ export interface RestClientOptions {
 
   //Defailt: false, if true will try to filter off undefined values from request params
   filterUndefinedParams?: boolean;
+
+  //Default: false, if true it will use the testnet otherwise default to mainnet
+  useTestnet?: boolean;
 }
 
 export type GenericAPIResponse<T = any> = Promise<T>;

@@ -91,9 +91,8 @@ export class CoinMClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
-    useTestnet?: boolean,
   ) {
-    const clientId = useTestnet ? 'coinmtest' : 'coinm';
+    const clientId = restClientOptions.useTestnet ? 'coinmtest' : 'coinm';
 
     super(clientId, restClientOptions, requestOptions);
 
@@ -256,9 +255,7 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/positionSide/dual');
   }
 
-  submitNewOrder(
-    params: NewFuturesOrderParams,
-  ): Promise<NewOrderResult> {
+  submitNewOrder(params: NewFuturesOrderParams): Promise<NewOrderResult> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('dapi/v1/order', params);
   }

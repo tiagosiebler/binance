@@ -759,7 +759,6 @@ export class WebsocketClient extends EventEmitter {
       this.restClients.spot = new MainClient(
         this.getRestClientOptions(),
         this.options.requestOptions,
-        isTestnet,
       );
     }
     return this.restClients.spot;
@@ -771,7 +770,6 @@ export class WebsocketClient extends EventEmitter {
         this.restClients.usdmFuturesTestnet = new USDMClient(
           this.getRestClientOptions(),
           this.options.requestOptions,
-          isTestnet,
         );
       }
       return this.restClients.usdmFuturesTestnet;
@@ -791,7 +789,6 @@ export class WebsocketClient extends EventEmitter {
         this.restClients.coinmFuturesTestnet = new CoinMClient(
           this.getRestClientOptions(),
           this.options.requestOptions,
-          isTestnet,
         );
       }
       return this.restClients.coinmFuturesTestnet;
@@ -1750,7 +1747,10 @@ export class WebsocketClient extends EventEmitter {
   /**
    * Subscribe to best bid/ask for all symbols in spot markets.
    */
-  public subscribeSpotAllBookTickers(forceNewConnection?: boolean, isTestnet?: boolean): WebSocket {
+  public subscribeSpotAllBookTickers(
+    forceNewConnection?: boolean,
+    isTestnet?: boolean,
+  ): WebSocket {
     const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
     return this.subscribeAllBookTickers(market, forceNewConnection);
   }
@@ -1847,8 +1847,9 @@ export class WebsocketClient extends EventEmitter {
     const market: WsMarket = isTestnet ? 'spotTestnet' : 'spot';
 
     try {
-      const { listenKey } =
-        await this.getSpotRestClient(isTestnet).getSpotUserDataListenKey();
+      const { listenKey } = await this.getSpotRestClient(
+        isTestnet,
+      ).getSpotUserDataListenKey();
       return this.subscribeSpotUserDataStreamWithListenKey(
         listenKey,
         forceNewConnection,
