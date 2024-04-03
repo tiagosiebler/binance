@@ -1167,17 +1167,13 @@ export class MainClient extends BaseRestClient {
   getFlexibleSavingProducts(
     params: SimpleEarnProductListParams,
   ): Promise<SimpleEarnFlexibleProductListResponse> {
-    return this.getPrivate(
-      `/sapi/v1/simple-earn/flexible/list?${serialiseParams(params)}`,
-    );
+    return this.getPrivate(`/sapi/v1/simple-earn/flexible/list`, params);
   }
 
   getSimpleEarnLockedProductList(
     params: SimpleEarnProductListParams,
   ): Promise<SimpleEarnLockedProductListResponse> {
-    return this.getPrivate(
-      `/sapi/v1/simple-earn/locked/list?${serialiseParams(params)}`,
-    );
+    return this.getPrivate(`/sapi/v1/simple-earn/locked/list`, params);
   }
 
   purchaseFlexibleProduct(
@@ -1207,26 +1203,20 @@ export class MainClient extends BaseRestClient {
   getFlexibleProductPosition(
     params: SimpleEarnFlexibleProductPositionParams,
   ): Promise<SimpleEarnFlexibleProductListResponse> {
-    return this.getPrivate(
-      `/sapi/v1/simple-earn/flexible/position?${serialiseParams(params)}`,
-    );
+    return this.getPrivate(`/sapi/v1/simple-earn/flexible/position`, params);
   }
 
   getLockedProductPosition(
     params: SimpleEarnLockedProductPositionParams,
   ): Promise<SimpleEarnLockedProductPositionResponse> {
-    return this.getPrivate(
-      `/sapi/v1/simple-earn/locked/position?${serialiseParams(params)}`,
-    );
+    return this.getPrivate(`/sapi/v1/simple-earn/locked/position`, params);
   }
 
   getSimpleEarnAccount(params: {
     recvWindow?: number;
     timestamp: number;
   }): Promise<SimpleEarnAccountResponse> {
-    return this.getPrivate(
-      `/sapi/v1/simple-earn/account?${serialiseParams(params)}`,
-    );
+    return this.getPrivate(`/sapi/v1/simple-earn/account`, params);
   }
 
   /**
