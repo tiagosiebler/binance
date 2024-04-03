@@ -2,8 +2,6 @@ export interface SimpleEarnProductListParams {
   asset?: string;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SimpleEarnFlexibleProduct {
@@ -56,8 +54,6 @@ export interface SimpleEarnSubscribeProductParams {
   amount: number;
   autoSubscribe?: boolean;
   sourceAccount?: 'SPOT' | 'FUND' | 'ALL';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SimpleEarnSubscribeFlexibleProductResponse {
@@ -73,8 +69,6 @@ export interface SimpleEarnSubscribeLockedProductResponse {
 
 export interface SimpleEarnRedeemParams {
   positionId: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SimpleEarnRedeemResponse {
@@ -87,8 +81,6 @@ export interface SimpleEarnFlexibleProductPositionParams {
   productId?: string;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SimpleEarnLockedProductPositionParams
