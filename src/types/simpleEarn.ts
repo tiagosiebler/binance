@@ -83,8 +83,11 @@ export interface SimpleEarnFlexibleProductPositionParams {
   size?: number;
 }
 
-export interface SimpleEarnLockedProductPositionParams
-  extends SimpleEarnFlexibleProductPositionParams {
+export interface SimpleEarnLockedProductPositionParams {
+  asset?: string;
+  productId?: string;
+  current?: number;
+  size?: number;
   positionId?: string;
 }
 
