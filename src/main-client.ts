@@ -23,6 +23,7 @@ import {
   SymbolArrayParam,
   NewOrderListParams,
   OrderResponseType,
+  OrderType,
 } from './types/shared';
 
 import {
@@ -195,6 +196,7 @@ import {
   SORTestOrderResponse,
   OrderResponse,
   OrderListResponse,
+  OrderResponseTypeFor,
 } from './types/spot';
 
 import {
@@ -819,20 +821,27 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  testNewOrder(params: NewSpotOrderParams): Promise<{}> {
+  testNewOrder<
+    T extends OrderType,
+    RT extends OrderResponseType | undefined = undefined,
+  >(params: NewSpotOrderParams<T, RT>): Promise<{}> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('api/v3/order/test', params);
   }
 
-  replaceOrder(
-    params: ReplaceSpotOrderParams,
+  replaceOrder<
+    T extends OrderType,
+    RT extends OrderResponseType | undefined = undefined,
+  >(
+    params: ReplaceSpotOrderParams<T, RT>,
   ): Promise<ReplaceSpotOrderResultSuccess> {
     return this.postPrivate('api/v3/order/cancelReplace', params);
   }
 
-  submitNewOrder(
-    params: NewSpotOrderParams,
-  ): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+  submitNewOrder<
+    T extends OrderType,
+    RT extends OrderResponseType | undefined = undefined,
+  >(params: NewSpotOrderParams<T, RT>): Promise<OrderResponseTypeFor<RT, T>> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('api/v3/order', params);
   }
@@ -987,9 +996,10 @@ export class MainClient extends BaseRestClient {
     return this.get('sapi/v1/margin/priceIndex', params);
   }
 
-  marginAccountNewOrder(
-    params: NewSpotOrderParams,
-  ): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+  marginAccountNewOrder<
+    T extends OrderType,
+    RT extends OrderResponseType | undefined = undefined,
+  >(params: NewSpotOrderParams<T, RT>): Promise<OrderResponseTypeFor<RT, T>> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('sapi/v1/margin/order', params);
   }
@@ -1448,11 +1458,11 @@ export class MainClient extends BaseRestClient {
    */
   private validateOrderId(
     params:
-      | NewSpotOrderParams
+      | NewSpotOrderParams<any, any>
       | CancelOrderParams
       | NewOCOParams
       | CancelOCOParams
-      | NewOrderListParams,
+      | NewOrderListParams<any>,
     orderIdProperty: OrderIdProperty,
   ): void {
     const apiCategory = 'spot';

@@ -6,6 +6,7 @@ import {
   OCOOrderStatus,
   OCOStatus,
   OrderBookRow,
+  OrderListOrderType,
   OrderResponseType,
   OrderSide,
   OrderStatus,
@@ -407,10 +408,13 @@ export interface ExchangeInfoParams {
   symbols?: string[];
 }
 
-export interface NewSpotOrderParams {
+export interface NewSpotOrderParams<
+  T extends OrderType,
+  RT extends OrderResponseType | undefined = undefined,
+> {
   symbol: string;
   side: OrderSide;
-  type: OrderType;
+  type: T;
   timeInForce?: OrderTimeInForce;
   quantity?: number;
   quoteOrderQty?: number;
@@ -419,12 +423,15 @@ export interface NewSpotOrderParams {
   stopPrice?: number;
   trailingDelta?: number;
   icebergQty?: number;
-  newOrderRespType?: OrderResponseType;
+  newOrderRespType?: RT;
   isIsolated?: StringBoolean;
   sideEffectType?: SideEffects;
 }
 
-export interface ReplaceSpotOrderParams extends NewSpotOrderParams {
+export interface ReplaceSpotOrderParams<
+  T extends OrderType,
+  RT extends OrderResponseType | undefined = undefined,
+> extends NewSpotOrderParams<T, RT> {
   cancelReplaceMode: 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
   cancelNewClientOrderId?: string;
   cancelOrigClientOrderId?: string;
@@ -629,11 +636,16 @@ export type OrderResponse =
   | OrderResponseResult
   | OrderResponseFull;
 
-export type OrderResponseTypeFor<T extends OrderResponseType> = T extends 'ACK'
+export type OrderResponseTypeFor<
+  RT extends OrderResponseType | undefined = undefined,
+  T extends OrderType | undefined = undefined,
+> = RT extends 'ACK'
   ? OrderResponseACK
-  : T extends 'RESULT'
+  : RT extends 'RESULT'
   ? OrderResponseResult
-  : T extends 'FULL'
+  : RT extends 'FULL'
+  ? OrderResponseFull
+  : T extends 'MARKET' | 'LIMIT'
   ? OrderResponseFull
   : OrderResponseACK;
 
@@ -692,7 +704,7 @@ export interface OrderResponseFull {
   fills: OrderFill[];
 }
 
-export interface OrderListResponse<T extends OrderResponseType = 'ACK'> {
+export interface OrderListResponse<RT extends OrderResponseType = 'ACK'> {
   orderListId: number;
   contingencyType: 'OCO';
   listStatusType: OCOStatus;
@@ -704,7 +716,7 @@ export interface OrderListResponse<T extends OrderResponseType = 'ACK'> {
     { symbol: string; orderId: number; clientOrderId: string },
     { symbol: string; orderId: number; clientOrderId: string },
   ];
-  orderReports: [OrderResponseTypeFor<T>, OrderResponseTypeFor<T>];
+  orderReports: [OrderResponseTypeFor<RT>, OrderResponseTypeFor<RT>];
 }
 
 export interface SOROrderFill {

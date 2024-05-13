@@ -246,7 +246,7 @@ export interface NewOCOParams {
   sideEffectType?: SideEffects;
 }
 
-export interface NewOrderListParams<T extends OrderResponseType = 'ACK'> {
+export interface NewOrderListParams<T extends OrderResponseType> {
   symbol: string;
   listClientOrderId?: string;
   side: OrderSide;
