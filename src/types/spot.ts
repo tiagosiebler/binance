@@ -420,6 +420,8 @@ export interface NewSpotOrderParams<
   quoteOrderQty?: number;
   price?: number;
   newClientOrderId?: string;
+  strategyId?: number;
+  strategyType?: number;
   stopPrice?: number;
   trailingDelta?: number;
   icebergQty?: number;
