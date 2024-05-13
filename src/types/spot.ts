@@ -804,8 +804,13 @@ export interface ReplaceSpotOrderResultError {
     | ReplaceSpotOrderCancelAllFailure;
 }
 
-export interface ReplaceSpotOrderResultSuccess
-  extends GenericReplaceSpotOrderResult<CancelSpotOrderResult, OrderResponse> {
+export interface ReplaceSpotOrderResultSuccess<
+  T extends OrderType,
+  RT extends OrderResponseType | undefined = undefined,
+> extends GenericReplaceSpotOrderResult<
+    CancelSpotOrderResult,
+    OrderResponseTypeFor<RT, T>
+  > {
   cancelResult: 'SUCCESS';
   newOrderResult: 'SUCCESS';
 }

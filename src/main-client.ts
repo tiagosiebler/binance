@@ -834,7 +834,7 @@ export class MainClient extends BaseRestClient {
     RT extends OrderResponseType | undefined = undefined,
   >(
     params: ReplaceSpotOrderParams<T, RT>,
-  ): Promise<ReplaceSpotOrderResultSuccess> {
+  ): Promise<ReplaceSpotOrderResultSuccess<T, RT>> {
     return this.postPrivate('api/v3/order/cancelReplace', params);
   }
 
