@@ -21,6 +21,8 @@ import {
   RowsWithTotal,
   CoinStartEndLimit,
   SymbolArrayParam,
+  NewOrderListParams,
+  OrderResponseType,
 } from './types/shared';
 
 import {
@@ -191,6 +193,8 @@ import {
   NewSpotSOROrderParams,
   SOROrderResponseFull,
   SORTestOrderResponse,
+  OrderResponse,
+  OrderListResponse,
 } from './types/spot';
 
 import {
@@ -862,6 +866,15 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('api/v3/order/oco', params);
   }
 
+  submitNewOrderList<T extends OrderResponseType>(
+    params: NewOrderListParams<T>,
+  ): Promise<OrderListResponse<T>> {
+    this.validateOrderId(params, 'listClientOrderId');
+    this.validateOrderId(params, 'aboveClientOrderId');
+    this.validateOrderId(params, 'belowClientOrderId');
+    return this.postPrivate('/api/v3/orderList/oco', params);
+  }
+
   cancelOCO(params: CancelOCOParams): Promise<any> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.deletePrivate('api/v3/orderList', params);
@@ -1438,7 +1451,8 @@ export class MainClient extends BaseRestClient {
       | NewSpotOrderParams
       | CancelOrderParams
       | NewOCOParams
-      | CancelOCOParams,
+      | CancelOCOParams
+      | NewOrderListParams,
     orderIdProperty: OrderIdProperty,
   ): void {
     const apiCategory = 'spot';

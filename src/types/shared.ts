@@ -46,7 +46,9 @@ export type OrderIdProperty =
   | 'newClientOrderId'
   | 'listClientOrderId'
   | 'limitClientOrderId'
-  | 'stopClientOrderId';
+  | 'stopClientOrderId'
+  | 'aboveClientOrderId'
+  | 'belowClientOrderId';
 
 export type OrderSide = 'BUY' | 'SELL';
 
@@ -80,6 +82,11 @@ export type OrderType =
   | 'STOP_LOSS_LIMIT'
   | 'TAKE_PROFIT'
   | 'TAKE_PROFIT_LIMIT';
+
+export type OrderListOrderType =
+  | 'STOP_LOSS_LIMIT'
+  | 'STOP_LOSS'
+  | 'LIMIT_MAKER';
 
 export type SelfTradePreventionMode =
   | 'EXPIRE_TAKER'
@@ -237,6 +244,33 @@ export interface NewOCOParams {
   isIsolated?: StringBoolean;
   /** Define a side effect, only for margin trading */
   sideEffectType?: SideEffects;
+}
+
+export interface NewOrderListParams<T extends OrderResponseType = 'ACK'> {
+  symbol: string;
+  listClientOrderId?: string;
+  side: OrderSide;
+  quantity: number;
+  aboveType: OrderListOrderType;
+  aboveClientOrderId?: string;
+  aboveIcebergQty?: number;
+  abovePrice?: number;
+  aboveStopPrice?: number;
+  aboveTrailingDelta?: number;
+  aboveTimeInForce?: OrderTimeInForce;
+  aboveStrategyId?: number;
+  aboveStrategyType?: number;
+  belowType: OrderListOrderType;
+  belowClientOrderId?: string;
+  belowIcebergQty?: number;
+  belowPrice?: number;
+  belowStopPrice?: number;
+  belowTrailingDelta?: number;
+  belowTimeInForce?: OrderTimeInForce;
+  belowStrategyId?: number;
+  belowStrategyType?: number;
+  newOrderRespType?: T;
+  selfTradePreventionMode?: SelfTradePreventionMode;
 }
 
 export interface SymbolFromPaginatedRequestFromId {

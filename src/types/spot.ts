@@ -3,6 +3,8 @@ import {
   ExchangeSymbol,
   GenericCodeMsgError,
   numberInString,
+  OCOOrderStatus,
+  OCOStatus,
   OrderBookRow,
   OrderResponseType,
   OrderSide,
@@ -622,6 +624,19 @@ export interface SymbolOrderBookTicker {
   askQty: numberInString;
 }
 
+export type OrderResponse =
+  | OrderResponseACK
+  | OrderResponseResult
+  | OrderResponseFull;
+
+export type OrderResponseTypeFor<T extends OrderResponseType> = T extends 'ACK'
+  ? OrderResponseACK
+  : T extends 'RESULT'
+  ? OrderResponseResult
+  : T extends 'FULL'
+  ? OrderResponseFull
+  : OrderResponseACK;
+
 export interface OrderResponseACK {
   symbol: string;
   orderId: number;
@@ -675,6 +690,21 @@ export interface OrderResponseFull {
   workingTime: number;
   selfTradePreventionMode: SelfTradePreventionMode;
   fills: OrderFill[];
+}
+
+export interface OrderListResponse<T extends OrderResponseType = 'ACK'> {
+  orderListId: number;
+  contingencyType: 'OCO';
+  listStatusType: OCOStatus;
+  listOrderStatus: OCOOrderStatus;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: [
+    { symbol: string; orderId: number; clientOrderId: string },
+    { symbol: string; orderId: number; clientOrderId: string },
+  ];
+  orderReports: [OrderResponseTypeFor<T>, OrderResponseTypeFor<T>];
 }
 
 export interface SOROrderFill {
@@ -738,10 +768,7 @@ export interface ReplaceSpotOrderNewFailure
 }
 
 export interface ReplaceSpotOrderCancelAllowFailure
-  extends GenericReplaceSpotOrderResult<
-    GenericCodeMsgError,
-    OrderResponseACK | OrderResponseResult | OrderResponseFull
-  > {
+  extends GenericReplaceSpotOrderResult<GenericCodeMsgError, OrderResponse> {
   cancelResult: 'FAILURE';
   newOrderResult: 'SUCCESS';
 }
@@ -764,10 +791,7 @@ export interface ReplaceSpotOrderResultError {
 }
 
 export interface ReplaceSpotOrderResultSuccess
-  extends GenericReplaceSpotOrderResult<
-    CancelSpotOrderResult,
-    OrderResponseACK | OrderResponseResult | OrderResponseFull
-  > {
+  extends GenericReplaceSpotOrderResult<CancelSpotOrderResult, OrderResponse> {
   cancelResult: 'SUCCESS';
   newOrderResult: 'SUCCESS';
 }
