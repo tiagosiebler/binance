@@ -81,6 +81,12 @@ export type OrderType =
   | 'TAKE_PROFIT'
   | 'TAKE_PROFIT_LIMIT';
 
+export type SelfTradePreventionMode =
+  | 'EXPIRE_TAKER'
+  | 'EXPIRE_MAKER'
+  | 'EXPIRE_BOTH'
+  | 'NONE';
+
 export interface BasicAssetParam {
   asset: string;
 }

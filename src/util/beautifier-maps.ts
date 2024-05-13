@@ -357,6 +357,8 @@ export const BEAUTIFIER_EVENT_MAP = {
     Z: 'cummulativeQuoteAssetTransactedQty',
     Y: 'lastQuoteAssetTransactedQty',
     Q: 'orderQuoteQty',
+    W: 'workingTime',
+    V: 'selfTradePreventionMode',
   },
   tradeEvent: {
     e: 'eventType',

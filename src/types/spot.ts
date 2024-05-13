@@ -10,6 +10,7 @@ import {
   OrderTimeInForce,
   OrderType,
   RateLimiter,
+  SelfTradePreventionMode,
   SideEffects,
   StringBoolean,
   SymbolFilter,
@@ -643,6 +644,8 @@ export interface OrderResponseResult {
   timeInForce: OrderTimeInForce;
   type: OrderType;
   side: OrderSide;
+  workingTime: number;
+  selfTradePreventionMode: SelfTradePreventionMode;
 }
 
 export interface OrderFill {
@@ -669,6 +672,8 @@ export interface OrderResponseFull {
   marginBuyBorrowAmount?: number;
   marginBuyBorrowAsset?: string;
   isIsolated?: boolean;
+  workingTime: number;
+  selfTradePreventionMode: SelfTradePreventionMode;
   fills: OrderFill[];
 }
 
@@ -773,6 +778,7 @@ export interface CancelSpotOrderResult {
   orderId: number;
   orderListId: number;
   clientOrderId: string;
+  transactTime: number;
   price: numberInString;
   origQty: numberInString;
   executedQty: numberInString;
@@ -782,6 +788,7 @@ export interface CancelSpotOrderResult {
   type: OrderType;
   side: OrderSide;
   isIsolated?: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
 }
 
 export interface SpotOrder {
