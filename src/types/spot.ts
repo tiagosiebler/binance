@@ -727,7 +727,7 @@ export interface OrderListResponse<RT extends OrderResponseType = 'ACK'> {
 export interface OrderList {
   orderListId: number;
   contingencyType: 'OCO';
-  listStatusType: OCOOrderStatus;
+  listStatusType: OCOStatus;
   listOrderStatus: OCOOrderStatus;
   listClientOrderId: string;
   transactionTime: number;
