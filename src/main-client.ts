@@ -883,7 +883,7 @@ export class MainClient extends BaseRestClient {
     this.validateOrderId(params, 'listClientOrderId');
     this.validateOrderId(params, 'aboveClientOrderId');
     this.validateOrderId(params, 'belowClientOrderId');
-    return this.postPrivate('/api/v3/orderList/oco', params);
+    return this.postPrivate('api/v3/orderList/oco', params);
   }
 
   cancelOCO(params: CancelOCOParams): Promise<CancelOrderListResult> {
