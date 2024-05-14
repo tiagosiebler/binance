@@ -706,6 +706,12 @@ export interface OrderResponseFull {
   fills: OrderFill[];
 }
 
+export interface OrderListOrder {
+  symbol: string;
+  orderId: number;
+  clientOrderId: string;
+}
+
 export interface OrderListResponse<RT extends OrderResponseType = 'ACK'> {
   orderListId: number;
   contingencyType: 'OCO';
@@ -714,11 +720,23 @@ export interface OrderListResponse<RT extends OrderResponseType = 'ACK'> {
   listClientOrderId: string;
   transactionTime: number;
   symbol: string;
-  orders: [
-    { symbol: string; orderId: number; clientOrderId: string },
-    { symbol: string; orderId: number; clientOrderId: string },
-  ];
+  orders: [OrderListOrder, OrderListOrder];
   orderReports: [OrderResponseTypeFor<RT>, OrderResponseTypeFor<RT>];
+}
+
+export interface OrderList {
+  orderListId: number;
+  contingencyType: 'OCO';
+  listStatusType: OCOOrderStatus;
+  listOrderStatus: OCOOrderStatus;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: [OrderListOrder, OrderListOrder];
+}
+
+export interface CancelOrderListResult extends OrderList {
+  orderReports: [CancelSpotOrderResult, CancelSpotOrderResult];
 }
 
 export interface SOROrderFill {

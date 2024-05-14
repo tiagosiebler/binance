@@ -197,6 +197,8 @@ import {
   OrderResponse,
   OrderListResponse,
   OrderResponseTypeFor,
+  OrderList,
+  CancelOrderListResult,
 } from './types/spot';
 
 import {
@@ -884,23 +886,23 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('/api/v3/orderList/oco', params);
   }
 
-  cancelOCO(params: CancelOCOParams): Promise<any> {
+  cancelOCO(params: CancelOCOParams): Promise<CancelOrderListResult> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.deletePrivate('api/v3/orderList', params);
   }
 
-  getOCO(params?: GetOCOParams): Promise<any> {
+  getOCO(params?: GetOCOParams): Promise<OrderList> {
     return this.getPrivate('api/v3/orderList', params);
   }
 
-  getAllOCO(params?: BasicFromPaginatedParams): Promise<any> {
+  getAllOCO(params?: BasicFromPaginatedParams): Promise<OrderList[]> {
     return this.getPrivate('api/v3/allOrderList', params);
   }
 
   /**
    * Query open OCO
    */
-  getAllOpenOCO(): Promise<any> {
+  getAllOpenOCO(): Promise<OrderList[]> {
     return this.getPrivate('api/v3/openOrderList');
   }
 
