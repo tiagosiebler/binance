@@ -430,15 +430,18 @@ export interface NewSpotOrderParams<
   sideEffectType?: SideEffects;
 }
 
+export type CancelRestrictions = 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
+export type CancelReplaceMode = 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
+
 export interface ReplaceSpotOrderParams<
   T extends OrderType,
   RT extends OrderResponseType | undefined = undefined,
 > extends NewSpotOrderParams<T, RT> {
-  cancelReplaceMode: 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
+  cancelReplaceMode: CancelReplaceMode;
   cancelNewClientOrderId?: string;
   cancelOrigClientOrderId?: string;
   cancelOrderId?: number;
-  cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
+  cancelRestrictions?: CancelRestrictions;
 }
 
 export interface GetOCOParams {
@@ -460,11 +463,7 @@ export interface NewSpotSOROrderParams {
   strategyType?: number;
   icebergQty?: number;
   newOrderRespType?: OrderResponseType;
-  selfTradePreventionMode?:
-    | 'EXPIRE_TAKER'
-    | 'EXPIRE_MAKER'
-    | 'EXPIRE_BOTH'
-    | 'NONE';
+  selfTradePreventionMode?: SelfTradePreventionMode;
 }
 
 export type APILockTriggerCondition = 'GCR' | 'IFER' | 'UFR';
@@ -532,17 +531,8 @@ export interface SymbolExchangeInfo {
   isMarginTradingAllowed: boolean;
   filters: SymbolFilter[];
   permissions: ('SPOT' | 'MARGIN')[];
-  defaultSelfTradePreventionMode:
-    | 'NONE'
-    | 'EXPIRE_TAKER'
-    | 'EXPIRE_BOTH'
-    | 'EXPIRE_MAKER';
-  allowedSelfTradePreventionModes: (
-    | 'NONE'
-    | 'EXPIRE_TAKER'
-    | 'EXPIRE_BOTH'
-    | 'EXPIRE_MAKER'
-  )[];
+  defaultSelfTradePreventionMode: SelfTradePreventionMode;
+  allowedSelfTradePreventionModes: SelfTradePreventionMode[];
 }
 
 export interface ExchangeInfo {
