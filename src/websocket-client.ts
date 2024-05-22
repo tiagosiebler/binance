@@ -57,7 +57,6 @@ export interface WSClientConfigurableOptions {
     agent?: any;
   };
   wsUrl?: string;
-  baseUrl?: string;
 }
 
 export interface WebsocketClientOptions extends WSClientConfigurableOptions {
