@@ -409,7 +409,7 @@ export interface ExchangeInfoParams {
 }
 
 export interface NewSpotOrderParams<
-  T extends OrderType,
+  T extends OrderType = OrderType,
   RT extends OrderResponseType | undefined = undefined,
 > {
   symbol: string;
