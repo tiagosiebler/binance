@@ -434,7 +434,7 @@ export type CancelRestrictions = 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
 export type CancelReplaceMode = 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
 
 export interface ReplaceSpotOrderParams<
-  T extends OrderType,
+  T extends OrderType = OrderType,
   RT extends OrderResponseType | undefined = undefined,
 > extends NewSpotOrderParams<T, RT> {
   cancelReplaceMode: CancelReplaceMode;
@@ -813,7 +813,7 @@ export interface ReplaceSpotOrderResultError {
 }
 
 export interface ReplaceSpotOrderResultSuccess<
-  T extends OrderType,
+  T extends OrderType = OrderType,
   RT extends OrderResponseType | undefined = undefined,
 > extends GenericReplaceSpotOrderResult<
     CancelSpotOrderResult,
