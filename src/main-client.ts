@@ -21,6 +21,9 @@ import {
   RowsWithTotal,
   CoinStartEndLimit,
   SymbolArrayParam,
+  NewOrderListParams,
+  OrderResponseType,
+  OrderType,
 } from './types/shared';
 
 import {
@@ -191,6 +194,11 @@ import {
   NewSpotSOROrderParams,
   SOROrderResponseFull,
   SORTestOrderResponse,
+  OrderResponse,
+  OrderListResponse,
+  OrderResponseTypeFor,
+  OrderList,
+  CancelOrderListResult,
 } from './types/spot';
 
 import {
@@ -815,20 +823,27 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  testNewOrder(params: NewSpotOrderParams): Promise<{}> {
+  testNewOrder<
+    T extends OrderType,
+    RT extends OrderResponseType | undefined = undefined,
+  >(params: NewSpotOrderParams<T, RT>): Promise<{}> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('api/v3/order/test', params);
   }
 
-  replaceOrder(
-    params: ReplaceSpotOrderParams,
-  ): Promise<ReplaceSpotOrderResultSuccess> {
+  replaceOrder<
+    T extends OrderType,
+    RT extends OrderResponseType | undefined = undefined,
+  >(
+    params: ReplaceSpotOrderParams<T, RT>,
+  ): Promise<ReplaceSpotOrderResultSuccess<T, RT>> {
     return this.postPrivate('api/v3/order/cancelReplace', params);
   }
 
-  submitNewOrder(
-    params: NewSpotOrderParams,
-  ): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+  submitNewOrder<
+    T extends OrderType,
+    RT extends OrderResponseType | undefined = undefined,
+  >(params: NewSpotOrderParams<T, RT>): Promise<OrderResponseTypeFor<RT, T>> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('api/v3/order', params);
   }
@@ -862,23 +877,32 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('api/v3/order/oco', params);
   }
 
-  cancelOCO(params: CancelOCOParams): Promise<any> {
+  submitNewOrderList<T extends OrderResponseType>(
+    params: NewOrderListParams<T>,
+  ): Promise<OrderListResponse<T>> {
+    this.validateOrderId(params, 'listClientOrderId');
+    this.validateOrderId(params, 'aboveClientOrderId');
+    this.validateOrderId(params, 'belowClientOrderId');
+    return this.postPrivate('api/v3/orderList/oco', params);
+  }
+
+  cancelOCO(params: CancelOCOParams): Promise<CancelOrderListResult> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.deletePrivate('api/v3/orderList', params);
   }
 
-  getOCO(params?: GetOCOParams): Promise<any> {
+  getOCO(params?: GetOCOParams): Promise<OrderList> {
     return this.getPrivate('api/v3/orderList', params);
   }
 
-  getAllOCO(params?: BasicFromPaginatedParams): Promise<any> {
+  getAllOCO(params?: BasicFromPaginatedParams): Promise<OrderList[]> {
     return this.getPrivate('api/v3/allOrderList', params);
   }
 
   /**
    * Query open OCO
    */
-  getAllOpenOCO(): Promise<any> {
+  getAllOpenOCO(): Promise<OrderList[]> {
     return this.getPrivate('api/v3/openOrderList');
   }
 
@@ -974,9 +998,10 @@ export class MainClient extends BaseRestClient {
     return this.get('sapi/v1/margin/priceIndex', params);
   }
 
-  marginAccountNewOrder(
-    params: NewSpotOrderParams,
-  ): Promise<OrderResponseACK | OrderResponseResult | OrderResponseFull> {
+  marginAccountNewOrder<
+    T extends OrderType,
+    RT extends OrderResponseType | undefined = undefined,
+  >(params: NewSpotOrderParams<T, RT>): Promise<OrderResponseTypeFor<RT, T>> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('sapi/v1/margin/order', params);
   }
@@ -1435,10 +1460,11 @@ export class MainClient extends BaseRestClient {
    */
   private validateOrderId(
     params:
-      | NewSpotOrderParams
+      | NewSpotOrderParams<any, any>
       | CancelOrderParams
       | NewOCOParams
-      | CancelOCOParams,
+      | CancelOCOParams
+      | NewOrderListParams<any>,
     orderIdProperty: OrderIdProperty,
   ): void {
     const apiCategory = 'spot';

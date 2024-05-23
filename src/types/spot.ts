@@ -3,13 +3,17 @@ import {
   ExchangeSymbol,
   GenericCodeMsgError,
   numberInString,
+  OCOOrderStatus,
+  OCOStatus,
   OrderBookRow,
+  OrderListOrderType,
   OrderResponseType,
   OrderSide,
   OrderStatus,
   OrderTimeInForce,
   OrderType,
   RateLimiter,
+  SelfTradePreventionMode,
   SideEffects,
   StringBoolean,
   SymbolFilter,
@@ -404,29 +408,40 @@ export interface ExchangeInfoParams {
   symbols?: string[];
 }
 
-export interface NewSpotOrderParams {
+export interface NewSpotOrderParams<
+  T extends OrderType = OrderType,
+  RT extends OrderResponseType | undefined = undefined,
+> {
   symbol: string;
   side: OrderSide;
-  type: OrderType;
+  type: T;
   timeInForce?: OrderTimeInForce;
   quantity?: number;
   quoteOrderQty?: number;
   price?: number;
   newClientOrderId?: string;
+  strategyId?: number;
+  strategyType?: number;
   stopPrice?: number;
   trailingDelta?: number;
   icebergQty?: number;
-  newOrderRespType?: OrderResponseType;
+  newOrderRespType?: RT;
   isIsolated?: StringBoolean;
   sideEffectType?: SideEffects;
 }
 
-export interface ReplaceSpotOrderParams extends NewSpotOrderParams {
-  cancelReplaceMode: 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
+export type CancelRestrictions = 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
+export type CancelReplaceMode = 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
+
+export interface ReplaceSpotOrderParams<
+  T extends OrderType = OrderType,
+  RT extends OrderResponseType | undefined = undefined,
+> extends NewSpotOrderParams<T, RT> {
+  cancelReplaceMode: CancelReplaceMode;
   cancelNewClientOrderId?: string;
   cancelOrigClientOrderId?: string;
   cancelOrderId?: number;
-  cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
+  cancelRestrictions?: CancelRestrictions;
 }
 
 export interface GetOCOParams {
@@ -448,11 +463,7 @@ export interface NewSpotSOROrderParams {
   strategyType?: number;
   icebergQty?: number;
   newOrderRespType?: OrderResponseType;
-  selfTradePreventionMode?:
-    | 'EXPIRE_TAKER'
-    | 'EXPIRE_MAKER'
-    | 'EXPIRE_BOTH'
-    | 'NONE';
+  selfTradePreventionMode?: SelfTradePreventionMode;
 }
 
 export type APILockTriggerCondition = 'GCR' | 'IFER' | 'UFR';
@@ -520,17 +531,8 @@ export interface SymbolExchangeInfo {
   isMarginTradingAllowed: boolean;
   filters: SymbolFilter[];
   permissions: ('SPOT' | 'MARGIN')[];
-  defaultSelfTradePreventionMode:
-    | 'NONE'
-    | 'EXPIRE_TAKER'
-    | 'EXPIRE_BOTH'
-    | 'EXPIRE_MAKER';
-  allowedSelfTradePreventionModes: (
-    | 'NONE'
-    | 'EXPIRE_TAKER'
-    | 'EXPIRE_BOTH'
-    | 'EXPIRE_MAKER'
-  )[];
+  defaultSelfTradePreventionMode: SelfTradePreventionMode;
+  allowedSelfTradePreventionModes: SelfTradePreventionMode[];
 }
 
 export interface ExchangeInfo {
@@ -621,6 +623,24 @@ export interface SymbolOrderBookTicker {
   askQty: numberInString;
 }
 
+export type OrderResponse =
+  | OrderResponseACK
+  | OrderResponseResult
+  | OrderResponseFull;
+
+export type OrderResponseTypeFor<
+  RT extends OrderResponseType | undefined = undefined,
+  T extends OrderType | undefined = undefined,
+> = RT extends 'ACK'
+  ? OrderResponseACK
+  : RT extends 'RESULT'
+  ? OrderResponseResult
+  : RT extends 'FULL'
+  ? OrderResponseFull
+  : T extends 'MARKET' | 'LIMIT'
+  ? OrderResponseFull
+  : OrderResponseACK;
+
 export interface OrderResponseACK {
   symbol: string;
   orderId: number;
@@ -643,6 +663,8 @@ export interface OrderResponseResult {
   timeInForce: OrderTimeInForce;
   type: OrderType;
   side: OrderSide;
+  workingTime: number;
+  selfTradePreventionMode: SelfTradePreventionMode;
 }
 
 export interface OrderFill {
@@ -669,7 +691,42 @@ export interface OrderResponseFull {
   marginBuyBorrowAmount?: number;
   marginBuyBorrowAsset?: string;
   isIsolated?: boolean;
+  workingTime: number;
+  selfTradePreventionMode: SelfTradePreventionMode;
   fills: OrderFill[];
+}
+
+export interface OrderListOrder {
+  symbol: string;
+  orderId: number;
+  clientOrderId: string;
+}
+
+export interface OrderListResponse<RT extends OrderResponseType = 'ACK'> {
+  orderListId: number;
+  contingencyType: 'OCO';
+  listStatusType: OCOStatus;
+  listOrderStatus: OCOOrderStatus;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: [OrderListOrder, OrderListOrder];
+  orderReports: [OrderResponseTypeFor<RT>, OrderResponseTypeFor<RT>];
+}
+
+export interface OrderList {
+  orderListId: number;
+  contingencyType: 'OCO';
+  listStatusType: OCOStatus;
+  listOrderStatus: OCOOrderStatus;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: [OrderListOrder, OrderListOrder];
+}
+
+export interface CancelOrderListResult extends OrderList {
+  orderReports: [CancelSpotOrderResult, CancelSpotOrderResult];
 }
 
 export interface SOROrderFill {
@@ -733,10 +790,7 @@ export interface ReplaceSpotOrderNewFailure
 }
 
 export interface ReplaceSpotOrderCancelAllowFailure
-  extends GenericReplaceSpotOrderResult<
-    GenericCodeMsgError,
-    OrderResponseACK | OrderResponseResult | OrderResponseFull
-  > {
+  extends GenericReplaceSpotOrderResult<GenericCodeMsgError, OrderResponse> {
   cancelResult: 'FAILURE';
   newOrderResult: 'SUCCESS';
 }
@@ -758,10 +812,12 @@ export interface ReplaceSpotOrderResultError {
     | ReplaceSpotOrderCancelAllFailure;
 }
 
-export interface ReplaceSpotOrderResultSuccess
-  extends GenericReplaceSpotOrderResult<
+export interface ReplaceSpotOrderResultSuccess<
+  T extends OrderType = OrderType,
+  RT extends OrderResponseType | undefined = undefined,
+> extends GenericReplaceSpotOrderResult<
     CancelSpotOrderResult,
-    OrderResponseACK | OrderResponseResult | OrderResponseFull
+    OrderResponseTypeFor<RT, T>
   > {
   cancelResult: 'SUCCESS';
   newOrderResult: 'SUCCESS';
@@ -773,6 +829,7 @@ export interface CancelSpotOrderResult {
   orderId: number;
   orderListId: number;
   clientOrderId: string;
+  transactTime: number;
   price: numberInString;
   origQty: numberInString;
   executedQty: numberInString;
@@ -782,6 +839,7 @@ export interface CancelSpotOrderResult {
   type: OrderType;
   side: OrderSide;
   isIsolated?: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
 }
 
 export interface SpotOrder {

@@ -18,6 +18,7 @@ import {
   OrderStatus,
   OrderTimeInForce,
   OrderType,
+  SelfTradePreventionMode,
 } from './shared';
 
 export type WsMarket =
@@ -480,6 +481,8 @@ export interface WsMessageSpotUserDataExecutionReportEventRaw
   Z: numberInString;
   Y: numberInString;
   Q: numberInString;
+  W: number;
+  V: SelfTradePreventionMode;
 }
 
 export interface WsMessageSpotUserDataExecutionReportEventFormatted
@@ -516,6 +519,8 @@ export interface WsMessageSpotUserDataExecutionReportEventFormatted
   cummulativeQuoteAssetTransactedQty: number;
   lastQuoteAssetTransactedQty: number;
   orderQuoteQty: number;
+  workingTime: number;
+  selfTradePreventionMode: SelfTradePreventionMode;
 }
 
 export interface OrderObjectRaw {
