@@ -20,7 +20,7 @@ async function start() {
       symbol: 'BTCUSDT',
       type: 'MARKET',
       quantity: 0.001,
-      newOrderRespType: 'FULL',
+      // newOrderRespType: 'FULL',
     });
 
     console.log('market sell result: ', result);
