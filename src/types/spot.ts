@@ -410,7 +410,7 @@ export interface ExchangeInfoParams {
 
 export interface NewSpotOrderParams<
   T extends OrderType = OrderType,
-  RT extends OrderResponseType | undefined = undefined,
+  RT extends OrderResponseType | undefined = OrderResponseType,
 > {
   symbol: string;
   side: OrderSide;
@@ -435,7 +435,7 @@ export type CancelReplaceMode = 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
 
 export interface ReplaceSpotOrderParams<
   T extends OrderType = OrderType,
-  RT extends OrderResponseType | undefined = undefined,
+  RT extends OrderResponseType | undefined = OrderResponseType,
 > extends NewSpotOrderParams<T, RT> {
   cancelReplaceMode: CancelReplaceMode;
   cancelNewClientOrderId?: string;
@@ -814,7 +814,7 @@ export interface ReplaceSpotOrderResultError {
 
 export interface ReplaceSpotOrderResultSuccess<
   T extends OrderType = OrderType,
-  RT extends OrderResponseType | undefined = undefined,
+  RT extends OrderResponseType | undefined = OrderResponseType,
 > extends GenericReplaceSpotOrderResult<
     CancelSpotOrderResult,
     OrderResponseTypeFor<RT, T>
