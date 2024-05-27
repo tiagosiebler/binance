@@ -1,4 +1,9 @@
-import { NewSpotOrderParams, OrderResponseFull, MainClient, SymbolPrice } from '../src/index';
+import {
+  NewSpotOrderParams,
+  OrderResponseFull,
+  MainClient,
+  SymbolPrice,
+} from '../src/index';
 
 // or
 // import { MainClient } from 'binance';
@@ -12,9 +17,9 @@ const client = new MainClient({
   beautifyResponses: true,
 });
 
-const entryAmountPercent = 50;// trigger trade with 50%
+const entryAmountPercent = 50; // trigger trade with 50%
 const symbol = 'BTCUSDT';
-const assetDecimalPlaces = 4;// get this from exchange info, it varies per asset
+const assetDecimalPlaces = 4; // get this from exchange info, it varies per asset
 
 // method to trim down to decimal.
 function trimToDecimalPlaces(number: number, precision: number): number {
@@ -36,7 +41,7 @@ function trimToDecimalPlaces(number: number, precision: number): number {
      */
     const balance = await client.getBalances();
 
-    const usdtBal = balance.find(assetBal => assetBal.coin === 'USDT');
+    const usdtBal = balance.find((assetBal) => assetBal.coin === 'USDT');
     // console.log('USDT balance object: ', usdtBal);
 
     const usdtAvailable = usdtBal?.free;
@@ -46,12 +51,16 @@ function trimToDecimalPlaces(number: number, precision: number): number {
     }
 
     const buyAmountValue = Number(usdtAvailable) * (50 / 100);
-    console.log(`Executing trade with ${entryAmountPercent}% of ${usdtAvailable} USDT = ${buyAmountValue} USDT value`);
+    console.log(
+      `Executing trade with ${entryAmountPercent}% of ${usdtAvailable} USDT = ${buyAmountValue} USDT value`,
+    );
 
     /**
      * Get last asset price
      */
-    const btcTicker = await client.getSymbolPriceTicker({ symbol: symbol }) as SymbolPrice;
+    const btcTicker = (await client.getSymbolPriceTicker({
+      symbol: symbol,
+    })) as SymbolPrice;
     const lastPrice = btcTicker?.price;
     if (!lastPrice) {
       return console.error('Error: no price returned');
@@ -60,8 +69,12 @@ function trimToDecimalPlaces(number: number, precision: number): number {
     /**
      * Calculate and submit buy amount
      */
-    const buyAmountBtc = +(buyAmountValue / Number(lastPrice)).toFixed(assetDecimalPlaces);
-    console.log(`Last ${symbol} price: ${lastPrice} => will buy ${buyAmountBtc} ${symbol}`);
+    const buyAmountBtc = +(buyAmountValue / Number(lastPrice)).toFixed(
+      assetDecimalPlaces,
+    );
+    console.log(
+      `Last ${symbol} price: ${lastPrice} => will buy ${buyAmountBtc} ${symbol}`,
+    );
 
     const buyOrderRequest: NewSpotOrderParams = {
       symbol: symbol,
@@ -73,39 +86,62 @@ function trimToDecimalPlaces(number: number, precision: number): number {
        * RESULT = fill state -> OrderResponseResult
        * FULL = fill state + detail on fills and other detail -> OrderResponseFull
        */
-      newOrderRespType: 'FULL'
+      newOrderRespType: 'FULL',
     };
 
-    console.log(`Submitting buy order: `, buyOrderRequest)
+    console.log(`Submitting buy order: `, buyOrderRequest);
     await client.testNewOrder(buyOrderRequest);
-    const buyOrderResult = await client.submitNewOrder(buyOrderRequest) as OrderResponseFull;
-    console.log(`Order result: `, JSON.stringify({ request: buyOrderRequest, response: buyOrderResult }, null, 2));
+    const buyOrderResult = (await client.submitNewOrder(
+      buyOrderRequest,
+    )) as OrderResponseFull;
+    console.log(
+      `Order result: `,
+      JSON.stringify(
+        { request: buyOrderRequest, response: buyOrderResult },
+        null,
+        2,
+      ),
+    );
 
     /**
      * Process bought fills and submit sell amount
      */
     const assetAmountBought = buyOrderResult.executedQty;
     const assetFillsMinusFees = buyOrderResult.fills.reduce(
-      (sum, fill) => sum + Number(fill.qty) - (fill.commissionAsset !== 'BNB' ? Number(fill.commission) : 0), 0
+      (sum, fill) =>
+        sum +
+        Number(fill.qty) -
+        (fill.commissionAsset !== 'BNB' ? Number(fill.commission) : 0),
+      0,
     );
-    console.log(`Filled buy ${symbol} ${assetAmountBought} : bought minus fees ${assetFillsMinusFees}`);
+    console.log(
+      `Filled buy ${symbol} ${assetAmountBought} : bought minus fees ${assetFillsMinusFees}`,
+    );
 
     const sellOrderRequest: NewSpotOrderParams = {
       symbol: symbol,
       quantity: trimToDecimalPlaces(assetFillsMinusFees, assetDecimalPlaces),
       side: 'SELL',
       type: 'MARKET',
-      newOrderRespType: 'FULL'
+      newOrderRespType: 'FULL',
     };
 
-    console.log(`Submitting sell order: `, sellOrderRequest)
+    console.log(`Submitting sell order: `, sellOrderRequest);
     await client.testNewOrder(sellOrderRequest);
-    const sellOrderResult = await client.submitNewOrder(sellOrderRequest) as OrderResponseFull;
-    console.log(`Order result: `, JSON.stringify({ request: sellOrderRequest, response: sellOrderResult }, null, 2));
+    const sellOrderResult = (await client.submitNewOrder(
+      sellOrderRequest,
+    )) as OrderResponseFull;
+
+    console.log(
+      `Order result: `,
+      JSON.stringify(
+        { request: sellOrderRequest, response: sellOrderResult },
+        null,
+        2,
+      ),
+    );
 
     console.log(`All ${symbol} should have been sold!`);
-
-
   } catch (e) {
     console.error('Error: request failed: ', e);
   }
