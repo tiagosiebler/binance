@@ -139,7 +139,7 @@ export class USDMClient extends BaseRestClient {
   }
 
   getMarkPrice(params: BasicSymbolParam): Promise<MarkPrice>;
-  getMarkPrice(params: BasicSymbolParam): Promise<MarkPrice[]>;
+  getMarkPrice(): Promise<MarkPrice[]>;
 
   /**
    * Index Price and Mark Price
