@@ -896,9 +896,10 @@ export interface MarginTransactionResponse {
 
 export interface MarginAccountLoanParams {
   asset: string;
-  isIsolated?: StringBoolean;
-  symbol?: string;
+  isIsolated: StringBoolean;
+  symbol: string;
   amount: number;
+  type: 'BORROW' | 'REPAY';
 }
 
 export interface QueryMarginAssetParams {
@@ -945,20 +946,26 @@ export interface QueryMarginRecordParams {
   archived?: boolean;
 }
 
-export type LoanStatus = 'PENDING' | 'CONFIRMED' | 'FAILED';
-
-export interface MarginRecordParams {
+export interface GetMarginAccountBorrowRepayRecordsParams {
+  asset?: string;
   isolatedSymbol?: string;
-  txId: number;
-  asset: string;
-  principal: numberInString;
-  timestamp: number;
-  status: LoanStatus;
+  txId?: number;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+  type: 'BORROW' | 'REPAY';
 }
 
-export interface MarginRecordResponse {
-  rows: Array<MarginRecordParams>;
-  total: number;
+export type LoanStatus = 'PENDING' | 'CONFIRMED' | 'FAILED';
+
+export interface MarginAccountRecord {
+  isolatedSymbol?: string;
+  asset: string;
+  principal: numberInString;
+  status: LoanStatus;
+  timestamp: number;
+  txId: number;
 }
 
 export interface QueryCrossMarginAccountDetailsParams {
@@ -969,7 +976,7 @@ export interface QueryCrossMarginAccountDetailsParams {
   totalNetAssetOfBtc: numberInString;
   tradeEnabled: boolean;
   transferEnabled: boolean;
-  userAssets: Array<MarginBalance>;
+  userAssets: MarginBalance[];
 }
 
 export interface BasicMarginAssetParams {
