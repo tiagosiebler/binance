@@ -993,14 +993,18 @@ export class MainClient extends BaseRestClient {
     return this.deletePrivate('sapi/v1/margin/openOrders', params);
   }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-cross-margin-transfer-history-user_data
-
+  /**
+   * @deprecated on 2024-01-09, use getMarginAccountBorrowRepayRecords() instead
+   */
   queryLoanRecord(
     params: QueryMarginRecordParams,
   ): Promise<{ rows: MarginAccountRecord[]; total: number }> {
     return this.getPrivate('sapi/v1/margin/loan', params);
   }
 
+  /**
+   * @deprecated on 2024-01-09, use getMarginAccountBorrowRepayRecords() instead
+   */
   queryRepayRecord(
     params: QueryMarginRecordParams,
   ): Promise<{ rows: MarginAccountRecord[]; total: number }> {
@@ -1063,6 +1067,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/margin/maxTransferable', params);
   }
 
+  /**
+   * @deprecated on 2024-01-09, use submitUniversalTransfer() instead
+   */
   isolatedMarginAccountTransfer(
     params: IsolatedMarginAccountTransferParams,
   ): Promise<MarginTransactionResponse> {
