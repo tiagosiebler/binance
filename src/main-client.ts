@@ -79,7 +79,6 @@ import {
   ExchangeInfoParams,
   FixedAndActivityProjectParams,
   FixedAndActivityProjectPositionParams,
-  FlexibleSavingBasicParams,
   FuturesPositionRisk,
   GetApiKeyBrokerSubAccountParams,
   GetBrokerInfoResponse,
@@ -92,22 +91,15 @@ import {
   IsolatedMarginAccountTransferParams,
   LeftDailyPurchaseQuotaFlexibleProductResponse,
   MarginAccountLoanParams,
-  MarginRecordResponse,
   MarginTransactionResponse,
   NewSpotOrderParams,
   OrderBookResponse,
-  OrderResponseACK,
-  OrderResponseFull,
-  OrderResponseResult,
   TransferBrokerSubAccountParams,
   TransferBrokerSubAccount,
-  PurchaseFlexibleProductParams,
   PurchaseFlexibleProductResponse,
   PurchaseRecordParams,
   QueryCrossMarginAccountDetailsParams,
-  QueryCrossMarginPairParams,
   QueryCrossMarginPairResponse,
-  QueryMarginAssetParams,
   QueryMarginAssetResponse,
   QueryMarginPriceIndexResponse,
   QueryMarginRecordParams,
@@ -115,7 +107,6 @@ import {
   QueryMaxTransferOutAmountResponse,
   RawAccountTrade,
   RawTrade,
-  RedeemFlexibleProductParams,
   RemoveBSwapLiquidityParams,
   SpotOrder,
   StakingBasicParams,
@@ -199,6 +190,8 @@ import {
   OrderResponseTypeFor,
   OrderList,
   CancelOrderListResult,
+  GetMarginAccountBorrowRepayRecordsParams,
+  MarginAccountRecord,
 } from './types/spot';
 
 import {
@@ -954,34 +947,16 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  crossMarginAccountTransfer(
-    params: CrossMarginAccountTransferParams,
-  ): Promise<MarginTransactionResponse> {
-    return this.postPrivate('sapi/v1/margin/transfer', params);
-  }
-
-  marginAccountBorrow(
+  submitMarginAccountBorrowRepay(
     params: MarginAccountLoanParams,
   ): Promise<MarginTransactionResponse> {
-    return this.postPrivate('sapi/v1/margin/loan', params);
+    return this.postPrivate('sapi/v1/margin/borrow-repay', params);
   }
 
-  marginAccountRepay(
-    params: MarginAccountLoanParams,
-  ): Promise<MarginTransactionResponse> {
-    return this.postPrivate('sapi/v1/margin/repay', params);
-  }
-
-  queryMarginAsset(
-    params: QueryMarginAssetParams,
-  ): Promise<QueryMarginAssetResponse> {
-    return this.get('sapi/v1/margin/asset', params);
-  }
-
-  queryCrossMarginPair(
-    params: QueryCrossMarginPairParams,
-  ): Promise<QueryCrossMarginPairResponse> {
-    return this.get('sapi/v1/margin/pair', params);
+  getMarginAccountBorrowRepayRecords(
+    params: GetMarginAccountBorrowRepayRecordsParams,
+  ): Promise<{ rows: MarginAccountRecord[]; total: number }> {
+    return this.getPrivate('sapi/v1/margin/borrow-repay', params);
   }
 
   getAllMarginAssets(): Promise<QueryMarginAssetResponse[]> {
@@ -1018,17 +993,21 @@ export class MainClient extends BaseRestClient {
     return this.deletePrivate('sapi/v1/margin/openOrders', params);
   }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-cross-margin-transfer-history-user_data
-
+  /**
+   * @deprecated on 2024-01-09, use getMarginAccountBorrowRepayRecords() instead
+   */
   queryLoanRecord(
     params: QueryMarginRecordParams,
-  ): Promise<MarginRecordResponse> {
+  ): Promise<{ rows: MarginAccountRecord[]; total: number }> {
     return this.getPrivate('sapi/v1/margin/loan', params);
   }
 
+  /**
+   * @deprecated on 2024-01-09, use getMarginAccountBorrowRepayRecords() instead
+   */
   queryRepayRecord(
     params: QueryMarginRecordParams,
-  ): Promise<MarginRecordResponse> {
+  ): Promise<{ rows: MarginAccountRecord[]; total: number }> {
     return this.getPrivate('sapi/v1/margin/repay', params);
   }
 
@@ -1088,6 +1067,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/margin/maxTransferable', params);
   }
 
+  /**
+   * @deprecated on 2024-01-09, use submitUniversalTransfer() instead
+   */
   isolatedMarginAccountTransfer(
     params: IsolatedMarginAccountTransferParams,
   ): Promise<MarginTransactionResponse> {
