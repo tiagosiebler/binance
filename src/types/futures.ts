@@ -205,6 +205,7 @@ export interface GetIncomeHistoryParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
+  page?: number;
 }
 
 export interface IncomeHistory {
