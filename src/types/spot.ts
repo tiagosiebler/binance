@@ -1557,7 +1557,13 @@ export interface EnableOrDisableIPRestrictionForSubAccountParams
   ipRestrict: boolean;
 }
 
-export interface SubAccountnableOrDisableIPRestriction {
+export interface AddIpRestriction
+  extends BasicSubAccount {
+  status: string;
+  ipAddress: string;
+}
+
+export interface SubAccountEnableOrDisableIPRestriction {
   ipRestrict: boolean;
   ipList: string[];
   updateTime: number;
