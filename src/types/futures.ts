@@ -595,6 +595,7 @@ export interface FuturesAccountInformation {
   canDeposit: boolean;
   canWithdraw: boolean;
   updateTime: numberInString;
+  multiAssetsMargin: boolean;
   totalInitialMargin: numberInString;
   totalMaintMargin: numberInString;
   totalWalletBalance: numberInString;

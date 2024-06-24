@@ -29,6 +29,7 @@ import {
 import {
   AccountInformation,
   AddBSwapLiquidityParams,
+  AddIpRestriction,
   AggregateTrade,
   AllCoinsInformationResponse,
   ApiKeyBrokerSubAccount,
@@ -138,7 +139,7 @@ import {
   SubAccountListParams,
   SubAccountListResponse,
   SubAccountMarginAccountDetail,
-  SubAccountnableOrDisableIPRestriction,
+  SubAccountEnableOrDisableIPRestriction,
   SubAccountsMarginAccountSummary,
   SubAccountSpotAssetsSummary,
   SubAccountSpotAssetsSummaryParams,
@@ -538,7 +539,7 @@ export class MainClient extends BaseRestClient {
 
   subAccountEnableOrDisableIPRestriction(
     params: EnableOrDisableIPRestrictionForSubAccountParams,
-  ): Promise<SubAccountnableOrDisableIPRestriction> {
+  ): Promise<SubAccountEnableOrDisableIPRestriction> {
     return this.postPrivate(
       'sapi/v1/sub-account/subAccountApi/ipRestriction',
       params,
@@ -546,7 +547,7 @@ export class MainClient extends BaseRestClient {
   }
 
   subAccountAddIPList(
-    params: SubAccountnableOrDisableIPRestriction,
+    params: SubAccountEnableOrDisableIPRestriction,
   ): Promise<SubAccountAddOrDeleteIPList> {
     return this.postPrivate(
       'sapi/v1/sub-account/subAccountApi/ipRestriction/ipList',
@@ -554,9 +555,18 @@ export class MainClient extends BaseRestClient {
     );
   }
 
+  subAccountAddIPRestriction(
+    params: AddIpRestriction,
+  ): Promise<SubAccountEnableOrDisableIPRestriction> {
+    return this.postPrivate(
+      'sapi/v2/sub-account/subAccountApi/ipRestriction',
+      params,
+    );
+  }
+
   getSubAccountIPRestriction(
     params: BasicSubAccount,
-  ): Promise<SubAccountnableOrDisableIPRestriction> {
+  ): Promise<SubAccountEnableOrDisableIPRestriction> {
     return this.getPrivate(
       'sapi/v1/sub-account/subAccountApi/ipRestriction',
       params,
@@ -564,8 +574,8 @@ export class MainClient extends BaseRestClient {
   }
 
   subAccountDeleteIPList(
-    params: SubAccountnableOrDisableIPRestriction,
-  ): Promise<SubAccountnableOrDisableIPRestriction> {
+    params: SubAccountEnableOrDisableIPRestriction,
+  ): Promise<SubAccountEnableOrDisableIPRestriction> {
     return this.deletePrivate(
       'sapi/v1/sub-account/subAccountApi/ipRestriction/ipList',
       params,
