@@ -9,6 +9,7 @@ export type BooleanStringCapitalised = 'TRUE' | 'FALSE';
 
 export type BinanceBaseUrlKey =
   | 'spot'
+  | 'spottest'
   | 'spot1'
   | 'spot2'
   | 'spot3'
@@ -328,6 +329,15 @@ export interface SymbolMinNotionalFilter {
   avgPriceMins: number;
 }
 
+export interface SymbolNotionalFilter {
+  filterType: 'NOTIONAL';
+  minNotional: numberInString;
+  applyMinToMarket: boolean;
+  maxNotional: numberInString;
+  applyMaxToMarket: boolean;
+  avgPriceMins: number;
+}
+
 export interface SymbolIcebergPartsFilter {
   filterType: 'ICEBERG_PARTS';
   limit: number;
@@ -365,6 +375,7 @@ export type SymbolFilter =
   | SymbolPercentPriceFilter
   | SymbolLotSizeFilter
   | SymbolMinNotionalFilter
+  | SymbolNotionalFilter
   | SymbolIcebergPartsFilter
   | SymbolMarketLotSizeFilter
   | SymbolMaxOrdersFilter

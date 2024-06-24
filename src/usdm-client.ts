@@ -86,9 +86,8 @@ export class USDMClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
-    useTestnet?: boolean,
   ) {
-    const clientId = useTestnet ? 'usdmtest' : 'usdm';
+    const clientId = restClientOptions.useTestnet ? 'usdmtest' : 'usdm';
     super(clientId, restClientOptions, requestOptions);
 
     this.clientId = clientId;

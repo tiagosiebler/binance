@@ -47,6 +47,9 @@ export interface RestClientOptions {
 
   //Defailt: false, if true will try to filter off undefined values from request params
   filterUndefinedParams?: boolean;
+
+  //Default: false, if true it will use the testnet otherwise default to mainnet
+  useTestnet?: boolean;
 }
 
 export type GenericAPIResponse<T = any> = Promise<T>;
@@ -54,6 +57,7 @@ export type GenericAPIResponse<T = any> = Promise<T>;
 export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
   switch (network) {
     case 'spot':
+    case 'spottest':
     case 'spot1':
     case 'spot2':
     case 'spot3':
@@ -156,6 +160,7 @@ export async function getRequestSignature(
 const BINANCE_BASE_URLS: Record<BinanceBaseUrlKey, string> = {
   // spot/margin/savings/mining
   spot: 'https://api.binance.com',
+  spottest: 'https://testnet.binance.vision',
   spot1: 'https://api.binance.com',
   spot2: 'https://api1.binance.com',
   spot3: 'https://api2.binance.com',
@@ -177,6 +182,7 @@ const BINANCE_BASE_URLS: Record<BinanceBaseUrlKey, string> = {
 export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
   switch (urlKey) {
     case 'spot':
+    case 'spottest':
     case 'spot1':
     case 'spot2':
     case 'spot3':
