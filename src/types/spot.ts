@@ -1911,10 +1911,6 @@ export interface AddBSwapLiquidityParams {
   quantity: number;
 }
 
-export interface BasicBSwapResp {
-  operationId: number;
-}
-
 export interface BSwapShare {
   shareAmount: number;
   sharePercentage: number;
@@ -1929,11 +1925,6 @@ export interface BSwapLiquidity {
   share: BSwapShare;
 }
 
-export interface GetFundingAssetParams {
-  asset?: string;
-  needBtcValuation?: string;
-}
-
 export interface FundingAsset {
   asset: string;
   free: string;
@@ -1943,7 +1934,7 @@ export interface FundingAsset {
   btcValuation: string;
 }
 
-export interface GetUserAssetParams {
+export interface GetAssetParams {
   asset?: string;
   needBtcValuation?: boolean;
 }
@@ -2022,7 +2013,7 @@ export interface CloudMiningHistoryResponse {
 export interface ConvertibleCoinsResponse {
   convertEnabled: boolean;
   coins: string[];
-  exchangeRates: Record<string, string>;
+  exchangeRates: any;
 }
 
 export interface ConvertibleCoinsParams {
@@ -2057,8 +2048,6 @@ export interface DepositAddress {
   isDefault: number;
 }
 
-export interface WalletBalanceParams {}
-
 export interface WalletBalance {
   activate: boolean;
   balance: string;
@@ -2073,8 +2062,6 @@ export interface DelegationHistoryParams {
   asset?: string;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface DelegationHistoryResponse {
@@ -2086,11 +2073,6 @@ export interface DelegationHistoryResponse {
     amount: string;
     time: number;
   }[];
-}
-
-export interface DelistScheduleParams {
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface DelistScheduleResponse {
@@ -2109,11 +2091,6 @@ export interface WithdrawAddress {
   whiteStatus: boolean;
 }
 
-export interface AccountInfoParams {
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface AccountInfoResponse {
   vipLevel: number;
   isMarginEnabled: boolean;
@@ -2126,8 +2103,6 @@ export interface ManagedSubAccountSnapshotParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ManagedSubAccountSnapshotResponse {
@@ -2238,12 +2213,6 @@ export interface ManagedSubAccountMarginAssetsResponse {
   }[];
 }
 
-export interface SubAccountAssetsMasterParams {
-  email: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface SubAccountAssetsMasterResponse {
   balances: {
     asset: string;
@@ -2256,8 +2225,6 @@ export interface ManagedSubAccountListParams {
   email?: string;
   page?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ManagedSubAccountListResponse {
@@ -2275,12 +2242,6 @@ export interface ManagedSubAccountListResponse {
     isFutureEnabled: boolean;
     isSignedLVTRiskAgreement: boolean;
   }[];
-}
-
-export interface SubAccountTransactionStatisticsParams {
-  email: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SubAccountTransactionStatisticsResponse {
@@ -2306,8 +2267,6 @@ export interface ManagedSubAccountDepositAddressParams {
   email: string;
   coin: string;
   network?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ManagedSubAccountDepositAddressResponse {
@@ -2315,12 +2274,6 @@ export interface ManagedSubAccountDepositAddressResponse {
   address: string;
   tag: string;
   url: string;
-}
-
-export interface EnableOptionsForSubAccountParams {
-  email: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface EnableOptionsForSubAccountResponse {
@@ -2335,8 +2288,6 @@ export interface ManagedSubAccountTransferTTLogParams {
   limit: number;
   transfers?: string;
   transferFunctionAccountType?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ManagedSubAccountTransferTTLogResponse {
@@ -2436,8 +2387,6 @@ export interface NewOrderListOTOParams {
   pendingTimeInForce?: 'GTC' | 'FOK' | 'IOC';
   pendingStrategyId?: number;
   pendingStrategyType?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface NewOrderListOTOResponse {
@@ -2506,8 +2455,6 @@ export interface NewOrderListOTOCOParams {
   pendingBelowTimeInForce?: 'GTC' | 'FOK' | 'IOC';
   pendingBelowStrategyId?: number;
   pendingBelowStrategyType?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface NewOrderListOTOCOResponse {
@@ -2543,11 +2490,6 @@ export interface NewOrderListOTOCOResponse {
   }[];
 }
 
-export interface OrderCountUsageParams {
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface OrderCountUsageResponse {
   rateLimitType: string;
   interval: string;
@@ -2563,8 +2505,6 @@ export interface PreventedMatchesParams {
   orderId?: number;
   fromPreventedMatchId?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PreventedMatch {
@@ -2586,8 +2526,6 @@ export interface AllocationsParams {
   fromAllocationId?: number;
   limit?: number;
   orderId?: number;
-  recvWindow?: number;
-  timestamp?: number;
 }
 
 export interface CommissionRatesResponse {
@@ -2620,8 +2558,6 @@ export interface GetCrossMarginTransferHistoryParams {
   current?: number;
   size?: number;
   isolatedSymbol?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CrossMarginTransferHistory {
@@ -2649,8 +2585,6 @@ export interface GetMarginInterestHistoryParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface MarginInterestHistory {
@@ -2681,8 +2615,6 @@ export interface GetForceLiquidationRecordParams {
   isolatedSymbol?: string;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ForceLiquidationRecord {
@@ -2710,15 +2642,11 @@ export interface QueryMarginAccountAllOCOParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface QueryMarginAccountOpenOCOParams {
   isIsolated?: 'TRUE' | 'FALSE';
   symbol?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface QueryMarginAccountTradeListParams {
@@ -2729,24 +2657,11 @@ export interface QueryMarginAccountTradeListParams {
   endTime?: number;
   fromId?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
-}
-
-export interface DisableEnableIsolatedMarginAccountParams {
-  symbol: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface DisableEnableIsolatedMarginAccountResponse {
   success: boolean;
   symbol: string;
-}
-
-export interface QueryIsolatedMarginAccountLimitParams {
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface QueryIsolatedMarginAccountLimitResponse {
@@ -2767,8 +2682,6 @@ export interface IsolatedMarginSymbol {
 export interface ToggleBNBBurnParams {
   spotBNBBurn?: 'true' | 'false';
   interestBNBBurn?: 'true' | 'false';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface BNBBurnResponse {
@@ -2781,8 +2694,6 @@ export interface QueryMarginInterestRateHistoryParams {
   vipLevel?: number;
   startTime?: number;
   endTime?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface MarginInterestRateHistory {
@@ -2795,8 +2706,6 @@ export interface MarginInterestRateHistory {
 export interface QueryCrossMarginFeeDataParams {
   vipLevel?: number;
   coin?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CrossMarginFeeData {
@@ -2824,8 +2733,6 @@ export interface IsolatedMarginFeeData {
 export interface QueryIsolatedMarginTierDataParams {
   symbol: string;
   tier?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface IsolatedMarginTierData {
@@ -2841,8 +2748,6 @@ export interface IsolatedMarginTierData {
 export interface GetMarginOrderCountUsageParams {
   isIsolated?: string;
   symbol?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface MarginOrderCountUsageResponse {
@@ -2864,23 +2769,12 @@ export interface CrossMarginCollateralRatioResponse {
   assetNames: string[];
 }
 
-export interface GetSmallLiabilityExchangeCoinListParams {
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface SmallLiabilityExchangeCoin {
   asset: string;
   interest: string;
   principal: string;
   liabilityAsset: string;
   liabilityQty: number;
-}
-
-export interface ExchangeSmallLiabilityParams {
-  assetNames: string[];
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ExchangeSmallLiabilityResponse {
@@ -2893,8 +2787,6 @@ export interface GetSmallLiabilityExchangeHistoryParams {
   size: number;
   startTime?: number;
   endTime?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SmallLiabilityExchangeHistory {
@@ -2914,8 +2806,6 @@ export interface GetSmallLiabilityExchangeHistoryResponse {
 export interface GetNextHourlyInterestRateParams {
   assets: string;
   isIsolated: boolean;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface NextHourlyInterestRate {
@@ -2931,8 +2821,6 @@ export interface GetMarginCapitalFlowParams {
   endTime?: number;
   fromId?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface MarginCapitalFlow {
@@ -2945,11 +2833,6 @@ export interface MarginCapitalFlow {
   amount: string;
 }
 
-export interface GetMarginDelistScheduleParams {
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface MarginDelistSchedule {
   delistTime: number;
   crossMarginAssets: string[];
@@ -2957,22 +2840,14 @@ export interface MarginDelistSchedule {
   updateTime: number;
 }
 
-export interface GetMarginAvailableInventoryParams {
-  type: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface MarginAvailableInventoryResponse {
-  assets: Record<string, string>;
+  assets: any;
   updateTime: number;
 }
 
 export interface ManualLiquidationParams {
   type: string;
   symbol?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ManualLiquidationResponse {
@@ -3004,8 +2879,6 @@ export interface GetFlexibleSubscriptionRecordParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetFlexibleSubscriptionRecordResponse {
@@ -3032,8 +2905,6 @@ export interface GetLockedSubscriptionRecordParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetLockedSubscriptionRecordResponse {
@@ -3063,8 +2934,6 @@ export interface GetFlexibleRedemptionRecordParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetFlexibleRedemptionRecordResponse {
@@ -3090,8 +2959,6 @@ export interface GetLockedRedemptionRecordParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetLockedRedemptionRecordResponse {
@@ -3119,8 +2986,6 @@ export interface GetFlexibleRewardsHistoryParams {
   type: 'BONUS' | 'REALTIME' | 'REWARDS';
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetFlexibleRewardsHistoryResponse {
@@ -3143,8 +3008,6 @@ export interface GetLockedRewardsHistoryParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetLockedRewardsHistoryResponse {
@@ -3160,37 +3023,14 @@ export interface GetLockedRewardsHistoryResult {
   total: number;
 }
 
-export interface SetFlexibleAutoSubscribeParams {
+export interface SetAutoSubscribeParams {
   productId: string;
   autoSubscribe: boolean;
-  recvWindow?: number;
-  timestamp: number;
-}
-
-export interface SetLockedAutoSubscribeParams {
-  positionId: string;
-  autoSubscribe: boolean;
-  recvWindow?: number;
-  timestamp: number;
-}
-
-export interface GetFlexiblePersonalLeftQuotaParams {
-  productId: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-
-export interface GetLockedPersonalLeftQuotaParams {
-  projectId: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetFlexibleSubscriptionPreviewParams {
   productId: string;
   amount: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetFlexibleSubscriptionPreviewResponse {
@@ -3206,8 +3046,6 @@ export interface GetLockedSubscriptionPreviewParams {
   projectId: string;
   amount: number;
   autoSubscribe?: boolean;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetLockedSubscriptionPreviewResponse {
@@ -3229,8 +3067,6 @@ export interface GetRateHistoryParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetRateHistoryResponse {
@@ -3251,8 +3087,6 @@ export interface GetCollateralRecordParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetCollateralRecordResponse {
@@ -3276,8 +3110,6 @@ export interface GetDualInvestmentProductListParams {
   investCoin: string;
   pageSize?: number;
   pageIndex?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface DualInvestmentProduct {
@@ -3310,8 +3142,6 @@ export interface SubscribeDualInvestmentProductParams {
   orderId: string;
   depositAmount: number;
   autoCompoundPlan: 'NONE' | 'STANDARD' | 'ADVANCED';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SubscribeDualInvestmentProductResponse {
@@ -3341,8 +3171,6 @@ export interface GetDualInvestmentPositionsParams {
     | 'SETTLING';
   pageSize?: number;
   pageIndex?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface DualInvestmentPosition {
@@ -3366,11 +3194,6 @@ export interface GetDualInvestmentPositionsResponse {
   list: DualInvestmentPosition[];
 }
 
-export interface CheckDualInvestmentAccountsParams {
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface CheckDualInvestmentAccountsResponse {
   totalAmountInBTC: string;
   totalAmountInUSDT: string;
@@ -3379,8 +3202,6 @@ export interface CheckDualInvestmentAccountsResponse {
 export interface ChangeAutoCompoundStatusParams {
   positionId: string;
   autoCompoundPlan: 'NONE' | 'STANDARD' | 'ADVANCED';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ChangeAutoCompoundStatusResponse {
@@ -3392,8 +3213,6 @@ export interface GetTargetAssetListParams {
   targetAsset?: string;
   size?: number;
   current?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface RoiAndDimensionType {
@@ -3421,18 +3240,11 @@ export interface GetTargetAssetROIParams {
     | 'SIX_MONTH'
     | 'THREE_MONTH'
     | 'SEVEN_DAY';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface TargetAssetROI {
   date: string;
   simulateRoi: string;
-}
-
-export interface GetAllAssetsParams {
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetAllAssetsResponse {
@@ -3446,8 +3258,6 @@ export interface GetSourceAssetListParams {
   usageType: 'RECURRING' | 'ONE_TIME';
   flexibleAllowedToUse?: boolean;
   sourceType?: 'MAIN_SITE' | 'TR';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SourceAsset {
@@ -3497,8 +3307,6 @@ export interface CreateInvestmentPlanParams {
   sourceAsset: string;
   flexibleAllowedToUse?: boolean;
   details: AutoInvestPortfolioDetail[];
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CreateInvestmentPlanResponse {
@@ -3531,8 +3339,6 @@ export interface EditInvestmentPlanParams {
   sourceAsset: string;
   flexibleAllowedToUse?: boolean;
   details: AutoInvestPortfolioDetail[];
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface EditInvestmentPlanResponse {
@@ -3543,8 +3349,6 @@ export interface EditInvestmentPlanResponse {
 export interface ChangePlanStatusParams {
   planId: number;
   status: 'ONGOING' | 'PAUSED' | 'REMOVED';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ChangePlanStatusResponse {
@@ -3553,17 +3357,9 @@ export interface ChangePlanStatusResponse {
   status: 'ONGOING' | 'PAUSED' | 'REMOVED';
 }
 
-export interface GetPlanListParams {
-  planType: 'SINGLE' | 'PORTFOLIO' | 'INDEX';
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface GetPlanDetailsParams {
   planId?: number;
   requestId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetSubscriptionTransactionHistoryParams {
@@ -3574,14 +3370,6 @@ export interface GetSubscriptionTransactionHistoryParams {
   planType?: 'SINGLE' | 'PORTFOLIO' | 'INDEX' | 'ALL';
   size?: number;
   current?: number;
-  recvWindow?: number;
-  timestamp: number;
-}
-
-export interface GetIndexDetailsParams {
-  indexId: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface AssetAllocation {
@@ -3594,12 +3382,6 @@ export interface GetIndexDetailsResponse {
   indexName: string;
   status: 'RUNNING' | 'REBALANCING' | 'PAUSED';
   assetAllocation: AssetAllocation[];
-}
-
-export interface GetIndexLinkedPlanPositionDetailsParams {
-  indexId: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface IndexLinkedPlanDetail {
@@ -3638,8 +3420,6 @@ export interface SubmitOneTimeTransactionParams {
     targetAsset: string;
     percentage: number;
   }[];
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SubmitOneTimeTransactionResponse {
@@ -3650,8 +3430,6 @@ export interface SubmitOneTimeTransactionResponse {
 export interface GetOneTimeTransactionStatusParams {
   transactionId: number;
   requestId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetOneTimeTransactionStatusResponse {
@@ -3663,8 +3441,6 @@ export interface SubmitIndexLinkedPlanRedemptionParams {
   indexId: number;
   requestId?: string;
   redemptionPercentage: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetIndexLinkedPlanRedemptionHistoryParams {
@@ -3674,8 +3450,6 @@ export interface GetIndexLinkedPlanRedemptionHistoryParams {
   current?: number;
   asset?: string;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface IndexLinkedPlanRedemptionRecord {
@@ -3695,8 +3469,6 @@ export interface GetIndexLinkedPlanRebalanceHistoryParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface RebalanceTransactionDetail {
@@ -3716,18 +3488,6 @@ export interface IndexLinkedPlanRebalanceRecord {
   transactionDetails: RebalanceTransactionDetail[];
 }
 
-export interface SubscribeEthV1StakingParams {
-  amount: number;
-  recvWindow?: number;
-  timestamp: number;
-}
-
-export interface SubscribeEthStakingV2Params {
-  amount: number;
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface SubscribeEthStakingV2Response {
   success: boolean;
   wbethAmount: string;
@@ -3737,8 +3497,6 @@ export interface SubscribeEthStakingV2Response {
 export interface RedeemEthParams {
   asset?: string;
   amount: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface RedeemEthResponse {
@@ -3753,8 +3511,6 @@ export interface GetEthStakingHistoryParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface EthStakingHistory {
@@ -3776,8 +3532,6 @@ export interface GetEthRedemptionHistoryParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface EthRedemptionHistory {
@@ -3801,8 +3555,6 @@ export interface GetBethRewardsHistoryParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface BethRewardsHistory {
@@ -3819,11 +3571,6 @@ export interface GetBethRewardsHistoryResponse {
   total: number;
 }
 
-export interface GetEthStakingQuotaParams {
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface GetEthStakingQuotaResponse {
   leftStakingPersonalQuota: string;
   leftRedemptionPersonalQuota: string;
@@ -3834,8 +3581,6 @@ export interface GetETHRateHistoryParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ETHRateHistory {
@@ -3867,12 +3612,6 @@ export interface GetEthStakingAccountV2Response {
   };
 }
 
-export interface WrapBethParams {
-  amount: number;
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface WrapBethResponse {
   success: boolean;
   wbethAmount: string;
@@ -3884,8 +3623,6 @@ export interface GetWrapHistoryParams {
   endTime?: number;
   current?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface WrapHistory {
@@ -3935,8 +3672,6 @@ export interface GetMinerDetailsParams {
   algo: string;
   userName: string;
   workerName: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface HashrateData {
@@ -3964,8 +3699,6 @@ export interface GetMinerListParams {
   sort?: number;
   sortColumn?: number;
   workerStatus?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface WorkerData {
@@ -3996,11 +3729,9 @@ export interface GetEarningsListParams {
   endDate?: number;
   pageIndex?: number;
   pageSize?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface AccountProfit {
+export interface AccountEarningsProfit {
   time: number;
   type: number;
   hashTransfer: number | null;
@@ -4015,7 +3746,7 @@ export interface GetEarningsListResponse {
   code: number;
   msg: string;
   data: {
-    accountProfits: AccountProfit[];
+    accountProfits: AccountEarningsProfit[];
     totalNum: number;
     pageSize: number;
   };
@@ -4029,8 +3760,6 @@ export interface GetExtraBonusListParams {
   endDate?: number;
   pageIndex?: number;
   pageSize?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface OtherProfit {
@@ -4054,8 +3783,6 @@ export interface GetExtraBonusListResponse {
 export interface GetHashrateResaleListParams {
   pageIndex?: number;
   pageSize?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ConfigDetail {
@@ -4084,8 +3811,6 @@ export interface GetHashrateResaleDetailParams {
   userName: string;
   pageIndex?: number;
   pageSize?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface ProfitTransferDetail {
@@ -4114,22 +3839,16 @@ export interface SubmitHashrateResaleParams {
   startDate: number;
   toPoolUser: string;
   hashRate: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CancelHashrateResaleConfigParams {
   configId: number;
   userName: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetStatisticListParams {
   algo: string;
   userName: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface Profit {
@@ -4157,8 +3876,6 @@ export interface GetStatisticListResponse {
 export interface getMiningAccountsListParams {
   algo: string;
   userName: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface MiningHashrateData {
@@ -4185,11 +3902,9 @@ export interface GetMiningAccountEarningParams {
   endDate?: number;
   pageIndex?: number;
   pageSize?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface AccountProfit {
+export interface AccountMiningProfit {
   time: number;
   coinName: string;
   type: number;
@@ -4202,7 +3917,7 @@ export interface GetMiningAccountEarningResponse {
   code: number;
   msg: string;
   data: {
-    accountProfits: AccountProfit[];
+    accountProfits: AccountMiningProfit[];
     totalNum: number;
     pageSize: number;
   };
@@ -4213,17 +3928,11 @@ export interface GetFutureTickLevelOrderbookDataLinkParams {
   dataType: 'T_DEPTH' | 'S_DEPTH';
   startTime: number;
   endTime: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface HistoricalDataLink {
   day: string;
   url: string;
-}
-
-export interface GetFutureTickLevelOrderbookDataLinkResponse {
-  data: HistoricalDataLink[];
 }
 
 export interface SubmitVpNewOrderParams {
@@ -4235,8 +3944,6 @@ export interface SubmitVpNewOrderParams {
   clientAlgoId?: string;
   reduceOnly?: boolean;
   limitPrice?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SubmitVpNewOrderResponse {
@@ -4255,8 +3962,6 @@ export interface SubmitTwapNewOrderParams {
   clientAlgoId?: string;
   reduceOnly?: boolean;
   limitPrice?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SubmitTwapNewOrderResponse {
@@ -4264,12 +3969,6 @@ export interface SubmitTwapNewOrderResponse {
   success: boolean;
   code: number;
   msg: string;
-}
-
-export interface CancelAlgoOrderParams {
-  algoId: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CancelAlgoOrderResponse {
@@ -4308,8 +4007,6 @@ export interface GetAlgoHistoricalOrdersParams {
   endTime?: number;
   page?: number;
   pageSize?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface HistoricalAlgoOrder {
@@ -4338,8 +4035,6 @@ export interface GetAlgoSubOrdersParams {
   algoId: number;
   page?: number;
   pageSize?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SubOrder {
@@ -4374,8 +4069,6 @@ export interface SubmitSpotTwapNewOrderParams {
   clientAlgoId?: string;
   limitPrice?: number;
   stpMode?: 'EXPIRE_TAKER' | 'EXPIRE_MAKER' | 'EXPIRE_BOTH' | 'NONE';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SubmitSpotTwapNewOrderResponse {
@@ -4383,12 +4076,6 @@ export interface SubmitSpotTwapNewOrderResponse {
   success: boolean;
   code: number;
   msg: string;
-}
-
-export interface CancelSpotAlgoOrderParams {
-  algoId: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CancelSpotAlgoOrderResponse {
@@ -4426,8 +4113,6 @@ export interface GetSpotAlgoHistoricalOrdersParams {
   endTime?: number;
   page?: number;
   pageSize?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface HistoricalSpotAlgoOrder {
@@ -4455,8 +4140,6 @@ export interface GetSpotAlgoSubOrdersParams {
   algoId: number;
   page?: number;
   pageSize?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SpotSubOrder {
@@ -4507,8 +4190,6 @@ export interface GetPortfolioMarginProInterestHistoryParams {
   startTime?: number;
   endTime?: number;
   size?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetPortfolioMarginProInterestHistoryResponse {
@@ -4528,8 +4209,6 @@ export interface GetPortfolioMarginAssetIndexPriceResponse {
 export interface BnbTransferParams {
   amount: number;
   transferSide: 'TO_UM' | 'FROM_UM';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetPortfolioMarginAssetLeverageResponse {
@@ -4540,8 +4219,6 @@ export interface GetPortfolioMarginAssetLeverageResponse {
 export interface SubscribeBlvtParams {
   tokenName: string;
   cost: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SubscribeBlvtResponse {
@@ -4559,8 +4236,6 @@ export interface GetBlvtSubscriptionRecordParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface BlvtSubscriptionRecord {
@@ -4576,8 +4251,6 @@ export interface BlvtSubscriptionRecord {
 export interface RedeemBlvtParams {
   tokenName: string;
   amount: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface RedeemBlvtResponse {
@@ -4595,8 +4268,6 @@ export interface GetBlvtRedemptionRecordParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface BlvtRedemptionRecord {
@@ -4606,12 +4277,6 @@ export interface BlvtRedemptionRecord {
   nav: string;
   fee: string;
   netProceed: string;
-  timestamp: number;
-}
-
-export interface GetBlvtUserLimitInfoParams {
-  tokenName?: string;
-  recvWindow?: number;
   timestamp: number;
 }
 
@@ -4627,8 +4292,6 @@ export interface GetFiatOrderHistoryParams {
   endTime?: number;
   page?: number;
   rows?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetFiatOrderHistoryResponse {
@@ -4675,8 +4338,6 @@ export interface GetC2CTradeHistoryParams {
   endTimestamp?: number;
   page?: number;
   rows?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetC2CTradeHistoryResponse {
@@ -4709,8 +4370,6 @@ export interface GetVipLoanOngoingOrdersParams {
   collateralCoin?: string;
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetVipLoanOngoingOrdersResponse {
@@ -4738,8 +4397,6 @@ export interface GetVipLoanOngoingOrdersResponse {
 export interface VipLoanRepayParams {
   orderId: number;
   amount: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface VipLoanRepayResponse {
@@ -4759,8 +4416,6 @@ export interface GetVipLoanRepaymentHistoryParams {
   endTime?: number;
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetVipLoanRepaymentHistoryResponse {
@@ -4779,8 +4434,6 @@ export interface GetVipLoanRepaymentHistoryResponse {
 export interface VipLoanRenewParams {
   orderId: number;
   loanTerm?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface VipLoanRenewResponse {
@@ -4795,8 +4448,6 @@ export interface VipLoanRenewResponse {
 export interface CheckVipCollateralAccountParams {
   orderId?: number;
   collateralAccountId?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CheckVipCollateralAccountResponse {
@@ -4815,8 +4466,6 @@ export interface VipLoanBorrowParams {
   collateralCoin: string;
   isFlexibleRate: boolean;
   loanTerm?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface VipLoanBorrowResponse {
@@ -4833,52 +4482,21 @@ export interface VipLoanBorrowResponse {
 export interface GetLoanableAssetsDataParams {
   loanCoin?: string;
   vipLevel?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetLoanableAssetsDataResponse {
-  rows: {
-    loanCoin: string;
-    flexibleHourlyInterestRate: string;
-    flexibleYearlyInterestRate: string;
-    _30dDailyInterestRate: string;
-    _30dYearlyInterestRate: string;
-    _60dDailyInterestRate: string;
-    _60dYearlyInterestRate: string;
-    minLimit: string;
-    maxLimit: string;
-    vipLevel: number;
-  }[];
+  rows: LoanableAssetData[];
   total: number;
 }
 
-export interface GetCollateralAssetDataParams {
-  collateralCoin?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface GetCollateralAssetDataResponse {
-  rows: {
-    collateralCoin: string;
-    _1stCollateralRatio: string;
-    _1stCollateralRange: string;
-    _2ndCollateralRatio: string;
-    _2ndCollateralRange: string;
-    _3rdCollateralRatio: string;
-    _3rdCollateralRange: string;
-    _4thCollateralRatio: string;
-    _4thCollateralRange: string;
-  }[];
+  rows: CollateralAssetData[];
   total: number;
 }
 
 export interface GetApplicationStatusParams {
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetApplicationStatusResponse {
@@ -4897,12 +4515,6 @@ export interface GetApplicationStatusResponse {
   total: number;
 }
 
-export interface GetBorrowInterestRateParams {
-  loanCoin: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface BorrowInterestRate {
   asset: string;
   flexibleDailyInterestRate: string;
@@ -4916,8 +4528,6 @@ export interface GetCryptoLoansIncomeHistoryParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetCryptoLoansIncomeHistoryResponse {
@@ -4934,8 +4544,6 @@ export interface BorrowCryptoLoanParams {
   collateralCoin: string;
   collateralAmount?: number;
   loanTerm: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface BorrowCryptoLoanResponse {
@@ -4955,8 +4563,6 @@ export interface GetLoanBorrowHistoryParams {
   endTime?: number;
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface LoanBorrowHistory {
@@ -4982,8 +4588,6 @@ export interface GetLoanOngoingOrdersParams {
   collateralCoin?: string;
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface LoanOngoingOrder {
@@ -5007,8 +4611,6 @@ export interface RepayCryptoLoanParams {
   amount: number;
   type?: number;
   collateralReturn?: boolean;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface RepayCryptoLoanResponse {
@@ -5029,8 +4631,6 @@ export interface GetLoanRepaymentHistoryParams {
   endTime?: number;
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface LoanRepaymentHistory {
@@ -5054,8 +4654,6 @@ export interface AdjustCryptoLoanLTVParams {
   orderId: number;
   amount: number;
   direction: 'ADDITIONAL' | 'REDUCED';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface AdjustCryptoLoanLTVResponse {
@@ -5074,8 +4672,6 @@ export interface GetLoanLTVAdjustmentHistoryParams {
   endTime?: number;
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface LoanLTVAdjustmentHistory {
@@ -5092,13 +4688,6 @@ export interface LoanLTVAdjustmentHistory {
 export interface GetLoanLTVAdjustmentHistoryResponse {
   rows: LoanLTVAdjustmentHistory[];
   total: number;
-}
-
-export interface GetLoanableAssetsDataParams {
-  loanCoin?: string;
-  vipLevel?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface LoanableAssetData {
@@ -5126,8 +4715,6 @@ export interface GetCryptoLoanLoanableAssetsResponse {
 export interface GetCollateralAssetDataParams {
   collateralCoin?: string;
   vipLevel?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CollateralAssetData {
@@ -5148,8 +4735,6 @@ export interface CheckCollateralRepayRateParams {
   loanCoin: string;
   collateralCoin: string;
   repayAmount: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CheckCollateralRepayRateResponse {
@@ -5163,8 +4748,6 @@ export interface CustomizeMarginCallParams {
   orderId?: number;
   collateralCoin?: string;
   marginCall: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CustomizeMarginCall {
@@ -5185,8 +4768,6 @@ export interface BorrowFlexibleLoanParams {
   loanAmount?: number;
   collateralCoin: string;
   collateralAmount?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface BorrowFlexibleLoanResponse {
@@ -5202,8 +4783,6 @@ export interface GetFlexibleLoanOngoingOrdersParams {
   collateralCoin?: string;
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface FlexibleLoanOngoingOrder {
@@ -5226,8 +4805,6 @@ export interface GetFlexibleCryptoLoanBorrowHistoryParams {
   endTime?: number;
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface FlexibleCryptoLoanBorrowHistory {
@@ -5250,8 +4827,6 @@ export interface RepayCryptoFlexibleLoanParams {
   repayAmount: number;
   collateralReturn?: boolean;
   fullRepayment?: boolean;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface RepayCryptoFlexibleLoanResponse {
@@ -5271,8 +4846,6 @@ export interface GetFlexibleCryptoLoanRepaymentHistoryParams {
   endTime?: number;
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface FlexibleCryptoLoanRepaymentHistory {
@@ -5294,8 +4867,6 @@ export interface AdjustFlexibleCryptoLoanLTVParams {
   collateralCoin: string;
   adjustmentAmount: number;
   direction: 'ADDITIONAL' | 'REDUCED';
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface AdjustFlexibleCryptoLoanLTVResponse {
@@ -5313,8 +4884,6 @@ export interface GetFlexibleLoanLTVAdjustmentHistoryParams {
   endTime?: number;
   current?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface FlexibleLoanLTVAdjustmentHistory {
@@ -5332,12 +4901,6 @@ export interface GetFlexibleLoanLTVAdjustmentHistoryResponse {
   total: number;
 }
 
-export interface GetFlexibleLoanAssetsDataParams {
-  loanCoin?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-
 export interface FlexibleLoanAssetData {
   loanCoin: string;
   flexibleInterestRate: string;
@@ -5348,12 +4911,6 @@ export interface FlexibleLoanAssetData {
 export interface GetFlexibleLoanAssetsDataResponse {
   rows: FlexibleLoanAssetData[];
   total: number;
-}
-
-export interface GetFlexibleLoanCollateralAssetsDataParams {
-  collateralCoin?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface FlexibleLoanCollateralAssetData {
@@ -5393,8 +4950,6 @@ export interface GetPayTradeHistoryParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface GetAllConvertPairsParams {
@@ -5411,11 +4966,9 @@ export interface SubmitConvertLimitOrderParams {
   side: 'BUY' | 'SELL';
   walletType?: 'SPOT' | 'FUNDING' | 'SPOT_FUNDING';
   expiredType: '1_D' | '3_D' | '7_D' | '30_D';
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface LimitOpenOrder {
+export interface ConvertLimitOpenOrder {
   quoteId: string;
   orderId: number;
   orderStatus: string;
@@ -5429,16 +4982,10 @@ export interface LimitOpenOrder {
   expiredTimestamp: number;
 }
 
-export interface GetLimitOpenOrdersResponse {
-  list: LimitOpenOrder[];
-}
-
 export interface GetSpotRebateHistoryRecordsParams {
   startTime?: number;
   endTime?: number;
   page?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface SpotRebateHistoryRecord {
@@ -5466,8 +5013,6 @@ export interface GetNftTransactionHistoryParams {
   endTime?: number;
   limit?: number;
   page?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface NftToken {
@@ -5494,8 +5039,6 @@ export interface GetNftDepositHistoryParams {
   endTime?: number;
   limit?: number;
   page?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface NftDeposit {
@@ -5516,8 +5059,6 @@ export interface GetNftWithdrawHistoryParams {
   endTime?: number;
   limit?: number;
   page?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface NftWithdraw {
@@ -5538,8 +5079,6 @@ export interface GetNftWithdrawHistoryResponse {
 export interface GetNftAssetParams {
   limit?: number;
   page?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface NftAsset {
@@ -5556,8 +5095,6 @@ export interface GetNftAssetResponse {
 export interface CreateGiftCardParams {
   token: string;
   amount: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface CreateDualTokenGiftCardParams {
@@ -5565,19 +5102,9 @@ export interface CreateDualTokenGiftCardParams {
   faceToken: string;
   baseTokenAmount: number;
   discount?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface RedeemGiftCardParams {
   code: string;
   externalUid?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-
-export interface VerifyGiftCardParams {
-  referenceNo: string;
-  recvWindow?: number;
-  timestamp: number;
 }

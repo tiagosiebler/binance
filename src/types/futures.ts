@@ -306,7 +306,7 @@ export interface FuturesSymbolExchangeInfo {
   timeInForce: OrderTimeInForce[];
   liquidationFee: numberInString;
   marketTakeBound: numberInString;
-  contractSize?:number;
+  contractSize?: number;
 }
 
 export interface FuturesExchangeInfo {
@@ -758,3 +758,103 @@ export interface OrderAmendment {
   time: number;
   amendment: OrderAmendmentDetail;
 }
+
+export interface QuarterlyContractSettlementPrice {
+  deliveryTime: number;
+  deliveryPrice: string;
+}
+
+export interface BasisParams {
+  pair: string;
+  contractType: 'CURRENT_QUARTER' | 'NEXT_QUARTER' | 'PERPETUAL';
+  period: '5m' | '15m' | '30m' | '1h' | '2h' | '4h' | '6h' | '12h' | '1d';
+  limit: number;
+  startTime?: number;
+  endTime?: number;
+}
+
+export interface Basis {
+  indexPrice: string;
+  contractType: string;
+  basisRate: string;
+  futuresPrice: string;
+  annualizedBasisRate: string;
+  basis: string;
+  pair: string;
+  timestamp: number;
+}
+
+export interface IndexPriceConstituent {
+  exchange: string;
+  symbol: string;
+}
+
+export interface IndexPriceConstituents {
+  symbol: string;
+  time: number;
+  constituents: IndexPriceConstituent[];
+}
+
+export interface ToggleBNBBurnParams {
+  feeBurn: 'true' | 'false';
+}
+
+export interface ModifyOrderParams {
+  orderId?: number;
+  origClientOrderId?: string;
+  symbol: string;
+  side: 'SELL' | 'BUY';
+  quantity: string;
+  price: string;
+  priceMatch?:
+    | 'OPPONENT'
+    | 'OPPONENT_5'
+    | 'OPPONENT_10'
+    | 'OPPONENT_20'
+    | 'QUEUE'
+    | 'QUEUE_5'
+    | 'QUEUE_10'
+    | 'QUEUE_20';
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface GetOrderModifyHistoryParams {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface GetDownloadIdFuturesTransactionParams {
+  startTime: number;
+  endTime: number;
+}
+
+export interface DownloadIdFuturesTransaction {
+  avgCostTimestampOfLast30d: number;
+  downloadId: string;
+}
+
+export interface FuturesTransactionDownloadLink {
+  downloadId: string;
+  status: 'completed' | 'processing';
+  url: string;
+  expirationTimestamp: number;
+  isExpired: boolean | null;
+}
+
+export interface GetPortfolioMarginProAccountInfoParams {
+  asset: string;
+}
+
+export interface PortfolioMarginProAccountInfo {
+  maxWithdrawAmountUSD: string;
+  asset: string;
+  maxWithdrawAmount: string; // This field will be ignored in the response
+}
+

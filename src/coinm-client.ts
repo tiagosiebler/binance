@@ -1,10 +1,16 @@
 import { AxiosRequestConfig } from 'axios';
 import {
+  ClassicPortfolioMarginAccountInfo,
+  ClassicPortfolioMarginNotionalLimitResponse,
   CoinMAccountTradeParams,
   CoinMOpenInterest,
   CoinMPositionTrade,
   CoinMSymbolOrderBookTicker,
+  FundingRateInfo,
+  GetClassicPortfolioMarginNotionalLimitParams,
+  IndexPriceConstituents,
   PositionRisk,
+  QuarterlyContractSettlementPrice,
   SymbolOrPair,
 } from './types/coin';
 import {
@@ -159,8 +165,16 @@ export class CoinMClient extends BaseRestClient {
     return this.get('dapi/v1/fundingRate', params);
   }
 
+  getFundingRateInfo(params?: { symbol?: string }): Promise<FundingRateInfo[]> {
+    return this.get('dapi/v1/fundingInfo', params);
+  }
+
   getKlines(params: KlinesParams): Promise<Kline[]> {
     return this.get('dapi/v1/klines', params);
+  }
+
+  getPremiumIndexKlines(params: KlinesParams): Promise<Kline[]> {
+    return this.get('dapi/v1/premiumIndexKlines', params);
   }
 
   getContinuousContractKlines(
@@ -206,6 +220,12 @@ export class CoinMClient extends BaseRestClient {
     );
   }
 
+  getIndexPriceConstituents(params: {
+    symbol: string;
+  }): Promise<IndexPriceConstituents> {
+    return this.get('dapi/v1/constituents', params);
+  }
+
   getOpenInterest(params: { symbol: string }): Promise<CoinMOpenInterest> {
     return this.get('dapi/v1/openInterest', params);
   }
@@ -242,6 +262,12 @@ export class CoinMClient extends BaseRestClient {
     return this.get('futures/data/basis', params);
   }
 
+  getQuarterlyContractSettlementPrice(params: {
+    pair: string;
+  }): Promise<QuarterlyContractSettlementPrice[]> {
+    return this.get('futures/data/delivery-price', params);
+  }
+
   /**
    *
    * USD-Futures Account/Trade Endpoints
@@ -256,9 +282,7 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/positionSide/dual');
   }
 
-  submitNewOrder(
-    params: NewFuturesOrderParams,
-  ): Promise<NewOrderResult> {
+  submitNewOrder(params: NewFuturesOrderParams): Promise<NewOrderResult> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('dapi/v1/order', params);
   }
@@ -542,6 +566,24 @@ export class CoinMClient extends BaseRestClient {
 
   closeFuturesUserDataListenKey(): Promise<{}> {
     return this.delete('dapi/v1/listenKey');
+  }
+
+  /**
+   *
+   * Classic Portfolio Margin Endpoints
+   *
+   **/
+
+  getClassicPortfolioMarginNotionalLimit(
+    params?: GetClassicPortfolioMarginNotionalLimitParams,
+  ): Promise<ClassicPortfolioMarginNotionalLimitResponse> {
+    return this.getPrivate('dapi/v1/pmExchangeInfo', params);
+  }
+
+  getClassicPortfolioMarginAccountInfo(params: {
+    asset: string;
+  }): Promise<ClassicPortfolioMarginAccountInfo> {
+    return this.getPrivate('dapi/v1/pmAccountInfo', params);
   }
 
   /**
