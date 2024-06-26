@@ -8,9 +8,7 @@ import {
   CoinMSymbolOrderBookTicker,
   FundingRateInfo,
   GetClassicPortfolioMarginNotionalLimitParams,
-  IndexPriceConstituents,
   PositionRisk,
-  QuarterlyContractSettlementPrice,
   SymbolOrPair,
 } from './types/coin';
 import {
@@ -59,6 +57,7 @@ import {
   NewOrderResult,
   NewOrderError,
   OrderResult,
+  QuarterlyContractSettlementPrice,
   CancelFuturesOrderResult,
   CancelAllOpenOrdersResult,
   SetLeverageResult,
@@ -78,6 +77,7 @@ import {
   FuturesCoinMAccountBalance,
   FuturesCoinMAccountInformation,
   UserCommissionRate,
+  IndexPriceConstituents,
 } from './types/futures';
 
 import {

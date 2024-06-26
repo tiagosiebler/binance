@@ -795,10 +795,6 @@ export interface IndexPriceConstituents {
   constituents: IndexPriceConstituent[];
 }
 
-export interface ToggleBNBBurnParams {
-  feeBurn: 'true' | 'false';
-}
-
 export interface ModifyOrderParams {
   orderId?: number;
   origClientOrderId?: string;
@@ -819,7 +815,7 @@ export interface ModifyOrderParams {
   timestamp: number;
 }
 
-export interface GetOrderModifyHistoryParams {
+export interface GetFuturesOrderModifyHistoryParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -857,4 +853,3 @@ export interface PortfolioMarginProAccountInfo {
   asset: string;
   maxWithdrawAmount: string; // This field will be ignored in the response
 }
-

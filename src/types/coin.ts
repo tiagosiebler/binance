@@ -99,21 +99,6 @@ export interface IndexPriceConstituentsParams {
   symbol: string;
 }
 
-export interface IndexPriceConstituent {
-  exchange: string;
-  symbol: string;
-}
-
-export interface IndexPriceConstituents {
-  symbol: string;
-  time: number;
-  constituents: IndexPriceConstituent[];
-}
-
-export interface QuarterlyContractSettlementPrice {
-  deliveryPrice: number;
-  deliveryTime: number;
-}
 
 export interface GetClassicPortfolioMarginNotionalLimitParams {
   symbol?: string;

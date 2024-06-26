@@ -73,11 +73,11 @@ import {
   Basis,
   IndexPriceConstituents,
   ModifyOrderParams,
-  GetOrderModifyHistoryParams,
   FuturesTransactionDownloadLink,
   GetDownloadIdFuturesTransactionParams,
   DownloadIdFuturesTransaction,
   PortfolioMarginProAccountInfo,
+  GetFuturesOrderModifyHistoryParams,
 } from './types/futures';
 
 import {
@@ -358,7 +358,9 @@ export class USDMClient extends BaseRestClient {
     return this.putPrivate('fapi/v1/batchOrders', requestBody);
   }
 
-  getOrderModifyHistory(params: GetOrderModifyHistoryParams): Promise<any> {
+  getOrderModifyHistory(
+    params: GetFuturesOrderModifyHistoryParams,
+  ): Promise<any> {
     return this.getPrivate('fapi/v1/orderAmendment', params);
   }
 
