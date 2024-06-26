@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { AxiosRequestConfig } from 'axios';
 
 /**
@@ -16,7 +17,8 @@ export function getHttpsProxyAgent(
     const url = `https://${user}:${pass}@${host}:${port}`;
     return new HttpsProxyAgent(url);
   } catch (e) {
-    const msg = `Failed to prepare https proxy config - proxy agent dependency not installed`;
+    const msg =
+      'Failed to prepare https proxy config - proxy agent dependency not installed';
     console.error(new Date(), msg, e);
     throw new Error(msg);
   }
@@ -33,7 +35,8 @@ export function getWsProxyAgent(
     const url = `socks://${user}:${pass}@${host}:${port}`;
     return new SocksProxyAgent(url);
   } catch (e) {
-    const msg = `Failed to prepare WS proxy config - proxy agent dependency not installed`;
+    const msg =
+      'Failed to prepare WS proxy config - proxy agent dependency not installed';
     console.error(new Date(), msg, e);
     throw new Error(msg);
   }

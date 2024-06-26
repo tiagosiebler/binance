@@ -40,6 +40,7 @@ interface WsStoredState {
 
 export default class WsStore {
   private wsState: Record<string, WsStoredState>;
+
   private logger: typeof DefaultLogger;
 
   constructor(logger: typeof DefaultLogger) {
@@ -49,7 +50,9 @@ export default class WsStore {
 
   /** Get WS stored state for key, optionally create if missing */
   get(key: WsKey, createIfMissing?: true): WsStoredState;
+
   get(key: WsKey, createIfMissing?: false): WsStoredState | undefined;
+
   get(key: WsKey, createIfMissing?: boolean): WsStoredState | undefined {
     if (this.wsState[key]) {
       return this.wsState[key];
@@ -68,7 +71,7 @@ export default class WsStore {
     if (this.hasExistingActiveConnection(key)) {
       this.logger.warning(
         'WsStore setConnection() overwriting existing open connection: ',
-        this.getWs(key)
+        this.getWs(key),
       );
     }
     this.wsState[key] = {
@@ -83,7 +86,7 @@ export default class WsStore {
       const ws = this.getWs(key);
       this.logger.warning(
         'WsStore deleting state for connection still open: ',
-        ws
+        ws,
       );
       ws?.close();
     }
@@ -104,7 +107,7 @@ export default class WsStore {
     if (this.isWsOpen(key)) {
       this.logger.warning(
         'WsStore setConnection() overwriting existing open connection: ',
-        this.getWs(key)
+        this.getWs(key),
       );
     }
     this.get(key, true)!.ws = wsConnection;

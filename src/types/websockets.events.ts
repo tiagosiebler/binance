@@ -8,7 +8,6 @@ import {
 } from './futures';
 import {
   KlineInterval,
-  numberInString,
   OCOOrderStatus,
   OCOStatus,
   OrderBookRow,
@@ -19,6 +18,7 @@ import {
   OrderTimeInForce,
   OrderType,
   SelfTradePreventionMode,
+  numberInString,
 } from './shared';
 
 export type WsMarket =
@@ -31,77 +31,6 @@ export type WsMarket =
   | 'coinmTestnet'
   | 'options'
   | 'optionsTestnet';
-
-export type WsRawSpotUserDataEventRaw =
-  | WsMessageSpotUserDataExecutionReportEventRaw
-  | WsMessageSpotOutboundAccountPositionRaw
-  | WsMessageSpotBalanceUpdateRaw
-  | WsMessageSpotUserDataListStatusEventRaw;
-
-export type WsMessageSpotUserDataEventFormatted =
-  | WsMessageSpotUserDataExecutionReportEventFormatted
-  | WsMessageSpotOutboundAccountPositionFormatted
-  | WsMessageSpotBalanceUpdateFormatted
-  | WsMessageSpotUserDataListStatusEventFormatted;
-
-export type WsMessageFuturesUserDataEventRaw =
-  | WsMessageFuturesUserDataAccountUpdateRaw
-  | WsMessageFuturesUserDataListenKeyExpiredRaw
-  | WsMessageFuturesUserDataMarginCallRaw
-  | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
-  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw;
-
-// TODO: consistent across USDM vs COINM?
-export type WsMessageFuturesUserDataEventFormatted =
-  | WsMessageFuturesUserDataAccountUpdateFormatted
-  | WsMessageFuturesUserDataListenKeyExpiredFormatted
-  | WsMessageFuturesUserDataMarginCallFormatted
-  | WsMessageFuturesUserDataTradeUpdateEventFormatted
-  | WsMessageFuturesUserDataAccountConfigUpdateEventFormatted
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted;
-
-export type WsRawMessage =
-  | WsMessageKlineRaw
-  | WsMessageAggTradeRaw
-  | WsMessageTradeRaw
-  | WsMessage24hrMiniTickerRaw
-  | WsMessage24hrMiniTickerRaw[]
-  | WsMessage24hrTickerRaw
-  | WsMessage24hrTickerRaw[]
-  | WsMessageRollingWindowTickerRaw[]
-  | WsMessageBookTickerEventRaw
-  | WsMessagePartialBookDepthEventRaw
-  | WsMessageForceOrderRaw
-  | WsRawSpotUserDataEventRaw
-  | WsMessageIndexPriceUpdateEventRaw
-  | WsMessageFuturesUserDataAccountUpdateRaw
-  | WsMessageFuturesUserDataListenKeyExpiredRaw
-  | WsMessageFuturesUserDataMarginCallRaw
-  | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
-  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw;
-
-export type WsFormattedMessage =
-  | WsUserDataEvents
-  | WsMessageKlineFormatted
-  | WsMessageAggTradeFormatted
-  | WsMessageTradeFormatted
-  | WsMessage24hrMiniTickerFormatted
-  | WsMessage24hrTickerFormatted
-  | WsMessageBookTickerEventFormatted
-  | WsMessagePartialBookDepthEventFormatted
-  | WsMessageIndexPriceUpdateEventFormatted
-  | WsMessageMarkPriceUpdateEventFormatted
-  | WsMessageForceOrderFormatted
-  | WsMessage24hrMiniTickerFormatted[]
-  | WsMessage24hrTickerFormatted[]
-  | WsMessageRollingWindowTickerFormatted[]
-  | WsMessageMarkPriceUpdateEventFormatted[];
-
-export type WsUserDataEvents =
-  | WsMessageSpotUserDataEventFormatted
-  | WsMessageFuturesUserDataEventFormatted;
 
 interface WsSharedBase {
   wsMarket: WsMarket;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { AxiosRequestConfig } from 'axios';
 import { EventEmitter } from 'events';
 import WebSocket from 'isomorphic-ws';
@@ -5,27 +6,26 @@ import WebSocket from 'isomorphic-ws';
 import { DefaultLogger } from './logger';
 import { MainClient } from './main-client';
 import { KlineInterval } from './types/shared';
-import {
-  WsFormattedMessage,
-  WsMarket,
-  WsRawMessage,
-  WsResponse,
-  WsUserDataEvents,
-} from './types/websockets';
 import { USDMClient } from './usdm-client';
 
 import Beautifier from './util/beautifier';
 import {
+  RestClientOptions,
   appendEventIfMissing,
   appendEventMarket,
   getContextFromWsKey,
   getWsKeyWithContext,
-  RestClientOptions,
 } from './util/requestUtils';
 import { safeTerminateWs } from './util/ws-utils';
 
 import WsStore, { WsConnectionStateEnum } from './util/WsStore';
 import { CoinMClient } from './coinm-client';
+import { WsMarket, WsResponse } from './types/websockets.events';
+import {
+  WsFormattedMessage,
+  WsRawMessage,
+  WsUserDataEvents,
+} from './types/websockets.unions';
 
 const wsBaseEndpoints: Record<WsMarket, string> = {
   spot: 'wss://stream.binance.com:9443',
@@ -161,12 +161,17 @@ export function parseRawWsMessage(event: any) {
 
 export class WebsocketClient extends EventEmitter {
   private logger: typeof DefaultLogger;
+
   private options: WebsocketClientOptions;
+
   private wsStore: WsStore;
+
   private beautifier: Beautifier;
+
   private restClients: Partial<RestClientStore>;
 
   private listenKeyStateStore: Record<string, ListenKeyPersistenceState>;
+
   private wsUrlKeyMap: Record<string, WsKey>;
 
   constructor(
@@ -214,7 +219,7 @@ export class WebsocketClient extends EventEmitter {
     const oldWs = this.wsStore.getWs(wsRefKey);
     if (oldWs && this.wsStore.isWsOpen(wsRefKey) && !forceNewConnection) {
       this.logger.silly(
-        `connectToWsUrl(): Returning existing open WS connection`,
+        'connectToWsUrl(): Returning existing open WS connection',
         { ...loggerCategory, wsRefKey },
       );
       return oldWs;
@@ -255,7 +260,7 @@ export class WebsocketClient extends EventEmitter {
 
   public tryWsSend(wsKey: WsKey, wsMessage: string) {
     try {
-      this.logger.silly(`Sending upstream ws message: `, {
+      this.logger.silly('Sending upstream ws message: ', {
         ...loggerCategory,
         wsMessage,
         wsKey,
@@ -272,7 +277,7 @@ export class WebsocketClient extends EventEmitter {
       }
       ws.send(wsMessage);
     } catch (e) {
-      this.logger.error(`Failed to send WS message`, {
+      this.logger.error('Failed to send WS message', {
         ...loggerCategory,
         wsMessage,
         wsKey,
@@ -301,12 +306,12 @@ export class WebsocketClient extends EventEmitter {
         ws.pong();
       } else {
         this.logger.silly(
-          `WS ready state not open - refusing to send WS ping`,
+          'WS ready state not open - refusing to send WS ping',
           { ...loggerCategory, wsKey, readyState: ws?.readyState },
         );
       }
     } catch (e) {
-      this.logger.error(`Failed to send WS ping`, {
+      this.logger.error('Failed to send WS ping', {
         ...loggerCategory,
         wsKey,
         exception: e,
@@ -579,7 +584,7 @@ export class WebsocketClient extends EventEmitter {
     const wsKey = this.wsUrlKeyMap[ws.url] || ws?.wsKey;
     if (!wsKey) {
       throw new Error(
-        `Cannot close websocket as it has no known wsKey attached.`,
+        'Cannot close websocket as it has no known wsKey attached.',
       );
     }
     return this.close(wsKey, shouldReconnectAfterClose);
@@ -1810,7 +1815,7 @@ export class WebsocketClient extends EventEmitter {
         isReconnecting,
       );
     } catch (e) {
-      this.logger.error(`Failed to connect to spot user data`, {
+      this.logger.error('Failed to connect to spot user data', {
         ...loggerCategory,
         error: e,
       });
@@ -1862,7 +1867,7 @@ export class WebsocketClient extends EventEmitter {
 
       return ws;
     } catch (e) {
-      this.logger.error(`Failed to connect to margin user data`, {
+      this.logger.error('Failed to connect to margin user data', {
         ...loggerCategory,
         error: e,
       });
@@ -1916,7 +1921,7 @@ export class WebsocketClient extends EventEmitter {
 
       return ws;
     } catch (e) {
-      this.logger.error(`Failed to connect to isolated margin user data`, {
+      this.logger.error('Failed to connect to isolated margin user data', {
         ...loggerCategory,
         error: e,
         symbol,
@@ -1986,7 +1991,7 @@ export class WebsocketClient extends EventEmitter {
 
       return ws;
     } catch (e) {
-      this.logger.error(`Failed to connect to USD Futures user data`, {
+      this.logger.error('Failed to connect to USD Futures user data', {
         ...loggerCategory,
         error: e,
       });
@@ -2003,9 +2008,8 @@ export class WebsocketClient extends EventEmitter {
     isReconnecting?: boolean,
   ): Promise<WebSocket> {
     try {
-      const { listenKey } = await this.getCOINMRestClient(
-        isTestnet,
-      ).getFuturesUserDataListenKey();
+      const { listenKey } =
+        await this.getCOINMRestClient(isTestnet).getFuturesUserDataListenKey();
 
       const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
       const wsKey = getWsKeyWithContext(
@@ -2047,7 +2051,7 @@ export class WebsocketClient extends EventEmitter {
 
       return ws;
     } catch (e) {
-      this.logger.error(`Failed to connect to COIN Futures user data`, {
+      this.logger.error('Failed to connect to COIN Futures user data', {
         ...loggerCategory,
         error: e,
       });

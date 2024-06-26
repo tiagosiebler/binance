@@ -2,11 +2,11 @@ import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
 
 import { BinanceBaseUrlKey } from '../types/shared';
 import {
-  serialiseParams,
-  RestClientOptions,
   GenericAPIResponse,
-  getRestBaseUrl,
+  RestClientOptions,
   getRequestSignature,
+  getRestBaseUrl,
+  serialiseParams,
 } from './requestUtils';
 import Beautifier from './beautifier';
 
@@ -21,16 +21,25 @@ type ApiLimitHeader =
 
 export default abstract class BaseRestClient {
   private timeOffset: number = 0;
+
   private syncTimePromise: null | Promise<void>;
+
   private options: RestClientOptions;
+
   private baseUrl: string;
+
   private globalRequestOptions: AxiosRequestConfig;
+
   private key: string | undefined;
+
   private secret: string | undefined;
+
   private baseUrlKey: BinanceBaseUrlKey;
+
   private beautifier: Beautifier | undefined;
 
   public apiLimitTrackers: Record<ApiLimitHeader, number>;
+
   public apiLimitLastUpdated: number;
 
   constructor(

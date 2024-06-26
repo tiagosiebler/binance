@@ -6,7 +6,7 @@ export * from './types/coin';
 export * from './types/futures';
 export * from './types/shared';
 export * from './types/spot';
-export * from './types/websockets';
+export * from './types/websockets.events';
 export * from './usdm-client';
 export * from './util/proxy';
 export * from './util/requestUtils';

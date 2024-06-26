@@ -7,7 +7,7 @@ import {
   NewOCOParams,
   OrderIdProperty,
 } from '../types/shared';
-import { WsMarket } from '../types/websockets';
+import { WsMarket } from '../types/websockets.events';
 import { USDMClient } from '../usdm-client';
 import { WsKey } from '../websocket-client';
 import { signMessage } from './node-support';

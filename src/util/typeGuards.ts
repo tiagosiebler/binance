@@ -28,7 +28,7 @@ import {
   WsMessageTradeFormatted,
   WsRawMessage,
   WsUserDataEvents,
-} from '../types/websockets';
+} from '../types/websockets.events';
 
 /**
  * Use type guards to narrow down types with minimal efforts.

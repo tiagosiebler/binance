@@ -1,0 +1,86 @@
+{
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended"],
+  "parser": "@typescript-eslint/parser",
+  "root": true,
+  "plugins": ["@typescript-eslint"],
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+      ],
+      "parserOptions": {
+        "projecasdft": true,
+        "project": [
+          "./tsconfig.json",
+          "./tsconfig.build.json",
+          "./tsconfig.examples.json",
+          "./test/tsconfig.test.json"
+        ]
+      },
+      "rules": {
+        "@typescript-eslint/await-thenable": "error",
+        "@typescript-eslint/dot-notation": "off",
+        "@typescript-eslint/no-unused-vars": "warn",
+
+        "@typescript-eslint/no-unused-expressions": "error",
+        "@typescript-eslint/no-var-requires": "error",
+        "@typescript-eslint/prefer-namespace-keyword": "error",
+
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@typescript-eslint/no-floating-promises": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "@typescript-eslint/promise-function-async": "off",
+        "@typescript-eslint/no-use-before-define": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/ban-types": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+
+        "no-dupe-class-members": "off",
+        "no-param-reassign": ["error"],
+        "array-bracket-spacing": ["error", "never"],
+        "indent": ["off"],
+        "linebreak-style": ["error", "unix"],
+        "lines-between-class-members": ["warn", "always"],
+        "semi": "off",
+        "@typescript-eslint/semi": ["error"],
+        "new-cap": "off",
+        "no-console": "off",
+        "no-debugger": "off",
+        "no-mixed-spaces-and-tabs": 2,
+        "no-use-before-define": [2, "nofunc"],
+        "no-unreachable": ["warn"],
+        "no-unused-vars": ["warn"],
+        "no-extra-parens": ["off"],
+        "no-mixed-operators": ["off"],
+        "quotes": [2, "single", "avoid-escape"],
+        "block-scoped-var": 2,
+        "brace-style": [2, "1tbs", { "allowSingleLine": true }],
+        "computed-property-spacing": [2, "never"],
+        "keyword-spacing": 2,
+        "space-unary-ops": 2,
+        "sort-imports": [
+          "error",
+          {
+            "ignoreCase": false,
+            "ignoreDeclarationSort": true,
+            "ignoreMemberSort": false,
+            "memberSyntaxSortOrder": ["none", "all", "multiple", "single"],
+            "allowSeparatedGroups": false
+          }
+        ],
+        "max-len": ["warn", { "code": 140 }]
+      }
+    },
+    {
+      "files": ["examples/*.js"],
+      "extends": ["eslint:recommended"]
+    }
+  ]
+}
