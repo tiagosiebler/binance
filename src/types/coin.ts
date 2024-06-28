@@ -87,3 +87,36 @@ export interface CoinMPositionTrade {
   buyer: boolean;
   maker: boolean;
 }
+
+export interface FundingRateInfo {
+  symbol: string;
+  adjustedFundingRateCap: string;
+  adjustedFundingRateFloor: string;
+  fundingIntervalHours: number;
+}
+
+export interface IndexPriceConstituentsParams {
+  symbol: string;
+}
+
+
+export interface GetClassicPortfolioMarginNotionalLimitParams {
+  symbol?: string;
+  pair?: string;
+}
+
+export interface ClassicPortfolioMarginNotionalLimit {
+  symbol: string;
+  pair: string;
+  notionalLimit: string;
+}
+
+export interface ClassicPortfolioMarginNotionalLimitResponse {
+  notionalLimits: ClassicPortfolioMarginNotionalLimit[];
+}
+
+export interface ClassicPortfolioMarginAccountInfo {
+  maxWithdrawAmountUSD: string;
+  asset: string;
+  maxWithdrawAmount: string;
+}

@@ -36,7 +36,6 @@ import {
   APIPermissions,
   APITradingStatus,
   AssetDetail,
-  BasicBSwapResp,
   BasicFromPaginatedParams,
   BasicFuturesSubAccountParams,
   BasicMarginAssetParams,
@@ -55,7 +54,6 @@ import {
   CreateApiKeyBrokerSubAccountResponse,
   CreateBrokerSubAccountParams,
   CreateSubAccountParams,
-  CrossMarginAccountTransferParams,
   CurrentAvgPrice,
   DailyAccountSnapshot,
   DailyAccountSnapshotParams,
@@ -186,13 +184,309 @@ import {
   NewSpotSOROrderParams,
   SOROrderResponseFull,
   SORTestOrderResponse,
-  OrderResponse,
   OrderListResponse,
   OrderResponseTypeFor,
   OrderList,
   CancelOrderListResult,
   GetMarginAccountBorrowRepayRecordsParams,
   MarginAccountRecord,
+  FundingAsset,
+  UserAsset,
+  ConvertTransferParams,
+  ConvertTransferResponse,
+  CloudMiningHistoryParams,
+  CloudMiningHistoryResponse,
+  ConvertibleCoinsResponse,
+  ConvertibleCoinsParams,
+  GetConvertBUSDHistoryParams,
+  GetConvertBUSDHistoryResponse,
+  SubmitDepositCreditParams,
+  SubmitDepositCreditResponse,
+  DepositAddressListParams,
+  DepositAddress,
+  WalletBalance,
+  DelegationHistoryParams,
+  DelegationHistoryResponse,
+  DelistScheduleResponse,
+  WithdrawAddress,
+  AccountInfoResponse,
+  ManagedSubAccountSnapshotParams,
+  ManagedSubAccountSnapshotResponse,
+  ManagedSubAccountTransferLogParams,
+  ManagedSubAccountTransferLogResponse,
+  ManagedSubAccountFuturesAssetsResponse,
+  ManagedSubAccountMarginAssetsResponse,
+  SubAccountAssetsMasterResponse,
+  ManagedSubAccountListParams,
+  ManagedSubAccountListResponse,
+  SubAccountTransactionStatisticsResponse,
+  ManagedSubAccountDepositAddressParams,
+  ManagedSubAccountDepositAddressResponse,
+  EnableOptionsForSubAccountResponse,
+  ManagedSubAccountTransferTTLogParams,
+  ManagedSubAccountTransferTTLogResponse,
+  TradingDayTickerParams,
+  TradingDayTickerFullResponse,
+  TradingDayTickerMiniResponse,
+  RollingWindowTickerParams,
+  NewOrderListOTOParams,
+  NewOrderListOTOResponse,
+  NewOrderListOTOCOParams,
+  NewOrderListOTOCOResponse,
+  OrderCountUsageResponse,
+  PreventedMatchesParams,
+  PreventedMatch,
+  AllocationsParams,
+  CommissionRatesResponse,
+  GetCrossMarginTransferHistoryParams,
+  GetCrossMarginTransferHistoryResponse,
+  GetMarginInterestHistoryParams,
+  GetMarginInterestHistoryResponse,
+  GetForceLiquidationRecordParams,
+  GetForceLiquidationRecordResponse,
+  QueryMarginAccountAllOCOParams,
+  QueryMarginAccountOpenOCOParams,
+  QueryMarginAccountTradeListParams,
+  DisableEnableIsolatedMarginAccountResponse,
+  QueryIsolatedMarginAccountLimitResponse,
+  IsolatedMarginSymbol,
+  ToggleBNBBurnParams,
+  BNBBurnResponse,
+  QueryMarginInterestRateHistoryParams,
+  MarginInterestRateHistory,
+  QueryCrossMarginFeeDataParams,
+  CrossMarginFeeData,
+  IsolatedMarginFeeData,
+  QueryIsolatedMarginTierDataParams,
+  IsolatedMarginTierData,
+  GetMarginOrderCountUsageParams,
+  MarginOrderCountUsageResponse,
+  CrossMarginCollateralRatioResponse,
+  SmallLiabilityExchangeCoin,
+  ExchangeSmallLiabilityResponse,
+  GetSmallLiabilityExchangeHistoryParams,
+  GetSmallLiabilityExchangeHistoryResponse,
+  GetNextHourlyInterestRateParams,
+  NextHourlyInterestRate,
+  GetMarginCapitalFlowParams,
+  MarginCapitalFlow,
+  MarginDelistSchedule,
+  MarginAvailableInventoryResponse,
+  ManualLiquidationResponse,
+  ManualLiquidationParams,
+  LiabilityCoinLeverageBracket,
+  GetFlexibleSubscriptionRecordParams,
+  GetFlexibleSubscriptionRecordResult,
+  GetLockedSubscriptionRecordParams,
+  GetLockedSubscriptionRecordResult,
+  GetFlexibleRedemptionRecordParams,
+  GetFlexibleRedemptionRecordResult,
+  GetLockedRedemptionRecordParams,
+  GetLockedRedemptionRecordResult,
+  GetFlexibleRewardsHistoryParams,
+  GetFlexibleRewardsHistoryResult,
+  GetLockedRewardsHistoryParams,
+  GetLockedRewardsHistoryResult,
+  GetFlexibleSubscriptionPreviewParams,
+  GetFlexibleSubscriptionPreviewResponse,
+  GetLockedSubscriptionPreviewParams,
+  GetLockedSubscriptionPreviewResponse,
+  GetRateHistoryParams,
+  GetRateHistoryResult,
+  GetCollateralRecordParams,
+  GetCollateralRecordResult,
+  GetDualInvestmentProductListParams,
+  GetDualInvestmentProductListResponse,
+  SubscribeDualInvestmentProductParams,
+  SubscribeDualInvestmentProductResponse,
+  GetDualInvestmentPositionsResponse,
+  GetDualInvestmentPositionsParams,
+  CheckDualInvestmentAccountsResponse,
+  ChangeAutoCompoundStatusParams,
+  ChangeAutoCompoundStatusResponse,
+  GetTargetAssetListParams,
+  GetTargetAssetListResponse,
+  TargetAssetROI,
+  GetTargetAssetROIParams,
+  GetAllAssetsResponse,
+  GetSourceAssetListParams,
+  GetSourceAssetListResponse,
+  CreateInvestmentPlanParams,
+  CreateInvestmentPlanResponse,
+  EditInvestmentPlanParams,
+  EditInvestmentPlanResponse,
+  ChangePlanStatusParams,
+  ChangePlanStatusResponse,
+  GetPlanDetailsParams,
+  GetSubscriptionTransactionHistoryParams,
+  GetIndexDetailsResponse,
+  GetIndexLinkedPlanPositionDetailsResponse,
+  SubmitOneTimeTransactionParams,
+  SubmitOneTimeTransactionResponse,
+  GetOneTimeTransactionStatusParams,
+  GetOneTimeTransactionStatusResponse,
+  SubmitIndexLinkedPlanRedemptionParams,
+  GetIndexLinkedPlanRedemptionHistoryParams,
+  IndexLinkedPlanRedemptionRecord,
+  GetIndexLinkedPlanRebalanceHistoryParams,
+  SubscribeEthStakingV2Response,
+  RedeemEthParams,
+  RedeemEthResponse,
+  GetEthStakingHistoryParams,
+  GetEthStakingHistoryResponse,
+  GetEthRedemptionHistoryParams,
+  GetEthRedemptionHistoryResponse,
+  GetBethRewardsHistoryParams,
+  GetBethRewardsHistoryResponse,
+  GetEthStakingQuotaResponse,
+  GetETHRateHistoryParams,
+  GetETHRateHistoryResponse,
+  GetEthStakingAccountResponse,
+  GetEthStakingAccountV2Response,
+  WrapBethResponse,
+  GetWrapHistoryParams,
+  GetWrapHistoryResponse,
+  GetWbethRewardsHistoryResponse,
+  GetMiningAlgoListResponse,
+  GetMiningCoinListResponse,
+  GetMinerDetailsParams,
+  GetMinerDetailsResponse,
+  GetMinerListParams,
+  GetMinerListResponse,
+  GetEarningsListParams,
+  GetEarningsListResponse,
+  GetExtraBonusListParams,
+  GetExtraBonusListResponse,
+  GetHashrateResaleListParams,
+  GetHashrateResaleListResponse,
+  GetHashrateResaleDetailParams,
+  GetHashrateResaleDetailResponse,
+  SubmitHashrateResaleParams,
+  CancelHashrateResaleConfigParams,
+  GetStatisticListParams,
+  GetStatisticListResponse,
+  getMiningAccountsListParams,
+  getMiningAccountsListResponse,
+  GetMiningAccountEarningParams,
+  GetMiningAccountEarningResponse,
+  GetFutureTickLevelOrderbookDataLinkParams,
+  SubmitVpNewOrderParams,
+  SubmitVpNewOrderResponse,
+  SubmitTwapNewOrderParams,
+  SubmitTwapNewOrderResponse,
+  CancelAlgoOrderResponse,
+  GetAlgoOpenOrdersResponse,
+  GetAlgoHistoricalOrdersParams,
+  GetAlgoHistoricalOrdersResponse,
+  GetAlgoSubOrdersParams,
+  GetAlgoSubOrdersResponse,
+  SubmitSpotTwapNewOrderParams,
+  SubmitSpotTwapNewOrderResponse,
+  CancelSpotAlgoOrderResponse,
+  GetSpotAlgoOpenOrdersResponse,
+  GetSpotAlgoHistoricalOrdersParams,
+  GetSpotAlgoHistoricalOrdersResponse,
+  GetSpotAlgoSubOrdersParams,
+  GetSpotAlgoSubOrdersResponse,
+  GetPortfolioMarginAssetIndexPriceResponse,
+  GetPortfolioMarginProAccountInfoResponse,
+  GetPortfolioMarginProBankruptcyLoanAmountResponse,
+  GetPortfolioMarginProCollateralRateResponse,
+  GetPortfolioMarginProInterestHistoryParams,
+  GetPortfolioMarginProInterestHistoryResponse,
+  BnbTransferParams,
+  GetPortfolioMarginAssetLeverageResponse,
+  SubscribeBlvtParams,
+  SubscribeBlvtResponse,
+  GetBlvtSubscriptionRecordParams,
+  BlvtSubscriptionRecord,
+  RedeemBlvtParams,
+  RedeemBlvtResponse,
+  GetBlvtRedemptionRecordParams,
+  BlvtRedemptionRecord,
+  BlvtUserLimitInfo,
+  GetFiatOrderHistoryParams,
+  GetFiatOrderHistoryResponse,
+  GetFiatPaymentsHistoryResponse,
+  GetC2CTradeHistoryParams,
+  GetC2CTradeHistoryResponse,
+  GetVipLoanOngoingOrdersParams,
+  GetVipLoanOngoingOrdersResponse,
+  VipLoanRepayParams,
+  VipLoanRepayResponse,
+  GetVipLoanRepaymentHistoryParams,
+  GetVipLoanRepaymentHistoryResponse,
+  VipLoanRenewParams,
+  VipLoanRenewResponse,
+  CheckVipCollateralAccountParams,
+  CheckVipCollateralAccountResponse,
+  VipLoanBorrowParams,
+  VipLoanBorrowResponse,
+  GetLoanableAssetsDataParams,
+  GetLoanableAssetsDataResponse,
+  GetCollateralAssetDataParams,
+  GetCollateralAssetDataResponse,
+  GetApplicationStatusParams,
+  GetApplicationStatusResponse,
+  BorrowInterestRate,
+  GetCryptoLoansIncomeHistoryParams,
+  GetCryptoLoansIncomeHistoryResponse,
+  BorrowCryptoLoanParams,
+  BorrowCryptoLoanResponse,
+  GetLoanBorrowHistoryParams,
+  GetLoanBorrowHistoryResponse,
+  GetLoanOngoingOrdersParams,
+  GetLoanOngoingOrdersResponse,
+  RepayCryptoLoanResponse,
+  RepayCryptoLoanParams,
+  GetLoanRepaymentHistoryParams,
+  GetLoanRepaymentHistoryResponse,
+  AdjustCryptoLoanLTVParams,
+  AdjustCryptoLoanLTVResponse,
+  GetCryptoLoanCollateralAssetDataResponse,
+  GetCryptoLoanLoanableAssetsResponse,
+  GetLoanLTVAdjustmentHistoryParams,
+  GetLoanLTVAdjustmentHistoryResponse,
+  CheckCollateralRepayRateParams,
+  CheckCollateralRepayRateResponse,
+  CustomizeMarginCallParams,
+  CustomizeMarginCallResponse,
+  BorrowFlexibleLoanParams,
+  BorrowFlexibleLoanResponse,
+  GetFlexibleLoanOngoingOrdersParams,
+  GetFlexibleLoanOngoingOrdersResponse,
+  GetFlexibleCryptoLoanBorrowHistoryParams,
+  GetFlexibleCryptoLoanBorrowHistoryResponse,
+  RepayCryptoFlexibleLoanParams,
+  RepayCryptoFlexibleLoanResponse,
+  AdjustFlexibleCryptoLoanLTVResponse,
+  AdjustFlexibleCryptoLoanLTVParams,
+  GetFlexibleLoanLTVAdjustmentHistoryParams,
+  GetFlexibleLoanLTVAdjustmentHistoryResponse,
+  GetFlexibleLoanAssetsDataResponse,
+  GetFlexibleLoanCollateralAssetsDataResponse,
+  GetFuturesLeadTraderStatusResponse,
+  GetFuturesLeadTradingSymbolWhitelistResponse,
+  GetPayTradeHistoryParams,
+  GetAllConvertPairsParams,
+  SubmitConvertLimitOrderParams,
+  GetSpotRebateHistoryRecordsParams,
+  GetSpotRebateHistoryRecordsResponse,
+  GetNftTransactionHistoryParams,
+  GetNftTransactionHistoryResponse,
+  GetNftDepositHistoryParams,
+  GetNftDepositHistoryResponse,
+  GetNftWithdrawHistoryParams,
+  GetNftWithdrawHistoryResponse,
+  GetNftAssetParams,
+  GetNftAssetResponse,
+  CreateGiftCardParams,
+  CreateDualTokenGiftCardParams,
+  RedeemGiftCardParams,
+  ConvertLimitOpenOrder,
+  HistoricalDataLink,
+  SetAutoSubscribeParams,
+  GetAssetParams,
 } from './types/spot';
 
 import {
@@ -337,27 +631,87 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/account/apiRestrictions');
   }
 
-  acceptQuoteRequest(params: AcceptQuoteRequestParams): Promise<any> {
-    return this.postPrivate('sapi/v1/convert/acceptQuote', params);
-  }
-
   enableConvertSubAccount(params: EnableConvertSubAccountParams): Promise<any> {
     return this.postPrivate('sapi/v1/broker/subAccount/convert', params);
   }
 
-  convertQuoteRequest(params: ConvertQuoteRequestParams): Promise<any> {
-    return this.postPrivate('sapi/v1/convert/getQuote', params);
+  getFundingAsset(params: GetAssetParams): Promise<FundingAsset[]> {
+    return this.postPrivate('sapi/v1/asset/get-funding-asset', params);
   }
 
-  getOrderStatus(params: GetOrderStatusParams): Promise<any> {
-    return this.getPrivate('sapi/v1/convert/orderStatus', params);
+  getUserAsset(params: GetAssetParams): Promise<UserAsset[]> {
+    return this.postPrivate('sapi/v3/asset/getUserAsset', params);
   }
 
-  getConvertTradeHistory(params: GetConvertTradeHistoryParams): Promise<any> {
-    return this.getPrivate('sapi/v1/convert/tradeFlow', params);
+  convertBUSD(params: ConvertTransferParams): Promise<ConvertTransferResponse> {
+    return this.postPrivate('sapi/v1/asset/convert-transfer', params);
+  }
+
+  getConvertBUSDHistory(
+    params: GetConvertBUSDHistoryParams,
+  ): Promise<GetConvertBUSDHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/asset/convert-transfer/queryByPage',
+      params,
+    );
+  }
+
+  getCloudMiningHistory(
+    params: CloudMiningHistoryParams,
+  ): Promise<CloudMiningHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/asset/ledger-transfer/cloud-mining/queryByPage',
+      params,
+    );
+  }
+
+  getAutoConvertStablecoins(): Promise<ConvertibleCoinsResponse> {
+    return this.getPrivate('sapi/v1/capital/contract/convertible-coins');
+  }
+
+  setConvertibleCoins(params: ConvertibleCoinsParams): Promise<void> {
+    return this.postPrivate(
+      'sapi/v1/capital/contract/convertible-coins',
+      params,
+    );
+  }
+
+  submitDepositCredit(
+    params: SubmitDepositCreditParams,
+  ): Promise<SubmitDepositCreditResponse> {
+    return this.postPrivate('sapi/v1/capital/deposit/credit-apply', params);
+  }
+
+  getDepositAddresses(
+    params: DepositAddressListParams,
+  ): Promise<DepositAddress[]> {
+    return this.getPrivate('sapi/v1/capital/deposit/address/list', params);
+  }
+
+  getWalletBalances(): Promise<WalletBalance[]> {
+    return this.getPrivate('sapi/v1/asset/wallet/balance');
+  }
+
+  getDelegationHistory(
+    params: DelegationHistoryParams,
+  ): Promise<DelegationHistoryResponse> {
+    return this.getPrivate('sapi/v1/asset/custody/transfer-history', params);
+  }
+
+  getDelistSchedule(): Promise<DelistScheduleResponse[]> {
+    return this.getPrivate('sapi/v1/spot/delist-schedule');
+  }
+
+  getWithdrawAddressList(): Promise<WithdrawAddress[]> {
+    return this.getPrivate('sapi/v1/capital/withdraw/address/list');
+  }
+
+  getAccountInfo(): Promise<AccountInfoResponse> {
+    return this.getPrivate('sapi/v1/account/info');
   }
 
   /**
+   *
    *
    * Sub-Account Endpoints
    *
@@ -600,6 +954,93 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/managed-subaccount/withdraw', params);
   }
 
+  getManagedSubAccountSnapshot(
+    params: ManagedSubAccountSnapshotParams,
+  ): Promise<ManagedSubAccountSnapshotResponse> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/accountSnapshot',
+      params,
+    );
+  }
+
+  getManagedSubAccountTransfersInvestor(
+    params: ManagedSubAccountTransferLogParams,
+  ): Promise<ManagedSubAccountTransferLogResponse> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/queryTransLogForInvestor',
+      params,
+    );
+  }
+
+  getManagedSubAccountTransfersParent(
+    params: ManagedSubAccountTransferLogParams,
+  ): Promise<ManagedSubAccountTransferLogResponse> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/queryTransLogForTradeParent',
+      params,
+    );
+  }
+
+  getManagedSubAccountFuturesAssets(params: {
+    email: string;
+  }): Promise<ManagedSubAccountFuturesAssetsResponse> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/fetch-future-asset',
+      params,
+    );
+  }
+
+  getManagedSubAccountMarginAssets(params: {
+    email: string;
+  }): Promise<ManagedSubAccountMarginAssetsResponse> {
+    return this.getPrivate('sapi/v1/managed-subaccount/marginAsset', params);
+  }
+
+  getSubAccountAssetsMaster(params: {
+    email: string;
+  }): Promise<SubAccountAssetsMasterResponse> {
+    return this.getPrivate('sapi/v4/sub-account/assets', params);
+  }
+
+  getManagedSubAccounts(
+    params: ManagedSubAccountListParams,
+  ): Promise<ManagedSubAccountListResponse> {
+    return this.getPrivate('sapi/v1/managed-subaccount/info', params);
+  }
+
+  getSubAccountTransactionStatistics(params: {
+    email: string;
+  }): Promise<SubAccountTransactionStatisticsResponse> {
+    return this.getPrivate(
+      'sapi/v1/sub-account/transaction-statistics',
+      params,
+    );
+  }
+
+  getManagedSubAccountDepositAddress(
+    params: ManagedSubAccountDepositAddressParams,
+  ): Promise<ManagedSubAccountDepositAddressResponse> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/deposit/address',
+      params,
+    );
+  }
+
+  enableOptionsForSubAccount(params: {
+    email: string;
+  }): Promise<EnableOptionsForSubAccountResponse> {
+    return this.postPrivate('sapi/v1/sub-account/eoptions/enable', params);
+  }
+
+  getManagedSubAccountTransferLog(
+    params: ManagedSubAccountTransferTTLogParams,
+  ): Promise<ManagedSubAccountTransferTTLogResponse> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/query-trans-log',
+      params,
+    );
+  }
+
   /**
    * Broker Endpoints
    */
@@ -779,6 +1220,10 @@ export class MainClient extends BaseRestClient {
     return this.get('api/v3/klines', params);
   }
 
+  getUIKlines(params: KlinesParams): Promise<Kline[]> {
+    return this.get('api/v3/uiKlines', params);
+  }
+
   getAvgPrice(params: BasicSymbolParam): Promise<CurrentAvgPrice> {
     return this.get('api/v3/avgPrice', params);
   }
@@ -808,6 +1253,12 @@ export class MainClient extends BaseRestClient {
     return this.get('api/v3/ticker/24hr');
   }
 
+  getTradingDayTicker(
+    params: TradingDayTickerParams,
+  ): Promise<TradingDayTickerFullResponse | TradingDayTickerMiniResponse> {
+    return this.get('api/v3/ticker/tradingDay', params);
+  }
+
   getSymbolPriceTicker(
     params?: Partial<BasicSymbolParam>,
   ): Promise<SymbolPrice | SymbolPrice[]> {
@@ -818,6 +1269,12 @@ export class MainClient extends BaseRestClient {
     params?: Partial<BasicSymbolParam>,
   ): Promise<SymbolOrderBookTicker | SymbolOrderBookTicker[]> {
     return this.get('api/v3/ticker/bookTicker', params);
+  }
+
+  getRollingWindowTicker(
+    params: RollingWindowTickerParams,
+  ): Promise<TradingDayTickerFullResponse | TradingDayTickerMiniResponse> {
+    return this.get('api/v3/ticker', params);
   }
 
   /**
@@ -889,6 +1346,20 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('api/v3/orderList/oco', params);
   }
 
+  // TO CHECK!!
+  submitNewOrderListOTO(
+    params: NewOrderListOTOParams,
+  ): Promise<NewOrderListOTOResponse> {
+    return this.postPrivate('api/v3/orderList/oto', params);
+  }
+
+  // TO CHECK!!
+  submitNewOrderListOTOCO(
+    params: NewOrderListOTOCOParams,
+  ): Promise<NewOrderListOTOCOResponse> {
+    return this.postPrivate('api/v3/orderList/otoco', params);
+  }
+
   cancelOCO(params: CancelOCOParams): Promise<CancelOrderListResult> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.deletePrivate('api/v3/orderList', params);
@@ -951,6 +1422,26 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('api/v3/myTrades', params);
   }
 
+  getOrderCountUsage(): Promise<OrderCountUsageResponse> {
+    return this.getPrivate('api/v3/rateLimit/order');
+  }
+
+  getPreventedMatches(
+    params: PreventedMatchesParams,
+  ): Promise<PreventedMatch[]> {
+    return this.getPrivate('api/v3/myPreventedMatches', params);
+  }
+
+  getAllocations(params: AllocationsParams): Promise<any> {
+    return this.getPrivate('api/v3/myAllocations', params);
+  }
+
+  getCommissionRates(params: {
+    symbol: string;
+  }): Promise<CommissionRatesResponse> {
+    return this.getPrivate('api/v3/account/commission', params);
+  }
+
   /**
    *
    * Margin Account/Trade Endpoints
@@ -1003,6 +1494,30 @@ export class MainClient extends BaseRestClient {
     return this.deletePrivate('sapi/v1/margin/openOrders', params);
   }
 
+  updateCrossMarginMaxLeverage(params: { maxLeverage: number }): Promise<{
+    success: boolean;
+  }> {
+    return this.postPrivate('sapi/v1/margin/max-leverage', params);
+  }
+
+  getCrossMarginTransferHistory(
+    params: GetCrossMarginTransferHistoryParams,
+  ): Promise<GetCrossMarginTransferHistoryResponse> {
+    return this.getPrivate('sapi/v1/margin/transfer', params);
+  }
+
+  getMarginInterestHistory(
+    params: GetMarginInterestHistoryParams,
+  ): Promise<GetMarginInterestHistoryResponse> {
+    return this.getPrivate('sapi/v1/margin/interestHistory', params);
+  }
+
+  getForceLiquidationRecord(
+    params: GetForceLiquidationRecordParams,
+  ): Promise<GetForceLiquidationRecordResponse> {
+    return this.getPrivate('sapi/v1/margin/forceLiquidationRec', params);
+  }
+
   /**
    * @deprecated on 2024-01-09, use getMarginAccountBorrowRepayRecords() instead
    */
@@ -1020,10 +1535,6 @@ export class MainClient extends BaseRestClient {
   ): Promise<{ rows: MarginAccountRecord[]; total: number }> {
     return this.getPrivate('sapi/v1/margin/repay', params);
   }
-
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-interest-history-user_data
-
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-force-liquidation-record-user_data
 
   queryCrossMarginAccountDetails(): Promise<QueryCrossMarginAccountDetailsParams> {
     return this.getPrivate('sapi/v1/margin/account');
@@ -1059,11 +1570,29 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/margin/orderList', params);
   }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-margin-account-39-s-all-oco-user_data
+  queryMarginAccountAllOCO(
+    params: QueryMarginAccountAllOCOParams,
+  ): Promise<any> {
+    return this.getPrivate('sapi/v1/margin/allOrderList', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-margin-account-39-s-open-oco-user_data
+  /**
+   * Query margin account's open OCO
+   */
+  queryMarginAccountOpenOCO(
+    params: QueryMarginAccountOpenOCOParams,
+  ): Promise<any> {
+    return this.getPrivate('sapi/v1/margin/openOrderList', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-margin-account-39-s-trade-list-user_data
+  /**
+   * Query margin account's trade list
+   */
+  queryMarginAccountTradeList(
+    params: QueryMarginAccountTradeListParams,
+  ): Promise<any> {
+    return this.getPrivate('sapi/v1/margin/myTrades', params);
+  }
 
   queryMaxBorrow(
     params: BasicMarginAssetParams,
@@ -1086,35 +1615,161 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/margin/isolated/transfer', params);
   }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-isolated-margin-transfer-history-user_data
-
   getIsolatedMarginAccountInfo(params?: {
     symbols?: string;
   }): Promise<IsolatedMarginAccountInfo> {
     return this.getPrivate('sapi/v1/margin/isolated/account', { params });
   }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#disable-isolated-margin-account-trade
+  /**
+   * Disable isolated margin account
+   */
+  disableIsolatedMarginAccount(params: {
+    symbol: string;
+  }): Promise<DisableEnableIsolatedMarginAccountResponse> {
+    return this.deletePrivate('sapi/v1/margin/isolated/account', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#enable-isolated-margin-account-trade
+  /**
+   * Enable isolated margin account
+   */
+  enableIsolatedMarginAccount(params: {
+    symbols: string;
+  }): Promise<DisableEnableIsolatedMarginAccountResponse> {
+    return this.postPrivate('sapi/v1/margin/isolated/account', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-enabled-isolated-margin-account-limit-user_data
+  /**
+   * Query enabled isolated margin account limit
+   */
+  getIsolatedMarginAccountLimit(): Promise<QueryIsolatedMarginAccountLimitResponse> {
+    return this.getPrivate('sapi/v1/margin/isolated/accountLimit');
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-isolated-margin-symbol-user_data
+  /**
+   * Get all isolated margin symbols
+   */
+  getAllIsolatedMarginSymbols(params?: {
+    symbol?: string;
+  }): Promise<IsolatedMarginSymbol[]> {
+    return this.getPrivate('sapi/v1/margin/isolated/allPairs', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-all-isolated-margin-symbol-user_data
+  /**
+   * Toggle BNB burn on spot trade and margin interest
+   */
+  toggleBNBBurn(params: ToggleBNBBurnParams): Promise<BNBBurnResponse> {
+    return this.postPrivate('sapi/v1/bnbBurn', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#toggle-bnb-burn-on-spot-trade-and-margin-interest-user_data
+  /**
+   * Get BNB burn status
+   */
+  getBNBBurnStatus(params: {
+    recvWindow?: number;
+    timestamp: number;
+  }): Promise<BNBBurnResponse> {
+    return this.getPrivate('sapi/v1/bnbBurn', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#get-bnb-burn-status-user_data
+  /**
+   * Query margin interest rate history
+   */
+  getMarginInterestRateHistory(
+    params: QueryMarginInterestRateHistoryParams,
+  ): Promise<MarginInterestRateHistory[]> {
+    return this.getPrivate('sapi/v1/margin/interestRateHistory', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-margin-interest-rate-history-user_data
+  /**
+   * Query cross margin fee data
+   */
+  getCrossMarginFeeData(
+    params: QueryCrossMarginFeeDataParams,
+  ): Promise<CrossMarginFeeData[]> {
+    return this.getPrivate('sapi/v1/margin/crossMarginData', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-cross-margin-fee-data-user_data
+  /**
+   * Query isolated margin fee data
+   */
+  getIsolatedMarginFeeData(
+    params: QueryCrossMarginFeeDataParams,
+  ): Promise<IsolatedMarginFeeData[]> {
+    return this.getPrivate('sapi/v1/margin/isolatedMarginData', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-isolated-margin-fee-data-user_data
+  /**
+   * Query isolated margin tier data
+   */
+  getIsolatedMarginTierData(
+    params: QueryIsolatedMarginTierDataParams,
+  ): Promise<IsolatedMarginTierData[]> {
+    return this.getPrivate('sapi/v1/margin/isolatedMarginTier', params);
+  }
 
-  // TODO - https://binance-docs.github.io/apidocs/spot/en/#query-isolated-margin-tier-data-user_data
+  getMarginOrderCountUsage(
+    params: GetMarginOrderCountUsageParams,
+  ): Promise<MarginOrderCountUsageResponse[]> {
+    return this.getPrivate('sapi/v1/margin/rateLimit/order', params);
+  }
+
+  getCrossMarginCollateralRatio(): Promise<
+    CrossMarginCollateralRatioResponse[]
+  > {
+    return this.getPrivate('sapi/v1/margin/crossMarginCollateralRatio');
+  }
+
+  getSmallLiabilityExchangeCoins(): Promise<SmallLiabilityExchangeCoin[]> {
+    return this.getPrivate('sapi/v1/margin/exchange-small-liability');
+  }
+
+  submitSmallLiabilityExchange(params: {
+    assetNames: string[];
+  }): Promise<ExchangeSmallLiabilityResponse> {
+    return this.postPrivate('sapi/v1/margin/exchange-small-liability', params);
+  }
+
+  getSmallLiabilityExchangeHistory(
+    params: GetSmallLiabilityExchangeHistoryParams,
+  ): Promise<GetSmallLiabilityExchangeHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/margin/exchange-small-liability-history',
+      params,
+    );
+  }
+
+  getNextHourlyInterestRate(
+    params: GetNextHourlyInterestRateParams,
+  ): Promise<NextHourlyInterestRate[]> {
+    return this.getPrivate('sapi/v1/margin/next-hourly-interest-rate', params);
+  }
+
+  getMarginCapitalFlow(
+    params: GetMarginCapitalFlowParams,
+  ): Promise<MarginCapitalFlow[]> {
+    return this.getPrivate('sapi/v1/margin/capital-flow', params);
+  }
+
+  getMarginDelistSchedule(): Promise<MarginDelistSchedule[]> {
+    return this.getPrivate('sapi/v1/margin/delist-schedule');
+  }
+
+  getMarginAvailableInventory(params: {
+    type: string;
+  }): Promise<MarginAvailableInventoryResponse> {
+    return this.getPrivate('sapi/v1/margin/available-inventory', params);
+  }
+
+  submitManualLiquidation(
+    params: ManualLiquidationParams,
+  ): Promise<ManualLiquidationResponse[]> {
+    return this.postPrivate('sapi/v1/margin/manual-liquidation', params);
+  }
+
+  getLeverageBracket(): Promise<LiabilityCoinLeverageBracket[]> {
+    return this.getPrivate('sapi/v1/margin/leverageBracket');
+  }
 
   /**
    *
@@ -1233,16 +1888,306 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate(`/sapi/v1/simple-earn/account`);
   }
 
+  getFlexibleSubscriptionRecord(
+    params: GetFlexibleSubscriptionRecordParams,
+  ): Promise<GetFlexibleSubscriptionRecordResult> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/history/subscriptionRecord',
+      params,
+    );
+  }
+
+  getLockedSubscriptionRecord(
+    params: GetLockedSubscriptionRecordParams,
+  ): Promise<GetLockedSubscriptionRecordResult> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/locked/history/subscriptionRecord',
+      params,
+    );
+  }
+
+  getFlexibleRedemptionRecord(
+    params: GetFlexibleRedemptionRecordParams,
+  ): Promise<GetFlexibleRedemptionRecordResult> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/history/redemptionRecord',
+      params,
+    );
+  }
+
+  getLockedRedemptionRecord(
+    params: GetLockedRedemptionRecordParams,
+  ): Promise<GetLockedRedemptionRecordResult> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/locked/history/redemptionRecord',
+      params,
+    );
+  }
+
+  getFlexibleRewardsHistory(
+    params: GetFlexibleRewardsHistoryParams,
+  ): Promise<GetFlexibleRewardsHistoryResult> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/history/rewardsRecord',
+      params,
+    );
+  }
+
+  getLockedRewardsHistory(
+    params: GetLockedRewardsHistoryParams,
+  ): Promise<GetLockedRewardsHistoryResult> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/locked/history/rewardsRecord',
+      params,
+    );
+  }
+
+  setFlexibleAutoSubscribe(params: SetAutoSubscribeParams): Promise<{
+    success: boolean;
+  }> {
+    return this.postPrivate(
+      'sapi/v1/simple-earn/flexible/setAutoSubscribe',
+      params,
+    );
+  }
+
+  setLockedAutoSubscribe(params: SetAutoSubscribeParams): Promise<{
+    success: boolean;
+  }> {
+    return this.postPrivate(
+      'sapi/v1/simple-earn/locked/setAutoSubscribe',
+      params,
+    );
+  }
+
+  getFlexiblePersonalLeftQuota(params: { productId: string }): Promise<{
+    leftPersonalQuota: string;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/personalLeftQuota',
+      params,
+    );
+  }
+
+  getLockedPersonalLeftQuota(params: { projectId: string }): Promise<{
+    leftPersonalQuota: string;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/locked/personalLeftQuota',
+      params,
+    );
+  }
+
+  getFlexibleSubscriptionPreview(
+    params: GetFlexibleSubscriptionPreviewParams,
+  ): Promise<GetFlexibleSubscriptionPreviewResponse> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/subscriptionPreview',
+      params,
+    );
+  }
+
+  getLockedSubscriptionPreview(
+    params: GetLockedSubscriptionPreviewParams,
+  ): Promise<GetLockedSubscriptionPreviewResponse[]> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/locked/subscriptionPreview',
+      params,
+    );
+  }
+
+  getRateHistory(params: GetRateHistoryParams): Promise<GetRateHistoryResult> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/history/rateHistory',
+      params,
+    );
+  }
+
+  getCollateralRecord(
+    params: GetCollateralRecordParams,
+  ): Promise<GetCollateralRecordResult> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/history/collateralRecord',
+      params,
+    );
+  }
+
+  /**
+   *
+   * Dual Investment Endpoints
+   *
+   **/
+
+  getDualInvestmentProducts(
+    params: GetDualInvestmentProductListParams,
+  ): Promise<GetDualInvestmentProductListResponse> {
+    return this.getPrivate('sapi/v1/dci/product/list', params);
+  }
+
+  subscribeDualInvestmentProduct(
+    params: SubscribeDualInvestmentProductParams,
+  ): Promise<SubscribeDualInvestmentProductResponse> {
+    return this.postPrivate('sapi/v1/dci/product/subscribe', params);
+  }
+
+  getDualInvestmentPositions(
+    params: GetDualInvestmentPositionsParams,
+  ): Promise<GetDualInvestmentPositionsResponse> {
+    return this.getPrivate('sapi/v1/dci/product/positions', params);
+  }
+
+  getDualInvestmentAccounts(): Promise<CheckDualInvestmentAccountsResponse> {
+    return this.getPrivate('sapi/v1/dci/product/accounts');
+  }
+
+  updateAutoCompoundStatus(
+    params: ChangeAutoCompoundStatusParams,
+  ): Promise<ChangeAutoCompoundStatusResponse> {
+    return this.postPrivate(
+      'sapi/v1/dci/product/auto_compound/edit-status',
+      params,
+    );
+  }
+
+  /**
+   *
+   * Auto Invest Enpoints
+   *
+   **/
+
+  getAutoInvestTargetAssets(
+    params: GetTargetAssetListParams,
+  ): Promise<GetTargetAssetListResponse> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/target-asset/list',
+      params,
+    );
+  }
+
+  getAutoInvestTargetAssetsROI(
+    params: GetTargetAssetROIParams,
+  ): Promise<TargetAssetROI[]> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/target-asset/roi/list',
+      params,
+    );
+  }
+
+  getAllAutoInvestAssets(): Promise<GetAllAssetsResponse> {
+    return this.getPrivate('sapi/v1/lending/auto-invest/all/asset');
+  }
+
+  getAutoInvestSourceAssets(
+    params: GetSourceAssetListParams,
+  ): Promise<GetSourceAssetListResponse> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/source-asset/list',
+      params,
+    );
+  }
+
+  createAutoInvestmentPlan(
+    params: CreateInvestmentPlanParams,
+  ): Promise<CreateInvestmentPlanResponse> {
+    return this.postPrivate('sapi/v1/lending/auto-invest/plan/add', params);
+  }
+
+  updateAutoInvestmentPlan(
+    params: EditInvestmentPlanParams,
+  ): Promise<EditInvestmentPlanResponse> {
+    return this.postPrivate('sapi/v1/lending/auto-invest/plan/edit', params);
+  }
+
+  updateAutoInvestPlanStatus(
+    params: ChangePlanStatusParams,
+  ): Promise<ChangePlanStatusResponse> {
+    return this.postPrivate(
+      'sapi/v1/lending/auto-invest/plan/edit-status',
+      params,
+    );
+  }
+
+  getAutoInvestPlans(params: {
+    planType: 'SINGLE' | 'PORTFOLIO' | 'INDEX';
+  }): Promise<any> {
+    return this.getPrivate('sapi/v1/lending/auto-invest/plan/list', params);
+  }
+
+  getAutoInvestPlan(params: GetPlanDetailsParams): Promise<any> {
+    return this.getPrivate('sapi/v1/lending/auto-invest/plan/id', params);
+  }
+
+  getAutoInvestSubscriptionTransactions(
+    params: GetSubscriptionTransactionHistoryParams,
+  ): Promise<any> {
+    return this.getPrivate('sapi/v1/lending/auto-invest/history/list', params);
+  }
+
+  getAutoInvestIndex(params: {
+    indexId: number;
+  }): Promise<GetIndexDetailsResponse> {
+    return this.getPrivate('sapi/v1/lending/auto-invest/index/info', params);
+  }
+
+  getAutoInvestIndexUser(params: {
+    indexId: number;
+  }): Promise<GetIndexLinkedPlanPositionDetailsResponse> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/index/user-summary',
+      params,
+    );
+  }
+
+  submitAutoInvestOneTimeTransaction(
+    params: SubmitOneTimeTransactionParams,
+  ): Promise<SubmitOneTimeTransactionResponse> {
+    return this.postPrivate('sapi/v1/lending/auto-invest/one-off', params);
+  }
+
+  getOneTimeTransactionStatus(
+    params: GetOneTimeTransactionStatusParams,
+  ): Promise<GetOneTimeTransactionStatusResponse> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/one-off/status',
+      params,
+    );
+  }
+
+  submitAutoInvestRedemption(
+    params: SubmitIndexLinkedPlanRedemptionParams,
+  ): Promise<{
+    redemptionId: number;
+  }> {
+    return this.postPrivate('sapi/v1/lending/auto-invest/redeem', params);
+  }
+
+  getAutoInvestRedemptionHistory(
+    params: GetIndexLinkedPlanRedemptionHistoryParams,
+  ): Promise<IndexLinkedPlanRedemptionRecord[]> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/redeem/history',
+      params,
+    );
+  }
+
+  getAutoInvestRebalanceHistory(
+    params: GetIndexLinkedPlanRebalanceHistoryParams,
+  ): Promise<GetIndexLinkedPlanRebalanceHistoryParams[]> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/rebalance/history',
+      params,
+    );
+  }
+
   /**
    *
    * Staking Endpoints
    *
    **/
 
-  //TODO: https://binance-docs.github.io/apidocs/spot/en/#purchase-staking-product-user_data
-  //TODO: https://binance-docs.github.io/apidocs/spot/en/#redeem-staking-product-user_data
-  //TODO: https://binance-docs.github.io/apidocs/spot/en/#set-auto-staking-user_data
-
+  /**
+   * @deprecated as of 2024-01-19
+   */
   getStakingProducts(
     params: StakingBasicParams & {
       asset?: string;
@@ -1251,6 +2196,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate(`sapi/v1/staking/productList`, params);
   }
 
+  /**
+   * @deprecated as of 2024-01-19
+   */
   getStakingProductPosition(
     params: StakingBasicParams & {
       productId?: string;
@@ -1260,10 +2208,16 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/staking/position', params);
   }
 
+  /**
+   * @deprecated as of 2024-01-19
+   */
   getStakingHistory(params: StakingHistoryParams): Promise<StakingHistory[]> {
     return this.getPrivate('sapi/v1/staking/stakingRecord', params);
   }
 
+  /**
+   * @deprecated as of 2024-01-19
+   */
   getPersonalLeftQuotaOfStakingProduct(params: {
     product: StakingProductType;
     productId: string;
@@ -1271,18 +2225,119 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/staking/personalLeftQuota', params);
   }
 
+  subscribeEthStakingV1(params: { amount: number }): Promise<{
+    success: boolean;
+  }> {
+    return this.postPrivate('sapi/v1/eth-staking/eth/stake', params);
+  }
+
+  subscribeEthStakingV2(params: {
+    amount: number;
+  }): Promise<SubscribeEthStakingV2Response> {
+    return this.postPrivate('sapi/v2/eth-staking/eth/stake', params);
+  }
+
+  redeemEth(params: RedeemEthParams): Promise<RedeemEthResponse> {
+    return this.postPrivate('sapi/v1/eth-staking/eth/redeem', params);
+  }
+
+  getEthStakingHistory(
+    params: GetEthStakingHistoryParams,
+  ): Promise<GetEthStakingHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/eth/history/stakingHistory',
+      params,
+    );
+  }
+
+  getEthRedemptionHistory(
+    params: GetEthRedemptionHistoryParams,
+  ): Promise<GetEthRedemptionHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/eth/history/redemptionHistory',
+      params,
+    );
+  }
+
+  getBethRewardsHistory(
+    params: GetBethRewardsHistoryParams,
+  ): Promise<GetBethRewardsHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/eth/history/rewardsHistory',
+      params,
+    );
+  }
+
+  getEthStakingQuota(): Promise<GetEthStakingQuotaResponse> {
+    return this.getPrivate('sapi/v1/eth-staking/eth/quota');
+  }
+
+  getEthRateHistory(
+    params: GetETHRateHistoryParams,
+  ): Promise<GetETHRateHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/eth/history/rateHistory',
+      params,
+    );
+  }
+
+  getEthStakingAccount(): Promise<GetEthStakingAccountResponse> {
+    return this.getPrivate('sapi/v1/eth-staking/account');
+  }
+
+  getEthStakingAccountV2(): Promise<GetEthStakingAccountV2Response> {
+    return this.getPrivate('sapi/v2/eth-staking/account');
+  }
+
+  wrapBeth(params: { amount: number }): Promise<WrapBethResponse> {
+    return this.postPrivate('sapi/v1/eth-staking/wbeth/wrap', params);
+  }
+
+  getBethWrapHistory(
+    params: GetWrapHistoryParams,
+  ): Promise<GetWrapHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/wbeth/history/wrapHistory',
+      params,
+    );
+  }
+
+  getBethUnwrapHistory(
+    params: GetWrapHistoryParams,
+  ): Promise<GetWrapHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/wbeth/history/unwrapHistory',
+      params,
+    );
+  }
+
+  getWbethRewardsHistory(
+    params: GetWrapHistoryParams,
+  ): Promise<GetWbethRewardsHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/eth/history/wbethRewardsHistory',
+      params,
+    );
+  }
+
   /**
    *
    * Savings Endpoints
-   *
+   * @deprecated as of 2023-06-22, now Simple Earn
    **/
 
+  /**
+   * @deprecated as of 2023-06-22, now Simple Earn
+   */
   getLeftDailyPurchaseQuotaFlexibleProduct(params: {
     productId: string;
   }): Promise<LeftDailyPurchaseQuotaFlexibleProductResponse> {
     return this.getPrivate(`sapi/v1/lending/daily/userLeftQuota`, params);
   }
 
+  /**
+   * @deprecated as of 2023-06-22, now Simple Earn
+   */
   getLeftDailyRedemptionQuotaFlexibleProduct(params: {
     productId: string;
   }): Promise<
@@ -1294,6 +2349,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate(`sapi/v1/lending/daily/userRedemptionQuota`, params);
   }
 
+  /**
+   * @deprecated as of 2023-06-22, now Simple Earn
+   */
   purchaseFixedAndActivityProject(params: {
     projectId: string;
     lot: number;
@@ -1301,34 +2359,55 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate(`sapi/v1/lending/customizedFixed/purchase`, params);
   }
 
+  /**
+   * @deprecated as of 2023-06-22, now Simple Earn
+   */
   getFixedAndActivityProjects(
     params: FixedAndActivityProjectParams,
   ): Promise<any[]> {
     return this.getPrivate(`sapi/v1/lending/project/list`, params);
   }
 
+  /**
+   * @deprecated as of 2023-06-22, now Simple Earn
+   */
   getFixedAndActivityProductPosition(
     params: FixedAndActivityProjectPositionParams,
   ): Promise<any[]> {
     return this.getPrivate(`sapi/v1/lending/project/position/list`, params);
   }
 
+  /**
+   * @deprecated as of 2023-06-22, now Simple Earn
+   */
   getLendingAccount(): Promise<StakingProduct[]> {
     return this.getPrivate(`sapi/v1/lending/union/account`);
   }
 
+  /**
+   * @deprecated as of 2023-06-22, now Simple Earn
+   */
   getPurchaseRecord(params: PurchaseRecordParams): Promise<any[]> {
     return this.getPrivate(`sapi/v1/lending/union/purchaseRecord`, params);
   }
 
+  /**
+   * @deprecated as of 2023-06-22, now Simple Earn
+   */
   getRedemptionRecord(params: PurchaseRecordParams): Promise<any[]> {
     return this.getPrivate(`sapi/v1/lending/union/redemptionRecord`, params);
   }
 
+  /**
+   * @deprecated as of 2023-06-22, now Simple Earn
+   */
   getInterestHistory(params: PurchaseRecordParams): Promise<any[]> {
     return this.getPrivate(`sapi/v1/lending/union/interestHistory`, params);
   }
 
+  /**
+   * @deprecated as of 2023-06-22, now Simple Earn
+   */
   changeFixedAndActivityPositionToDailyPosition(params: {
     projectId: string;
     lot: number;
@@ -1343,7 +2422,84 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  //TODO: https://binance-docs.github.io/apidocs/spot/en/#mining-endpoints
+  getMiningAlgos(): Promise<GetMiningAlgoListResponse[]> {
+    return this.get('sapi/v1/mining/pub/algoList');
+  }
+
+  getMiningCoins(): Promise<GetMiningCoinListResponse[]> {
+    return this.get('sapi/v1/mining/pub/coinList');
+  }
+
+  getMinerDetails(
+    params: GetMinerDetailsParams,
+  ): Promise<GetMinerDetailsResponse[]> {
+    return this.getPrivate('sapi/v1/mining/worker/detail', params);
+  }
+
+  getMinerList(params: GetMinerListParams): Promise<GetMinerListResponse> {
+    return this.getPrivate('sapi/v1/mining/worker/list', params);
+  }
+
+  getMiningEarnings(
+    params: GetEarningsListParams,
+  ): Promise<GetEarningsListResponse> {
+    return this.getPrivate('sapi/v1/mining/payment/list', params);
+  }
+
+  getExtraBonuses(
+    params: GetExtraBonusListParams,
+  ): Promise<GetExtraBonusListResponse> {
+    return this.getPrivate('sapi/v1/mining/payment/other', params);
+  }
+
+  getHashrateResales(
+    params: GetHashrateResaleListParams,
+  ): Promise<GetHashrateResaleListResponse> {
+    return this.getPrivate(
+      'sapi/v1/mining/hash-transfer/config/details/list',
+      params,
+    );
+  }
+
+  getHashrateResale(
+    params: GetHashrateResaleDetailParams,
+  ): Promise<GetHashrateResaleDetailResponse> {
+    return this.getPrivate(
+      'sapi/v1/mining/hash-transfer/profit/details',
+      params,
+    );
+  }
+
+  submitHashrateResale(params: SubmitHashrateResaleParams): Promise<number> {
+    return this.postPrivate('sapi/v1/mining/hash-transfer/config', params);
+  }
+
+  cancelHashrateResaleConfig(
+    params: CancelHashrateResaleConfigParams,
+  ): Promise<boolean> {
+    return this.postPrivate(
+      'sapi/v1/mining/hash-transfer/config/cancel',
+      params,
+    );
+  }
+
+  getMiningStatistics(
+    params: GetStatisticListParams,
+  ): Promise<GetStatisticListResponse> {
+    return this.getPrivate('sapi/v1/mining/statistics/user/status', params);
+  }
+
+  getMiningAccounts(
+    params: getMiningAccountsListParams,
+  ): Promise<getMiningAccountsListResponse> {
+    return this.getPrivate('sapi/v1/mining/statistics/user/list', params);
+  }
+
+  getMiningAccountEarnings(
+    params: GetMiningAccountEarningParams,
+  ): Promise<GetMiningAccountEarningResponse> {
+    return this.getPrivate('sapi/v1/mining/payment/uid', params);
+  }
 
   /**
    *
@@ -1376,18 +2532,35 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate(`sapi/v1/futures/transfer`, params);
   }
 
+  getFutureTickLevelOrderbookDataLink(
+    params: GetFutureTickLevelOrderbookDataLinkParams,
+  ): Promise<{
+    data: HistoricalDataLink[];
+  }> {
+    return this.getPrivate('sapi/v1/futures/histDataLink', params);
+  }
+
+  /**
+   * @deprecated as of 2023-09-25
+   */
   getCrossCollateralBorrowHistory(params?: CoinStartEndLimit): Promise<any> {
     return this.getPrivate(`sapi/v1/futures/loan/borrow/history`, params);
   }
-
+  /**
+   * @deprecated as of 2023-09-25
+   */
   getCrossCollateralRepaymentHistory(params?: CoinStartEndLimit): Promise<any> {
     return this.getPrivate(`sapi/v1/futures/loan/repay/history`, params);
   }
-
+  /**
+   * @deprecated as of 2023-09-25
+   */
   getCrossCollateralWalletV2(): Promise<any> {
     return this.getPrivate(`sapi/v2/futures/loan/wallet`);
   }
-
+  /**
+   * @deprecated as of 2023-09-25
+   */
   getAdjustCrossCollateralLTVHistory(
     params?: GetLoanCoinPaginatedHistoryParams,
   ): Promise<any> {
@@ -1396,20 +2569,178 @@ export class MainClient extends BaseRestClient {
       params,
     );
   }
-
+  /**
+   * @deprecated as of 2023-09-25
+   */
   getCrossCollateralLiquidationHistory(
     params?: GetLoanCoinPaginatedHistoryParams,
   ): Promise<any> {
     return this.getPrivate(`sapi/v1/futures/loan/liquidationHistory`, params);
   }
-
+  /**
+   * @deprecated as of 2023-09-25
+   */
   getCrossCollateralInterestHistory(
     params?: GetLoanCoinPaginatedHistoryParams,
   ): Promise<any> {
     return this.getPrivate(`sapi/v1/futures/loan/interestHistory`, params);
   }
 
-  //TODO: https://binance-docs.github.io/apidocs/spot/en/#futures
+  /**
+   *
+   * Futures Algo Endpoints
+   *
+   **/
+
+  submitVpNewOrder(
+    params: SubmitVpNewOrderParams,
+  ): Promise<SubmitVpNewOrderResponse> {
+    return this.postPrivate('sapi/v1/algo/futures/newOrderVp', params);
+  }
+
+  submitTwapNewOrder(
+    params: SubmitTwapNewOrderParams,
+  ): Promise<SubmitTwapNewOrderResponse> {
+    return this.postPrivate('sapi/v1/algo/futures/newOrderTwap', params);
+  }
+
+  cancelAlgoOrder(params: {
+    algoId: number;
+  }): Promise<CancelAlgoOrderResponse> {
+    return this.deletePrivate('sapi/v1/algo/futures/order', params);
+  }
+
+  getAlgoOpenOrders(): Promise<GetAlgoOpenOrdersResponse> {
+    return this.getPrivate('sapi/v1/algo/futures/openOrders');
+  }
+
+  getAlgoHistoricalOrders(
+    params: GetAlgoHistoricalOrdersParams,
+  ): Promise<GetAlgoHistoricalOrdersResponse> {
+    return this.getPrivate('sapi/v1/algo/futures/historicalOrders', params);
+  }
+
+  getAlgoSubOrders(
+    params: GetAlgoSubOrdersParams,
+  ): Promise<GetAlgoSubOrdersResponse> {
+    return this.getPrivate('sapi/v1/algo/futures/subOrders', params);
+  }
+
+  /**
+   *
+   * Spot Algo Endpoints
+   *
+   **/
+
+  submitSpotAlgoTwapOrder(
+    params: SubmitSpotTwapNewOrderParams,
+  ): Promise<SubmitSpotTwapNewOrderResponse> {
+    return this.postPrivate('sapi/v1/algo/spot/newOrderTwap', params);
+  }
+
+  cancelSpotAlgoOrder(params: {
+    algoId: number;
+  }): Promise<CancelSpotAlgoOrderResponse> {
+    return this.deletePrivate('sapi/v1/algo/spot/order', params);
+  }
+
+  getSpotAlgoOpenOrders(): Promise<GetSpotAlgoOpenOrdersResponse> {
+    return this.getPrivate('sapi/v1/algo/spot/openOrders');
+  }
+
+  getSpotAlgoHistoricalOrders(
+    params: GetSpotAlgoHistoricalOrdersParams,
+  ): Promise<GetSpotAlgoHistoricalOrdersResponse> {
+    return this.getPrivate('sapi/v1/algo/spot/historicalOrders', params);
+  }
+
+  getSpotAlgoSubOrders(
+    params: GetSpotAlgoSubOrdersParams,
+  ): Promise<GetSpotAlgoSubOrdersResponse> {
+    return this.getPrivate('sapi/v1/algo/spot/subOrders', params);
+  }
+
+  /**
+   *
+   * Portfolio Margin Pro
+   *
+   **/
+
+  getPortfolioMarginProAccountInfo(): Promise<GetPortfolioMarginProAccountInfoResponse> {
+    return this.getPrivate('sapi/v1/portfolio/account');
+  }
+
+  getPortfolioMarginProCollateralRate(): Promise<
+    GetPortfolioMarginProCollateralRateResponse[]
+  > {
+    return this.get('sapi/v1/portfolio/collateralRate');
+  }
+
+  getPortfolioMarginProBankruptcyLoanAmount(): Promise<GetPortfolioMarginProBankruptcyLoanAmountResponse> {
+    return this.getPrivate('sapi/v1/portfolio/pmLoan');
+  }
+
+  repayPortfolioMarginProBankruptcyLoan(params: {
+    from?: 'SPOT' | 'MARGIN';
+  }): Promise<{
+    tranId: number;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/repay', params);
+  }
+
+  getPortfolioMarginProInterestHistory(
+    params: GetPortfolioMarginProInterestHistoryParams,
+  ): Promise<GetPortfolioMarginProInterestHistoryResponse[]> {
+    return this.getPrivate('sapi/v1/portfolio/interest-history', params);
+  }
+
+  getPortfolioMarginIndexPrice(params?: {
+    asset?: string;
+  }): Promise<GetPortfolioMarginAssetIndexPriceResponse[]> {
+    return this.get('sapi/v1/portfolio/asset-index-price', params);
+  }
+
+  submitFullTransferPortfolioMarginPro(): Promise<{
+    msg: string;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/auto-collection');
+  }
+
+  submitSpecificTransferPortfolioMarginPro(params: { asset: string }): Promise<{
+    msg: string;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/asset-collection', params);
+  }
+
+  bnbTransfer(params: BnbTransferParams): Promise<{
+    tranId: number;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/bnb-transfer', params);
+  }
+
+  updateAutoRepayFuturesStatus(params: { autoRepay: string }): Promise<{
+    msg: string;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/repay-futures-switch', params);
+  }
+
+  getAutoRepayFuturesStatus(): Promise<{
+    autoRepay: boolean;
+  }> {
+    return this.getPrivate('sapi/v1/portfolio/repay-futures-switch');
+  }
+
+  repayFuturesNegativeBalance(): Promise<{
+    msg: string;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/repay-futures-negative-balance');
+  }
+
+  getPortfolioMarginAssetLeverage(): Promise<
+    GetPortfolioMarginAssetLeverageResponse[]
+  > {
+    return this.getPrivate('sapi/v1/portfolio/margin-asset-leverage');
+  }
 
   /**
    *
@@ -1417,35 +2748,443 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  //TODO: https://binance-docs.github.io/apidocs/spot/en/#blvt-endpoints
+  getBlvtInfo(params?: { tokenName?: string }): Promise<any[]> {
+    return this.get('sapi/v1/blvt/tokenInfo', params);
+  }
+
+  subscribeBlvt(params: SubscribeBlvtParams): Promise<SubscribeBlvtResponse> {
+    return this.postPrivate('sapi/v1/blvt/subscribe', params);
+  }
+
+  getBlvtSubscriptionRecord(
+    params: GetBlvtSubscriptionRecordParams,
+  ): Promise<BlvtSubscriptionRecord[]> {
+    return this.getPrivate('sapi/v1/blvt/subscribe/record', params);
+  }
+
+  redeemBlvt(params: RedeemBlvtParams): Promise<RedeemBlvtResponse> {
+    return this.postPrivate('sapi/v1/blvt/redeem', params);
+  }
+
+  getBlvtRedemptionRecord(
+    params: GetBlvtRedemptionRecordParams,
+  ): Promise<BlvtRedemptionRecord[]> {
+    return this.getPrivate('sapi/v1/blvt/redeem/record', params);
+  }
+
+  getBlvtUserLimitInfo(params: {
+    tokenName?: string;
+  }): Promise<BlvtUserLimitInfo[]> {
+    return this.getPrivate('sapi/v1/blvt/userLimit', params);
+  }
+
+  /**
+   *
+   * Fiat Endpoints
+   *
+   **/
+
+  getFiatOrderHistory(
+    params: GetFiatOrderHistoryParams,
+  ): Promise<GetFiatOrderHistoryResponse> {
+    return this.getPrivate('sapi/v1/fiat/orders', params);
+  }
+
+  getFiatPaymentsHistory(
+    params: GetFiatOrderHistoryParams,
+  ): Promise<GetFiatPaymentsHistoryResponse> {
+    return this.getPrivate('sapi/v1/fiat/payments', params);
+  }
+
+  /**
+   *
+   * C2C Endpoints
+   *
+   **/
+
+  getC2CTradeHistory(
+    params: GetC2CTradeHistoryParams,
+  ): Promise<GetC2CTradeHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/c2c/orderMatch/listUserOrderHistory',
+      params,
+    );
+  }
+
+  /**
+   *
+   * VIP Loans Endpoints
+   *
+   **/
+
+  getVipLoanOpenOrders(
+    params: GetVipLoanOngoingOrdersParams,
+  ): Promise<GetVipLoanOngoingOrdersResponse> {
+    return this.getPrivate('sapi/v1/loan/vip/ongoing/orders', params);
+  }
+
+  repayVipLoan(params: VipLoanRepayParams): Promise<VipLoanRepayResponse> {
+    return this.postPrivate('sapi/v1/loan/vip/repay', params);
+  }
+
+  getVipLoanRepaymentHistory(
+    params: GetVipLoanRepaymentHistoryParams,
+  ): Promise<GetVipLoanRepaymentHistoryResponse> {
+    return this.getPrivate('sapi/v1/loan/vip/repay/history', params);
+  }
+
+  renewVipLoan(params: VipLoanRenewParams): Promise<VipLoanRenewResponse> {
+    return this.postPrivate('sapi/v1/loan/vip/renew', params);
+  }
+
+  checkVipCollateralAccount(
+    params: CheckVipCollateralAccountParams,
+  ): Promise<CheckVipCollateralAccountResponse> {
+    return this.getPrivate('sapi/v1/loan/vip/collateral/account', params);
+  }
+
+  borrowVipLoan(params: VipLoanBorrowParams): Promise<VipLoanBorrowResponse> {
+    return this.postPrivate('sapi/v1/loan/vip/borrow', params);
+  }
+
+  getVipLoanableAssets(
+    params: GetLoanableAssetsDataParams,
+  ): Promise<GetLoanableAssetsDataResponse> {
+    return this.getPrivate('sapi/v1/loan/vip/loanable/data', params);
+  }
+
+  getVipCollateralAssets(params: {
+    collateralCoin?: string;
+  }): Promise<GetCollateralAssetDataResponse> {
+    return this.getPrivate('sapi/v1/loan/vip/collateral/data', params);
+  }
+
+  getVipApplicationStatus(
+    params: GetApplicationStatusParams,
+  ): Promise<GetApplicationStatusResponse> {
+    return this.getPrivate('sapi/v1/loan/vip/request/data', params);
+  }
+
+  getVipBorrowInterestRate(params: {
+    loanCoin: string;
+  }): Promise<BorrowInterestRate[]> {
+    return this.getPrivate('sapi/v1/loan/vip/request/interestRate', params);
+  }
+
+  /**
+   *
+   * Crypto Loans Endpoints
+   *
+   **/
+
+  getCryptoLoansIncomeHistory(
+    params: GetCryptoLoansIncomeHistoryParams,
+  ): Promise<GetCryptoLoansIncomeHistoryResponse[]> {
+    return this.getPrivate('sapi/v1/loan/income', params);
+  }
+
+  borrowCryptoLoan(
+    params: BorrowCryptoLoanParams,
+  ): Promise<BorrowCryptoLoanResponse> {
+    return this.postPrivate('sapi/v1/loan/borrow', params);
+  }
+
+  getCryptoLoanBorrowHistory(
+    params: GetLoanBorrowHistoryParams,
+  ): Promise<GetLoanBorrowHistoryResponse> {
+    return this.getPrivate('sapi/v1/loan/borrow/history', params);
+  }
+
+  getCryptoLoanOngoingOrders(
+    params: GetLoanOngoingOrdersParams,
+  ): Promise<GetLoanOngoingOrdersResponse> {
+    return this.getPrivate('sapi/v1/loan/ongoing/orders', params);
+  }
+
+  repayCryptoLoan(
+    params: RepayCryptoLoanParams,
+  ): Promise<RepayCryptoLoanResponse> {
+    return this.postPrivate('sapi/v1/loan/repay', params);
+  }
+
+  getCryptoLoanRepaymentHistory(
+    params: GetLoanRepaymentHistoryParams,
+  ): Promise<GetLoanRepaymentHistoryResponse> {
+    return this.getPrivate('sapi/v1/loan/repay/history', params);
+  }
+
+  adjustCryptoLoanLTV(
+    params: AdjustCryptoLoanLTVParams,
+  ): Promise<AdjustCryptoLoanLTVResponse> {
+    return this.postPrivate('sapi/v1/loan/adjust/ltv', params);
+  }
+
+  getCryptoLoanLTVAdjustmentHistory(
+    params: GetLoanLTVAdjustmentHistoryParams,
+  ): Promise<GetLoanLTVAdjustmentHistoryResponse> {
+    return this.getPrivate('sapi/v1/loan/ltv/adjustment/history', params);
+  }
+
+  getCryptoLoanLoanableAssets(
+    params: GetLoanableAssetsDataParams,
+  ): Promise<GetCryptoLoanLoanableAssetsResponse> {
+    return this.getPrivate('sapi/v1/loan/loanable/data', params);
+  }
+
+  getCryptoLoanCollateralAssetsData(
+    params: GetCollateralAssetDataParams,
+  ): Promise<GetCryptoLoanCollateralAssetDataResponse> {
+    return this.getPrivate('sapi/v1/loan/collateral/data', params);
+  }
+
+  getCryptoLoanCollateralRepayRate(
+    params: CheckCollateralRepayRateParams,
+  ): Promise<CheckCollateralRepayRateResponse> {
+    return this.getPrivate('sapi/v1/loan/repay/collateral/rate', params);
+  }
+
+  customizeCryptoLoanMarginCall(
+    params: CustomizeMarginCallParams,
+  ): Promise<CustomizeMarginCallResponse> {
+    return this.postPrivate('sapi/v1/loan/customize/margin_call', params);
+  }
+
+  borrowCryptoLoanFlexible(
+    params: BorrowFlexibleLoanParams,
+  ): Promise<BorrowFlexibleLoanResponse> {
+    return this.postPrivate('sapi/v2/loan/flexible/borrow', params);
+  }
+
+  getCryptoLoanFlexibleOngoingOrders(
+    params: GetFlexibleLoanOngoingOrdersParams,
+  ): Promise<GetFlexibleLoanOngoingOrdersResponse> {
+    return this.getPrivate('sapi/v2/loan/flexible/ongoing/orders', params);
+  }
+
+  getFlexibleLoanBorrowHistory(
+    params: GetFlexibleCryptoLoanBorrowHistoryParams,
+  ): Promise<GetFlexibleCryptoLoanBorrowHistoryResponse> {
+    return this.getPrivate('sapi/v2/loan/flexible/borrow/history', params);
+  }
+
+  repayFlexibleCryptoLoan(
+    params: RepayCryptoFlexibleLoanParams,
+  ): Promise<RepayCryptoFlexibleLoanResponse> {
+    return this.postPrivate('sapi/v2/loan/flexible/repay', params);
+  }
+
+  getFlexibleLoanRepaymentHistory(
+    params: GetLoanRepaymentHistoryParams,
+  ): Promise<GetLoanRepaymentHistoryResponse> {
+    return this.getPrivate('sapi/v2/loan/flexible/repay/history', params);
+  }
+
+  adjustFlexibleCryptoLoanLTV(
+    params: AdjustFlexibleCryptoLoanLTVParams,
+  ): Promise<AdjustFlexibleCryptoLoanLTVResponse> {
+    return this.postPrivate('sapi/v2/loan/flexible/adjust/ltv', params);
+  }
+
+  getFlexibleCryptoLoanLTVAdjustmentHistory(
+    params: GetFlexibleLoanLTVAdjustmentHistoryParams,
+  ): Promise<GetFlexibleLoanLTVAdjustmentHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v2/loan/flexible/ltv/adjustment/history',
+      params,
+    );
+  }
+
+  getFlexibleCryptoLoanAssetsData(params: {
+    loanCoin?: string;
+  }): Promise<GetFlexibleLoanAssetsDataResponse> {
+    return this.getPrivate('sapi/v2/loan/flexible/loanable/data', params);
+  }
+
+  getFlexibleCryptoLoanCollateralAssetsData(params: {
+    collateralCoin?: string;
+  }): Promise<GetFlexibleLoanCollateralAssetsDataResponse> {
+    return this.getPrivate('sapi/v2/loan/flexible/collateral/data', params);
+  }
+
+  /**
+   *
+   * Copy trading endpoints
+   *
+   **/
+
+  getFuturesLeadTraderStatus(): Promise<GetFuturesLeadTraderStatusResponse> {
+    return this.getPrivate('sapi/v1/copyTrading/futures/userStatus');
+  }
+
+  getFuturesLeadTradingSymbolWhitelist(): Promise<
+    GetFuturesLeadTradingSymbolWhitelistResponse[]
+  > {
+    return this.getPrivate('sapi/v1/copyTrading/futures/leadSymbol');
+  }
+
+  /**
+   *
+   * Pay endpoints
+   *
+   **/
+
+  getPayTradeHistory(params: GetPayTradeHistoryParams): Promise<any> {
+    return this.getPrivate('sapi/v1/pay/transactions', params);
+  }
+
+  /**
+   *
+   * Convert endpoints
+   *
+   **/
+
+  getAllConvertPairs(params: GetAllConvertPairsParams): Promise<any> {
+    return this.getPrivate('sapi/v1/convert/exchangeInfo', params);
+  }
+
+  getAssetInfo(): Promise<any> {
+    return this.getPrivate('sapi/v1/convert/assetInfo');
+  }
+
+  convertQuoteRequest(params: ConvertQuoteRequestParams): Promise<any> {
+    return this.postPrivate('sapi/v1/convert/getQuote', params);
+  }
+
+  acceptQuoteRequest(params: AcceptQuoteRequestParams): Promise<any> {
+    return this.postPrivate('sapi/v1/convert/acceptQuote', params);
+  }
+
+  getOrderStatus(params: GetOrderStatusParams): Promise<any> {
+    return this.getPrivate('sapi/v1/convert/orderStatus', params);
+  }
+
+  submitConvertLimitOrder(params: SubmitConvertLimitOrderParams): Promise<any> {
+    return this.postPrivate('sapi/v1/convert/limit/placeOrder', params);
+  }
+
+  cancelConvertLimitOrder(params: { orderId: number }): Promise<any> {
+    return this.postPrivate('sapi/v1/convert/limit/cancelOrder', params);
+  }
+
+  getLimitOpenOrders(): Promise<{
+    list: ConvertLimitOpenOrder[];
+  }> {
+    return this.getPrivate('sapi/v1/convert/limit/queryOpenOrders');
+  }
+
+  getConvertTradeHistory(params: GetConvertTradeHistoryParams): Promise<any> {
+    return this.getPrivate('sapi/v1/convert/tradeFlow', params);
+  }
+
+  /**
+   *
+   * Rebate Endpoints
+   *
+   **/
+
+  getSpotRebateHistoryRecords(
+    params: GetSpotRebateHistoryRecordsParams,
+  ): Promise<GetSpotRebateHistoryRecordsResponse> {
+    return this.getPrivate('sapi/v1/rebate/taxQuery', params);
+  }
+
+  /**
+   *
+   * NFT Endpoints
+   *
+   **/
+
+  getNftTransactionHistory(
+    params: GetNftTransactionHistoryParams,
+  ): Promise<GetNftTransactionHistoryResponse> {
+    return this.getPrivate('sapi/v1/nft/history/transactions', params);
+  }
+
+  getNftDepositHistory(
+    params: GetNftDepositHistoryParams,
+  ): Promise<GetNftDepositHistoryResponse> {
+    return this.getPrivate('sapi/v1/nft/history/deposit', params);
+  }
+
+  getNftWithdrawHistory(
+    params: GetNftWithdrawHistoryParams,
+  ): Promise<GetNftWithdrawHistoryResponse> {
+    return this.getPrivate('sapi/v1/nft/history/withdraw', params);
+  }
+
+  getNftAsset(params: GetNftAssetParams): Promise<GetNftAssetResponse> {
+    return this.getPrivate('sapi/v1/nft/user/getAsset', params);
+  }
+
+  /**
+   *
+   * Binance GiftCard Endpoints
+   *
+   **/
+
+  createGiftCard(params: CreateGiftCardParams): Promise<any> {
+    return this.postPrivate('sapi/v1/giftcard/createCode', params);
+  }
+
+  createDualTokenGiftCard(params: CreateDualTokenGiftCardParams): Promise<any> {
+    return this.postPrivate('sapi/v1/giftcard/buyCode', params);
+  }
+
+  redeemGiftCard(params: RedeemGiftCardParams): Promise<any> {
+    return this.postPrivate('sapi/v1/giftcard/redeemCode', params);
+  }
+
+  verifyGiftCard(params: { referenceNo: string }): Promise<any> {
+    return this.getPrivate('sapi/v1/giftcard/verify', params);
+  }
+
+  getRsaPublicKey(): Promise<any> {
+    return this.getPrivate('sapi/v1/giftcard/cryptography/rsa-public-key');
+  }
+
+  getTokenLimit(params: { baseToken: string }): Promise<any> {
+    return this.getPrivate('sapi/v1/giftcard/buyCode/token-limit', params);
+  }
 
   /**
    *
    * BSwap Endpoints
-   *
+   * @deprecated as of 2024-01-19
    **/
 
+  /**
+   * @deprecated as of 2024-01-19
+   **/
   getBSwapLiquidity(params?: { poolId: number }): Promise<BSwapLiquidity[]> {
-    return this.getPrivate('sapi/v1/bswap/liquidity');
+    return this.getPrivate('sapi/v1/bswap/liquidity', params);
   }
 
-  addBSwapLiquidity(params: AddBSwapLiquidityParams): Promise<BasicBSwapResp> {
-    return this.postPrivate('sapi/v1/bswap/liquidityAdd');
+  /**
+   * @deprecated as of 2024-01-19
+   **/
+  addBSwapLiquidity(params: AddBSwapLiquidityParams): Promise<{
+    operationId: number;
+  }> {
+    return this.postPrivate('sapi/v1/bswap/liquidityAdd', params);
   }
 
-  removeBSwapLiquidity(
-    params: RemoveBSwapLiquidityParams,
-  ): Promise<BasicBSwapResp> {
-    return this.postPrivate('sapi/v1/bswap/liquidityRemove');
+  /**
+   * @deprecated as of 2024-01-19
+   **/
+  removeBSwapLiquidity(params: RemoveBSwapLiquidityParams): Promise<{
+    operationId: number;
+  }> {
+    return this.postPrivate('sapi/v1/bswap/liquidityRemove', params);
   }
 
+  /**
+   * @deprecated as of 2024-01-19
+   **/
   getBSwapOperations(
     params?: BSwapOperationsParams,
   ): Promise<BSwapOperations[]> {
-    return this.getPrivate('sapi/v1/bswap/liquidityOps');
+    return this.getPrivate('sapi/v1/bswap/liquidityOps', params);
   }
-
-  //TODO: add missing bswap-endpoints https://binance-docs.github.io/apidocs/spot/en/#bswap-endpoints
 
   /**
    * Validate syntax meets requirements set by binance. Log warning if not.
