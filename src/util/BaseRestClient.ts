@@ -104,6 +104,10 @@ export default abstract class BaseRestClient {
     baseUrlKeyOverride?: BinanceBaseUrlKey,
   ): Promise<number>;
 
+  public isTestnet(): boolean {
+    return this.options.useTestnet === true;
+  }
+
   public getBaseUrlKey(): BinanceBaseUrlKey {
     return this.baseUrlKey;
   }
@@ -223,12 +227,15 @@ export default abstract class BaseRestClient {
     //   'sending request: ',
     //   JSON.stringify(
     //     {
+    //       serialisedParams,
+    //       requestBody,
+    //       signature,
     //       reqOptions: options,
     //       reqParams: params,
     //     },
     //     null,
-    //     2
-    //   )
+    //     2,
+    //   ),
     // );
 
     return axios(options)

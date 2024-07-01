@@ -18,7 +18,8 @@ export type BinanceBaseUrlKey =
   | 'coinm'
   | 'coinmtest'
   | 'voptions'
-  | 'voptionstest';
+  | 'voptionstest'
+  | 'papi';
 
 /**
  * Time in force. Note: `GTE_GTC` is not officially documented, use at your own risk.
