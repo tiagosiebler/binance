@@ -319,7 +319,7 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/multiAssetsMargin');
   }
 
-  toggleBNBBurnOn(params: {
+  setBNBBurnEnabled(params: {
     feeBurn: 'true' | 'false';
   }): Promise<{ code: number; msg: string }> {
     return this.postPrivate('fapi/v1/feeBurn', params);
