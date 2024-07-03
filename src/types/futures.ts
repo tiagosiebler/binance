@@ -826,11 +826,6 @@ export interface GetFuturesOrderModifyHistoryParams {
   timestamp: number;
 }
 
-export interface GetDownloadIdFuturesTransactionParams {
-  startTime: number;
-  endTime: number;
-}
-
 export interface DownloadIdFuturesTransaction {
   avgCostTimestampOfLast30d: number;
   downloadId: string;
@@ -842,10 +837,6 @@ export interface FuturesTransactionDownloadLink {
   url: string;
   expirationTimestamp: number;
   isExpired: boolean | null;
-}
-
-export interface GetPortfolioMarginProAccountInfoParams {
-  asset: string;
 }
 
 export interface PortfolioMarginProAccountInfo {

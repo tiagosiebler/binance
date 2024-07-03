@@ -1,12 +1,12 @@
 import { AxiosRequestConfig } from 'axios';
 import {
-  ClassicPortfolioMarginAccountInfo,
-  ClassicPortfolioMarginNotionalLimitResponse,
+  ClassicPortfolioMarginAccount,
+  ClassicPortfolioMarginNotionalLimit,
   CoinMAccountTradeParams,
   CoinMOpenInterest,
   CoinMPositionTrade,
   CoinMSymbolOrderBookTicker,
-  FundingRateInfo,
+  FundingRate,
   GetClassicPortfolioMarginNotionalLimitParams,
   PositionRisk,
   SymbolOrPair,
@@ -165,7 +165,7 @@ export class CoinMClient extends BaseRestClient {
     return this.get('dapi/v1/fundingRate', params);
   }
 
-  getFundingRateInfo(params?: { symbol?: string }): Promise<FundingRateInfo[]> {
+  getFundingRate(params?: { symbol?: string }): Promise<FundingRate[]> {
     return this.get('dapi/v1/fundingInfo', params);
   }
 
@@ -576,13 +576,15 @@ export class CoinMClient extends BaseRestClient {
 
   getClassicPortfolioMarginNotionalLimit(
     params?: GetClassicPortfolioMarginNotionalLimitParams,
-  ): Promise<ClassicPortfolioMarginNotionalLimitResponse> {
+  ): Promise<{
+    notionalLimits: ClassicPortfolioMarginNotionalLimit[];
+  }> {
     return this.getPrivate('dapi/v1/pmExchangeInfo', params);
   }
 
-  getClassicPortfolioMarginAccountInfo(params: {
+  getClassicPortfolioMarginAccount(params: {
     asset: string;
-  }): Promise<ClassicPortfolioMarginAccountInfo> {
+  }): Promise<ClassicPortfolioMarginAccount> {
     return this.getPrivate('dapi/v1/pmAccountInfo', params);
   }
 

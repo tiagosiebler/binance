@@ -1949,7 +1949,7 @@ export interface UserAsset {
   btcValuation: string;
 }
 
-export interface ConvertTransferParams {
+export interface ConvertTransfer {
   clientTranId: string;
   asset: string;
   amount: number;
@@ -1973,19 +1973,16 @@ export interface GetConvertBUSDHistoryParams {
   size?: number;
 }
 
-export interface GetConvertBUSDHistoryResponse {
-  total: number;
-  rows: {
-    tranId: number;
-    type: number;
-    time: number;
-    deductedAsset: string;
-    deductedAmount: string;
-    targetAsset: string;
-    targetAmount: string;
-    status: string;
-    accountType: string;
-  }[];
+export interface BUSDConversionRecord {
+  tranId: number;
+  type: number;
+  time: number;
+  deductedAsset: string;
+  deductedAmount: string;
+  targetAsset: string;
+  targetAmount: string;
+  status: string;
+  accountType: string;
 }
 
 export interface CloudMiningHistoryParams {
@@ -1998,16 +1995,13 @@ export interface CloudMiningHistoryParams {
   size?: number;
 }
 
-export interface CloudMiningHistoryResponse {
-  total: number;
-  rows: {
-    createTime: number;
-    tranId: number;
-    type: number;
-    asset: string;
-    amount: string;
-    status: string;
-  }[];
+export interface CloudMining {
+  createTime: number;
+  tranId: number;
+  type: number;
+  asset: string;
+  amount: string;
+  status: string;
 }
 
 export interface ConvertibleCoinsResponse {
@@ -2064,15 +2058,12 @@ export interface DelegationHistoryParams {
   size?: number;
 }
 
-export interface DelegationHistoryResponse {
-  total: number;
-  rows: {
-    clientTranId: string;
-    transferType: 'Delegate' | 'Undelegate';
-    asset: string;
-    amount: string;
-    time: number;
-  }[];
+export interface DelegationHistory {
+  clientTranId: string;
+  transferType: 'Delegate' | 'Undelegate';
+  asset: string;
+  amount: string;
+  time: number;
 }
 
 export interface DelistScheduleResponse {
@@ -2573,11 +2564,6 @@ export interface CrossMarginTransferHistory {
   toSymbol?: string;
 }
 
-export interface GetCrossMarginTransferHistoryResponse {
-  rows: CrossMarginTransferHistory[];
-  total: number;
-}
-
 export interface GetMarginInterestHistoryParams {
   asset?: string;
   isolatedSymbol?: string;
@@ -2604,11 +2590,6 @@ export interface MarginInterestHistory {
   isolatedSymbol?: string;
 }
 
-export interface GetMarginInterestHistoryResponse {
-  rows: MarginInterestHistory[];
-  total: number;
-}
-
 export interface GetForceLiquidationRecordParams {
   startTime?: number;
   endTime?: number;
@@ -2628,11 +2609,6 @@ export interface ForceLiquidationRecord {
   timeInForce: string;
   isIsolated: boolean;
   updatedTime: number;
-}
-
-export interface GetForceLiquidationRecordResponse {
-  rows: ForceLiquidationRecord[];
-  total: number;
 }
 
 export interface QueryMarginAccountAllOCOParams {
@@ -2798,11 +2774,6 @@ export interface SmallLiabilityExchangeHistory {
   timestamp: number;
 }
 
-export interface GetSmallLiabilityExchangeHistoryResponse {
-  total: number;
-  rows: SmallLiabilityExchangeHistory[];
-}
-
 export interface GetNextHourlyInterestRateParams {
   assets: string;
   isIsolated: boolean;
@@ -2893,11 +2864,6 @@ export interface GetFlexibleSubscriptionRecordResponse {
   status: string;
 }
 
-export interface GetFlexibleSubscriptionRecordResult {
-  rows: GetFlexibleSubscriptionRecordResponse[];
-  total: number;
-}
-
 export interface GetLockedSubscriptionRecordParams {
   purchaseId?: string;
   asset?: string;
@@ -2907,7 +2873,7 @@ export interface GetLockedSubscriptionRecordParams {
   size?: number;
 }
 
-export interface GetLockedSubscriptionRecordResponse {
+export interface LockedSubscriptionRecord {
   positionId: string;
   purchaseId: number;
   time: number;
@@ -2921,10 +2887,6 @@ export interface GetLockedSubscriptionRecordResponse {
   status: string;
 }
 
-export interface GetLockedSubscriptionRecordResult {
-  rows: GetLockedSubscriptionRecordResponse[];
-  total: number;
-}
 
 export interface GetFlexibleRedemptionRecordParams {
   productId?: string;
@@ -2936,7 +2898,7 @@ export interface GetFlexibleRedemptionRecordParams {
   size?: number;
 }
 
-export interface GetFlexibleRedemptionRecordResponse {
+export interface FlexibleRedemptionRecord {
   amount: string;
   asset: string;
   time: number;
@@ -2944,11 +2906,6 @@ export interface GetFlexibleRedemptionRecordResponse {
   redeemId: number;
   destAccount: string;
   status: string;
-}
-
-export interface GetFlexibleRedemptionRecordResult {
-  rows: GetFlexibleRedemptionRecordResponse[];
-  total: number;
 }
 
 export interface GetLockedRedemptionRecordParams {
@@ -2961,7 +2918,7 @@ export interface GetLockedRedemptionRecordParams {
   size?: number;
 }
 
-export interface GetLockedRedemptionRecordResponse {
+export interface LockedRedemptionRecord {
   positionId: string;
   redeemId: number;
   time: number;
@@ -2971,11 +2928,6 @@ export interface GetLockedRedemptionRecordResponse {
   type: string;
   deliverDate: string;
   status: string;
-}
-
-export interface GetLockedRedemptionRecordResult {
-  rows: GetLockedRedemptionRecordResponse[];
-  total: number;
 }
 
 export interface GetFlexibleRewardsHistoryParams {
@@ -2988,17 +2940,12 @@ export interface GetFlexibleRewardsHistoryParams {
   size?: number;
 }
 
-export interface GetFlexibleRewardsHistoryResponse {
+export interface FlexibleRewardsHistory {
   asset: string;
   rewards: string;
   projectId: string;
   type: string;
   time: number;
-}
-
-export interface GetFlexibleRewardsHistoryResult {
-  rows: GetFlexibleRewardsHistoryResponse[];
-  total: number;
 }
 
 export interface GetLockedRewardsHistoryParams {
@@ -3010,17 +2957,12 @@ export interface GetLockedRewardsHistoryParams {
   size?: number;
 }
 
-export interface GetLockedRewardsHistoryResponse {
+export interface GetLockedRewardsHistory {
   positionId: string;
   time: number;
   asset: string;
   lockPeriod: string;
   amount: string;
-}
-
-export interface GetLockedRewardsHistoryResult {
-  rows: GetLockedRewardsHistoryResponse[];
-  total: number;
 }
 
 export interface SetAutoSubscribeParams {
@@ -3069,16 +3011,11 @@ export interface GetRateHistoryParams {
   size?: number;
 }
 
-export interface GetRateHistoryResponse {
+export interface GetRateHistory {
   productId: string;
   asset: string;
   annualPercentageRate: string;
   time: number;
-}
-
-export interface GetRateHistoryResult {
-  rows: GetRateHistoryResponse[];
-  total: string;
 }
 
 export interface GetCollateralRecordParams {
@@ -3097,11 +3034,6 @@ export interface GetCollateralRecordResponse {
   type: string;
   productName: string;
   orderId: number;
-}
-
-export interface GetCollateralRecordResult {
-  rows: GetCollateralRecordResponse[];
-  total: string;
 }
 
 export interface GetDualInvestmentProductListParams {
@@ -3522,11 +3454,6 @@ export interface EthStakingHistory {
   conversionRatio: string;
 }
 
-export interface GetEthStakingHistoryResponse {
-  rows: EthStakingHistory[];
-  total: number;
-}
-
 export interface GetEthRedemptionHistoryParams {
   startTime?: number;
   endTime?: number;
@@ -3545,11 +3472,6 @@ export interface EthRedemptionHistory {
   conversionRatio: string;
 }
 
-export interface GetEthRedemptionHistoryResponse {
-  rows: EthRedemptionHistory[];
-  total: number;
-}
-
 export interface GetBethRewardsHistoryParams {
   startTime?: number;
   endTime?: number;
@@ -3564,11 +3486,6 @@ export interface BethRewardsHistory {
   amount: string;
   annualPercentageRate: string;
   status: 'PENDING' | 'SUCCESS' | 'FAILED';
-}
-
-export interface GetBethRewardsHistoryResponse {
-  rows: BethRewardsHistory[];
-  total: number;
 }
 
 export interface GetEthStakingQuotaResponse {
@@ -3587,11 +3504,6 @@ export interface ETHRateHistory {
   annualPercentageRate: string;
   exchangeRate: string;
   time: number;
-}
-
-export interface GetETHRateHistoryResponse {
-  rows: ETHRateHistory[];
-  total: string;
 }
 
 export interface GetEthStakingAccountResponse {
@@ -3633,11 +3545,6 @@ export interface WrapHistory {
   toAmount: string;
   exchangeRate: string;
   status: 'PENDING' | 'SUCCESS' | 'FAILED';
-}
-
-export interface GetWrapHistoryResponse {
-  rows: WrapHistory[];
-  total: number;
 }
 
 export interface WbethRewardsHistory {
@@ -4372,26 +4279,23 @@ export interface GetVipLoanOngoingOrdersParams {
   limit?: number;
 }
 
-export interface GetVipLoanOngoingOrdersResponse {
-  rows: {
-    orderId: number;
-    loanCoin: string;
-    totalDebt: string;
-    loanRate: string;
-    residualInterest: string;
-    collateralAccountId: string;
-    collateralCoin: string;
-    totalCollateralValueAfterHaircut: string;
-    lockedCollateralValue: string;
-    currentLTV: string;
-    expirationTime: number;
-    loanDate: string;
-    loanTerm: string;
-    initialLtv: string;
-    marginCallLtv: string;
-    liquidationLtv: string;
-  }[];
-  total: number;
+export interface VipOngoingOrder {
+  orderId: number;
+  loanCoin: string;
+  totalDebt: string;
+  loanRate: string;
+  residualInterest: string;
+  collateralAccountId: string;
+  collateralCoin: string;
+  totalCollateralValueAfterHaircut: string;
+  lockedCollateralValue: string;
+  currentLTV: string;
+  expirationTime: number;
+  loanDate: string;
+  loanTerm: string;
+  initialLtv: string;
+  marginCallLtv: string;
+  liquidationLtv: string;
 }
 
 export interface VipLoanRepayParams {
@@ -4418,17 +4322,14 @@ export interface GetVipLoanRepaymentHistoryParams {
   limit?: number;
 }
 
-export interface GetVipLoanRepaymentHistoryResponse {
-  rows: {
-    loanCoin: string;
-    repayAmount: string;
-    collateralCoin: string;
-    repayStatus: string;
-    loanDate: string;
-    repayTime: string;
-    orderId: string;
-  }[];
-  total: number;
+export interface VipLoanRepaymentHistory {
+  loanCoin: string;
+  repayAmount: string;
+  collateralCoin: string;
+  repayStatus: string;
+  loanDate: string;
+  repayTime: string;
+  orderId: string;
 }
 
 export interface VipLoanRenewParams {
@@ -4450,12 +4351,9 @@ export interface CheckVipCollateralAccountParams {
   collateralAccountId?: number;
 }
 
-export interface CheckVipCollateralAccountResponse {
-  rows: {
-    collateralAccountId: string;
-    collateralCoin: string;
-  }[];
-  total: number;
+export interface VipCollateralAccount {
+  collateralAccountId: string;
+  collateralCoin: string;
 }
 
 export interface VipLoanBorrowParams {
@@ -4484,35 +4382,22 @@ export interface GetLoanableAssetsDataParams {
   vipLevel?: number;
 }
 
-export interface GetLoanableAssetsDataResponse {
-  rows: LoanableAssetData[];
-  total: number;
-}
-
-export interface GetCollateralAssetDataResponse {
-  rows: CollateralAssetData[];
-  total: number;
-}
-
 export interface GetApplicationStatusParams {
   current?: number;
   limit?: number;
 }
 
-export interface GetApplicationStatusResponse {
-  rows: {
-    loanAccountId: string;
-    orderId: string;
-    requestId: string;
-    loanCoin: string;
-    loanAmount: string;
-    collateralAccountId: string;
-    collateralCoin: string;
-    loanTerm: string;
-    status: string;
-    loanDate: string;
-  }[];
-  total: number;
+export interface ApplicationStatus {
+  loanAccountId: string;
+  orderId: string;
+  requestId: string;
+  loanCoin: string;
+  loanAmount: string;
+  collateralAccountId: string;
+  collateralCoin: string;
+  loanTerm: string;
+  status: string;
+  loanDate: string;
 }
 
 export interface BorrowInterestRate {
@@ -4577,11 +4462,6 @@ export interface LoanBorrowHistory {
   status: string;
 }
 
-export interface GetLoanBorrowHistoryResponse {
-  rows: LoanBorrowHistory[];
-  total: number;
-}
-
 export interface GetLoanOngoingOrdersParams {
   orderId?: number;
   loanCoin?: string;
@@ -4599,11 +4479,6 @@ export interface LoanOngoingOrder {
   collateralAmount: string;
   currentLTV: string;
   expirationTime: number;
-}
-
-export interface GetLoanOngoingOrdersResponse {
-  rows: LoanOngoingOrder[];
-  total: number;
 }
 
 export interface RepayCryptoLoanParams {
@@ -4645,11 +4520,6 @@ export interface LoanRepaymentHistory {
   orderId: number;
 }
 
-export interface GetLoanRepaymentHistoryResponse {
-  rows: LoanRepaymentHistory[];
-  total: number;
-}
-
 export interface AdjustCryptoLoanLTVParams {
   orderId: number;
   amount: number;
@@ -4685,11 +4555,6 @@ export interface LoanLTVAdjustmentHistory {
   orderId: number;
 }
 
-export interface GetLoanLTVAdjustmentHistoryResponse {
-  rows: LoanLTVAdjustmentHistory[];
-  total: number;
-}
-
 export interface LoanableAssetData {
   loanCoin: string;
   _7dHourlyInterestRate: string;
@@ -4707,11 +4572,6 @@ export interface LoanableAssetData {
   vipLevel: number;
 }
 
-export interface GetCryptoLoanLoanableAssetsResponse {
-  rows: LoanableAssetData[];
-  total: number;
-}
-
 export interface GetCollateralAssetDataParams {
   collateralCoin?: string;
   vipLevel?: number;
@@ -4724,11 +4584,6 @@ export interface CollateralAssetData {
   liquidationLTV: string;
   maxLimit: string;
   vipLevel: number;
-}
-
-export interface GetCryptoLoanCollateralAssetDataResponse {
-  rows: CollateralAssetData[];
-  total: number;
 }
 
 export interface CheckCollateralRepayRateParams {
@@ -4756,11 +4611,6 @@ export interface CustomizeMarginCall {
   preMarginCall: string;
   afterMarginCall: string;
   customizeTime: number;
-}
-
-export interface CustomizeMarginCallResponse {
-  rows: CustomizeMarginCall[];
-  total: number;
 }
 
 export interface BorrowFlexibleLoanParams {
@@ -4793,11 +4643,6 @@ export interface FlexibleLoanOngoingOrder {
   currentLTV: string;
 }
 
-export interface GetFlexibleLoanOngoingOrdersResponse {
-  rows: FlexibleLoanOngoingOrder[];
-  total: number;
-}
-
 export interface GetFlexibleCryptoLoanBorrowHistoryParams {
   loanCoin?: string;
   collateralCoin?: string;
@@ -4814,11 +4659,6 @@ export interface FlexibleCryptoLoanBorrowHistory {
   initialCollateralAmount: string;
   borrowTime: number;
   status: 'Succeeds' | 'Failed' | 'Processing';
-}
-
-export interface GetFlexibleCryptoLoanBorrowHistoryResponse {
-  rows: FlexibleCryptoLoanBorrowHistory[];
-  total: number;
 }
 
 export interface RepayCryptoFlexibleLoanParams {
@@ -4857,11 +4697,6 @@ export interface FlexibleCryptoLoanRepaymentHistory {
   repayTime: number;
 }
 
-export interface GetFlexibleCryptoLoanRepaymentHistoryResponse {
-  rows: FlexibleCryptoLoanRepaymentHistory[];
-  total: number;
-}
-
 export interface AdjustFlexibleCryptoLoanLTVParams {
   loanCoin: string;
   collateralCoin: string;
@@ -4896,21 +4731,11 @@ export interface FlexibleLoanLTVAdjustmentHistory {
   adjustTime: number;
 }
 
-export interface GetFlexibleLoanLTVAdjustmentHistoryResponse {
-  rows: FlexibleLoanLTVAdjustmentHistory[];
-  total: number;
-}
-
 export interface FlexibleLoanAssetData {
   loanCoin: string;
   flexibleInterestRate: string;
   flexibleMinLimit: string;
   flexibleMaxLimit: string;
-}
-
-export interface GetFlexibleLoanAssetsDataResponse {
-  rows: FlexibleLoanAssetData[];
-  total: number;
 }
 
 export interface FlexibleLoanCollateralAssetData {
@@ -4919,11 +4744,6 @@ export interface FlexibleLoanCollateralAssetData {
   marginCallLTV: string;
   liquidationLTV: string;
   maxLimit: string;
-}
-
-export interface GetFlexibleLoanCollateralAssetsDataResponse {
-  rows: FlexibleLoanCollateralAssetData[];
-  total: number;
 }
 
 export interface GetFuturesLeadTraderStatusResponse {
@@ -5107,4 +4927,111 @@ export interface CreateDualTokenGiftCardParams {
 export interface RedeemGiftCardParams {
   code: string;
   externalUid?: string;
+}
+
+export interface SimpleEarnProductListParams {
+  asset?: string;
+  current?: number;
+  size?: number;
+}
+
+export interface SimpleEarnFlexibleProduct {
+  asset: string;
+  latestAnnualInterestRate: string;
+  tierAnnualPercentageRate: Record<string, number>;
+  airDropPercentageRate: string;
+  canPurchase: boolean;
+  canRedeem: boolean;
+  isSoldOut: boolean;
+  hot: boolean;
+  minPurchaseAmount: string;
+  productId: string;
+  subscriptionStartTime: number;
+  status: string;
+}
+
+export interface SimpleEarnLockedProduct {
+  projectId: string;
+  detail: {
+    asset: string;
+    rewardAsset: string;
+    duration: number;
+    renewable: boolean;
+    isSoldOut: boolean;
+    apr: string;
+    status: string;
+    subscriptionStartTime: number;
+    extraRewardAsset: string;
+    extraRewardAPR: string;
+  };
+  quota: {
+    totalPersonalQuota: string;
+    minimum: string;
+  };
+}
+
+export interface SimpleEarnSubscribeProductParams {
+  productId: string;
+  amount: number;
+  autoSubscribe?: boolean;
+  sourceAccount?: 'SPOT' | 'FUND' | 'ALL';
+}
+
+export interface SimpleEarnSubscribeFlexibleProductResponse {
+  purchaseId: string;
+  success: boolean;
+}
+
+export interface SimpleEarnSubscribeLockedProductResponse {
+  purchaseId: string;
+  positionId: string;
+  success: boolean;
+}
+
+export interface SimpleEarnRedeemParams {
+  positionId: string;
+}
+
+export interface SimpleEarnRedeemResponse {
+  success: boolean;
+  redeemId: string;
+}
+
+export interface SimpleEarnFlexibleProductPositionParams {
+  asset?: string;
+  productId?: string;
+  current?: number;
+  size?: number;
+}
+
+export interface SimpleEarnLockedProductPositionParams {
+  asset?: string;
+  productId?: string;
+  current?: number;
+  size?: number;
+  positionId?: string;
+}
+
+export interface SimpleEarnLockedProductPosition {
+  positionId: string;
+  projectId: string;
+  asset: string;
+  amount: string;
+  purchaseTime: string;
+  duration: string;
+  accrualDays: string;
+  rewardAsset: string;
+  APY: string;
+  isRenewable: boolean;
+  isAutoRenew: boolean;
+  redeemDate: string;
+}
+
+export interface SimpleEarnAccountResponse {
+  totalAmountInBTC: string;
+  totalAmountInUSDT: string;
+  totalFlexibleAmountInBTC: string;
+  totalFlexibleAmountInUSDT: string;
+  totalLockedinBTC: string;
+  totalLockedinUSDT: string;
 }

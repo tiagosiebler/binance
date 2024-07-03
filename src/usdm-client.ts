@@ -74,7 +74,6 @@ import {
   IndexPriceConstituents,
   ModifyOrderParams,
   FuturesTransactionDownloadLink,
-  GetDownloadIdFuturesTransactionParams,
   DownloadIdFuturesTransaction,
   PortfolioMarginProAccountInfo,
   GetFuturesOrderModifyHistoryParams,
@@ -89,6 +88,7 @@ import {
 } from './util/requestUtils';
 
 import BaseRestClient from './util/BaseRestClient';
+import { FundingRate } from './types/coin';
 
 export class USDMClient extends BaseRestClient {
   private clientId: BinanceBaseUrlKey;
@@ -166,7 +166,7 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/fundingRate', params);
   }
 
-  getFundingRateInfo(): Promise<any[]> {
+  getFundingRate(): Promise<FundingRate[]> {
     return this.get('fapi/v1/fundingInfo');
   }
 
@@ -507,9 +507,10 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/commissionRate', params);
   }
 
-  getDownloadIdForFuturesTransactionHistory(
-    params: GetDownloadIdFuturesTransactionParams,
-  ): Promise<DownloadIdFuturesTransaction> {
+  getFuturesTransactionHistoryDownloadId(params: {
+    startTime: number;
+    endTime: number;
+  }): Promise<DownloadIdFuturesTransaction> {
     return this.getPrivate('fapi/v1/income/asyn', params);
   }
 
@@ -519,9 +520,10 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/income/asyn/id', params);
   }
 
-  getDownloadIdForFuturesOrderHistory(
-    params: GetDownloadIdFuturesTransactionParams,
-  ): Promise<DownloadIdFuturesTransaction> {
+  getFuturesOrderHistoryDownloadId(params: {
+    startTime: number;
+    endTime: number;
+  }): Promise<DownloadIdFuturesTransaction> {
     return this.getPrivate('fapi/v1/order/asyn', params);
   }
 
@@ -531,9 +533,10 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/order/asyn/id', params);
   }
 
-  getDownloadIdForFuturesTradeHistory(
-    params: GetDownloadIdFuturesTransactionParams,
-  ): Promise<DownloadIdFuturesTransaction> {
+  getDownloadIdForFuturesTradeHistory(params: {
+    startTime: number;
+    endTime: number;
+  }): Promise<DownloadIdFuturesTransaction> {
     return this.getPrivate('fapi/v1/trade/asyn', params);
   }
 
