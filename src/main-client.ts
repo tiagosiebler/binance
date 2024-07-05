@@ -3127,7 +3127,7 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/convert/assetInfo');
   }
 
-  submitConvertQuoteRequest(params: ConvertQuoteRequestParams): Promise<any> {
+  convertQuoteRequest(params: ConvertQuoteRequestParams): Promise<any> {
     return this.postPrivate('sapi/v1/convert/getQuote', params);
   }
 
