@@ -826,7 +826,7 @@ export interface GetFuturesOrderModifyHistoryParams {
   timestamp: number;
 }
 
-export interface DownloadIdFuturesTransaction {
+export interface FuturesTradeHistoryDownloadId {
   avgCostTimestampOfLast30d: number;
   downloadId: string;
 }

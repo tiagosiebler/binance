@@ -262,7 +262,7 @@ export class CoinMClient extends BaseRestClient {
     return this.get('futures/data/basis', params);
   }
 
-  getQuarterlyContractSettlementPrice(params: {
+  getQuarterlyContractSettlementPrices(params: {
     pair: string;
   }): Promise<QuarterlyContractSettlementPrice[]> {
     return this.get('futures/data/delivery-price', params);
@@ -574,7 +574,7 @@ export class CoinMClient extends BaseRestClient {
    *
    **/
 
-  getClassicPortfolioMarginNotionalLimit(
+  getClassicPortfolioMarginNotionalLimits(
     params?: GetClassicPortfolioMarginNotionalLimitParams,
   ): Promise<{
     notionalLimits: ClassicPortfolioMarginNotionalLimit[];

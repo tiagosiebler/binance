@@ -209,27 +209,20 @@ import {
   ManagedSubAccountSnapshotParams,
   ManagedSubAccountSnapshotResponse,
   ManagedSubAccountTransferLogParams,
-  ManagedSubAccountTransferLogResponse,
   ManagedSubAccountFuturesAssetsResponse,
   ManagedSubAccountMarginAssetsResponse,
-  SubAccountAssetsMasterResponse,
   ManagedSubAccountListParams,
-  ManagedSubAccountListResponse,
   SubAccountTransactionStatisticsResponse,
   ManagedSubAccountDepositAddressParams,
   ManagedSubAccountDepositAddressResponse,
   EnableOptionsForSubAccountResponse,
   ManagedSubAccountTransferTTLogParams,
-  ManagedSubAccountTransferTTLogResponse,
   TradingDayTickerParams,
-  TradingDayTickerFullResponse,
-  TradingDayTickerMiniResponse,
   RollingWindowTickerParams,
   NewOrderListOTOParams,
   NewOrderListOTOResponse,
   NewOrderListOTOCOParams,
   NewOrderListOTOCOResponse,
-  OrderCountUsageResponse,
   PreventedMatchesParams,
   PreventedMatch,
   AllocationsParams,
@@ -238,10 +231,7 @@ import {
   GetMarginInterestHistoryParams,
   GetForceLiquidationRecordParams,
   QueryMarginAccountAllOCOParams,
-  QueryMarginAccountOpenOCOParams,
   QueryMarginAccountTradeListParams,
-  DisableEnableIsolatedMarginAccountResponse,
-  QueryIsolatedMarginAccountLimitResponse,
   IsolatedMarginSymbol,
   ToggleBNBBurnParams,
   BNBBurnResponse,
@@ -254,9 +244,7 @@ import {
   IsolatedMarginTierData,
   GetMarginOrderCountUsageParams,
   MarginOrderCountUsageResponse,
-  CrossMarginCollateralRatioResponse,
   SmallLiabilityExchangeCoin,
-  ExchangeSmallLiabilityResponse,
   GetSmallLiabilityExchangeHistoryParams,
   GetNextHourlyInterestRateParams,
   NextHourlyInterestRate,
@@ -274,16 +262,13 @@ import {
   GetFlexibleRewardsHistoryParams,
   GetLockedRewardsHistoryParams,
   GetFlexibleSubscriptionPreviewParams,
-  GetFlexibleSubscriptionPreviewResponse,
   GetLockedSubscriptionPreviewParams,
-  GetLockedSubscriptionPreviewResponse,
   GetRateHistoryParams,
   GetCollateralRecordParams,
   GetDualInvestmentProductListParams,
   GetDualInvestmentProductListResponse,
   SubscribeDualInvestmentProductParams,
   SubscribeDualInvestmentProductResponse,
-  GetDualInvestmentPositionsResponse,
   GetDualInvestmentPositionsParams,
   CheckDualInvestmentAccountsResponse,
   ChangeAutoCompoundStatusParams,
@@ -292,7 +277,6 @@ import {
   GetTargetAssetListResponse,
   TargetAssetROI,
   GetTargetAssetROIParams,
-  GetAllAssetsResponse,
   GetSourceAssetListParams,
   GetSourceAssetListResponse,
   CreateInvestmentPlanParams,
@@ -354,17 +338,13 @@ import {
   SubmitTwapNewOrderParams,
   SubmitTwapNewOrderResponse,
   CancelAlgoOrderResponse,
-  GetAlgoOpenOrdersResponse,
   GetAlgoHistoricalOrdersParams,
-  GetAlgoHistoricalOrdersResponse,
   GetAlgoSubOrdersParams,
   GetAlgoSubOrdersResponse,
   SubmitSpotTwapNewOrderParams,
   SubmitSpotTwapNewOrderResponse,
   CancelSpotAlgoOrderResponse,
-  GetSpotAlgoOpenOrdersResponse,
   GetSpotAlgoHistoricalOrdersParams,
-  GetSpotAlgoHistoricalOrdersResponse,
   GetSpotAlgoSubOrdersParams,
   GetSpotAlgoSubOrdersResponse,
   GetPortfolioMarginAssetIndexPriceResponse,
@@ -433,14 +413,9 @@ import {
   SubmitConvertLimitOrderParams,
   GetSpotRebateHistoryRecordsParams,
   GetSpotRebateHistoryRecordsResponse,
-  GetNftTransactionHistoryParams,
-  GetNftTransactionHistoryResponse,
   GetNftDepositHistoryParams,
-  GetNftDepositHistoryResponse,
   GetNftWithdrawHistoryParams,
-  GetNftWithdrawHistoryResponse,
   GetNftAssetParams,
-  GetNftAssetResponse,
   CreateGiftCardParams,
   CreateDualTokenGiftCardParams,
   RedeemGiftCardParams,
@@ -452,7 +427,6 @@ import {
   SimpleEarnFlexibleProductPositionParams,
   SimpleEarnLockedProductPositionParams,
   SimpleEarnProductListParams,
-  SimpleEarnRedeemParams,
   SimpleEarnRedeemResponse,
   SimpleEarnSubscribeFlexibleProductResponse,
   SimpleEarnSubscribeLockedProductResponse,
@@ -497,6 +471,25 @@ import {
   FlexibleRedemptionRecord,
   LockedRedemptionRecord,
   LoanBorrowHistory,
+  OrderRateLimitUsage,
+  SubaccountBalances,
+  ManagerSubTransferHistoryVos,
+  ManagerSubUserInfoVo,
+  TradingDayTickerMini,
+  TradingDayTickerFull,
+  Collateral,
+  FlexibleSubscriptionPreview,
+  LockedSubscriptionPreview,
+  DualInvestmentPosition,
+  NftWithdraw,
+  NftAsset,
+  NftTransaction,
+  NftDeposit,
+  HistoricalSpotAlgoOrder,
+  SpotAlgoOrder,
+  HistoricalAlgoOrder,
+  AlgoOrder,
+  GetNftTransactionHistoryParams,
 } from './types/spot';
 
 import {
@@ -963,7 +956,10 @@ export class MainClient extends BaseRestClient {
 
   getManagedSubAccountTransfersInvestor(
     params: ManagedSubAccountTransferLogParams,
-  ): Promise<ManagedSubAccountTransferLogResponse> {
+  ): Promise<{
+    managerSubTransferHistoryVos: ManagerSubTransferHistoryVos[];
+    count: number;
+  }> {
     return this.getPrivate(
       'sapi/v1/managed-subaccount/queryTransLogForInvestor',
       params,
@@ -972,7 +968,10 @@ export class MainClient extends BaseRestClient {
 
   getManagedSubAccountTransfersParent(
     params: ManagedSubAccountTransferLogParams,
-  ): Promise<ManagedSubAccountTransferLogResponse> {
+  ): Promise<{
+    managerSubTransferHistoryVos: ManagerSubTransferHistoryVos[];
+    count: number;
+  }> {
     return this.getPrivate(
       'sapi/v1/managed-subaccount/queryTransLogForTradeParent',
       params,
@@ -994,15 +993,16 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/managed-subaccount/marginAsset', params);
   }
 
-  getSubAccountAssetsMaster(params: {
-    email: string;
-  }): Promise<SubAccountAssetsMasterResponse> {
+  getSubAccountAssetsMaster(params: { email: string }): Promise<{
+    balances: SubaccountBalances[];
+  }> {
     return this.getPrivate('sapi/v4/sub-account/assets', params);
   }
 
-  getManagedSubAccounts(
-    params: ManagedSubAccountListParams,
-  ): Promise<ManagedSubAccountListResponse> {
+  getManagedSubAccounts(params: ManagedSubAccountListParams): Promise<{
+    total: number;
+    managerSubUserInfoVoList: ManagerSubUserInfoVo[];
+  }> {
     return this.getPrivate('sapi/v1/managed-subaccount/info', params);
   }
 
@@ -1032,7 +1032,10 @@ export class MainClient extends BaseRestClient {
 
   getManagedSubAccountTransferLog(
     params: ManagedSubAccountTransferTTLogParams,
-  ): Promise<ManagedSubAccountTransferTTLogResponse> {
+  ): Promise<{
+    managerSubTransferHistoryVos: ManagerSubTransferHistoryVos[];
+    count: number;
+  }> {
     return this.getPrivate(
       'sapi/v1/managed-subaccount/query-trans-log',
       params,
@@ -1253,7 +1256,7 @@ export class MainClient extends BaseRestClient {
 
   getTradingDayTicker(
     params: TradingDayTickerParams,
-  ): Promise<TradingDayTickerFullResponse | TradingDayTickerMiniResponse> {
+  ): Promise<TradingDayTickerFull[] | TradingDayTickerMini[]> {
     return this.get('api/v3/ticker/tradingDay', params);
   }
 
@@ -1271,7 +1274,7 @@ export class MainClient extends BaseRestClient {
 
   getRollingWindowTicker(
     params: RollingWindowTickerParams,
-  ): Promise<TradingDayTickerFullResponse | TradingDayTickerMiniResponse> {
+  ): Promise<TradingDayTickerFull[] | TradingDayTickerMini[]> {
     return this.get('api/v3/ticker', params);
   }
 
@@ -1430,7 +1433,7 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('api/v3/myTrades', params);
   }
 
-  getOrderRateLimit(): Promise<OrderCountUsageResponse> {
+  getOrderRateLimit(): Promise<OrderRateLimitUsage[]> {
     return this.getPrivate('api/v3/rateLimit/order');
   }
 
@@ -1591,9 +1594,10 @@ export class MainClient extends BaseRestClient {
   /**
    * Query margin account's open OCO
    */
-  queryMarginAccountOpenOCO(
-    params: QueryMarginAccountOpenOCOParams,
-  ): Promise<any> {
+  queryMarginAccountOpenOCO(params: {
+    isIsolated?: 'TRUE' | 'FALSE';
+    symbol?: string;
+  }): Promise<any> {
     return this.getPrivate('sapi/v1/margin/openOrderList', params);
   }
 
@@ -1636,25 +1640,30 @@ export class MainClient extends BaseRestClient {
   /**
    * Disable isolated margin account
    */
-  disableIsolatedMarginAccount(params: {
+  disableIsolatedMarginAccount(params: { symbol: string }): Promise<{
+    success: boolean;
     symbol: string;
-  }): Promise<DisableEnableIsolatedMarginAccountResponse> {
+  }> {
     return this.deletePrivate('sapi/v1/margin/isolated/account', params);
   }
 
   /**
    * Enable isolated margin account
    */
-  enableIsolatedMarginAccount(params: {
-    symbols: string;
-  }): Promise<DisableEnableIsolatedMarginAccountResponse> {
+  enableIsolatedMarginAccount(params: { symbols: string }): Promise<{
+    success: boolean;
+    symbol: string;
+  }> {
     return this.postPrivate('sapi/v1/margin/isolated/account', params);
   }
 
   /**
    * Query enabled isolated margin account limit
    */
-  getIsolatedMarginAccountLimit(): Promise<QueryIsolatedMarginAccountLimitResponse> {
+  getIsolatedMarginAccountLimit(): Promise<{
+    enabledAccount: number;
+    maxAccount: number;
+  }> {
     return this.getPrivate('sapi/v1/margin/isolated/accountLimit');
   }
 
@@ -1724,7 +1733,10 @@ export class MainClient extends BaseRestClient {
   }
 
   getCrossMarginCollateralRatio(): Promise<
-    CrossMarginCollateralRatioResponse[]
+    {
+      collaterals: Collateral[];
+      assetNames: string[];
+    }[]
   > {
     return this.getPrivate('sapi/v1/margin/crossMarginCollateralRatio');
   }
@@ -1733,9 +1745,10 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/margin/exchange-small-liability');
   }
 
-  submitSmallLiabilityExchange(params: {
-    assetNames: string[];
-  }): Promise<ExchangeSmallLiabilityResponse> {
+  submitSmallLiabilityExchange(params: { assetNames: string[] }): Promise<{
+    success: boolean;
+    message: string;
+  }> {
     return this.postPrivate('sapi/v1/margin/exchange-small-liability', params);
   }
 
@@ -1876,15 +1889,15 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate(`/sapi/v1/simple-earn/locked/subscribe`, params);
   }
 
-  redeemLockedProduct(
-    params: SimpleEarnRedeemParams,
-  ): Promise<SimpleEarnRedeemResponse> {
+  redeemLockedProduct(params: {
+    positionId: string;
+  }): Promise<SimpleEarnRedeemResponse> {
     return this.postPrivate(`/sapi/v1/simple-earn/locked/redeem`, params);
   }
 
-  redeemFlexibleProduct(
-    params: SimpleEarnRedeemParams,
-  ): Promise<SimpleEarnRedeemResponse> {
+  redeemFlexibleProduct(params: {
+    positionId: string;
+  }): Promise<SimpleEarnRedeemResponse> {
     return this.postPrivate(`/sapi/v1/simple-earn/flexible/redeem`, params);
   }
 
@@ -2014,7 +2027,7 @@ export class MainClient extends BaseRestClient {
 
   getFlexibleSubscriptionPreview(
     params: GetFlexibleSubscriptionPreviewParams,
-  ): Promise<GetFlexibleSubscriptionPreviewResponse> {
+  ): Promise<FlexibleSubscriptionPreview> {
     return this.getPrivate(
       'sapi/v1/simple-earn/flexible/subscriptionPreview',
       params,
@@ -2023,7 +2036,7 @@ export class MainClient extends BaseRestClient {
 
   getLockedSubscriptionPreview(
     params: GetLockedSubscriptionPreviewParams,
-  ): Promise<GetLockedSubscriptionPreviewResponse[]> {
+  ): Promise<LockedSubscriptionPreview[]> {
     return this.getPrivate(
       'sapi/v1/simple-earn/locked/subscriptionPreview',
       params,
@@ -2070,7 +2083,10 @@ export class MainClient extends BaseRestClient {
 
   getDualInvestmentPositions(
     params: GetDualInvestmentPositionsParams,
-  ): Promise<GetDualInvestmentPositionsResponse> {
+  ): Promise<{
+    total: number;
+    list: DualInvestmentPosition[];
+  }> {
     return this.getPrivate('sapi/v1/dci/product/positions', params);
   }
 
@@ -2111,7 +2127,10 @@ export class MainClient extends BaseRestClient {
     );
   }
 
-  getAutoInvestAssets(): Promise<GetAllAssetsResponse> {
+  getAutoInvestAssets(): Promise<{
+    targetAssets: string[];
+    sourceAssets: string[];
+  }> {
     return this.getPrivate('sapi/v1/lending/auto-invest/all/asset');
   }
 
@@ -2656,13 +2675,17 @@ export class MainClient extends BaseRestClient {
     return this.deletePrivate('sapi/v1/algo/futures/order', params);
   }
 
-  getAlgoOpenOrders(): Promise<GetAlgoOpenOrdersResponse> {
+  getAlgoOpenOrders(): Promise<{
+    total: number;
+    orders: AlgoOrder[];
+  }> {
     return this.getPrivate('sapi/v1/algo/futures/openOrders');
   }
 
-  getAlgoHistoricalOrders(
-    params: GetAlgoHistoricalOrdersParams,
-  ): Promise<GetAlgoHistoricalOrdersResponse> {
+  getAlgoHistoricalOrders(params: GetAlgoHistoricalOrdersParams): Promise<{
+    total: number;
+    orders: HistoricalAlgoOrder[];
+  }> {
     return this.getPrivate('sapi/v1/algo/futures/historicalOrders', params);
   }
 
@@ -2691,13 +2714,19 @@ export class MainClient extends BaseRestClient {
     return this.deletePrivate('sapi/v1/algo/spot/order', params);
   }
 
-  getSpotAlgoOpenOrders(): Promise<GetSpotAlgoOpenOrdersResponse> {
+  getSpotAlgoOpenOrders(): Promise<{
+    total: number;
+    orders: SpotAlgoOrder[];
+  }> {
     return this.getPrivate('sapi/v1/algo/spot/openOrders');
   }
 
   getSpotAlgoHistoricalOrders(
     params: GetSpotAlgoHistoricalOrdersParams,
-  ): Promise<GetSpotAlgoHistoricalOrdersResponse> {
+  ): Promise<{
+    total: number;
+    orders: HistoricalSpotAlgoOrder[];
+  }> {
     return this.getPrivate('sapi/v1/algo/spot/historicalOrders', params);
   }
 
@@ -3175,25 +3204,31 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  getNftTransactionHistory(
-    params: GetNftTransactionHistoryParams,
-  ): Promise<GetNftTransactionHistoryResponse> {
+  getNftTransactionHistory(params: GetNftTransactionHistoryParams): Promise<{
+    total: number;
+    list: NftTransaction[];
+  }> {
     return this.getPrivate('sapi/v1/nft/history/transactions', params);
   }
 
-  getNftDepositHistory(
-    params: GetNftDepositHistoryParams,
-  ): Promise<GetNftDepositHistoryResponse> {
+  getNftDepositHistory(params: GetNftDepositHistoryParams): Promise<{
+    total: number;
+    list: NftDeposit[];
+  }> {
     return this.getPrivate('sapi/v1/nft/history/deposit', params);
   }
 
-  getNftWithdrawHistory(
-    params: GetNftWithdrawHistoryParams,
-  ): Promise<GetNftWithdrawHistoryResponse> {
+  getNftWithdrawHistory(params: GetNftWithdrawHistoryParams): Promise<{
+    total: number;
+    list: NftWithdraw[];
+  }> {
     return this.getPrivate('sapi/v1/nft/history/withdraw', params);
   }
 
-  getNftAsset(params: GetNftAssetParams): Promise<GetNftAssetResponse> {
+  getNftAsset(params: GetNftAssetParams): Promise<{
+    total: number;
+    list: NftAsset[];
+  }> {
     return this.getPrivate('sapi/v1/nft/user/getAsset', params);
   }
 

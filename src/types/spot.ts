@@ -2096,40 +2096,48 @@ export interface ManagedSubAccountSnapshotParams {
   limit?: number;
 }
 
+export interface SubaccountBalances {
+  asset: string;
+  free: string;
+  locked: string;
+}
+
+export interface SubaccountUserAssets {
+  asset: string;
+  borrowed: string;
+  free: string;
+  interest: string;
+  locked: string;
+  netAsset: string;
+}
+
+export interface SubaccountAssets {
+  asset: string;
+  marginBalance: string;
+  walletBalance: string;
+}
+
+export interface SubaccountPosition {
+  entryPrice: string;
+  markPrice: string;
+  positionAmt: string;
+  symbol: string;
+  unRealizedProfit: string;
+}
+
 export interface ManagedSubAccountSnapshotResponse {
   code: number;
   msg: string;
   snapshotVos: {
     data: {
-      balances?: {
-        asset: string;
-        free: string;
-        locked: string;
-      }[];
+      balances?: SubaccountBalances[];
       totalAssetOfBtc?: string;
       marginLevel?: string;
       totalLiabilityOfBtc?: string;
       totalNetAssetOfBtc?: string;
-      userAssets?: {
-        asset: string;
-        borrowed: string;
-        free: string;
-        interest: string;
-        locked: string;
-        netAsset: string;
-      }[];
-      assets?: {
-        asset: string;
-        marginBalance: string;
-        walletBalance: string;
-      }[];
-      position?: {
-        entryPrice: string;
-        markPrice: string;
-        positionAmt: string;
-        symbol: string;
-        unRealizedProfit: string;
-      }[];
+      userAssets?: SubaccountUserAssets[];
+      assets?: SubaccountAssets[];
+      position?: SubaccountPosition[];
     };
     type: string;
     updateTime: number;
@@ -2151,20 +2159,17 @@ export interface ManagedSubAccountTransferLogParams {
     | 'COIN_FUTURE';
 }
 
-export interface ManagedSubAccountTransferLogResponse {
-  managerSubTransferHistoryVos: {
-    fromEmail: string;
-    fromAccountType: string;
-    toEmail: string;
-    toAccountType: string;
-    asset: string;
-    amount: string;
-    scheduledData: number;
-    createTime: number;
-    status: string;
-    tranId: number;
-  }[];
-  count: number;
+export interface ManagerSubTransferHistoryVos {
+  fromEmail: string;
+  fromAccountType: string;
+  toEmail: string;
+  toAccountType: string;
+  asset: string;
+  amount: string;
+  scheduledData: number;
+  createTime: number;
+  status: string;
+  tranId: number;
 }
 
 export interface ManagedSubAccountFuturesAssetsResponse {
@@ -2174,17 +2179,8 @@ export interface ManagedSubAccountFuturesAssetsResponse {
     type: string;
     updateTime: number;
     data: {
-      assets: {
-        asset: string;
-        marginBalance: number;
-        walletBalance: number;
-      }[];
-      position: {
-        symbol: string;
-        entryPrice: number;
-        markPrice: number;
-        positionAmt: number;
-      }[];
+      assets: SubaccountAssets[];
+      position: SubaccountPosition[];
     };
   }[];
 }
@@ -2194,22 +2190,7 @@ export interface ManagedSubAccountMarginAssetsResponse {
   totalAssetOfBtc: string;
   totalLiabilityOfBtc: string;
   totalNetAssetOfBtc: string;
-  userAssets: {
-    asset: string;
-    borrowed: string;
-    free: string;
-    interest: string;
-    locked: string;
-    netAsset: string;
-  }[];
-}
-
-export interface SubAccountAssetsMasterResponse {
-  balances: {
-    asset: string;
-    free: string;
-    locked: string;
-  }[];
+  userAssets: SubaccountUserAssets[];
 }
 
 export interface ManagedSubAccountListParams {
@@ -2218,23 +2199,30 @@ export interface ManagedSubAccountListParams {
   limit?: number;
 }
 
-export interface ManagedSubAccountListResponse {
-  total: number;
-  managerSubUserInfoVoList: {
-    rootUserId: number;
-    managersubUserId: number;
-    bindParentUserId: number;
-    email: string;
-    insertTimeStamp: number;
-    bindParentEmail: string;
-    isSubUserEnabled: boolean;
-    isUserActive: boolean;
-    isMarginEnabled: boolean;
-    isFutureEnabled: boolean;
-    isSignedLVTRiskAgreement: boolean;
-  }[];
+export interface ManagerSubUserInfoVo {
+  rootUserId: number;
+  managersubUserId: number;
+  bindParentUserId: number;
+  email: string;
+  insertTimeStamp: number;
+  bindParentEmail: string;
+  isSubUserEnabled: boolean;
+  isUserActive: boolean;
+  isMarginEnabled: boolean;
+  isFutureEnabled: boolean;
+  isSignedLVTRiskAgreement: boolean;
 }
 
+export interface SubaccountTradeInfoVos {
+  userId: number;
+  btc: number;
+  btcFutures: number;
+  btcMargin: number;
+  busd: number;
+  busdFutures: number;
+  busdMargin: number;
+  date: number;
+}
 export interface SubAccountTransactionStatisticsResponse {
   recent30BtcTotal: string;
   recent30BtcFuturesTotal: string;
@@ -2242,16 +2230,7 @@ export interface SubAccountTransactionStatisticsResponse {
   recent30BusdTotal: string;
   recent30BusdFuturesTotal: string;
   recent30BusdMarginTotal: string;
-  tradeInfoVos: {
-    userId: number;
-    btc: number;
-    btcFutures: number;
-    btcMargin: number;
-    busd: number;
-    busdFutures: number;
-    busdMargin: number;
-    date: number;
-  }[];
+  tradeInfoVos: SubaccountTradeInfoVos[];
 }
 
 export interface ManagedSubAccountDepositAddressParams {
@@ -2281,22 +2260,6 @@ export interface ManagedSubAccountTransferTTLogParams {
   transferFunctionAccountType?: string;
 }
 
-export interface ManagedSubAccountTransferTTLogResponse {
-  managerSubTransferHistoryVos: {
-    fromEmail: string;
-    fromAccountType: string;
-    toEmail: string;
-    toAccountType: string;
-    asset: string;
-    amount: string;
-    scheduledData: number;
-    createTime: number;
-    status: string;
-    tranId: number;
-  }[];
-  count: number;
-}
-
 export interface UIKlinesParams {
   symbol: string;
   interval: string;
@@ -2313,7 +2276,7 @@ export interface TradingDayTickerParams {
   type?: 'FULL' | 'MINI';
 }
 
-export type TradingDayTickerFullResponse = {
+export type TradingDayTickerFull = {
   symbol: string;
   priceChange: string;
   priceChangePercent: string;
@@ -2329,9 +2292,9 @@ export type TradingDayTickerFullResponse = {
   firstId: number;
   lastId: number;
   count: number;
-}[];
+};
 
-export type TradingDayTickerMiniResponse = {
+export interface TradingDayTickerMini {
   symbol: string;
   openPrice: string;
   highPrice: string;
@@ -2344,7 +2307,7 @@ export type TradingDayTickerMiniResponse = {
   firstId: number;
   lastId: number;
   count: number;
-}[];
+}
 
 export interface RollingWindowTickerParams {
   symbol?: string;
@@ -2481,14 +2444,13 @@ export interface NewOrderListOTOCOResponse {
   }[];
 }
 
-export interface OrderCountUsageResponse {
+export interface OrderRateLimitUsage {
   rateLimitType: string;
   interval: string;
   intervalNum: number;
   limit: number;
   count: number;
 }
-[];
 
 export interface PreventedMatchesParams {
   symbol: string;
@@ -2620,11 +2582,6 @@ export interface QueryMarginAccountAllOCOParams {
   limit?: number;
 }
 
-export interface QueryMarginAccountOpenOCOParams {
-  isIsolated?: 'TRUE' | 'FALSE';
-  symbol?: string;
-}
-
 export interface QueryMarginAccountTradeListParams {
   symbol: string;
   isIsolated?: 'TRUE' | 'FALSE';
@@ -2633,16 +2590,6 @@ export interface QueryMarginAccountTradeListParams {
   endTime?: number;
   fromId?: number;
   limit?: number;
-}
-
-export interface DisableEnableIsolatedMarginAccountResponse {
-  success: boolean;
-  symbol: string;
-}
-
-export interface QueryIsolatedMarginAccountLimitResponse {
-  enabledAccount: number;
-  maxAccount: number;
 }
 
 export interface IsolatedMarginSymbol {
@@ -2740,11 +2687,6 @@ export interface Collateral {
   discountRate: string;
 }
 
-export interface CrossMarginCollateralRatioResponse {
-  collaterals: Collateral[];
-  assetNames: string[];
-}
-
 export interface SmallLiabilityExchangeCoin {
   asset: string;
   interest: string;
@@ -2752,12 +2694,6 @@ export interface SmallLiabilityExchangeCoin {
   liabilityAsset: string;
   liabilityQty: number;
 }
-
-export interface ExchangeSmallLiabilityResponse {
-  success: boolean;
-  message: string;
-}
-
 export interface GetSmallLiabilityExchangeHistoryParams {
   current: number;
   size: number;
@@ -2887,7 +2823,6 @@ export interface LockedSubscriptionRecord {
   status: string;
 }
 
-
 export interface GetFlexibleRedemptionRecordParams {
   productId?: string;
   redeemId?: string;
@@ -2975,7 +2910,7 @@ export interface GetFlexibleSubscriptionPreviewParams {
   amount: number;
 }
 
-export interface GetFlexibleSubscriptionPreviewResponse {
+export interface FlexibleSubscriptionPreview {
   totalAmount: string;
   rewardAsset: string;
   airDropAsset: string;
@@ -2990,7 +2925,7 @@ export interface GetLockedSubscriptionPreviewParams {
   autoSubscribe?: boolean;
 }
 
-export interface GetLockedSubscriptionPreviewResponse {
+export interface LockedSubscriptionPreview {
   rewardAsset: string;
   totalRewardAmt: string;
   extraRewardAsset: string;
@@ -3121,11 +3056,6 @@ export interface DualInvestmentPosition {
   autoCompoundPlan: 'STANDARD' | 'ADVANCED' | 'NONE';
 }
 
-export interface GetDualInvestmentPositionsResponse {
-  total: number;
-  list: DualInvestmentPosition[];
-}
-
 export interface CheckDualInvestmentAccountsResponse {
   totalAmountInBTC: string;
   totalAmountInUSDT: string;
@@ -3177,11 +3107,6 @@ export interface GetTargetAssetROIParams {
 export interface TargetAssetROI {
   date: string;
   simulateRoi: string;
-}
-
-export interface GetAllAssetsResponse {
-  targetAssets: string[];
-  sourceAssets: string[];
 }
 
 export interface GetSourceAssetListParams {
@@ -3902,11 +3827,6 @@ export interface AlgoOrder {
   urgency: string;
 }
 
-export interface GetAlgoOpenOrdersResponse {
-  total: number;
-  orders: AlgoOrder[];
-}
-
 export interface GetAlgoHistoricalOrdersParams {
   symbol?: string;
   side?: 'BUY' | 'SELL';
@@ -3931,11 +3851,6 @@ export interface HistoricalAlgoOrder {
   algoStatus: string;
   algoType: string;
   urgency: string;
-}
-
-export interface GetAlgoHistoricalOrdersResponse {
-  total: number;
-  orders: HistoricalAlgoOrder[];
 }
 
 export interface GetAlgoSubOrdersParams {
@@ -4008,11 +3923,6 @@ export interface SpotAlgoOrder {
   urgency: string;
 }
 
-export interface GetSpotAlgoOpenOrdersResponse {
-  total: number;
-  orders: SpotAlgoOrder[];
-}
-
 export interface GetSpotAlgoHistoricalOrdersParams {
   symbol?: string;
   side?: 'BUY' | 'SELL';
@@ -4036,11 +3946,6 @@ export interface HistoricalSpotAlgoOrder {
   algoStatus: string;
   algoType: string;
   urgency: string;
-}
-
-export interface GetSpotAlgoHistoricalOrdersResponse {
-  total: number;
-  orders: HistoricalSpotAlgoOrder[];
 }
 
 export interface GetSpotAlgoSubOrdersParams {
@@ -4247,25 +4152,26 @@ export interface GetC2CTradeHistoryParams {
   rows?: number;
 }
 
+export interface c2cTradeData {
+  orderNumber: string;
+  advNo: string;
+  tradeType: string;
+  asset: string;
+  fiat: string;
+  fiatSymbol: string;
+  amount: string;
+  totalPrice: string;
+  unitPrice: string;
+  orderStatus: string;
+  createTime: number;
+  commission: string;
+  counterPartNickName: string;
+  advertisementRole: string;
+}
 export interface GetC2CTradeHistoryResponse {
   code: string;
   message: string;
-  data: {
-    orderNumber: string;
-    advNo: string;
-    tradeType: string;
-    asset: string;
-    fiat: string;
-    fiatSymbol: string;
-    amount: string;
-    totalPrice: string;
-    unitPrice: string;
-    orderStatus: string;
-    createTime: number;
-    commission: string;
-    counterPartNickName: string;
-    advertisementRole: string;
-  }[];
+  data: c2cTradeData[];
   total: number;
   success: boolean;
 }
@@ -4849,11 +4755,6 @@ export interface NftTransaction {
   tradeCurrency: string;
 }
 
-export interface GetNftTransactionHistoryResponse {
-  total: number;
-  list: NftTransaction[];
-}
-
 export interface GetNftDepositHistoryParams {
   startTime?: number;
   endTime?: number;
@@ -4867,11 +4768,6 @@ export interface NftDeposit {
   contractAdrress: string;
   tokenId: string;
   timestamp: number;
-}
-
-export interface GetNftDepositHistoryResponse {
-  total: number;
-  list: NftDeposit[];
 }
 
 export interface GetNftWithdrawHistoryParams {
@@ -4891,11 +4787,6 @@ export interface NftWithdraw {
   feeAsset: string;
 }
 
-export interface GetNftWithdrawHistoryResponse {
-  total: number;
-  list: NftWithdraw[];
-}
-
 export interface GetNftAssetParams {
   limit?: number;
   page?: number;
@@ -4905,11 +4796,6 @@ export interface NftAsset {
   network: string;
   contractAddress: string;
   tokenId: string;
-}
-
-export interface GetNftAssetResponse {
-  total: number;
-  list: NftAsset[];
 }
 
 export interface CreateGiftCardParams {
@@ -4987,11 +4873,6 @@ export interface SimpleEarnSubscribeLockedProductResponse {
   positionId: string;
   success: boolean;
 }
-
-export interface SimpleEarnRedeemParams {
-  positionId: string;
-}
-
 export interface SimpleEarnRedeemResponse {
   success: boolean;
   redeemId: string;

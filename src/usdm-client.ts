@@ -74,9 +74,9 @@ import {
   IndexPriceConstituents,
   ModifyOrderParams,
   FuturesTransactionDownloadLink,
-  DownloadIdFuturesTransaction,
   PortfolioMarginProAccountInfo,
   GetFuturesOrderModifyHistoryParams,
+  FuturesTradeHistoryDownloadId,
 } from './types/futures';
 
 import {
@@ -166,7 +166,7 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/fundingRate', params);
   }
 
-  getFundingRate(): Promise<FundingRate[]> {
+  getFundingRates(): Promise<FundingRate[]> {
     return this.get('fapi/v1/fundingInfo');
   }
 
@@ -275,7 +275,7 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/indexInfo', params);
   }
 
-  getQuarterlyContractSettlementPrice(params: {
+  getQuarterlyContractSettlementPrices(params: {
     pair: string;
   }): Promise<QuarterlyContractSettlementPrice[]> {
     return this.get('futures/data/delivery-price', params);
@@ -510,7 +510,7 @@ export class USDMClient extends BaseRestClient {
   getFuturesTransactionHistoryDownloadId(params: {
     startTime: number;
     endTime: number;
-  }): Promise<DownloadIdFuturesTransaction> {
+  }): Promise<FuturesTradeHistoryDownloadId> {
     return this.getPrivate('fapi/v1/income/asyn', params);
   }
 
@@ -523,7 +523,7 @@ export class USDMClient extends BaseRestClient {
   getFuturesOrderHistoryDownloadId(params: {
     startTime: number;
     endTime: number;
-  }): Promise<DownloadIdFuturesTransaction> {
+  }): Promise<FuturesTradeHistoryDownloadId> {
     return this.getPrivate('fapi/v1/order/asyn', params);
   }
 
@@ -533,10 +533,10 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/order/asyn/id', params);
   }
 
-  getDownloadIdForFuturesTradeHistory(params: {
+  getFuturesTradeHistoryDownloadId(params: {
     startTime: number;
     endTime: number;
-  }): Promise<DownloadIdFuturesTransaction> {
+  }): Promise<FuturesTradeHistoryDownloadId> {
     return this.getPrivate('fapi/v1/trade/asyn', params);
   }
 
