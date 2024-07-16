@@ -266,7 +266,6 @@ import {
   GetRateHistoryParams,
   GetCollateralRecordParams,
   GetDualInvestmentProductListParams,
-  GetDualInvestmentProductListResponse,
   SubscribeDualInvestmentProductParams,
   SubscribeDualInvestmentProductResponse,
   GetDualInvestmentPositionsParams,
@@ -463,7 +462,6 @@ import {
   BethRewardsHistory,
   EthRedemptionHistory,
   EthStakingHistory,
-  GetCollateralRecordResponse,
   GetRateHistory,
   GetLockedRewardsHistory,
   FlexibleRewardsHistory,
@@ -490,6 +488,8 @@ import {
   HistoricalAlgoOrder,
   AlgoOrder,
   GetNftTransactionHistoryParams,
+  CollateralRecord,
+  DualInvestmentProduct,
 } from './types/spot';
 
 import {
@@ -2054,7 +2054,7 @@ export class MainClient extends BaseRestClient {
   }
 
   getCollateralRecord(params: GetCollateralRecordParams): Promise<{
-    rows: GetCollateralRecordResponse[];
+    rows: CollateralRecord[];
     total: string;
   }> {
     return this.getPrivate(
@@ -2071,7 +2071,10 @@ export class MainClient extends BaseRestClient {
 
   getDualInvestmentProducts(
     params: GetDualInvestmentProductListParams,
-  ): Promise<GetDualInvestmentProductListResponse> {
+  ): Promise<{
+    total: number;
+    list: DualInvestmentProduct[];
+  }> {
     return this.getPrivate('sapi/v1/dci/product/list', params);
   }
 

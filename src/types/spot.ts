@@ -2961,7 +2961,7 @@ export interface GetCollateralRecordParams {
   size?: number;
 }
 
-export interface GetCollateralRecordResponse {
+export interface CollateralRecord {
   amount: string;
   productId: string;
   asset: string;
@@ -2997,11 +2997,6 @@ export interface DualInvestmentProduct {
   optionType: string;
   isAutoCompoundEnable: boolean;
   autoCompoundPlanList: string[];
-}
-
-export interface GetDualInvestmentProductListResponse {
-  total: number;
-  list: DualInvestmentProduct[];
 }
 
 export interface SubscribeDualInvestmentProductParams {
