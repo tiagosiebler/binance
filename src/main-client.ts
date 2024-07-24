@@ -205,16 +205,16 @@ import {
   DelegationHistoryParams,
   DelistScheduleResponse,
   WithdrawAddress,
-  AccountInfoResponse,
+  AccountInfo,
   ManagedSubAccountSnapshotParams,
-  ManagedSubAccountSnapshotResponse,
+  ManagedSubAccountSnapshot,
   ManagedSubAccountTransferLogParams,
   ManagedSubAccountFuturesAssetsResponse,
   ManagedSubAccountMarginAssetsResponse,
   ManagedSubAccountListParams,
-  SubAccountTransactionStatisticsResponse,
+  SubAccountTransactionStatistics,
   ManagedSubAccountDepositAddressParams,
-  ManagedSubAccountDepositAddressResponse,
+  ManagedSubAccountDepositAddress,
   EnableOptionsForSubAccountResponse,
   ManagedSubAccountTransferTTLogParams,
   TradingDayTickerParams,
@@ -226,7 +226,7 @@ import {
   PreventedMatchesParams,
   PreventedMatch,
   AllocationsParams,
-  CommissionRatesResponse,
+  CommissionRates,
   GetCrossMarginTransferHistoryParams,
   GetMarginInterestHistoryParams,
   GetForceLiquidationRecordParams,
@@ -697,7 +697,7 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/capital/withdraw/address/list');
   }
 
-  getAccountInfo(): Promise<AccountInfoResponse> {
+  getAccountInfo(): Promise<AccountInfo> {
     return this.getPrivate('sapi/v1/account/info');
   }
 
@@ -947,7 +947,7 @@ export class MainClient extends BaseRestClient {
 
   getManagedSubAccountSnapshot(
     params: ManagedSubAccountSnapshotParams,
-  ): Promise<ManagedSubAccountSnapshotResponse> {
+  ): Promise<ManagedSubAccountSnapshot> {
     return this.getPrivate(
       'sapi/v1/managed-subaccount/accountSnapshot',
       params,
@@ -1008,7 +1008,7 @@ export class MainClient extends BaseRestClient {
 
   getSubAccountTransactionStatistics(params: {
     email: string;
-  }): Promise<SubAccountTransactionStatisticsResponse> {
+  }): Promise<SubAccountTransactionStatistics> {
     return this.getPrivate(
       'sapi/v1/sub-account/transaction-statistics',
       params,
@@ -1017,7 +1017,7 @@ export class MainClient extends BaseRestClient {
 
   getManagedSubAccountDepositAddress(
     params: ManagedSubAccountDepositAddressParams,
-  ): Promise<ManagedSubAccountDepositAddressResponse> {
+  ): Promise<ManagedSubAccountDepositAddress> {
     return this.getPrivate(
       'sapi/v1/managed-subaccount/deposit/address',
       params,
@@ -1447,9 +1447,7 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('api/v3/myAllocations', params);
   }
 
-  getCommissionRates(params: {
-    symbol: string;
-  }): Promise<CommissionRatesResponse> {
+  getCommissionRates(params: { symbol: string }): Promise<CommissionRates> {
     return this.getPrivate('api/v3/account/commission', params);
   }
 

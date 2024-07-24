@@ -634,12 +634,12 @@ export type OrderResponseTypeFor<
 > = RT extends 'ACK'
   ? OrderResponseACK
   : RT extends 'RESULT'
-  ? OrderResponseResult
-  : RT extends 'FULL'
-  ? OrderResponseFull
-  : T extends 'MARKET' | 'LIMIT'
-  ? OrderResponseFull
-  : OrderResponseACK;
+    ? OrderResponseResult
+    : RT extends 'FULL'
+      ? OrderResponseFull
+      : T extends 'MARKET' | 'LIMIT'
+        ? OrderResponseFull
+        : OrderResponseACK;
 
 export interface OrderResponseACK {
   symbol: string;
@@ -2082,7 +2082,7 @@ export interface WithdrawAddress {
   whiteStatus: boolean;
 }
 
-export interface AccountInfoResponse {
+export interface AccountInfo {
   vipLevel: number;
   isMarginEnabled: boolean;
   isFutureEnabled: boolean;
@@ -2125,7 +2125,7 @@ export interface SubaccountPosition {
   unRealizedProfit: string;
 }
 
-export interface ManagedSubAccountSnapshotResponse {
+export interface ManagedSubAccountSnapshot {
   code: number;
   msg: string;
   snapshotVos: {
@@ -2223,7 +2223,7 @@ export interface SubaccountTradeInfoVos {
   busdMargin: number;
   date: number;
 }
-export interface SubAccountTransactionStatisticsResponse {
+export interface SubAccountTransactionStatistics {
   recent30BtcTotal: string;
   recent30BtcFuturesTotal: string;
   recent30BtcMarginTotal: string;
@@ -2239,7 +2239,7 @@ export interface ManagedSubAccountDepositAddressParams {
   network?: string;
 }
 
-export interface ManagedSubAccountDepositAddressResponse {
+export interface ManagedSubAccountDepositAddress {
   coin: string;
   address: string;
   tag: string;
@@ -2481,7 +2481,7 @@ export interface AllocationsParams {
   orderId?: number;
 }
 
-export interface CommissionRatesResponse {
+export interface CommissionRates {
   symbol: string;
   standardCommission: {
     maker: string;
