@@ -3167,7 +3167,7 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/convert/acceptQuote', params);
   }
 
-  getConvertOrderStatus(params: GetOrderStatusParams): Promise<any> {
+  getOrderStatus(params: GetOrderStatusParams): Promise<any> {
     return this.getPrivate('sapi/v1/convert/orderStatus', params);
   }
 
