@@ -134,12 +134,12 @@ describe('Private Futures USDM REST API Endpoints', () => {
 
       expect(await api.submitMultipleOrders(orders)).toMatchObject([
         {
-          code: -4408,
-          msg: expect.stringContaining('Binance Credits Trading Mode'),
+          code: -4061,
+          msg: expect.stringContaining('position side'),
         },
         {
-          code: -4408,
-          msg: expect.stringContaining('Binance Credits Trading Mode'),
+          code: -4061,
+          msg: expect.stringContaining('position side'),
         },
       ]);
     });
