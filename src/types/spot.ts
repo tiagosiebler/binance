@@ -634,12 +634,12 @@ export type OrderResponseTypeFor<
 > = RT extends 'ACK'
   ? OrderResponseACK
   : RT extends 'RESULT'
-    ? OrderResponseResult
-    : RT extends 'FULL'
-      ? OrderResponseFull
-      : T extends 'MARKET' | 'LIMIT'
-        ? OrderResponseFull
-        : OrderResponseACK;
+  ? OrderResponseResult
+  : RT extends 'FULL'
+  ? OrderResponseFull
+  : T extends 'MARKET' | 'LIMIT'
+  ? OrderResponseFull
+  : OrderResponseACK;
 
 export interface OrderResponseACK {
   symbol: string;
@@ -3263,15 +3263,12 @@ export interface GetIndexLinkedPlanPositionDetailsResponse {
 export interface SubmitOneTimeTransactionParams {
   sourceType: 'MAIN_SITE' | 'TR';
   requestId?: string;
-  subscriptionAmount: string;
+  subscriptionAmount: number;
   sourceAsset: string;
   flexibleAllowedToUse?: boolean;
   planId?: number;
   indexId?: number;
-  details: {
-    targetAsset: string;
-    percentage: number;
-  }[];
+  details: AutoInvestPortfolioDetail[];
 }
 
 export interface SubmitOneTimeTransactionResponse {
