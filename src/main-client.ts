@@ -2147,10 +2147,42 @@ export class MainClient extends BaseRestClient {
   submitAutoInvestmentPlan(
     params: CreateInvestmentPlanParams,
   ): Promise<CreateInvestmentPlanResponse> {
+    const { details, ...allParams } = params;
+    const requestParameters = { ...allParams };
+    for (let i = 0; i < details.length; i++) {
+      requestParameters[`details[${i}].targetAsset`] = details[i].targetAsset;
+      requestParameters[`details[${i}].percentage`] = details[i].percentage;
+    }
+    return this.postPrivate(
+      'sapi/v1/lending/auto-invest/plan/add',
+      requestParameters,
+    );
+  }
+
+  submitAutoInvestmentPlanOld(
+    params: CreateInvestmentPlanParams,
+  ): Promise<CreateInvestmentPlanResponse> {
     return this.postPrivate('sapi/v1/lending/auto-invest/plan/add', params);
   }
 
   updateAutoInvestmentPlan(
+    params: EditInvestmentPlanParams,
+  ): Promise<EditInvestmentPlanResponse> {
+    const { details, ...allParams } = params;
+
+    const requestParameters = { ...allParams };
+    for (let i = 0; i < details.length; i++) {
+      requestParameters[`details[${i}].targetAsset`] = details[i].targetAsset;
+      requestParameters[`details[${i}].percentage`] = details[i].percentage;
+    }
+
+    return this.postPrivate(
+      'sapi/v1/lending/auto-invest/plan/edit',
+      requestParameters,
+    );
+  }
+
+  updateAutoInvestmentPlanOld(
     params: EditInvestmentPlanParams,
   ): Promise<EditInvestmentPlanResponse> {
     return this.postPrivate('sapi/v1/lending/auto-invest/plan/edit', params);
@@ -2196,10 +2228,26 @@ export class MainClient extends BaseRestClient {
     );
   }
 
+  /**
+   * https://developers.binance.com/docs/auto_invest/trade/One-Time-Transaction
+   *
+   * @param params
+   * @returns
+   */
   submitAutoInvestOneTimeTransaction(
     params: SubmitOneTimeTransactionParams,
   ): Promise<SubmitOneTimeTransactionResponse> {
-    return this.postPrivate('sapi/v1/lending/auto-invest/one-off', params);
+    const { details, ...allParams } = params;
+    const requestParameters = { ...allParams };
+    for (let i = 0; i < details.length; i++) {
+      requestParameters[`details[${i}].targetAsset`] = details[i].targetAsset;
+      requestParameters[`details[${i}].percentage`] = details[i].percentage;
+    }
+
+    return this.postPrivate(
+      'sapi/v1/lending/auto-invest/one-off',
+      requestParameters,
+    );
   }
 
   getOneTimeTransactionStatus(

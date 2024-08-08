@@ -634,12 +634,12 @@ export type OrderResponseTypeFor<
 > = RT extends 'ACK'
   ? OrderResponseACK
   : RT extends 'RESULT'
-    ? OrderResponseResult
-    : RT extends 'FULL'
-      ? OrderResponseFull
-      : T extends 'MARKET' | 'LIMIT'
-        ? OrderResponseFull
-        : OrderResponseACK;
+  ? OrderResponseResult
+  : RT extends 'FULL'
+  ? OrderResponseFull
+  : T extends 'MARKET' | 'LIMIT'
+  ? OrderResponseFull
+  : OrderResponseACK;
 
 export interface OrderResponseACK {
   symbol: string;
@@ -3132,6 +3132,7 @@ export interface AutoInvestPortfolioDetail {
 }
 
 export interface CreateInvestmentPlanParams {
+  UID: string;
   sourceType: 'MAIN_SITE' | 'TR';
   requestId?: string;
   planType: 'SINGLE' | 'PORTFOLIO' | 'INDEX';
@@ -3157,7 +3158,7 @@ export interface CreateInvestmentPlanParams {
     | 'SUN';
   subscriptionStartTime: number;
   sourceAsset: string;
-  flexibleAllowedToUse?: boolean;
+  flexibleAllowedToUse: boolean;
   details: AutoInvestPortfolioDetail[];
 }
 
@@ -3263,15 +3264,12 @@ export interface GetIndexLinkedPlanPositionDetailsResponse {
 export interface SubmitOneTimeTransactionParams {
   sourceType: 'MAIN_SITE' | 'TR';
   requestId?: string;
-  subscriptionAmount: string;
+  subscriptionAmount: number;
   sourceAsset: string;
   flexibleAllowedToUse?: boolean;
   planId?: number;
   indexId?: number;
-  details: {
-    targetAsset: string;
-    percentage: number;
-  }[];
+  details: AutoInvestPortfolioDetail[];
 }
 
 export interface SubmitOneTimeTransactionResponse {
