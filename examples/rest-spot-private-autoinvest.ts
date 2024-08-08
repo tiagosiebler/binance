@@ -14,23 +14,43 @@ const client = new MainClient({
 
 (async () => {
   try {
-    const result = await client.submitAutoInvestOneTimeTransaction({
+    const oneTimeTransactionResult =
+      await client.submitAutoInvestOneTimeTransaction({
+        sourceType: 'MAIN_SITE',
+        subscriptionAmount: 100,
+        sourceAsset: 'USDT',
+        details: [
+          {
+            targetAsset: 'BTC',
+            percentage: 60,
+          },
+          {
+            targetAsset: 'ETH',
+            percentage: 40,
+          },
+        ],
+      });
+
+    console.log('oneTimeTransactionResult', oneTimeTransactionResult);
+
+    const autoInvestPlanResult = await client.submitAutoInvestmentPlan({
+      UID: '20983262a',
       sourceType: 'MAIN_SITE',
       subscriptionAmount: 100,
       sourceAsset: 'USDT',
+      planType: 'SINGLE',
+      flexibleAllowedToUse: true,
+      subscriptionCycle: 'DAILY',
+      subscriptionStartTime: 5,
       details: [
         {
           targetAsset: 'BTC',
-          percentage: 60,
-        },
-        {
-          targetAsset: 'ETH',
-          percentage: 40,
+          percentage: 100,
         },
       ],
     });
 
-    console.log('res2', result);
+    console.log('autoInvestPlanResult', autoInvestPlanResult);
   } catch (e) {
     console.error('request failed: ', e);
   }

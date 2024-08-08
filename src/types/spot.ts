@@ -3132,6 +3132,7 @@ export interface AutoInvestPortfolioDetail {
 }
 
 export interface CreateInvestmentPlanParams {
+  UID: string;
   sourceType: 'MAIN_SITE' | 'TR';
   requestId?: string;
   planType: 'SINGLE' | 'PORTFOLIO' | 'INDEX';
@@ -3157,7 +3158,7 @@ export interface CreateInvestmentPlanParams {
     | 'SUN';
   subscriptionStartTime: number;
   sourceAsset: string;
-  flexibleAllowedToUse?: boolean;
+  flexibleAllowedToUse: boolean;
   details: AutoInvestPortfolioDetail[];
 }
 
