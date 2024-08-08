@@ -34,7 +34,7 @@ const client = new MainClient({
     console.log('oneTimeTransactionResult', oneTimeTransactionResult);
 
     const autoInvestPlanResult = await client.submitAutoInvestmentPlan({
-      UID: '20983262a',
+      UID: '54545454',
       sourceType: 'MAIN_SITE',
       subscriptionAmount: 100,
       sourceAsset: 'USDT',
