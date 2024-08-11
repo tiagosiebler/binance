@@ -1661,6 +1661,238 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
+   *
+   * SIMPLE EARN Endpoints - Account
+   *
+   **/
+
+  getSimpleEarnAccount(): Promise<SimpleEarnAccountResponse> {
+    return this.getPrivate(`/sapi/v1/simple-earn/account`);
+  }
+
+  getFlexibleSavingProducts(params?: SimpleEarnProductListParams): Promise<{
+    rows: SimpleEarnFlexibleProduct[];
+    total: number;
+  }> {
+    return this.getPrivate(`/sapi/v1/simple-earn/flexible/list`, params);
+  }
+
+  getSimpleEarnLockedProductList(
+    params?: SimpleEarnProductListParams,
+  ): Promise<{
+    rows: SimpleEarnLockedProduct[];
+    total: number;
+  }> {
+    return this.getPrivate(`/sapi/v1/simple-earn/locked/list`, params);
+  }
+
+  getFlexibleProductPosition(
+    params?: SimpleEarnFlexibleProductPositionParams,
+  ): Promise<{
+    rows: any[];
+    total: number;
+  }> {
+    return this.getPrivate(`/sapi/v1/simple-earn/flexible/position`, params);
+  }
+
+  getLockedProductPosition(
+    params?: SimpleEarnLockedProductPositionParams,
+  ): Promise<{
+    rows: SimpleEarnLockedProductPosition[];
+    total: number;
+  }> {
+    return this.getPrivate(`/sapi/v1/simple-earn/locked/position`, params);
+  }
+
+  getFlexiblePersonalLeftQuota(params: { productId: string }): Promise<{
+    leftPersonalQuota: string;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/personalLeftQuota',
+      params,
+    );
+  }
+
+  getLockedPersonalLeftQuota(params: { projectId: string }): Promise<{
+    leftPersonalQuota: string;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/locked/personalLeftQuota',
+      params,
+    );
+  }
+
+  /**
+   *
+   * SIMPLE EARN Endpoints - Earn
+   *
+   **/
+
+  purchaseFlexibleProduct(
+    params: SimpleEarnSubscribeProductParams,
+  ): Promise<SimpleEarnSubscribeFlexibleProductResponse> {
+    return this.postPrivate(`/sapi/v1/simple-earn/flexible/subscribe`, params);
+  }
+
+  subscribeSimpleEarnLockedProduct(
+    params: SimpleEarnSubscribeProductParams,
+  ): Promise<SimpleEarnSubscribeLockedProductResponse> {
+    return this.postPrivate(`/sapi/v1/simple-earn/locked/subscribe`, params);
+  }
+
+  redeemFlexibleProduct(params: {
+    positionId: string;
+  }): Promise<SimpleEarnRedeemResponse> {
+    return this.postPrivate(`/sapi/v1/simple-earn/flexible/redeem`, params);
+  }
+
+  redeemLockedProduct(params: {
+    positionId: string;
+  }): Promise<SimpleEarnRedeemResponse> {
+    return this.postPrivate(`/sapi/v1/simple-earn/locked/redeem`, params);
+  }
+
+  setFlexibleAutoSubscribe(params: SetAutoSubscribeParams): Promise<{
+    success: boolean;
+  }> {
+    return this.postPrivate(
+      'sapi/v1/simple-earn/flexible/setAutoSubscribe',
+      params,
+    );
+  }
+
+  setLockedAutoSubscribe(params: SetAutoSubscribeParams): Promise<{
+    success: boolean;
+  }> {
+    return this.postPrivate(
+      'sapi/v1/simple-earn/locked/setAutoSubscribe',
+      params,
+    );
+  }
+
+  getFlexibleSubscriptionPreview(
+    params: GetFlexibleSubscriptionPreviewParams,
+  ): Promise<FlexibleSubscriptionPreview> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/subscriptionPreview',
+      params,
+    );
+  }
+
+  getLockedSubscriptionPreview(
+    params: GetLockedSubscriptionPreviewParams,
+  ): Promise<LockedSubscriptionPreview[]> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/locked/subscriptionPreview',
+      params,
+    );
+  }
+
+  setLockedProductRedeemOption(params: {
+    positionId: string;
+    redeemTo: 'SPOT' | 'FLEXIBLE';
+  }): Promise<{
+    success: boolean;
+  }> {
+    return this.postPrivate(
+      'sapi/v1/simple-earn/locked/setRedeemOption',
+      params,
+    );
+  }
+
+  /**
+   *
+   * SIMPLE EARN Endpoints - History
+   *
+   **/
+
+  getFlexibleSubscriptionRecord(
+    params: GetFlexibleSubscriptionRecordParams,
+  ): Promise<{
+    rows: GetFlexibleSubscriptionRecordResponse[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/history/subscriptionRecord',
+      params,
+    );
+  }
+
+  getLockedSubscriptionRecord(
+    params: GetLockedSubscriptionRecordParams,
+  ): Promise<{
+    rows: LockedSubscriptionRecord[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/locked/history/subscriptionRecord',
+      params,
+    );
+  }
+
+  getFlexibleRedemptionRecord(
+    params: GetFlexibleRedemptionRecordParams,
+  ): Promise<{
+    rows: FlexibleRedemptionRecord[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/history/redemptionRecord',
+      params,
+    );
+  }
+
+  getLockedRedemptionRecord(params: GetLockedRedemptionRecordParams): Promise<{
+    rows: LockedRedemptionRecord[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/locked/history/redemptionRecord',
+      params,
+    );
+  }
+
+  getFlexibleRewardsHistory(params: GetFlexibleRewardsHistoryParams): Promise<{
+    rows: FlexibleRewardsHistory[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/history/rewardsRecord',
+      params,
+    );
+  }
+
+  getLockedRewardsHistory(params: GetLockedRewardsHistoryParams): Promise<{
+    rows: GetLockedRewardsHistory[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/locked/history/rewardsRecord',
+      params,
+    );
+  }
+
+  getCollateralRecord(params: GetCollateralRecordParams): Promise<{
+    rows: CollateralRecord[];
+    total: string;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/history/collateralRecord',
+      params,
+    );
+  }
+
+  getRateHistory(params: GetRateHistoryParams): Promise<{
+    rows: GetRateHistory[];
+    total: string;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/simple-earn/flexible/history/rateHistory',
+      params,
+    );
+  }
+
+  /**
    * Validate syntax meets requirements set by binance. Log warning if not.
    */
   private validateOrderId(
