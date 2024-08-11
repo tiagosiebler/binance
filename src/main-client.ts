@@ -899,42 +899,9 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  getDualInvestmentProducts(
-    params: GetDualInvestmentProductListParams,
-  ): Promise<{
-    total: number;
-    list: DualInvestmentProduct[];
-  }> {
-    return this.getPrivate('sapi/v1/dci/product/list', params);
-  }
+  
 
-  subscribeDualInvestmentProduct(
-    params: SubscribeDualInvestmentProductParams,
-  ): Promise<SubscribeDualInvestmentProductResponse> {
-    return this.postPrivate('sapi/v1/dci/product/subscribe', params);
-  }
-
-  getDualInvestmentPositions(
-    params: GetDualInvestmentPositionsParams,
-  ): Promise<{
-    total: number;
-    list: DualInvestmentPosition[];
-  }> {
-    return this.getPrivate('sapi/v1/dci/product/positions', params);
-  }
-
-  getDualInvestmentAccounts(): Promise<CheckDualInvestmentAccountsResponse> {
-    return this.getPrivate('sapi/v1/dci/product/accounts');
-  }
-
-  updateAutoCompoundStatus(
-    params: ChangeAutoCompoundStatusParams,
-  ): Promise<ChangeAutoCompoundStatusResponse> {
-    return this.postPrivate(
-      'sapi/v1/dci/product/auto_compound/edit-status',
-      params,
-    );
-  }
+ 
 
   /**
    *
@@ -1648,23 +1615,8 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/blvt/userLimit', params);
   }
 
-  /**
-   *
-   * Fiat Endpoints
-   *
-   **/
 
-  getFiatOrderHistory(
-    params: GetFiatOrderHistoryParams,
-  ): Promise<GetFiatOrderHistoryResponse> {
-    return this.getPrivate('sapi/v1/fiat/orders', params);
-  }
-
-  getFiatPaymentsHistory(
-    params: GetFiatOrderHistoryParams,
-  ): Promise<GetFiatPaymentsHistoryResponse> {
-    return this.getPrivate('sapi/v1/fiat/payments', params);
-  }
+  
 
   /**
    *
@@ -1944,33 +1896,7 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  getNftTransactionHistory(params: GetNftTransactionHistoryParams): Promise<{
-    total: number;
-    list: NftTransaction[];
-  }> {
-    return this.getPrivate('sapi/v1/nft/history/transactions', params);
-  }
-
-  getNftDepositHistory(params: GetNftDepositHistoryParams): Promise<{
-    total: number;
-    list: NftDeposit[];
-  }> {
-    return this.getPrivate('sapi/v1/nft/history/deposit', params);
-  }
-
-  getNftWithdrawHistory(params: GetNftWithdrawHistoryParams): Promise<{
-    total: number;
-    list: NftWithdraw[];
-  }> {
-    return this.getPrivate('sapi/v1/nft/history/withdraw', params);
-  }
-
-  getNftAsset(params: GetNftAssetParams): Promise<{
-    total: number;
-    list: NftAsset[];
-  }> {
-    return this.getPrivate('sapi/v1/nft/user/getAsset', params);
-  }
+  
 
   /**
    *
