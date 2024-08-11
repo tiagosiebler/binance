@@ -77,6 +77,9 @@ import {
   PortfolioMarginProAccountInfo,
   GetFuturesOrderModifyHistoryParams,
   FuturesTradeHistoryDownloadId,
+  FuturesAccountConfig,
+  SymbolConfig,
+  UserForceOrder,
 } from './types/futures';
 
 import {
@@ -461,6 +464,123 @@ export class USDMClient extends BaseRestClient {
    * ACCOUNT endpoints - Rest API
    *
    **/
+
+  getBalanceV3(): Promise<FuturesAccountBalance[]> {
+    return this.getPrivate('fapi/v3/balance');
+  }
+
+  getBalance(): Promise<FuturesAccountBalance[]> {
+    return this.getPrivate('fapi/v2/balance');
+  }
+
+  getAccountInformationV3(): Promise<FuturesAccountInformation> {
+    return this.getPrivate('fapi/v3/account');
+  }
+
+  getAccountInformation(): Promise<FuturesAccountInformation> {
+    return this.getPrivate('fapi/v2/account');
+  }
+
+  getAccountComissionRate(
+    params: BasicSymbolParam,
+  ): Promise<UserCommissionRate> {
+    return this.getPrivate('fapi/v1/commissionRate', params);
+  }
+
+  getFuturesAccountConfig(): Promise<FuturesAccountConfig> {
+    return this.getPrivate('fapi/v1/accountConfig');
+  }
+
+  getFuturesSymbolConfig(params: { symbol?: string }): Promise<SymbolConfig[]> {
+    return this.getPrivate('fapi/v1/symbolConfig', params);
+  }
+
+  getUserForceOrders(): Promise<UserForceOrder[]> {
+    return this.getPrivate('fapi/v1/rateLimit/order');
+  }
+
+  /**
+   * Contrary to what the docs say - if symbol is provided, this returns an array with length 1 (assuming the symbol exists)
+   */
+  getNotionalAndLeverageBrackets(
+    params?: Partial<BasicSymbolParam>,
+  ): Promise<SymbolLeverageBracketsResult[]> {
+    return this.getPrivate('fapi/v1/leverageBracket', params);
+  }
+
+  getMultiAssetsMode(): Promise<MultiAssetModeResponse> {
+    return this.getPrivate('fapi/v1/multiAssetsMargin');
+  }
+
+  getCurrentPositionMode(): Promise<PositionModeResponse> {
+    return this.getPrivate('fapi/v1/positionSide/dual');
+  }
+
+  getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
+    return this.getPrivate('fapi/v1/income', params);
+  }
+
+  getApiQuantitativeRulesIndicators(
+    params?: Partial<BasicSymbolParam>,
+  ): Promise<any> {
+    return this.getPrivate('fapi/v1/apiTradingStatus', params);
+  }
+
+  getFuturesTransactionHistoryDownloadId(params: {
+    startTime: number;
+    endTime: number;
+  }): Promise<FuturesTradeHistoryDownloadId> {
+    return this.getPrivate('fapi/v1/income/asyn', params);
+  }
+
+  getFuturesTransactionHistoryDownloadLink(params: {
+    downloadId: string;
+  }): Promise<FuturesTransactionDownloadLink> {
+    return this.getPrivate('fapi/v1/income/asyn/id', params);
+  }
+
+  getFuturesOrderHistoryDownloadId(params: {
+    startTime: number;
+    endTime: number;
+  }): Promise<FuturesTradeHistoryDownloadId> {
+    return this.getPrivate('fapi/v1/order/asyn', params);
+  }
+
+  getFuturesOrderHistoryDownloadLink(params: {
+    downloadId: string;
+  }): Promise<FuturesTransactionDownloadLink> {
+    return this.getPrivate('fapi/v1/order/asyn/id', params);
+  }
+
+  getFuturesTradeHistoryDownloadId(params: {
+    startTime: number;
+    endTime: number;
+  }): Promise<FuturesTradeHistoryDownloadId> {
+    return this.getPrivate('fapi/v1/trade/asyn', params);
+  }
+
+  getFuturesTradeDownloadLink(params: {
+    downloadId: string;
+  }): Promise<FuturesTransactionDownloadLink> {
+    return this.getPrivate('fapi/v1/trade/asyn/id', params);
+  }
+
+  setBNBBurnEnabled(params: {
+    feeBurn: 'true' | 'false';
+  }): Promise<{ code: number; msg: string }> {
+    return this.postPrivate('fapi/v1/feeBurn', params);
+  }
+
+  getBNBBurnStatus(): Promise<{
+    feeBurn: boolean;
+  }> {
+    return this.getPrivate('fapi/v1/feeBurn');
+  }
+
+  testOrder(params: NewFuturesOrderParams): Promise<any> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.postPrivate('fapi/v1/order/test', params);
+  }
 
   /**
    * Validate syntax meets requirements set by binance. Log warning if not.

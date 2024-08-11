@@ -698,6 +698,32 @@ export interface UserCommissionRate {
   takerCommissionRate: numberInString;
 }
 
+export interface FuturesAccountConfig {
+  feeTier: number;
+  canTrade: boolean;
+  canDeposit: boolean;
+  canWithdraw: boolean;
+  dualSidePosition: boolean;
+  updateTime: number;
+  multiAssetsMargin: boolean;
+  tradeGroupId: number;
+}
+
+export interface SymbolConfig {
+  symbol: string;
+  marginType: string;
+  isAutoAddMargin: string;
+  leverage: number;
+  maxNotionalValue: string;
+}
+
+export interface UserForceOrder {
+  rateLimitType: string;
+  interval: string;
+  intervalNum: number;
+  limit: number;
+}
+
 export interface RebateDataOverview {
   brokerId: string;
   newTraderRebateCommission: numberInString;
