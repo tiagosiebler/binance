@@ -2835,6 +2835,36 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
+   * GIFT CARD Endpoints - Market Data
+   *
+   **/
+
+  createGiftCard(params: CreateGiftCardParams): Promise<any> {
+    return this.postPrivate('sapi/v1/giftcard/createCode', params);
+  }
+
+  createDualTokenGiftCard(params: CreateDualTokenGiftCardParams): Promise<any> {
+    return this.postPrivate('sapi/v1/giftcard/buyCode', params);
+  }
+
+  redeemGiftCard(params: RedeemGiftCardParams): Promise<any> {
+    return this.postPrivate('sapi/v1/giftcard/redeemCode', params);
+  }
+
+  verifyGiftCard(params: { referenceNo: string }): Promise<any> {
+    return this.getPrivate('sapi/v1/giftcard/verify', params);
+  }
+
+  getTokenLimit(params: { baseToken: string }): Promise<any> {
+    return this.getPrivate('sapi/v1/giftcard/buyCode/token-limit', params);
+  }
+
+  getRsaPublicKey(): Promise<any> {
+    return this.getPrivate('sapi/v1/giftcard/cryptography/rsa-public-key');
+  }
+
+  /**
+   *
    *  NFT Endpoints - REST api
    *
    **/

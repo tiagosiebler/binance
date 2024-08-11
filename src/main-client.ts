@@ -1099,42 +1099,6 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
-   * NFT Endpoints
-   *
-   **/
-
-  /**
-   *
-   * Binance GiftCard Endpoints
-   *
-   **/
-
-  createGiftCard(params: CreateGiftCardParams): Promise<any> {
-    return this.postPrivate('sapi/v1/giftcard/createCode', params);
-  }
-
-  createDualTokenGiftCard(params: CreateDualTokenGiftCardParams): Promise<any> {
-    return this.postPrivate('sapi/v1/giftcard/buyCode', params);
-  }
-
-  redeemGiftCard(params: RedeemGiftCardParams): Promise<any> {
-    return this.postPrivate('sapi/v1/giftcard/redeemCode', params);
-  }
-
-  verifyGiftCard(params: { referenceNo: string }): Promise<any> {
-    return this.getPrivate('sapi/v1/giftcard/verify', params);
-  }
-
-  getRsaPublicKey(): Promise<any> {
-    return this.getPrivate('sapi/v1/giftcard/cryptography/rsa-public-key');
-  }
-
-  getTokenLimit(params: { baseToken: string }): Promise<any> {
-    return this.getPrivate('sapi/v1/giftcard/buyCode/token-limit', params);
-  }
-
-  /**
-   *
    * BSwap Endpoints
    * @deprecated as of 2024-01-19
    **/
