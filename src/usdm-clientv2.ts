@@ -283,6 +283,22 @@ export class USDMClient extends BaseRestClient {
   }
 
   /**
+   * Only in old documentation, not in new
+   **/
+  getBasis(params: BasisParams): Promise<Basis[]> {
+    return this.get('futures/data/basis', params);
+  }
+
+  /**
+   * Only in old documentation, not in new
+   **/
+  getIndexPriceConstituents(params: {
+    symbol: string;
+  }): Promise<IndexPriceConstituents> {
+    return this.get('fapi/v1/constituents', params);
+  }
+
+  /**
    *
    * TRADE endpoints - Rest API
    *

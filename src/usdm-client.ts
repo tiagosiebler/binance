@@ -114,23 +114,9 @@ export class USDMClient extends BaseRestClient {
     );
   }
 
-  /**
-   *
-   * Market Data Endpoints
-   *
-   **/
+  
 
-  getBasis(params: BasisParams): Promise<Basis[]> {
-    return this.get('futures/data/basis', params);
-  }
-
-
-
-  getIndexPriceConstituents(params: {
-    symbol: string;
-  }): Promise<IndexPriceConstituents> {
-    return this.get('fapi/v1/constituents', params);
-  }
+  
 
   /**
    *
