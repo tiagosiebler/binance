@@ -2115,6 +2115,85 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
+  getMiningAlgos(): Promise<GetMiningAlgoListResponse[]> {
+    return this.get('sapi/v1/mining/pub/algoList');
+  }
+
+  getMiningCoins(): Promise<GetMiningCoinListResponse[]> {
+    return this.get('sapi/v1/mining/pub/coinList');
+  }
+
+  getHashrateResales(
+    params: GetHashrateResaleListParams,
+  ): Promise<GetHashrateResaleListResponse> {
+    return this.getPrivate(
+      'sapi/v1/mining/hash-transfer/config/details/list',
+      params,
+    );
+  }
+
+  getMiners(params: GetMinerListParams): Promise<GetMinerListResponse> {
+    return this.getPrivate('sapi/v1/mining/worker/list', params);
+  }
+
+  getMinerDetails(
+    params: GetMinerDetailsParams,
+  ): Promise<GetMinerDetailsResponse[]> {
+    return this.getPrivate('sapi/v1/mining/worker/detail', params);
+  }
+
+  getExtraBonuses(
+    params: GetExtraBonusListParams,
+  ): Promise<GetExtraBonusListResponse> {
+    return this.getPrivate('sapi/v1/mining/payment/other', params);
+  }
+
+  getMiningEarnings(
+    params: GetEarningsListParams,
+  ): Promise<GetEarningsListResponse> {
+    return this.getPrivate('sapi/v1/mining/payment/list', params);
+  }
+
+  cancelHashrateResaleConfig(
+    params: CancelHashrateResaleConfigParams,
+  ): Promise<boolean> {
+    return this.postPrivate(
+      'sapi/v1/mining/hash-transfer/config/cancel',
+      params,
+    );
+  }
+
+  getHashrateResale(
+    params: GetHashrateResaleDetailParams,
+  ): Promise<GetHashrateResaleDetailResponse> {
+    return this.getPrivate(
+      'sapi/v1/mining/hash-transfer/profit/details',
+      params,
+    );
+  }
+
+  getMiningAccountEarnings(
+    params: GetMiningAccountEarningParams,
+  ): Promise<GetMiningAccountEarningResponse> {
+    return this.getPrivate('sapi/v1/mining/payment/uid', params);
+  }
+
+  getMiningStatistics(
+    params: GetStatisticListParams,
+  ): Promise<GetStatisticListResponse> {
+    return this.getPrivate('sapi/v1/mining/statistics/user/status', params);
+  }
+
+  submitHashrateResale(params: SubmitHashrateResaleParams): Promise<number> {
+    return this.postPrivate('sapi/v1/mining/hash-transfer/config', params);
+  }
+
+  getMiningAccounts(
+    params: getMiningAccountsListParams,
+  ): Promise<getMiningAccountsListResponse> {
+    return this.getPrivate('sapi/v1/mining/statistics/user/list', params);
+  }
+
   /**
    *
    * ALGO TRADING Endpoints - Future algo
