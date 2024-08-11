@@ -2706,6 +2706,86 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
+   * VIP LOAN Endpoints - Market Data
+   *
+   **/
+
+  getVipBorrowInterestRate(params: {
+    loanCoin: string;
+  }): Promise<BorrowInterestRate[]> {
+    return this.getPrivate('sapi/v1/loan/vip/request/interestRate', params);
+  }
+
+  getVipLoanableAssets(params: GetLoanableAssetsDataParams): Promise<{
+    rows: LoanableAssetData[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/vip/loanable/data', params);
+  }
+
+  getVipCollateralAssets(params: { collateralCoin?: string }): Promise<{
+    rows: CollateralAssetData[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/vip/collateral/data', params);
+  }
+
+  /**
+   *
+   * VIP LOAN Endpoints - User Info
+   *
+   **/
+
+  getVipLoanOpenOrders(params: GetVipLoanOngoingOrdersParams): Promise<{
+    rows: VipOngoingOrder[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/vip/ongoing/orders', params);
+  }
+
+  getVipLoanRepaymentHistory(
+    params: GetVipLoanRepaymentHistoryParams,
+  ): Promise<{
+    rows: VipLoanRepaymentHistory[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/vip/repay/history', params);
+  }
+
+  checkVipCollateralAccount(params: CheckVipCollateralAccountParams): Promise<{
+    rows: VipCollateralAccount[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/vip/collateral/account', params);
+  }
+
+  getVipApplicationStatus(params: GetApplicationStatusParams): Promise<{
+    rows: ApplicationStatus[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/vip/request/data', params);
+  }
+
+  /**
+   *
+   * VIP LOAN Endpoints - Trade
+   *
+   **/
+
+  renewVipLoan(params: VipLoanRenewParams): Promise<VipLoanRenewResponse> {
+    return this.postPrivate('sapi/v1/loan/vip/renew', params);
+  }
+
+  repayVipLoan(params: VipLoanRepayParams): Promise<VipLoanRepayResponse> {
+    return this.postPrivate('sapi/v1/loan/vip/repay', params);
+  }
+
+  borrowVipLoan(params: VipLoanBorrowParams): Promise<VipLoanBorrowResponse> {
+    return this.postPrivate('sapi/v1/loan/vip/borrow', params);
+  }
+
+  /**
+   *
    * DUAL INVESTMENT Endpoints - Market Data
    *
    **/
