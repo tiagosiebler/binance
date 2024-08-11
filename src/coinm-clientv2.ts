@@ -435,11 +435,61 @@ export class CoinMClient extends BaseRestClient {
    *
    **/
 
+  getBalance(): Promise<FuturesCoinMAccountBalance[]> {
+    return this.getPrivate('dapi/v1/balance');
+  }
+
+  getAccountComissionRate(
+    params: BasicSymbolParam,
+  ): Promise<UserCommissionRate> {
+    return this.getPrivate('dapi/v1/commissionRate', params);
+  }
+
+  getAccountInformation(): Promise<FuturesCoinMAccountInformation> {
+    return this.getPrivate('dapi/v1/account');
+  }
+
+  /**
+   * Notional Bracket for Symbol (NOT "pair")
+   */
+  getNotionalAndLeverageBrackets(
+    params?: Partial<BasicSymbolParam>,
+  ): Promise<SymbolLeverageBracketsResult[] | SymbolLeverageBracketsResult> {
+    return this.getPrivate('dapi/v2/leverageBracket', params);
+  }
+
+  // TO ADD: dapi/v1/leverageBracket
+
+  getCurrentPositionMode(): Promise<PositionModeResponse> {
+    return this.getPrivate('dapi/v1/positionSide/dual');
+  }
+
+  getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
+    return this.getPrivate('dapi/v1/income', params);
+  }
+
   /**
    *
    * Portfolio Margin Endpoints
    *
    **/
+
+  getClassicPortfolioMarginAccount(params: {
+    asset: string;
+  }): Promise<ClassicPortfolioMarginAccount> {
+    return this.getPrivate('dapi/v1/pmAccountInfo', params);
+  }
+
+  /**
+   *Only in old documentation, not in new one
+   **/
+  getClassicPortfolioMarginNotionalLimits(
+    params?: GetClassicPortfolioMarginNotionalLimitParams,
+  ): Promise<{
+    notionalLimits: ClassicPortfolioMarginNotionalLimit[];
+  }> {
+    return this.getPrivate('dapi/v1/pmExchangeInfo', params);
+  }
 
   /**
    * Validate syntax meets requirements set by binance. Log warning if not.

@@ -118,81 +118,6 @@ export class CoinMClient extends BaseRestClient {
 
   /**
    *
-   * USD-Futures Account/Trade Endpoints
-   *
-   **/
-
-  
-
-  getCurrentPositionMode(): Promise<PositionModeResponse> {
-    return this.getPrivate('dapi/v1/positionSide/dual');
-  }
-
-  
-  
-
- 
- 
-
-  
-
-  
-
-  
-
-  
-
- 
-
- 
- 
-
-  
-
-  getBalance(): Promise<FuturesCoinMAccountBalance[]> {
-    return this.getPrivate('dapi/v1/balance');
-  }
-
-  getAccountInformation(): Promise<FuturesCoinMAccountInformation> {
-    return this.getPrivate('dapi/v1/account');
-  }
-
- 
-
-  
-
- 
-
-  
-
-  
-  
-
-  getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
-    return this.getPrivate('dapi/v1/income', params);
-  }
-
-  /**
-   * Notional Bracket for Symbol (NOT "pair")
-   */
-  getNotionalAndLeverageBrackets(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<SymbolLeverageBracketsResult[] | SymbolLeverageBracketsResult> {
-    return this.getPrivate('dapi/v2/leverageBracket', params);
-  }
-
-  
-
-  
-
-  getAccountComissionRate(
-    params: BasicSymbolParam,
-  ): Promise<UserCommissionRate> {
-    return this.getPrivate('dapi/v1/commissionRate', params);
-  }
-
-  /**
-   *
    * Broker Futures Endpoints
    *
    **/
@@ -302,25 +227,5 @@ export class CoinMClient extends BaseRestClient {
 
   closeFuturesUserDataListenKey(): Promise<{}> {
     return this.delete('dapi/v1/listenKey');
-  }
-
-  /**
-   *
-   * Classic Portfolio Margin Endpoints
-   *
-   **/
-
-  getClassicPortfolioMarginNotionalLimits(
-    params?: GetClassicPortfolioMarginNotionalLimitParams,
-  ): Promise<{
-    notionalLimits: ClassicPortfolioMarginNotionalLimit[];
-  }> {
-    return this.getPrivate('dapi/v1/pmExchangeInfo', params);
-  }
-
-  getClassicPortfolioMarginAccount(params: {
-    asset: string;
-  }): Promise<ClassicPortfolioMarginAccount> {
-    return this.getPrivate('dapi/v1/pmAccountInfo', params);
   }
 }
