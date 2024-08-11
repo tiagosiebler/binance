@@ -1143,6 +1143,181 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
+   * WALLET Endpoints - Capital endpoints
+   *
+   **/
+
+  getBalances(): Promise<AllCoinsInformationResponse[]> {
+    return this.getPrivate('sapi/v1/capital/config/getall');
+  }
+  withdraw(params: WithdrawParams): Promise<{ id: string }> {
+    return this.postPrivate('sapi/v1/capital/withdraw/apply', params);
+  }
+
+  getWithdrawHistory(
+    params?: WithdrawHistoryParams,
+  ): Promise<WithdrawHistory[]> {
+    return this.getPrivate('sapi/v1/capital/withdraw/history', params);
+  }
+
+  getWithdrawAddresses(): Promise<WithdrawAddress[]> {
+    return this.getPrivate('sapi/v1/capital/withdraw/address/list');
+  }
+
+  getDepositHistory(params?: DepositHistoryParams): Promise<DepositHistory[]> {
+    return this.getPrivate('sapi/v1/capital/deposit/hisrec', params);
+  }
+
+  getDepositAddress(
+    params: DepositAddressParams,
+  ): Promise<DepositAddressResponse> {
+    return this.getPrivate('sapi/v1/capital/deposit/address', params);
+  }
+
+  getDepositAddresses(
+    params: DepositAddressListParams,
+  ): Promise<DepositAddress[]> {
+    return this.getPrivate('sapi/v1/capital/deposit/address/list', params);
+  }
+
+  submitDepositCredit(
+    params: SubmitDepositCreditParams,
+  ): Promise<SubmitDepositCreditResponse> {
+    return this.postPrivate('sapi/v1/capital/deposit/credit-apply', params);
+  }
+
+  /**
+   *
+   * WALLET Endpoints - Asset endpoints
+   *
+   **/
+
+  getAssetDetail(
+    params?: Partial<BasicAssetParam>,
+  ): Promise<Record<ExchangeSymbol, AssetDetail>> {
+    return this.getPrivate('sapi/v1/asset/assetDetail', params);
+  }
+
+  getWalletBalances(): Promise<WalletBalance[]> {
+    return this.getPrivate('sapi/v1/asset/wallet/balance');
+  }
+
+  getUserAsset(params: GetAssetParams): Promise<UserAsset[]> {
+    return this.postPrivate('sapi/v3/asset/getUserAsset', params);
+  }
+
+  submitUniversalTransfer(
+    params: UniversalTransferParams,
+  ): Promise<{ tranId: number }> {
+    return this.postPrivate('sapi/v1/asset/transfer', params);
+  }
+
+  getUniversalTransferHistory(
+    params: UniversalTransferHistoryParams,
+  ): Promise<any> {
+    return this.getPrivate('sapi/v1/asset/transfer', params);
+  }
+
+  getDust(): Promise<DustInfo> {
+    return this.postPrivate('sapi/v1/asset/dust-btc');
+  }
+
+  convertDustToBnb(params: ConvertDustParams): Promise<DustConversion> {
+    return this.postPrivate('sapi/v1/asset/dust', params);
+  }
+
+  getDustLog(params?: BasicTimeRangeParam): Promise<DustLog> {
+    return this.getPrivate('sapi/v1/asset/dribblet', params);
+  }
+
+  getAssetDividendRecord(params?: BasicAssetPaginatedParams): Promise<any> {
+    return this.getPrivate('sapi/v1/asset/assetDividend', params);
+  }
+
+  getTradeFee(params?: Partial<BasicSymbolParam>): Promise<SymbolTradeFee[]> {
+    return this.getPrivate('sapi/v1/asset/tradeFee', params);
+  }
+
+  getFundingAsset(params: GetAssetParams): Promise<FundingAsset[]> {
+    return this.postPrivate('sapi/v1/asset/get-funding-asset', params);
+  }
+
+  getCloudMiningHistory(params: CloudMiningHistoryParams): Promise<{
+    total: number;
+    rows: CloudMining[];
+  }> {
+    return this.getPrivate(
+      'sapi/v1/asset/ledger-transfer/cloud-mining/queryByPage',
+      params,
+    );
+  }
+
+  getDelegationHistory(
+    params: DelegationHistoryParams,
+  ): Promise<RowsWithTotal<DelegationHistory>> {
+    return this.getPrivate('sapi/v1/asset/custody/transfer-history', params);
+  }
+
+  /**
+   *
+   * WALLET Endpoints - Account endpoints
+   *
+   **/
+
+  getAccountInfo(): Promise<AccountInfo> {
+    return this.getPrivate('sapi/v1/account/info');
+  }
+
+  getDailyAccountSnapshot(
+    params: DailyAccountSnapshotParams,
+  ): Promise<DailyAccountSnapshot> {
+    return this.getPrivate('sapi/v1/accountSnapshot', params);
+  }
+
+  disableFastWithdrawSwitch(): Promise<{}> {
+    return this.postPrivate('sapi/v1/account/disableFastWithdrawSwitch');
+  }
+
+  enableFastWithdrawSwitch(): Promise<{}> {
+    return this.postPrivate('sapi/v1/account/enableFastWithdrawSwitch');
+  }
+
+  getAccountStatus(): Promise<{ data: string }> {
+    return this.getPrivate('sapi/v1/account/status');
+  }
+
+  getApiTradingStatus(): Promise<APITradingStatus> {
+    return this.getPrivate('sapi/v1/account/apiTradingStatus');
+  }
+
+  getApiKeyPermissions(): Promise<APIPermissions> {
+    return this.getPrivate('sapi/v1/account/apiRestrictions');
+  }
+
+  /**
+   *
+   * WALLET Endpoints - Travel Rule endpoints
+   *
+   **/
+
+  // to be added
+
+  /**
+   *
+   * WALLET Endpoints - Other endpoints
+   *
+   **/
+
+  getSystemStatus(): Promise<SystemStatusResponse> {
+    return this.get('sapi/v1/system/status');
+  }
+
+  getDelistSchedule(): Promise<DelistScheduleResponse[]> {
+    return this.getPrivate('sapi/v1/spot/delist-schedule');
+  }
+
+  /**
+   *
    * SUB ACCOUNT Endpoints - Account management
    *
    **/

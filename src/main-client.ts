@@ -528,109 +528,12 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  getSystemStatus(): Promise<SystemStatusResponse> {
-    return this.get('sapi/v1/system/status');
-  }
-
-  getBalances(): Promise<AllCoinsInformationResponse[]> {
-    return this.getPrivate('sapi/v1/capital/config/getall');
-  }
-
-  getDailyAccountSnapshot(
-    params: DailyAccountSnapshotParams,
-  ): Promise<DailyAccountSnapshot> {
-    return this.getPrivate('sapi/v1/accountSnapshot', params);
-  }
-
-  disableFastWithdrawSwitch(): Promise<{}> {
-    return this.postPrivate('sapi/v1/account/disableFastWithdrawSwitch');
-  }
-
-  enableFastWithdrawSwitch(): Promise<{}> {
-    return this.postPrivate('sapi/v1/account/enableFastWithdrawSwitch');
-  }
-
-  withdraw(params: WithdrawParams): Promise<{ id: string }> {
-    return this.postPrivate('sapi/v1/capital/withdraw/apply', params);
-  }
-
-  getDepositHistory(params?: DepositHistoryParams): Promise<DepositHistory[]> {
-    return this.getPrivate('sapi/v1/capital/deposit/hisrec', params);
-  }
-
-  getWithdrawHistory(
-    params?: WithdrawHistoryParams,
-  ): Promise<WithdrawHistory[]> {
-    return this.getPrivate('sapi/v1/capital/withdraw/history', params);
-  }
-
-  getDepositAddress(
-    params: DepositAddressParams,
-  ): Promise<DepositAddressResponse> {
-    return this.getPrivate('sapi/v1/capital/deposit/address', params);
-  }
-
-  getAccountStatus(): Promise<{ data: string }> {
-    return this.getPrivate('sapi/v1/account/status');
-  }
-
-  getDustLog(params?: BasicTimeRangeParam): Promise<DustLog> {
-    return this.getPrivate('sapi/v1/asset/dribblet', params);
-  }
-
-  convertDustToBnb(params: ConvertDustParams): Promise<DustConversion> {
-    return this.postPrivate('sapi/v1/asset/dust', params);
-  }
-
-  getDust(): Promise<DustInfo> {
-    return this.postPrivate('sapi/v1/asset/dust-btc');
-  }
-
-  getAssetDividendRecord(params?: BasicAssetPaginatedParams): Promise<any> {
-    return this.getPrivate('sapi/v1/asset/assetDividend', params);
-  }
-
-  getAssetDetail(
-    params?: Partial<BasicAssetParam>,
-  ): Promise<Record<ExchangeSymbol, AssetDetail>> {
-    return this.getPrivate('sapi/v1/asset/assetDetail', params);
-  }
-
-  getTradeFee(params?: Partial<BasicSymbolParam>): Promise<SymbolTradeFee[]> {
-    return this.getPrivate('sapi/v1/asset/tradeFee', params);
-  }
-
-  submitUniversalTransfer(
-    params: UniversalTransferParams,
-  ): Promise<{ tranId: number }> {
-    return this.postPrivate('sapi/v1/asset/transfer', params);
-  }
-
-  getUniversalTransferHistory(
-    params: UniversalTransferHistoryParams,
-  ): Promise<any> {
-    return this.getPrivate('sapi/v1/asset/transfer', params);
-  }
-
-  getApiTradingStatus(): Promise<APITradingStatus> {
-    return this.getPrivate('sapi/v1/account/apiTradingStatus');
-  }
-
-  getApiKeyPermissions(): Promise<APIPermissions> {
-    return this.getPrivate('sapi/v1/account/apiRestrictions');
-  }
 
   enableConvertSubAccount(params: EnableConvertSubAccountParams): Promise<any> {
     return this.postPrivate('sapi/v1/broker/subAccount/convert', params);
   }
 
-  getFundingAsset(params: GetAssetParams): Promise<FundingAsset[]> {
-    return this.postPrivate('sapi/v1/asset/get-funding-asset', params);
-  }
-
-  getUserAsset(params: GetAssetParams): Promise<UserAsset[]> {
-    return this.postPrivate('sapi/v3/asset/getUserAsset', params);
-  }
+ 
 
   convertBUSD(params: ConvertTransfer): Promise<ConvertTransferResponse> {
     return this.postPrivate('sapi/v1/asset/convert-transfer', params);
@@ -646,15 +549,7 @@ export class MainClient extends BaseRestClient {
     );
   }
 
-  getCloudMiningHistory(params: CloudMiningHistoryParams): Promise<{
-    total: number;
-    rows: CloudMining[];
-  }> {
-    return this.getPrivate(
-      'sapi/v1/asset/ledger-transfer/cloud-mining/queryByPage',
-      params,
-    );
-  }
+  
 
   getAutoConvertStablecoins(): Promise<ConvertibleCoinsResponse> {
     return this.getPrivate('sapi/v1/capital/contract/convertible-coins');
@@ -667,39 +562,11 @@ export class MainClient extends BaseRestClient {
     );
   }
 
-  submitDepositCredit(
-    params: SubmitDepositCreditParams,
-  ): Promise<SubmitDepositCreditResponse> {
-    return this.postPrivate('sapi/v1/capital/deposit/credit-apply', params);
-  }
+  
 
-  getDepositAddresses(
-    params: DepositAddressListParams,
-  ): Promise<DepositAddress[]> {
-    return this.getPrivate('sapi/v1/capital/deposit/address/list', params);
-  }
+  
 
-  getWalletBalances(): Promise<WalletBalance[]> {
-    return this.getPrivate('sapi/v1/asset/wallet/balance');
-  }
-
-  getDelegationHistory(
-    params: DelegationHistoryParams,
-  ): Promise<RowsWithTotal<DelegationHistory>> {
-    return this.getPrivate('sapi/v1/asset/custody/transfer-history', params);
-  }
-
-  getDelistSchedule(): Promise<DelistScheduleResponse[]> {
-    return this.getPrivate('sapi/v1/spot/delist-schedule');
-  }
-
-  getWithdrawAddresses(): Promise<WithdrawAddress[]> {
-    return this.getPrivate('sapi/v1/capital/withdraw/address/list');
-  }
-
-  getAccountInfo(): Promise<AccountInfo> {
-    return this.getPrivate('sapi/v1/account/info');
-  }
+  
 
   /**
    * Broker Endpoints
@@ -898,10 +765,6 @@ export class MainClient extends BaseRestClient {
    * Dual Investment Endpoints
    *
    **/
-
-  
-
- 
 
   /**
    *
@@ -1615,9 +1478,6 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/blvt/userLimit', params);
   }
 
-
-  
-
   /**
    *
    * C2C Endpoints
@@ -1895,8 +1755,6 @@ export class MainClient extends BaseRestClient {
    * NFT Endpoints
    *
    **/
-
-  
 
   /**
    *
