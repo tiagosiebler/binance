@@ -1174,6 +1174,11 @@ export interface CreateSubAccountParams {
   subAccountString: string;
 }
 
+export interface EnableOrDisableIPRestrictionForSubAccountParams
+  extends BasicSubAccount {
+  status: string;
+  ipAddress?: string;
+}
 export interface GetBrokerSubAccountHistoryParams {
   fromId?: string;
   toId?: string;
@@ -1552,8 +1557,7 @@ export interface SubAccountEnableLeverageToken {
   enableBlvt: boolean;
 }
 
-export interface EnableOrDisableIPRestrictionForSubAccountParams
-  extends BasicSubAccount {
+export interface C extends BasicSubAccount {
   ipRestrict: boolean;
 }
 

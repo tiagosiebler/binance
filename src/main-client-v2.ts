@@ -1141,38 +1141,371 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/margin/isolated/transfer', params);
   }
 
-
   /**
    *
    * SUB ACCOUNT Endpoints - Account management
    *
    **/
 
-  
+  createVirtualSubAccount(
+    params: CreateSubAccountParams,
+  ): Promise<VirtualSubAccount> {
+    return this.postPrivate('sapi/v1/sub-account/virtualSubAccount', params);
+  }
+
+  getSubAccountList(
+    params?: SubAccountListParams,
+  ): Promise<SubAccountListResponse> {
+    return this.getPrivate('sapi/v1/sub-account/list', params);
+  }
+
+  subAccountEnableFutures(email: string): Promise<SubAccountEnableFutures> {
+    return this.postPrivate('sapi/v1/sub-account/futures/enable', { email });
+  }
+
+  subAccountEnableMargin(email: string): Promise<SubAccountEnableMargin> {
+    return this.postPrivate('sapi/v1/sub-account/margin/enable', { email });
+  }
+
+  enableOptionsForSubAccount(params: {
+    email: string;
+  }): Promise<EnableOptionsForSubAccountResponse> {
+    return this.postPrivate('sapi/v1/sub-account/eoptions/enable', params);
+  }
+
+  subAccountEnableLeverageToken(
+    params: SubAccountEnableLeverageToken,
+  ): Promise<SubAccountEnableLeverageToken> {
+    return this.postPrivate('sapi/v1/sub-account/blvt/enable', params);
+  }
+
+  getSubAccountStatusOnMarginOrFutures(params?: {
+    email?: string;
+  }): Promise<SubAccountStatus[]> {
+    return this.getPrivate('sapi/v1/sub-account/status', params);
+  }
+
+  getSubAccountFuturesPositionRisk(
+    email: string,
+  ): Promise<FuturesPositionRisk[]> {
+    return this.getPrivate('sapi/v1/sub-account/futures/positionRisk', {
+      email,
+    });
+  }
+
+  getSubAccountFuturesPositionRiskV2(
+    params: BasicFuturesSubAccountParams,
+  ): Promise<SubAccountUSDMPositionRisk | SubAccountCOINMPositionRisk> {
+    return this.getPrivate('sapi/v2/sub-account/futures/positionRisk', params);
+  }
+
+  getSubAccountTransactionStatistics(params: {
+    email: string;
+  }): Promise<SubAccountTransactionStatistics> {
+    return this.getPrivate(
+      'sapi/v1/sub-account/transaction-statistics',
+      params,
+    );
+  }
+
   /**
    *
    * SUB ACCOUNT Endpoints - API management
    *
    **/
 
-  
+  getSubAccountIPRestriction(
+    params: BasicSubAccount,
+  ): Promise<SubAccountEnableOrDisableIPRestriction> {
+    return this.getPrivate(
+      'sapi/v1/sub-account/subAccountApi/ipRestriction',
+      params,
+    );
+  }
+
+  subAccountDeleteIPList(
+    params: EnableOrDisableIPRestrictionForSubAccountParams,
+  ): Promise<SubAccountEnableOrDisableIPRestriction> {
+    return this.deletePrivate(
+      'sapi/v1/sub-account/subAccountApi/ipRestriction/ipList',
+      params,
+    );
+  }
+
+  subAccountAddIPRestriction(
+    params: AddIpRestriction,
+  ): Promise<SubAccountEnableOrDisableIPRestriction> {
+    return this.postPrivate(
+      'sapi/v2/sub-account/subAccountApi/ipRestriction',
+      params,
+    );
+  }
+
+  /**
+   * Only in old documentation!!
+   * Use new endpoints instead!!
+   **/
+  subAccountAddIPList(
+    params: SubAccountEnableOrDisableIPRestriction,
+  ): Promise<SubAccountAddOrDeleteIPList> {
+    return this.postPrivate(
+      'sapi/v1/sub-account/subAccountApi/ipRestriction/ipList',
+      params,
+    );
+  }
+
+  /**
+   * Only in old documentation!!
+   * Use new endpoints instead!!
+   **/
+  subAccountEnableOrDisableIPRestriction(
+    params: EnableOrDisableIPRestrictionForSubAccountParams,
+  ): Promise<SubAccountEnableOrDisableIPRestriction> {
+    return this.postPrivate(
+      'sapi/v1/sub-account/subAccountApi/ipRestriction',
+      params,
+    );
+  }
+
   /**
    *
    * SUB ACCOUNT Endpoints - Asset management
    *
    **/
 
-  
+  subAccountFuturesTransfer(
+    params: SubAccountTransferParams,
+  ): Promise<SubAccountTransfer> {
+    return this.postPrivate('sapi/v1/sub-account/futures/transfer', params);
+  }
+
+  getSubAccountFuturesAccountDetail(
+    email: string,
+  ): Promise<SubAccountFuturesAccountDetail> {
+    return this.getPrivate('sapi/v1/sub-account/futures/account', { email });
+  }
+
+  getSubAccountDetailOnFuturesAccountV2(
+    params: BasicFuturesSubAccountParams,
+  ): Promise<SubAccountUSDMDetail | SubAccountCOINMDetail> {
+    return this.getPrivate('sapi/v2/sub-account/futures/account', params);
+  }
+
+  getSubAccountDetailOnMarginAccount(
+    email: string,
+  ): Promise<SubAccountMarginAccountDetail> {
+    return this.getPrivate('sapi/v1/sub-account/margin/account', { email });
+  }
+
+  getSubAccountDepositAddress(
+    params: SubAccountDepositAddressParams,
+  ): Promise<SubAccountDepositAddress> {
+    return this.getPrivate('sapi/v1/capital/deposit/subAddress', params);
+  }
+
+  getSubAccountDepositHistory(
+    params: SubAccountDepositHistoryParams,
+  ): Promise<DepositHistory[]> {
+    return this.getPrivate('sapi/v1/capital/deposit/subHisrec', params);
+  }
+
+  getSubAccountFuturesAccountSummary(): Promise<SubAccountFuturesAccountSummary> {
+    return this.getPrivate('sapi/v1/sub-account/futures/accountSummary');
+  }
+
+  getSubAccountSummaryOnFuturesAccountV2(
+    params: SubAccountSummaryOnFuturesAccountV2Params,
+  ): Promise<SubAccountUSDMSummary | SubAccountCOINMSummary> {
+    return this.getPrivate(
+      'sapi/v2/sub-account/futures/accountSummary',
+      params,
+    );
+  }
+
+  getSubAccountsSummaryOfMarginAccount(): Promise<SubAccountsMarginAccountSummary> {
+    return this.getPrivate('sapi/v1/sub-account/margin/accountSummary');
+  }
+
+  subAccountMarginTransfer(
+    params: SubAccountTransferParams,
+  ): Promise<SubAccountTransfer> {
+    return this.postPrivate('sapi/v1/sub-account/margin/transfer', params);
+  }
+
+  getSubAccountAssets(
+    params: SubAccountAssetsParams,
+  ): Promise<SubAccountAssets> {
+    return this.getPrivate('sapi/v3/sub-account/assets', params);
+  }
+
+  getSubAccountAssetsMaster(params: { email: string }): Promise<{
+    balances: SubaccountBalances[];
+  }> {
+    return this.getPrivate('sapi/v4/sub-account/assets', params);
+  }
+
+  getSubAccountFuturesAssetTransferHistory(
+    params: SubAccountFuturesAssetTransferHistoryParams,
+  ): Promise<SubAccountFuturesAssetTransferHistory> {
+    return this.getPrivate(
+      'sapi/v1/sub-account/futures/internalTransfer',
+      params,
+    );
+  }
+
+  getSubAccountSpotAssetTransferHistory(
+    params?: SubAccountSpotAssetTransferHistoryParams,
+  ): Promise<SubAccountSpotAssetTransferHistory> {
+    return this.getPrivate('sapi/v1/sub-account/sub/transfer/history', params);
+  }
+
+  getSubAccountSpotAssetsSummary(
+    params?: SubAccountSpotAssetsSummaryParams,
+  ): Promise<SubAccountSpotAssetsSummary> {
+    return this.getPrivate('sapi/v1/sub-account/spotSummary', params);
+  }
+
+  getSubAccountUniversalTransferHistory(
+    params?: SubAccountUniversalTransferHistoryParams,
+  ): Promise<SubAccountUniversalTransferHistoryResponse> {
+    return this.getPrivate('sapi/v1/sub-account/universalTransfer', params);
+  }
+
+  subAccountFuturesAssetTransfer(
+    params: SubAccountFuturesAssetTransferParams,
+  ): Promise<SubAccountFuturesAssetTransfer> {
+    return this.postPrivate(
+      'sapi/v1/sub-account/futures/internalTransfer',
+      params,
+    );
+  }
+
+  subAccountTransferHistory(
+    params?: SubAccountTransferHistoryParams,
+  ): Promise<SubAccountTransferHistory[]> {
+    return this.getPrivate(
+      'sapi/v1/sub-account/transfer/subUserHistory',
+      params,
+    );
+  }
+
+  subAccountTransferToMaster(
+    params: SubAccountTransferToMasterParams,
+  ): Promise<SubAccountTransfer> {
+    return this.postPrivate('sapi/v1/sub-account/transfer/subToMaster', params);
+  }
+
+  subAccountTransferToSameMaster(
+    params: SubAccountTransferToSameMasterParams,
+  ): Promise<SubAccountTransfer> {
+    return this.postPrivate('sapi/v1/sub-account/transfer/subToSub', params);
+  }
+
+  subAccountUniversalTransfer(
+    params: SubAccountUniversalTransferParams,
+  ): Promise<SubAccountUniversalTransfer> {
+    return this.postPrivate('sapi/v1/sub-account/universalTransfer', params);
+  }
+
   /**
    *
-   * SUB ACCOUNT Endpoints - Managed Sub Account 
+   * SUB ACCOUNT Endpoints - Managed Sub Account
    *
    **/
 
-  
+  depositAssetsIntoManagedSubAccount(
+    params: SubAccountTransferToSameMasterParams,
+  ): Promise<MarginTransactionResponse> {
+    return this.postPrivate('sapi/v1/managed-subaccount/deposit', params);
+  }
 
+  getManagedSubAccountDepositAddress(
+    params: ManagedSubAccountDepositAddressParams,
+  ): Promise<ManagedSubAccountDepositAddress> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/deposit/address',
+      params,
+    );
+  }
 
+  withdrawAssetsFromManagedSubAccount(
+    params: WithdrawAssetsFromManagedSubAccountParams,
+  ): Promise<MarginTransactionResponse> {
+    return this.postPrivate('sapi/v1/managed-subaccount/withdraw', params);
+  }
 
+  getManagedSubAccountTransfersParent(
+    params: ManagedSubAccountTransferLogParams,
+  ): Promise<{
+    managerSubTransferHistoryVos: ManagerSubTransferHistoryVos[];
+    count: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/queryTransLogForTradeParent',
+      params,
+    );
+  }
+
+  getManagedSubAccountTransferLog(
+    params: ManagedSubAccountTransferTTLogParams,
+  ): Promise<{
+    managerSubTransferHistoryVos: ManagerSubTransferHistoryVos[];
+    count: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/query-trans-log',
+      params,
+    );
+  }
+
+  getManagedSubAccountTransfersInvestor(
+    params: ManagedSubAccountTransferLogParams,
+  ): Promise<{
+    managerSubTransferHistoryVos: ManagerSubTransferHistoryVos[];
+    count: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/queryTransLogForInvestor',
+      params,
+    );
+  }
+
+  getManagedSubAccounts(params: ManagedSubAccountListParams): Promise<{
+    total: number;
+    managerSubUserInfoVoList: ManagerSubUserInfoVo[];
+  }> {
+    return this.getPrivate('sapi/v1/managed-subaccount/info', params);
+  }
+
+  getManagedSubAccountSnapshot(
+    params: ManagedSubAccountSnapshotParams,
+  ): Promise<ManagedSubAccountSnapshot> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/accountSnapshot',
+      params,
+    );
+  }
+
+  getManagedSubAccountAssetDetails(
+    email: string,
+  ): Promise<SubAccountAssetDetails[]> {
+    return this.getPrivate('sapi/v1/managed-subaccount/asset', { email });
+  }
+
+  getManagedSubAccountMarginAssets(params: {
+    email: string;
+  }): Promise<ManagedSubAccountMarginAssetsResponse> {
+    return this.getPrivate('sapi/v1/managed-subaccount/marginAsset', params);
+  }
+
+  getManagedSubAccountFuturesAssets(params: {
+    email: string;
+  }): Promise<ManagedSubAccountFuturesAssetsResponse> {
+    return this.getPrivate(
+      'sapi/v1/managed-subaccount/fetch-future-asset',
+      params,
+    );
+  }
 
   /**
    * Validate syntax meets requirements set by binance. Log warning if not.
