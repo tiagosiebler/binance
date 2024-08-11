@@ -1318,201 +1318,6 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
-   * AUTO INVEST Endpoints - Market data
-   *
-   **/
-
-  getAutoInvestAssets(): Promise<{
-    targetAssets: string[];
-    sourceAssets: string[];
-  }> {
-    return this.getPrivate('sapi/v1/lending/auto-invest/all/asset');
-  }
-
-  getAutoInvestSourceAssets(
-    params: GetSourceAssetListParams,
-  ): Promise<GetSourceAssetListResponse> {
-    return this.getPrivate(
-      'sapi/v1/lending/auto-invest/source-asset/list',
-      params,
-    );
-  }
-
-  getAutoInvestTargetAssets(
-    params: GetTargetAssetListParams,
-  ): Promise<GetTargetAssetListResponse> {
-    return this.getPrivate(
-      'sapi/v1/lending/auto-invest/target-asset/list',
-      params,
-    );
-  }
-
-  getAutoInvestTargetAssetsROI(
-    params: GetTargetAssetROIParams,
-  ): Promise<TargetAssetROI[]> {
-    return this.getPrivate(
-      'sapi/v1/lending/auto-invest/target-asset/roi/list',
-      params,
-    );
-  }
-
-  getAutoInvestIndex(params: {
-    indexId: number;
-  }): Promise<GetIndexDetailsResponse> {
-    return this.getPrivate('sapi/v1/lending/auto-invest/index/info', params);
-  }
-
-  getAutoInvestPlans(params: {
-    planType: 'SINGLE' | 'PORTFOLIO' | 'INDEX';
-  }): Promise<any> {
-    return this.getPrivate('sapi/v1/lending/auto-invest/plan/list', params);
-  }
-
-  /**
-   *
-   * AUTO INVEST Endpoints - Trade
-   *
-   **/
-
-  /**
-   * https://developers.binance.com/docs/auto_invest/trade/One-Time-Transaction
-   *
-   * @param params
-   * @returns
-   */
-  submitAutoInvestOneTimeTransaction(
-    params: SubmitOneTimeTransactionParams,
-  ): Promise<SubmitOneTimeTransactionResponse> {
-    const { details, ...allParams } = params;
-    const requestParameters = { ...allParams };
-    for (let i = 0; i < details.length; i++) {
-      requestParameters[`details[${i}].targetAsset`] = details[i].targetAsset;
-      requestParameters[`details[${i}].percentage`] = details[i].percentage;
-    }
-
-    return this.postPrivate(
-      'sapi/v1/lending/auto-invest/one-off',
-      requestParameters,
-    );
-  }
-
-  updateAutoInvestPlanStatus(
-    params: ChangePlanStatusParams,
-  ): Promise<ChangePlanStatusResponse> {
-    return this.postPrivate(
-      'sapi/v1/lending/auto-invest/plan/edit-status',
-      params,
-    );
-  }
-
-  /**
-   *
-   * @deprecated , use updateAutoInvestmentPlan instead
-   *
-   **/
-  updateAutoInvestmentPlanOld(
-    params: EditInvestmentPlanParams,
-  ): Promise<EditInvestmentPlanResponse> {
-    return this.postPrivate('sapi/v1/lending/auto-invest/plan/edit', params);
-  }
-
-  updateAutoInvestmentPlan(
-    params: EditInvestmentPlanParams,
-  ): Promise<EditInvestmentPlanResponse> {
-    const { details, ...allParams } = params;
-
-    const requestParameters = { ...allParams };
-    for (let i = 0; i < details.length; i++) {
-      requestParameters[`details[${i}].targetAsset`] = details[i].targetAsset;
-      requestParameters[`details[${i}].percentage`] = details[i].percentage;
-    }
-
-    return this.postPrivate(
-      'sapi/v1/lending/auto-invest/plan/edit',
-      requestParameters,
-    );
-  }
-
-  submitAutoInvestRedemption(
-    params: SubmitIndexLinkedPlanRedemptionParams,
-  ): Promise<{
-    redemptionId: number;
-  }> {
-    return this.postPrivate('sapi/v1/lending/auto-invest/redeem', params);
-  }
-
-  getAutoInvestSubscriptionTransactions(
-    params: GetSubscriptionTransactionHistoryParams,
-  ): Promise<any> {
-    return this.getPrivate('sapi/v1/lending/auto-invest/history/list', params);
-  }
-
-  getOneTimeTransactionStatus(
-    params: GetOneTimeTransactionStatusParams,
-  ): Promise<GetOneTimeTransactionStatusResponse> {
-    return this.getPrivate(
-      'sapi/v1/lending/auto-invest/one-off/status',
-      params,
-    );
-  }
-
-  /**
-   * @deprecated , use submitAutoInvestmentPlan instead
-   *
-   **/
-  submitAutoInvestmentPlanOld(
-    params: CreateInvestmentPlanParams,
-  ): Promise<CreateInvestmentPlanResponse> {
-    return this.postPrivate('sapi/v1/lending/auto-invest/plan/add', params);
-  }
-
-  submitAutoInvestmentPlan(
-    params: CreateInvestmentPlanParams,
-  ): Promise<CreateInvestmentPlanResponse> {
-    const { details, ...allParams } = params;
-    const requestParameters = { ...allParams };
-    for (let i = 0; i < details.length; i++) {
-      requestParameters[`details[${i}].targetAsset`] = details[i].targetAsset;
-      requestParameters[`details[${i}].percentage`] = details[i].percentage;
-    }
-    return this.postPrivate(
-      'sapi/v1/lending/auto-invest/plan/add',
-      requestParameters,
-    );
-  }
-
-  getAutoInvestRedemptionHistory(
-    params: GetIndexLinkedPlanRedemptionHistoryParams,
-  ): Promise<IndexLinkedPlanRedemptionRecord[]> {
-    return this.getPrivate(
-      'sapi/v1/lending/auto-invest/redeem/history',
-      params,
-    );
-  }
-
-  getAutoInvestPlan(params: GetPlanDetailsParams): Promise<any> {
-    return this.getPrivate('sapi/v1/lending/auto-invest/plan/id', params);
-  }
-
-  getAutoInvestUserIndex(params: {
-    indexId: number;
-  }): Promise<GetIndexLinkedPlanPositionDetailsResponse> {
-    return this.getPrivate(
-      'sapi/v1/lending/auto-invest/index/user-summary',
-      params,
-    );
-  }
-
-  getAutoInvestRebalanceHistory(
-    params: GetIndexLinkedPlanRebalanceHistoryParams,
-  ): Promise<GetIndexLinkedPlanRebalanceHistoryParams[]> {
-    return this.getPrivate(
-      'sapi/v1/lending/auto-invest/rebalance/history',
-      params,
-    );
-  }
-  /**
-   *
    * SUB ACCOUNT Endpoints - Account management
    *
    **/
@@ -1873,6 +1678,202 @@ export class MainClient extends BaseRestClient {
   }): Promise<ManagedSubAccountFuturesAssetsResponse> {
     return this.getPrivate(
       'sapi/v1/managed-subaccount/fetch-future-asset',
+      params,
+    );
+  }
+
+  /**
+   *
+   * AUTO INVEST Endpoints - Market data
+   *
+   **/
+
+  getAutoInvestAssets(): Promise<{
+    targetAssets: string[];
+    sourceAssets: string[];
+  }> {
+    return this.getPrivate('sapi/v1/lending/auto-invest/all/asset');
+  }
+
+  getAutoInvestSourceAssets(
+    params: GetSourceAssetListParams,
+  ): Promise<GetSourceAssetListResponse> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/source-asset/list',
+      params,
+    );
+  }
+
+  getAutoInvestTargetAssets(
+    params: GetTargetAssetListParams,
+  ): Promise<GetTargetAssetListResponse> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/target-asset/list',
+      params,
+    );
+  }
+
+  getAutoInvestTargetAssetsROI(
+    params: GetTargetAssetROIParams,
+  ): Promise<TargetAssetROI[]> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/target-asset/roi/list',
+      params,
+    );
+  }
+
+  getAutoInvestIndex(params: {
+    indexId: number;
+  }): Promise<GetIndexDetailsResponse> {
+    return this.getPrivate('sapi/v1/lending/auto-invest/index/info', params);
+  }
+
+  getAutoInvestPlans(params: {
+    planType: 'SINGLE' | 'PORTFOLIO' | 'INDEX';
+  }): Promise<any> {
+    return this.getPrivate('sapi/v1/lending/auto-invest/plan/list', params);
+  }
+
+  /**
+   *
+   * AUTO INVEST Endpoints - Trade
+   *
+   **/
+
+  /**
+   * https://developers.binance.com/docs/auto_invest/trade/One-Time-Transaction
+   *
+   * @param params
+   * @returns
+   */
+  submitAutoInvestOneTimeTransaction(
+    params: SubmitOneTimeTransactionParams,
+  ): Promise<SubmitOneTimeTransactionResponse> {
+    const { details, ...allParams } = params;
+    const requestParameters = { ...allParams };
+    for (let i = 0; i < details.length; i++) {
+      requestParameters[`details[${i}].targetAsset`] = details[i].targetAsset;
+      requestParameters[`details[${i}].percentage`] = details[i].percentage;
+    }
+
+    return this.postPrivate(
+      'sapi/v1/lending/auto-invest/one-off',
+      requestParameters,
+    );
+  }
+
+  updateAutoInvestPlanStatus(
+    params: ChangePlanStatusParams,
+  ): Promise<ChangePlanStatusResponse> {
+    return this.postPrivate(
+      'sapi/v1/lending/auto-invest/plan/edit-status',
+      params,
+    );
+  }
+
+  /**
+   *
+   * @deprecated , use updateAutoInvestmentPlan instead
+   *
+   **/
+  updateAutoInvestmentPlanOld(
+    params: EditInvestmentPlanParams,
+  ): Promise<EditInvestmentPlanResponse> {
+    return this.postPrivate('sapi/v1/lending/auto-invest/plan/edit', params);
+  }
+
+  updateAutoInvestmentPlan(
+    params: EditInvestmentPlanParams,
+  ): Promise<EditInvestmentPlanResponse> {
+    const { details, ...allParams } = params;
+
+    const requestParameters = { ...allParams };
+    for (let i = 0; i < details.length; i++) {
+      requestParameters[`details[${i}].targetAsset`] = details[i].targetAsset;
+      requestParameters[`details[${i}].percentage`] = details[i].percentage;
+    }
+
+    return this.postPrivate(
+      'sapi/v1/lending/auto-invest/plan/edit',
+      requestParameters,
+    );
+  }
+
+  submitAutoInvestRedemption(
+    params: SubmitIndexLinkedPlanRedemptionParams,
+  ): Promise<{
+    redemptionId: number;
+  }> {
+    return this.postPrivate('sapi/v1/lending/auto-invest/redeem', params);
+  }
+
+  getAutoInvestSubscriptionTransactions(
+    params: GetSubscriptionTransactionHistoryParams,
+  ): Promise<any> {
+    return this.getPrivate('sapi/v1/lending/auto-invest/history/list', params);
+  }
+
+  getOneTimeTransactionStatus(
+    params: GetOneTimeTransactionStatusParams,
+  ): Promise<GetOneTimeTransactionStatusResponse> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/one-off/status',
+      params,
+    );
+  }
+
+  /**
+   * @deprecated , use submitAutoInvestmentPlan instead
+   *
+   **/
+  submitAutoInvestmentPlanOld(
+    params: CreateInvestmentPlanParams,
+  ): Promise<CreateInvestmentPlanResponse> {
+    return this.postPrivate('sapi/v1/lending/auto-invest/plan/add', params);
+  }
+
+  submitAutoInvestmentPlan(
+    params: CreateInvestmentPlanParams,
+  ): Promise<CreateInvestmentPlanResponse> {
+    const { details, ...allParams } = params;
+    const requestParameters = { ...allParams };
+    for (let i = 0; i < details.length; i++) {
+      requestParameters[`details[${i}].targetAsset`] = details[i].targetAsset;
+      requestParameters[`details[${i}].percentage`] = details[i].percentage;
+    }
+    return this.postPrivate(
+      'sapi/v1/lending/auto-invest/plan/add',
+      requestParameters,
+    );
+  }
+
+  getAutoInvestRedemptionHistory(
+    params: GetIndexLinkedPlanRedemptionHistoryParams,
+  ): Promise<IndexLinkedPlanRedemptionRecord[]> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/redeem/history',
+      params,
+    );
+  }
+
+  getAutoInvestPlan(params: GetPlanDetailsParams): Promise<any> {
+    return this.getPrivate('sapi/v1/lending/auto-invest/plan/id', params);
+  }
+
+  getAutoInvestUserIndex(params: {
+    indexId: number;
+  }): Promise<GetIndexLinkedPlanPositionDetailsResponse> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/index/user-summary',
+      params,
+    );
+  }
+
+  getAutoInvestRebalanceHistory(
+    params: GetIndexLinkedPlanRebalanceHistoryParams,
+  ): Promise<GetIndexLinkedPlanRebalanceHistoryParams[]> {
+    return this.getPrivate(
+      'sapi/v1/lending/auto-invest/rebalance/history',
       params,
     );
   }
