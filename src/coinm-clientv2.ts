@@ -459,6 +459,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   // TO ADD: dapi/v1/leverageBracket
+  // can use dapi/v2/leverageBracket
 
   getCurrentPositionMode(): Promise<PositionModeResponse> {
     return this.getPrivate('dapi/v1/positionSide/dual');
