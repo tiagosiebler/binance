@@ -304,6 +304,164 @@ export class USDMClient extends BaseRestClient {
    *
    **/
 
+  submitNewOrder(params: NewFuturesOrderParams): Promise<NewOrderResult> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.postPrivate('fapi/v1/order', params);
+  }
+
+  /**
+   * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
+   *
+   * Known issue: `quantity` and `price` should be sent as strings
+   */
+  submitMultipleOrders(
+    orders: NewFuturesOrderParams<string>[],
+  ): Promise<(NewOrderResult | NewOrderError)[]> {
+    const stringOrders = orders.map((order) => {
+      const orderToStringify = { ...order };
+      this.validateOrderId(orderToStringify, 'newClientOrderId');
+      return JSON.stringify(orderToStringify);
+    });
+    const requestBody = {
+      batchOrders: `[${stringOrders.join(',')}]`,
+    };
+    return this.postPrivate('fapi/v1/batchOrders', requestBody);
+  }
+
+  /**
+   * Order modify function, currently only LIMIT order modification is supported, modified orders will be reordered in the match queue
+   */
+  modifyOrder(
+    params: ModifyFuturesOrderParams,
+  ): Promise<ModifyFuturesOrderResult> {
+    return this.putPrivate('fapi/v1/order', params);
+  }
+
+  modifyMultipleOrders(orders: ModifyOrderParams[]): Promise<any> {
+    const stringOrders = orders.map((order) => JSON.stringify(order));
+    const requestBody = {
+      batchOrders: `[${stringOrders.join(',')}]`,
+    };
+    return this.putPrivate('fapi/v1/batchOrders', requestBody);
+  }
+
+  getOrderModifyHistory(
+    params: GetFuturesOrderModifyHistoryParams,
+  ): Promise<any> {
+    return this.getPrivate('fapi/v1/orderAmendment', params);
+  }
+
+  cancelOrder(params: CancelOrderParams): Promise<CancelFuturesOrderResult> {
+    return this.deletePrivate('fapi/v1/order', params);
+  }
+
+  cancelMultipleOrders(
+    params: CancelMultipleOrdersParams,
+  ): Promise<(CancelFuturesOrderResult | GenericCodeMsgError)[]> {
+    const requestParams: object = {
+      ...params,
+    };
+
+    if (params.orderIdList) {
+      requestParams['orderIdList'] = JSON.stringify(params.orderIdList);
+    }
+
+    if (params.origClientOrderIdList) {
+      requestParams['origClientOrderIdList'] = JSON.stringify(
+        params.origClientOrderIdList,
+      );
+    }
+
+    return this.deletePrivate('fapi/v1/batchOrders', requestParams);
+  }
+
+  cancelAllOpenOrders(
+    params: BasicSymbolParam,
+  ): Promise<CancelAllOpenOrdersResult> {
+    return this.deletePrivate('fapi/v1/allOpenOrders', params);
+  }
+
+  // Auto-cancel all open orders
+  setCancelOrdersOnTimeout(
+    params: CancelOrdersTimeoutParams,
+  ): Promise<SetCancelTimeoutResult> {
+    return this.postPrivate('fapi/v1/countdownCancelAll', params);
+  }
+
+  getOrder(params: GetOrderParams): Promise<OrderResult> {
+    return this.getPrivate('fapi/v1/order', params);
+  }
+
+  getAllOrders(params: GetAllOrdersParams): Promise<OrderResult[]> {
+    return this.getPrivate('fapi/v1/allOrders', params);
+  }
+
+  getAllOpenOrders(params?: Partial<BasicSymbolParam>): Promise<OrderResult[]> {
+    return this.getPrivate('fapi/v1/openOrders', params);
+  }
+
+  getCurrentOpenOrder(params: GetOrderParams): Promise<OrderResult> {
+    return this.getPrivate('fapi/v1/openOrder', params);
+  }
+
+  getForceOrders(params?: GetForceOrdersParams): Promise<ForceOrderResult[]> {
+    return this.getPrivate('fapi/v1/forceOrders', params);
+  }
+
+  getAccountTrades(
+    params: SymbolFromPaginatedRequestFromId & { orderId?: number },
+  ): Promise<FuturesPositionTrade[]> {
+    return this.getPrivate('fapi/v1/userTrades', params);
+  }
+
+  setMarginType(params: SetMarginTypeParams): Promise<ModeChangeResult> {
+    return this.postPrivate('fapi/v1/marginType', params);
+  }
+
+  setPositionMode(params: PositionModeParams): Promise<ModeChangeResult> {
+    return this.postPrivate('fapi/v1/positionSide/dual', params);
+  }
+
+  setLeverage(params: SetLeverageParams): Promise<SetLeverageResult> {
+    return this.postPrivate('fapi/v1/leverage', params);
+  }
+
+  setMultiAssetsMode(params: {
+    multiAssetsMargin: MultiAssetsMode;
+  }): Promise<ModeChangeResult> {
+    return this.postPrivate('fapi/v1/multiAssetsMargin', params);
+  }
+
+  setIsolatedPositionMargin(
+    params: SetIsolatedMarginParams,
+  ): Promise<SetIsolatedMarginResult> {
+    return this.postPrivate('fapi/v1/positionMargin', params);
+  }
+
+  getPositions(params?: Partial<BasicSymbolParam>): Promise<FuturesPosition[]> {
+    return this.getPrivate('fapi/v2/positionRisk', params);
+  }
+
+  getPositionsV3(params?: { symbol?: string }): Promise<FuturesPosition[]> {
+    return this.getPrivate('fapi/v3/positionRisk', params);
+  }
+
+  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
+    return this.getPrivate('fapi/v1/adlQuantile', params);
+  }
+
+  getPositionMarginChangeHistory(
+    params: GetPositionMarginChangeHistoryParams,
+  ): Promise<any> {
+    return this.getPrivate('fapi/v1/positionMargin/history', params);
+  }
+
+  /**
+   *
+   * ACCOUNT endpoints - Rest API
+   *
+   **/
+
   /**
    * Validate syntax meets requirements set by binance. Log warning if not.
    */
