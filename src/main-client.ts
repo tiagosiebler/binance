@@ -571,7 +571,7 @@ export class MainClient extends BaseRestClient {
   getBrokerSubAccountDepositHistory(
     params?: GetBrokerSubAccountDepositHistoryParams,
   ): Promise<SubAccountDepositHistoryList[]> {
-    return this.getPrivate('sapi/v1/broker/subAccount/depositHist', params);
+    return this.getPrivate('sapi/v1/bv1/apiReferral/ifNewUser', params);
   }
 
   getBrokerUserCustomisedId(market: 'spot' | 'futures') {
@@ -1056,45 +1056,12 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
-   * C2C Endpoints
-   *
-   **/
-
-  getC2CTradeHistory(
-    params: GetC2CTradeHistoryParams,
-  ): Promise<GetC2CTradeHistoryResponse> {
-    return this.getPrivate(
-      'sapi/v1/c2c/orderMatch/listUserOrderHistory',
-      params,
-    );
-  }
-
-  /**
-   *
    * Pay endpoints
    *
    **/
 
   getPayTransactions(params: GetPayTradeHistoryParams): Promise<any> {
     return this.getPrivate('sapi/v1/pay/transactions', params);
-  }
-
-  /**
-   *
-   * Convert endpoints
-   *
-   **/
-
-  /**
-   *
-   * Rebate Endpoints
-   *
-   **/
-
-  getSpotRebateHistoryRecords(
-    params: GetSpotRebateHistoryRecordsParams,
-  ): Promise<GetSpotRebateHistoryRecordsResponse> {
-    return this.getPrivate('sapi/v1/rebate/taxQuery', params);
   }
 
   /**
