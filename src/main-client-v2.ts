@@ -1930,6 +1930,171 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
+   * STAKING Endpoints - Account
+   *
+   **/
+
+  /**
+   * @deprecated use getEthStakingAccountV2 instead
+   **/
+  getEthStakingAccount(): Promise<GetEthStakingAccountResponse> {
+    return this.getPrivate('sapi/v1/eth-staking/account');
+  }
+
+  getEthStakingAccountV2(): Promise<GetEthStakingAccountV2Response> {
+    return this.getPrivate('sapi/v2/eth-staking/account');
+  }
+
+  getEthStakingQuota(): Promise<GetEthStakingQuotaResponse> {
+    return this.getPrivate('sapi/v1/eth-staking/eth/quota');
+  }
+
+  /**
+   *
+   * STAKING Endpoints - Staking
+   *
+   **/
+
+  /**
+   * @deprecated use subscribeEthStakingV2 instead
+   **/
+  subscribeEthStakingV1(params: { amount: number }): Promise<{
+    success: boolean;
+  }> {
+    return this.postPrivate('sapi/v1/eth-staking/eth/stake', params);
+  }
+
+  subscribeEthStakingV2(params: {
+    amount: number;
+  }): Promise<SubscribeEthStakingV2Response> {
+    return this.postPrivate('sapi/v2/eth-staking/eth/stake', params);
+  }
+
+  redeemEth(params: RedeemEthParams): Promise<RedeemEthResponse> {
+    return this.postPrivate('sapi/v1/eth-staking/eth/redeem', params);
+  }
+
+  wrapBeth(params: { amount: number }): Promise<WrapBethResponse> {
+    return this.postPrivate('sapi/v1/eth-staking/wbeth/wrap', params);
+  }
+
+  /**
+   *
+   * STAKING Endpoints - History
+   *
+   **/
+
+  getEthStakingHistory(params: GetEthStakingHistoryParams): Promise<{
+    rows: EthStakingHistory[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/eth/history/stakingHistory',
+      params,
+    );
+  }
+
+  getEthRedemptionHistory(params: GetEthRedemptionHistoryParams): Promise<{
+    rows: EthRedemptionHistory[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/eth/history/redemptionHistory',
+      params,
+    );
+  }
+
+  getBethRewardsHistory(params: GetBethRewardsHistoryParams): Promise<{
+    rows: BethRewardsHistory[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/eth/history/rewardsHistory',
+      params,
+    );
+  }
+
+  getWbethRewardsHistory(
+    params: GetWrapHistoryParams,
+  ): Promise<GetWbethRewardsHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/eth/history/wbethRewardsHistory',
+      params,
+    );
+  }
+
+  getEthRateHistory(params: GetETHRateHistoryParams): Promise<{
+    rows: ETHRateHistory[];
+    total: string;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/eth/history/rateHistory',
+      params,
+    );
+  }
+
+  getBethWrapHistory(params: GetWrapHistoryParams): Promise<{
+    rows: WrapHistory[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/wbeth/history/wrapHistory',
+      params,
+    );
+  }
+
+  getBethUnwrapHistory(params: GetWrapHistoryParams): Promise<{
+    rows: WrapHistory[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/eth-staking/wbeth/history/unwrapHistory',
+      params,
+    );
+  }
+
+  /**
+   * @deprecated as of 2024-01-19
+   */
+  getStakingProducts(
+    params: StakingBasicParams & {
+      asset?: string;
+    },
+  ): Promise<StakingProduct[]> {
+    return this.getPrivate(`sapi/v1/staking/productList`, params);
+  }
+
+  /**
+   * @deprecated as of 2024-01-19
+   */
+  getStakingProductPosition(
+    params: StakingBasicParams & {
+      productId?: string;
+      asset?: string;
+    },
+  ): Promise<StakingProductPosition[]> {
+    return this.getPrivate('sapi/v1/staking/position', params);
+  }
+
+  /**
+   * @deprecated as of 2024-01-19
+   */
+  getStakingHistory(params: StakingHistoryParams): Promise<StakingHistory[]> {
+    return this.getPrivate('sapi/v1/staking/stakingRecord', params);
+  }
+
+  /**
+   * @deprecated as of 2024-01-19
+   */
+  getPersonalLeftQuotaOfStakingProduct(params: {
+    product: StakingProductType;
+    productId: string;
+  }): Promise<StakingPersonalLeftQuota> {
+    return this.getPrivate('sapi/v1/staking/personalLeftQuota', params);
+  }
+
+  /**
+   *
    * COPY TRADING Endpoints - Future copy trading
    *
    **/
@@ -1943,6 +2108,12 @@ export class MainClient extends BaseRestClient {
   > {
     return this.getPrivate('sapi/v1/copyTrading/futures/leadSymbol');
   }
+
+  /**
+   *
+   * MINING Endpoints - rest api
+   *
+   **/
 
   /**
    *
