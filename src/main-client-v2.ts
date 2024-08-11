@@ -2283,6 +2283,197 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
+   * CRYPTO LOAN Endpoints - Flexible rate - Market data
+   *
+   **/
+
+  getCryptoLoanFlexibleCollateralAssets(params: {
+    collateralCoin?: string;
+  }): Promise<{
+    rows: FlexibleLoanCollateralAssetData[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v2/loan/flexible/collateral/data', params);
+  }
+
+  getCryptoLoanFlexibleAssets(params: { loanCoin?: string }): Promise<{
+    rows: FlexibleLoanAssetData[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v2/loan/flexible/loanable/data', params);
+  }
+
+  /**
+   *
+   * CRYPTO LOAN Endpoints - Flexible rate - Trade
+   *
+   **/
+
+  borrowCryptoLoanFlexible(
+    params: BorrowFlexibleLoanParams,
+  ): Promise<BorrowFlexibleLoanResponse> {
+    return this.postPrivate('sapi/v2/loan/flexible/borrow', params);
+  }
+
+  repayCryptoLoanFlexible(
+    params: RepayCryptoFlexibleLoanParams,
+  ): Promise<RepayCryptoFlexibleLoanResponse> {
+    return this.postPrivate('sapi/v2/loan/flexible/repay', params);
+  }
+
+  adjustCryptoLoanFlexibleLTV(
+    params: AdjustFlexibleCryptoLoanLTVParams,
+  ): Promise<AdjustFlexibleCryptoLoanLTVResponse> {
+    return this.postPrivate('sapi/v2/loan/flexible/adjust/ltv', params);
+  }
+
+  /**
+   *
+   * CRYPTO LOAN Endpoints - Flexible rate - User info
+   *
+   **/
+
+  getCryptoLoanFlexibleLTVAdjustmentHistory(
+    params: GetFlexibleLoanLTVAdjustmentHistoryParams,
+  ): Promise<{
+    rows: FlexibleLoanLTVAdjustmentHistory[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v2/loan/flexible/ltv/adjustment/history',
+      params,
+    );
+  }
+
+  getLoanFlexibleBorrowHistory(
+    params: GetFlexibleCryptoLoanBorrowHistoryParams,
+  ): Promise<{
+    rows: FlexibleCryptoLoanBorrowHistory[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v2/loan/flexible/borrow/history', params);
+  }
+
+  getCryptoLoanFlexibleOngoingOrders(
+    params: GetFlexibleLoanOngoingOrdersParams,
+  ): Promise<{
+    rows: FlexibleLoanOngoingOrder[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v2/loan/flexible/ongoing/orders', params);
+  }
+
+  getLoanFlexibleRepaymentHistory(
+    params: GetLoanRepaymentHistoryParams,
+  ): Promise<{
+    rows: LoanRepaymentHistory[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v2/loan/flexible/repay/history', params);
+  }
+
+  /**
+   *
+   * CRYPTO LOAN Endpoints - Stable rate - Market data
+   *
+   **/
+
+  getCryptoLoanLoanableAssets(params: GetLoanableAssetsDataParams): Promise<{
+    rows: LoanableAssetData[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/loanable/data', params);
+  }
+
+  getCryptoLoanCollateralRepayRate(
+    params: CheckCollateralRepayRateParams,
+  ): Promise<CheckCollateralRepayRateResponse> {
+    return this.getPrivate('sapi/v1/loan/repay/collateral/rate', params);
+  }
+
+  getCryptoLoanCollateralAssetsData(
+    params: GetCollateralAssetDataParams,
+  ): Promise<{
+    rows: CollateralAssetData[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/collateral/data', params);
+  }
+
+  getCryptoLoansIncomeHistory(
+    params: GetCryptoLoansIncomeHistoryParams,
+  ): Promise<GetCryptoLoansIncomeHistoryResponse[]> {
+    return this.getPrivate('sapi/v1/loan/income', params);
+  }
+
+  /**
+   *
+   * CRYPTO LOAN Endpoints - Stable rate - Trade
+   *
+   **/
+
+  borrowCryptoLoan(
+    params: BorrowCryptoLoanParams,
+  ): Promise<BorrowCryptoLoanResponse> {
+    return this.postPrivate('sapi/v1/loan/borrow', params);
+  }
+
+  repayCryptoLoan(
+    params: RepayCryptoLoanParams,
+  ): Promise<RepayCryptoLoanResponse> {
+    return this.postPrivate('sapi/v1/loan/repay', params);
+  }
+
+  adjustCryptoLoanLTV(
+    params: AdjustCryptoLoanLTVParams,
+  ): Promise<AdjustCryptoLoanLTVResponse> {
+    return this.postPrivate('sapi/v1/loan/adjust/ltv', params);
+  }
+
+  customizeCryptoLoanMarginCall(params: CustomizeMarginCallParams): Promise<{
+    rows: CustomizeMarginCall[];
+    total: number;
+  }> {
+    return this.postPrivate('sapi/v1/loan/customize/margin_call', params);
+  }
+
+  /**
+   *
+   * CRYPTO LOAN Endpoints - Stable rate - User info
+   *
+   **/
+
+  getCryptoLoanOngoingOrders(params: GetLoanOngoingOrdersParams): Promise<{
+    rows: LoanOngoingOrder[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/ongoing/orders', params);
+  }
+
+  getCryptoLoanBorrowHistory(params: GetLoanBorrowHistoryParams): Promise<{
+    rows: LoanBorrowHistory[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/borrow/history', params);
+  }
+
+  getCryptoLoanLTVAdjustmentHistory(
+    params: GetLoanLTVAdjustmentHistoryParams,
+  ): Promise<{
+    rows: LoanLTVAdjustmentHistory[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/ltv/adjustment/history', params);
+  }
+
+  getCryptoLoanRepaymentHistory(
+    params: GetLoanRepaymentHistoryParams,
+  ): Promise<any> {
+    return this.getPrivate('sapi/v1/loan/repay/history', params);
+  }
+
+  /**
+   *
    * SIMPLE EARN Endpoints - Account
    *
    **/
