@@ -1271,6 +1271,104 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
+   * Futures Management Endpoints:
+   * https://binance-docs.github.io/apidocs/spot/en/#futures
+   *
+   * Note: to trade futures use the usdm-client or coinm-client.
+   * MainClient only has the futures endpoints listed in the "spot" docs category, primarily used for transfers.
+   *
+   **/
+
+  /**
+   * Execute transfer between spot account and futures account.
+   *
+   * Type:
+   * - 1: transfer from spot account to USDT-Ⓜ futures account.
+   * - 2: transfer from USDT-Ⓜ futures account to spot account.
+   * - 3: transfer from spot account to COIN-Ⓜ futures account.
+   * - 4: transfer from COIN-Ⓜ futures account to spot account.
+   */
+
+  /**
+   * Old docs only
+   * Use sapi/v1/asset/transfer instead
+   */
+  submitNewFutureAccountTransfer(
+    params: NewFutureAccountTransferParams,
+  ): Promise<{ tranId: number }> {
+    return this.postPrivate(`sapi/v1/futures/transfer`, params);
+  }
+
+  /**
+   * Old docs only
+   * Use sapi/v1/asset/transfer instead
+   */
+  getFutureAccountTransferHistory(
+    params: GetFutureAccountTransferHistoryParams,
+  ): Promise<RowsWithTotal<FutureAccountTransfer>> {
+    return this.getPrivate(`sapi/v1/futures/transfer`, params);
+  }
+
+  /**
+   * Old docs only
+   * Use sapi/v1/asset/transfer instead
+   */
+  getFuturesTickLevelOrderbookDataLink(
+    params: GetFutureTickLevelOrderbookDataLinkParams,
+  ): Promise<{
+    data: HistoricalDataLink[];
+  }> {
+    return this.getPrivate('sapi/v1/futures/histDataLink', params);
+  }
+
+  /**
+   * @deprecated as of 2023-09-25
+   */
+  getCrossCollateralBorrowHistory(params?: CoinStartEndLimit): Promise<any> {
+    return this.getPrivate(`sapi/v1/futures/loan/borrow/history`, params);
+  }
+  /**
+   * @deprecated as of 2023-09-25
+   */
+  getCrossCollateralRepaymentHistory(params?: CoinStartEndLimit): Promise<any> {
+    return this.getPrivate(`sapi/v1/futures/loan/repay/history`, params);
+  }
+  /**
+   * @deprecated as of 2023-09-25
+   */
+  getCrossCollateralWalletV2(): Promise<any> {
+    return this.getPrivate(`sapi/v2/futures/loan/wallet`);
+  }
+  /**
+   * @deprecated as of 2023-09-25
+   */
+  getAdjustCrossCollateralLTVHistory(
+    params?: GetLoanCoinPaginatedHistoryParams,
+  ): Promise<any> {
+    return this.getPrivate(
+      `sapi/v1/futures/loan/adjustCollateral/history`,
+      params,
+    );
+  }
+  /**
+   * @deprecated as of 2023-09-25
+   */
+  getCrossCollateralLiquidationHistory(
+    params?: GetLoanCoinPaginatedHistoryParams,
+  ): Promise<any> {
+    return this.getPrivate(`sapi/v1/futures/loan/liquidationHistory`, params);
+  }
+  /**
+   * @deprecated as of 2023-09-25
+   */
+  getCrossCollateralInterestHistory(
+    params?: GetLoanCoinPaginatedHistoryParams,
+  ): Promise<any> {
+    return this.getPrivate(`sapi/v1/futures/loan/interestHistory`, params);
+  }
+
+  /**
+   *
    * WALLET Endpoints - Account endpoints
    *
    **/
