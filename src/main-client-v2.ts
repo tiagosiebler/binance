@@ -1508,6 +1508,159 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
+   *
+   * CONVERT Endpoints - Market Data
+   *
+   **/
+
+  getConvertPairs(params: GetAllConvertPairsParams): Promise<any> {
+    return this.getPrivate('sapi/v1/convert/exchangeInfo', params);
+  }
+
+  getConvertAssetInfo(): Promise<any> {
+    return this.getPrivate('sapi/v1/convert/assetInfo');
+  }
+
+  /**
+   *
+   * CONVERT Endpoints - Trade
+   *
+   **/
+
+  convertQuoteRequest(params: ConvertQuoteRequestParams): Promise<any> {
+    return this.postPrivate('sapi/v1/convert/getQuote', params);
+  }
+
+  acceptQuoteRequest(params: AcceptQuoteRequestParams): Promise<any> {
+    return this.postPrivate('sapi/v1/convert/acceptQuote', params);
+  }
+
+  getConvertTradeHistory(params: GetConvertTradeHistoryParams): Promise<any> {
+    return this.getPrivate('sapi/v1/convert/tradeFlow', params);
+  }
+
+  getOrderStatus(params: GetOrderStatusParams): Promise<any> {
+    return this.getPrivate('sapi/v1/convert/orderStatus', params);
+  }
+
+  submitConvertLimitOrder(params: SubmitConvertLimitOrderParams): Promise<any> {
+    return this.postPrivate('sapi/v1/convert/limit/placeOrder', params);
+  }
+
+  cancelConvertLimitOrder(params: { orderId: number }): Promise<any> {
+    return this.postPrivate('sapi/v1/convert/limit/cancelOrder', params);
+  }
+
+  getConvertLimitOpenOrders(): Promise<{
+    list: ConvertLimitOpenOrder[];
+  }> {
+    return this.getPrivate('sapi/v1/convert/limit/queryOpenOrders');
+  }
+
+  /**
+   *
+   * COPY TRADING Endpoints - Future copy trading
+   *
+   **/
+
+  getFuturesLeadTraderStatus(): Promise<GetFuturesLeadTraderStatusResponse> {
+    return this.getPrivate('sapi/v1/copyTrading/futures/userStatus');
+  }
+
+  getFuturesLeadTradingSymbolWhitelist(): Promise<
+    GetFuturesLeadTradingSymbolWhitelistResponse[]
+  > {
+    return this.getPrivate('sapi/v1/copyTrading/futures/leadSymbol');
+  }
+
+  /**
+   *
+   * ALGO TRADING Endpoints - Future algo
+   *
+   **/
+
+  submitVpNewOrder(
+    params: SubmitVpNewOrderParams,
+  ): Promise<SubmitVpNewOrderResponse> {
+    this.validateOrderId(params, 'clientAlgoId');
+    return this.postPrivate('sapi/v1/algo/futures/newOrderVp', params);
+  }
+
+  submitTwapNewOrder(
+    params: SubmitTwapNewOrderParams,
+  ): Promise<SubmitTwapNewOrderResponse> {
+    this.validateOrderId(params, 'clientAlgoId');
+    return this.postPrivate('sapi/v1/algo/futures/newOrderTwap', params);
+  }
+
+  cancelAlgoOrder(params: {
+    algoId: number;
+  }): Promise<CancelAlgoOrderResponse> {
+    return this.deletePrivate('sapi/v1/algo/futures/order', params);
+  }
+
+  getAlgoSubOrders(
+    params: GetAlgoSubOrdersParams,
+  ): Promise<GetAlgoSubOrdersResponse> {
+    return this.getPrivate('sapi/v1/algo/futures/subOrders', params);
+  }
+
+  getAlgoOpenOrders(): Promise<{
+    total: number;
+    orders: AlgoOrder[];
+  }> {
+    return this.getPrivate('sapi/v1/algo/futures/openOrders');
+  }
+
+  getAlgoHistoricalOrders(params: GetAlgoHistoricalOrdersParams): Promise<{
+    total: number;
+    orders: HistoricalAlgoOrder[];
+  }> {
+    return this.getPrivate('sapi/v1/algo/futures/historicalOrders', params);
+  }
+
+  /**
+   *
+   * ALGO TRADING Endpoints - Spot algo
+   *
+   **/
+
+  submitSpotAlgoTwapOrder(
+    params: SubmitSpotTwapNewOrderParams,
+  ): Promise<SubmitSpotTwapNewOrderResponse> {
+    this.validateOrderId(params, 'clientAlgoId');
+    return this.postPrivate('sapi/v1/algo/spot/newOrderTwap', params);
+  }
+
+  cancelSpotAlgoOrder(params: {
+    algoId: number;
+  }): Promise<CancelSpotAlgoOrderResponse> {
+    return this.deletePrivate('sapi/v1/algo/spot/order', params);
+  }
+
+  getSpotAlgoSubOrders(
+    params: GetSpotAlgoSubOrdersParams,
+  ): Promise<GetSpotAlgoSubOrdersResponse> {
+    return this.getPrivate('sapi/v1/algo/spot/subOrders', params);
+  }
+
+  getSpotAlgoOpenOrders(): Promise<{
+    total: number;
+    orders: SpotAlgoOrder[];
+  }> {
+    return this.getPrivate('sapi/v1/algo/spot/openOrders');
+  }
+
+  getSpotAlgoHistoricalOrders(
+    params: GetSpotAlgoHistoricalOrdersParams,
+  ): Promise<{
+    total: number;
+    orders: HistoricalSpotAlgoOrder[];
+  }> {
+    return this.getPrivate('sapi/v1/algo/spot/historicalOrders', params);
+  }
+
+  /**
    * Validate syntax meets requirements set by binance. Log warning if not.
    */
   private validateOrderId(
