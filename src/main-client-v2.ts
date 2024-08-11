@@ -808,11 +808,97 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
+  getCrossMarginCollateralRatio(): Promise<
+    {
+      collaterals: Collateral[];
+      assetNames: string[];
+    }[]
+  > {
+    return this.getPrivate('sapi/v1/margin/crossMarginCollateralRatio');
+  }
+
+  getAllCrossMarginPairs(): Promise<QueryCrossMarginPairResponse[]> {
+    return this.get('sapi/v1/margin/allPairs');
+  }
+
+  getIsolatedMarginAllSymbols(params?: {
+    symbol?: string;
+  }): Promise<IsolatedMarginSymbol[]> {
+    return this.getPrivate('sapi/v1/margin/isolated/allPairs', params);
+  }
+
+  getAllMarginAssets(): Promise<QueryMarginAssetResponse[]> {
+    return this.get('sapi/v1/margin/allAssets');
+  }
+
+  getMarginDelistSchedule(): Promise<MarginDelistSchedule[]> {
+    return this.getPrivate('sapi/v1/margin/delist-schedule');
+  }
+
+  getIsolatedMarginTierData(
+    params: QueryIsolatedMarginTierDataParams,
+  ): Promise<IsolatedMarginTierData[]> {
+    return this.getPrivate('sapi/v1/margin/isolatedMarginTier', params);
+  }
+
+  queryMarginPriceIndex(
+    params: BasicSymbolParam,
+  ): Promise<QueryMarginPriceIndexResponse> {
+    return this.get('sapi/v1/margin/priceIndex', params);
+  }
+
+  getMarginAvailableInventory(params: {
+    type: string;
+  }): Promise<MarginAvailableInventoryResponse> {
+    return this.getPrivate('sapi/v1/margin/available-inventory', params);
+  }
+
+  getLeverageBracket(): Promise<LiabilityCoinLeverageBracket[]> {
+    return this.getPrivate('sapi/v1/margin/leverageBracket');
+  }
+
   /**
    *
    * MARGIN TRADING Endpoints - Borrow and Repay endpoints
    *
    **/
+
+  getNextHourlyInterestRate(
+    params: GetNextHourlyInterestRateParams,
+  ): Promise<NextHourlyInterestRate[]> {
+    return this.getPrivate('sapi/v1/margin/next-hourly-interest-rate', params);
+  }
+
+  getMarginInterestHistory(params: GetMarginInterestHistoryParams): Promise<{
+    rows: MarginInterestHistory[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/margin/interestHistory', params);
+  }
+
+  submitMarginAccountBorrowRepay(
+    params: MarginAccountLoanParams,
+  ): Promise<MarginTransactionResponse> {
+    return this.postPrivate('sapi/v1/margin/borrow-repay', params);
+  }
+
+  getMarginAccountBorrowRepayRecords(
+    params: GetMarginAccountBorrowRepayRecordsParams,
+  ): Promise<{ rows: MarginAccountRecord[]; total: number }> {
+    return this.getPrivate('sapi/v1/margin/borrow-repay', params);
+  }
+
+  getMarginInterestRateHistory(
+    params: QueryMarginInterestRateHistoryParams,
+  ): Promise<MarginInterestRateHistory[]> {
+    return this.getPrivate('sapi/v1/margin/interestRateHistory', params);
+  }
+
+  queryMaxBorrow(
+    params: BasicMarginAssetParams,
+  ): Promise<QueryMaxBorrowResponse> {
+    return this.getPrivate('sapi/v1/margin/maxBorrowable', params);
+  }
 
   /**
    *
@@ -820,17 +906,273 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
+  getMarginForceLiquidationRecord(
+    params: GetForceLiquidationRecordParams,
+  ): Promise<{
+    rows: ForceLiquidationRecord[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/margin/forceLiquidationRec', params);
+  }
+
+  getSmallLiabilityExchangeCoins(): Promise<SmallLiabilityExchangeCoin[]> {
+    return this.getPrivate('sapi/v1/margin/exchange-small-liability');
+  }
+
+  getSmallLiabilityExchangeHistory(
+    params: GetSmallLiabilityExchangeHistoryParams,
+  ): Promise<{
+    total: number;
+    rows: SmallLiabilityExchangeHistory[];
+  }> {
+    return this.getPrivate(
+      'sapi/v1/margin/exchange-small-liability-history',
+      params,
+    );
+  }
+
+  marginAccountCancelOpenOrders(
+    params: BasicSymbolParam,
+  ): Promise<CancelSpotOrderResult[]> {
+    return this.deletePrivate('sapi/v1/margin/openOrders', params);
+  }
+
+  marginAccountCancelOCO(params: CancelOCOParams): Promise<any> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.deletePrivate('sapi/v1/margin/orderList', params);
+  }
+
+  marginAccountCancelOrder(
+    params: CancelOrderParams,
+  ): Promise<CancelSpotOrderResult> {
+    return this.deletePrivate('sapi/v1/margin/order', params);
+  }
+
+  marginAccountNewOCO(params: NewOCOParams): Promise<any> {
+    this.validateOrderId(params, 'listClientOrderId');
+    this.validateOrderId(params, 'limitClientOrderId');
+    this.validateOrderId(params, 'stopClientOrderId');
+    return this.postPrivate('sapi/v1/margin/order/oco', params);
+  }
+
+  marginAccountNewOrder<
+    T extends OrderType,
+    RT extends OrderResponseType | undefined = undefined,
+  >(params: NewSpotOrderParams<T, RT>): Promise<OrderResponseTypeFor<RT, T>> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.postPrivate('sapi/v1/margin/order', params);
+  }
+
+  getMarginOrderCountUsage(
+    params: GetMarginOrderCountUsageParams,
+  ): Promise<MarginOrderCountUsageResponse[]> {
+    return this.getPrivate('sapi/v1/margin/rateLimit/order', params);
+  }
+
+  queryMarginAccountAllOCO(
+    params: QueryMarginAccountAllOCOParams,
+  ): Promise<any> {
+    return this.getPrivate('sapi/v1/margin/allOrderList', params);
+  }
+
+  queryMarginAccountAllOrders(
+    params: GetAllOrdersParams,
+  ): Promise<SpotOrder[]> {
+    return this.getPrivate('sapi/v1/margin/allOrders', params);
+  }
+
+  queryMarginAccountOCO(params: GetOCOParams): Promise<any> {
+    return this.getPrivate('sapi/v1/margin/orderList', params);
+  }
+
+  queryMarginAccountOpenOCO(params: {
+    isIsolated?: 'TRUE' | 'FALSE';
+    symbol?: string;
+  }): Promise<any> {
+    return this.getPrivate('sapi/v1/margin/openOrderList', params);
+  }
+
+  queryMarginAccountOpenOrders(params: BasicSymbolParam): Promise<SpotOrder[]> {
+    return this.getPrivate('sapi/v1/margin/openOrders', params);
+  }
+
+  queryMarginAccountOrder(params: GetOrderParams): Promise<SpotOrder> {
+    return this.getPrivate('sapi/v1/margin/order', params);
+  }
+
+  queryMarginAccountTradeList(
+    params: QueryMarginAccountTradeListParams,
+  ): Promise<any> {
+    return this.getPrivate('sapi/v1/margin/myTrades', params);
+  }
+
+  submitSmallLiabilityExchange(params: { assetNames: string[] }): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    return this.postPrivate('sapi/v1/margin/exchange-small-liability', params);
+  }
+
+  submitManualLiquidation(
+    params: ManualLiquidationParams,
+  ): Promise<ManualLiquidationResponse[]> {
+    return this.postPrivate('sapi/v1/margin/manual-liquidation', params);
+  }
+
   /**
    *
    * MARGIN TRADING Endpoints - Transfer endpoints
    *
    **/
 
+  getCrossMarginTransferHistory(
+    params: GetCrossMarginTransferHistoryParams,
+  ): Promise<RowsWithTotal<CrossMarginTransferHistory>> {
+    return this.getPrivate('sapi/v1/margin/transfer', params);
+  }
+
+  queryMaxTransferOutAmount(
+    params: BasicMarginAssetParams,
+  ): Promise<QueryMaxTransferOutAmountResponse> {
+    return this.getPrivate('sapi/v1/margin/maxTransferable', params);
+  }
+
   /**
    *
    * MARGIN TRADING Endpoints - Account endpoints
    *
    **/
+
+  updateCrossMarginMaxLeverage(params: { maxLeverage: number }): Promise<{
+    success: boolean;
+  }> {
+    return this.postPrivate('sapi/v1/margin/max-leverage', params);
+  }
+
+  disableIsolatedMarginAccount(params: { symbol: string }): Promise<{
+    success: boolean;
+    symbol: string;
+  }> {
+    return this.deletePrivate('sapi/v1/margin/isolated/account', params);
+  }
+
+  enableIsolatedMarginAccount(params: { symbols: string }): Promise<{
+    success: boolean;
+    symbol: string;
+  }> {
+    return this.postPrivate('sapi/v1/margin/isolated/account', params);
+  }
+
+  getBNBBurn(): Promise<BNBBurnResponse> {
+    return this.getPrivate('sapi/v1/bnbBurn');
+  }
+
+  getMarginSummary(): Promise<any> {
+    return this.getPrivate('sapi/v1/margin/tradeCoeff');
+  }
+
+  queryCrossMarginAccountDetails(): Promise<QueryCrossMarginAccountDetailsParams> {
+    return this.getPrivate('sapi/v1/margin/account');
+  }
+
+  getCrossMarginFeeData(
+    params: QueryCrossMarginFeeDataParams,
+  ): Promise<CrossMarginFeeData[]> {
+    return this.getPrivate('sapi/v1/margin/crossMarginData', params);
+  }
+
+  getIsolatedMarginAccountLimit(): Promise<{
+    enabledAccount: number;
+    maxAccount: number;
+  }> {
+    return this.getPrivate('sapi/v1/margin/isolated/accountLimit');
+  }
+
+  getIsolatedMarginAccountInfo(params?: {
+    symbols?: string;
+  }): Promise<IsolatedMarginAccountInfo> {
+    return this.getPrivate('sapi/v1/margin/isolated/account', { params });
+  }
+
+  getIsolatedMarginFeeData(
+    params: QueryCrossMarginFeeDataParams,
+  ): Promise<IsolatedMarginFeeData[]> {
+    return this.getPrivate('sapi/v1/margin/isolatedMarginData', params);
+  }
+
+  toggleBNBBurn(params: ToggleBNBBurnParams): Promise<BNBBurnResponse> {
+    return this.postPrivate('sapi/v1/bnbBurn', params);
+  }
+
+  /**
+   * Only existing in old documentation, not in new documentation
+   * Endpoint works, but I didnt find any information about it in new docs
+   */
+  getMarginCapitalFlow(
+    params: GetMarginCapitalFlowParams,
+  ): Promise<MarginCapitalFlow[]> {
+    return this.getPrivate('sapi/v1/margin/capital-flow', params);
+  }
+
+  /**
+   * @deprecated on 2024-01-09, use getMarginAccountBorrowRepayRecords() instead
+   */
+  queryLoanRecord(
+    params: QueryMarginRecordParams,
+  ): Promise<{ rows: MarginAccountRecord[]; total: number }> {
+    return this.getPrivate('sapi/v1/margin/loan', params);
+  }
+
+  /**
+   * @deprecated on 2024-01-09, use getMarginAccountBorrowRepayRecords() instead
+   */
+  queryRepayRecord(
+    params: QueryMarginRecordParams,
+  ): Promise<{ rows: MarginAccountRecord[]; total: number }> {
+    return this.getPrivate('sapi/v1/margin/repay', params);
+  }
+
+  /**
+   * @deprecated on 2024-01-09, use submitUniversalTransfer() instead
+   */
+  isolatedMarginAccountTransfer(
+    params: IsolatedMarginAccountTransferParams,
+  ): Promise<MarginTransactionResponse> {
+    return this.postPrivate('sapi/v1/margin/isolated/transfer', params);
+  }
+
+
+  /**
+   *
+   * SUB ACCOUNT Endpoints - Account management
+   *
+   **/
+
+  
+  /**
+   *
+   * SUB ACCOUNT Endpoints - API management
+   *
+   **/
+
+  
+  /**
+   *
+   * SUB ACCOUNT Endpoints - Asset management
+   *
+   **/
+
+  
+  /**
+   *
+   * SUB ACCOUNT Endpoints - Managed Sub Account 
+   *
+   **/
+
+  
+
+
+
 
   /**
    * Validate syntax meets requirements set by binance. Log warning if not.
