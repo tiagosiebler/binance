@@ -122,121 +122,32 @@ export class CoinMClient extends BaseRestClient {
    *
    **/
 
-  setPositionMode(params: PositionModeParams): Promise<ModeChangeResult> {
-    return this.postPrivate('dapi/v1/positionSide/dual', params);
-  }
+  
 
   getCurrentPositionMode(): Promise<PositionModeResponse> {
     return this.getPrivate('dapi/v1/positionSide/dual');
   }
 
-  submitNewOrder(params: NewFuturesOrderParams): Promise<NewOrderResult> {
-    this.validateOrderId(params, 'newClientOrderId');
-    return this.postPrivate('dapi/v1/order', params);
-  }
+  
+  
 
-  /**
-   * Order modify function, currently only LIMIT order modification is supported, modified orders will be reordered in the match queue
-   */
-  modifyOrder(
-    params: ModifyFuturesOrderParams,
-  ): Promise<ModifyFuturesOrderResult> {
-    return this.putPrivate('dapi/v1/order', params);
-  }
+ 
+ 
 
-  /**
-   * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
-   *
-   * Known issue: `quantity` and `price` should be sent as strings
-   */
-  submitMultipleOrders(
-    orders: NewFuturesOrderParams<string>[],
-  ): Promise<(NewOrderResult | NewOrderError)[]> {
-    const stringOrders = orders.map((order) => {
-      const orderToStringify = { ...order };
-      this.validateOrderId(orderToStringify, 'newClientOrderId');
-      return JSON.stringify(orderToStringify);
-    });
-    const requestBody = {
-      batchOrders: `[${stringOrders.join(',')}]`,
-    };
-    return this.postPrivate('dapi/v1/batchOrders', requestBody);
-  }
+  
 
-  /**
-   * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
-   */
-  modifyMultipleOrders(
-    orders: ModifyFuturesOrderParams[],
-  ): Promise<(ModifyFuturesOrderResult | NewOrderError)[]> {
-    const stringOrders = orders.map((order) => {
-      const orderToStringify = { ...order };
-      return JSON.stringify(orderToStringify);
-    });
-    const requestBody = {
-      batchOrders: `[${stringOrders.join(',')}]`,
-    };
-    return this.putPrivate('dapi/v1/batchOrders', requestBody);
-  }
+  
 
-  getOrderModifyHistory(
-    params: GetOrderModifyHistoryParams,
-  ): Promise<OrderAmendment[]> {
-    return this.getPrivate('dapi/v1/orderAmendment', params);
-  }
+  
 
-  getOrder(params: GetOrderParams): Promise<OrderResult> {
-    return this.getPrivate('dapi/v1/order', params);
-  }
+  
 
-  cancelOrder(params: CancelOrderParams): Promise<CancelFuturesOrderResult> {
-    return this.deletePrivate('dapi/v1/order', params);
-  }
+ 
 
-  cancelAllOpenOrders(
-    params: BasicSymbolParam,
-  ): Promise<CancelAllOpenOrdersResult> {
-    return this.deletePrivate('dapi/v1/allOpenOrders', params);
-  }
+ 
+ 
 
-  cancelMultipleOrders(
-    params: CancelMultipleOrdersParams,
-  ): Promise<(CancelFuturesOrderResult | GenericCodeMsgError)[]> {
-    const requestParams: object = {
-      ...params,
-    };
-
-    if (params.orderIdList) {
-      requestParams['orderIdList'] = JSON.stringify(params.orderIdList);
-    }
-
-    if (params.origClientOrderIdList) {
-      requestParams['origClientOrderIdList'] = JSON.stringify(
-        params.origClientOrderIdList,
-      );
-    }
-
-    return this.deletePrivate('dapi/v1/batchOrders', requestParams);
-  }
-
-  // Auto-cancel all open orders
-  setCancelOrdersOnTimeout(
-    params: CancelOrdersTimeoutParams,
-  ): Promise<SetCancelTimeoutResult> {
-    return this.postPrivate('dapi/v1/countdownCancelAll', params);
-  }
-
-  getCurrentOpenOrder(params: GetOrderParams): Promise<OrderResult> {
-    return this.getPrivate('dapi/v1/openOrder', params);
-  }
-
-  getAllOpenOrders(params?: Partial<BasicSymbolParam>): Promise<OrderResult[]> {
-    return this.getPrivate('dapi/v1/openOrders', params);
-  }
-
-  getAllOrders(params: GetAllOrdersParams): Promise<OrderResult[]> {
-    return this.getPrivate('dapi/v1/allOrders', params);
-  }
+  
 
   getBalance(): Promise<FuturesCoinMAccountBalance[]> {
     return this.getPrivate('dapi/v1/balance');
@@ -246,35 +157,16 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/account');
   }
 
-  setLeverage(params: SetLeverageParams): Promise<SetLeverageResult> {
-    return this.postPrivate('dapi/v1/leverage', params);
-  }
+ 
 
-  setMarginType(params: SetMarginTypeParams): Promise<ModeChangeResult> {
-    return this.postPrivate('dapi/v1/marginType', params);
-  }
+  
 
-  setIsolatedPositionMargin(
-    params: SetIsolatedMarginParams,
-  ): Promise<SetIsolatedMarginResult> {
-    return this.postPrivate('dapi/v1/positionMargin', params);
-  }
+ 
 
-  getPositionMarginChangeHistory(
-    params: GetPositionMarginChangeHistoryParams,
-  ): Promise<any> {
-    return this.getPrivate('dapi/v1/positionMargin/history', params);
-  }
+  
 
-  getPositions(): Promise<PositionRisk[]> {
-    return this.getPrivate('dapi/v1/positionRisk');
-  }
-
-  getAccountTrades(
-    params: CoinMAccountTradeParams & { orderId?: number },
-  ): Promise<CoinMPositionTrade[]> {
-    return this.getPrivate('dapi/v1/userTrades', params);
-  }
+  
+  
 
   getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
     return this.getPrivate('dapi/v1/income', params);
@@ -289,13 +181,9 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v2/leverageBracket', params);
   }
 
-  getForceOrders(params?: GetForceOrdersParams): Promise<ForceOrderResult[]> {
-    return this.getPrivate('dapi/v1/forceOrders', params);
-  }
+  
 
-  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
-    return this.getPrivate('dapi/v1/adlQuantile', params);
-  }
+  
 
   getAccountComissionRate(
     params: BasicSymbolParam,
