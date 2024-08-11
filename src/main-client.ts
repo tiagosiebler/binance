@@ -523,41 +523,6 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
-   *
-   * Wallet Endpoints
-   *
-   **/
-
-  enableConvertSubAccount(params: EnableConvertSubAccountParams): Promise<any> {
-    return this.postPrivate('sapi/v1/broker/subAccount/convert', params);
-  }
-
-  convertBUSD(params: ConvertTransfer): Promise<ConvertTransferResponse> {
-    return this.postPrivate('sapi/v1/asset/convert-transfer', params);
-  }
-
-  getConvertBUSDHistory(params: GetConvertBUSDHistoryParams): Promise<{
-    total: number;
-    rows: BUSDConversionRecord[];
-  }> {
-    return this.getPrivate(
-      'sapi/v1/asset/convert-transfer/queryByPage',
-      params,
-    );
-  }
-
-  getAutoConvertStablecoins(): Promise<ConvertibleCoinsResponse> {
-    return this.getPrivate('sapi/v1/capital/contract/convertible-coins');
-  }
-
-  setConvertibleCoins(params: ConvertibleCoinsParams): Promise<void> {
-    return this.postPrivate(
-      'sapi/v1/capital/contract/convertible-coins',
-      params,
-    );
-  }
-
-  /**
    * Broker Endpoints
    */
 
@@ -748,108 +713,6 @@ export class MainClient extends BaseRestClient {
       `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`,
     );
   }
-
-  /**
-   *
-   * Savings Endpoints
-   * @deprecated as of 2023-06-22, now Simple Earn
-   **/
-
-  /**
-   * @deprecated as of 2023-06-22, now Simple Earn
-   */
-  getLeftDailyPurchaseQuotaFlexibleProduct(params: {
-    productId: string;
-  }): Promise<LeftDailyPurchaseQuotaFlexibleProductResponse> {
-    return this.getPrivate(`sapi/v1/lending/daily/userLeftQuota`, params);
-  }
-
-  /**
-   * @deprecated as of 2023-06-22, now Simple Earn
-   */
-  getLeftDailyRedemptionQuotaFlexibleProduct(params: {
-    productId: string;
-  }): Promise<
-    LeftDailyPurchaseQuotaFlexibleProductResponse & {
-      dailyQuota: string;
-      minRedemptionAmount: string;
-    }
-  > {
-    return this.getPrivate(`sapi/v1/lending/daily/userRedemptionQuota`, params);
-  }
-
-  /**
-   * @deprecated as of 2023-06-22, now Simple Earn
-   */
-  purchaseFixedAndActivityProject(params: {
-    projectId: string;
-    lot: number;
-  }): Promise<PurchaseFlexibleProductResponse> {
-    return this.postPrivate(`sapi/v1/lending/customizedFixed/purchase`, params);
-  }
-
-  /**
-   * @deprecated as of 2023-06-22, now Simple Earn
-   */
-  getFixedAndActivityProjects(
-    params: FixedAndActivityProjectParams,
-  ): Promise<any[]> {
-    return this.getPrivate(`sapi/v1/lending/project/list`, params);
-  }
-
-  /**
-   * @deprecated as of 2023-06-22, now Simple Earn
-   */
-  getFixedAndActivityProductPosition(
-    params: FixedAndActivityProjectPositionParams,
-  ): Promise<any[]> {
-    return this.getPrivate(`sapi/v1/lending/project/position/list`, params);
-  }
-
-  /**
-   * @deprecated as of 2023-06-22, now Simple Earn
-   */
-  getLendingAccount(): Promise<StakingProduct[]> {
-    return this.getPrivate(`sapi/v1/lending/union/account`);
-  }
-
-  /**
-   * @deprecated as of 2023-06-22, now Simple Earn
-   */
-  getPurchaseRecord(params: PurchaseRecordParams): Promise<any[]> {
-    return this.getPrivate(`sapi/v1/lending/union/purchaseRecord`, params);
-  }
-
-  /**
-   * @deprecated as of 2023-06-22, now Simple Earn
-   */
-  getRedemptionRecord(params: PurchaseRecordParams): Promise<any[]> {
-    return this.getPrivate(`sapi/v1/lending/union/redemptionRecord`, params);
-  }
-
-  /**
-   * @deprecated as of 2023-06-22, now Simple Earn
-   */
-  getInterestHistory(params: PurchaseRecordParams): Promise<any[]> {
-    return this.getPrivate(`sapi/v1/lending/union/interestHistory`, params);
-  }
-
-  /**
-   * @deprecated as of 2023-06-22, now Simple Earn
-   */
-  changeFixedAndActivityPositionToDailyPosition(params: {
-    projectId: string;
-    lot: number;
-    positionId?: number;
-  }): Promise<PurchaseFlexibleProductResponse> {
-    return this.postPrivate(`sapi/v1/lending/positionChanged`, params);
-  }
-
-  /**
-   *
-   * Mining Endpoints
-   *
-   **/
 
   /**
    *
@@ -1062,45 +925,5 @@ export class MainClient extends BaseRestClient {
 
   getPayTransactions(params: GetPayTradeHistoryParams): Promise<any> {
     return this.getPrivate('sapi/v1/pay/transactions', params);
-  }
-
-  /**
-   *
-   * BSwap Endpoints
-   * @deprecated as of 2024-01-19
-   **/
-
-  /**
-   * @deprecated as of 2024-01-19
-   **/
-  getBSwapLiquidity(params?: { poolId: number }): Promise<BSwapLiquidity[]> {
-    return this.getPrivate('sapi/v1/bswap/liquidity', params);
-  }
-
-  /**
-   * @deprecated as of 2024-01-19
-   **/
-  addBSwapLiquidity(params: AddBSwapLiquidityParams): Promise<{
-    operationId: number;
-  }> {
-    return this.postPrivate('sapi/v1/bswap/liquidityAdd', params);
-  }
-
-  /**
-   * @deprecated as of 2024-01-19
-   **/
-  removeBSwapLiquidity(params: RemoveBSwapLiquidityParams): Promise<{
-    operationId: number;
-  }> {
-    return this.postPrivate('sapi/v1/bswap/liquidityRemove', params);
-  }
-
-  /**
-   * @deprecated as of 2024-01-19
-   **/
-  getBSwapOperations(
-    params?: BSwapOperationsParams,
-  ): Promise<BSwapOperations[]> {
-    return this.getPrivate('sapi/v1/bswap/liquidityOps', params);
   }
 }
