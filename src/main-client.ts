@@ -714,55 +714,6 @@ export class MainClient extends BaseRestClient {
     );
   }
 
-  /**
-   *
-   * Portfolio Margin Pro
-   *
-   **/
 
-  /**
-   *
-   * BLVT Endpoints
-   *
-   **/
-
-  getBlvtInfo(params?: { tokenName?: string }): Promise<any[]> {
-    return this.get('sapi/v1/blvt/tokenInfo', params);
-  }
-
-  subscribeBlvt(params: SubscribeBlvtParams): Promise<SubscribeBlvtResponse> {
-    return this.postPrivate('sapi/v1/blvt/subscribe', params);
-  }
-
-  getBlvtSubscriptionRecord(
-    params: GetBlvtSubscriptionRecordParams,
-  ): Promise<BlvtSubscriptionRecord[]> {
-    return this.getPrivate('sapi/v1/blvt/subscribe/record', params);
-  }
-
-  redeemBlvt(params: RedeemBlvtParams): Promise<RedeemBlvtResponse> {
-    return this.postPrivate('sapi/v1/blvt/redeem', params);
-  }
-
-  getBlvtRedemptionRecord(
-    params: GetBlvtRedemptionRecordParams,
-  ): Promise<BlvtRedemptionRecord[]> {
-    return this.getPrivate('sapi/v1/blvt/redeem/record', params);
-  }
-
-  getBlvtUserLimitInfo(params: {
-    tokenName?: string;
-  }): Promise<BlvtUserLimitInfo[]> {
-    return this.getPrivate('sapi/v1/blvt/userLimit', params);
-  }
-
-  /**
-   *
-   * Pay endpoints
-   *
-   **/
-
-  getPayTransactions(params: GetPayTradeHistoryParams): Promise<any> {
-    return this.getPrivate('sapi/v1/pay/transactions', params);
-  }
+  
 }
