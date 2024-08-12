@@ -1310,18 +1310,6 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
-   * Old docs only
-   * Use sapi/v1/asset/transfer instead
-   */
-  getFuturesTickLevelOrderbookDataLink(
-    params: GetFutureTickLevelOrderbookDataLinkParams,
-  ): Promise<{
-    data: HistoricalDataLink[];
-  }> {
-    return this.getPrivate('sapi/v1/futures/histDataLink', params);
-  }
-
-  /**
    * @deprecated as of 2023-09-25
    */
   getCrossCollateralBorrowHistory(params?: CoinStartEndLimit): Promise<any> {
@@ -3139,6 +3127,21 @@ export class MainClient extends BaseRestClient {
     params: GetPortfolioMarginProInterestHistoryParams,
   ): Promise<GetPortfolioMarginProInterestHistoryResponse[]> {
     return this.getPrivate('sapi/v1/portfolio/interest-history', params);
+  }
+
+  /**
+   *
+   * DERIVATIVES - Futures Data - Market
+   * This is in mainclient because it shares the same base url
+   *
+   **/
+
+  getFuturesTickLevelOrderbookDataLink(
+    params: GetFutureTickLevelOrderbookDataLinkParams,
+  ): Promise<{
+    data: HistoricalDataLink[];
+  }> {
+    return this.getPrivate('sapi/v1/futures/histDataLink', params);
   }
 
   /**
