@@ -714,88 +714,11 @@ export class MainClient extends BaseRestClient {
     );
   }
 
-  
   /**
    *
    * Portfolio Margin Pro
    *
    **/
-
-  getPortfolioMarginProAccountInfo(): Promise<GetPortfolioMarginProAccountInfoResponse> {
-    return this.getPrivate('sapi/v1/portfolio/account');
-  }
-
-  getPortfolioMarginProCollateralRate(): Promise<
-    GetPortfolioMarginProCollateralRateResponse[]
-  > {
-    return this.get('sapi/v1/portfolio/collateralRate');
-  }
-
-  getPortfolioMarginProBankruptcyLoanAmount(): Promise<GetPortfolioMarginProBankruptcyLoanAmountResponse> {
-    return this.getPrivate('sapi/v1/portfolio/pmLoan');
-  }
-
-  repayPortfolioMarginProBankruptcyLoan(params: {
-    from?: 'SPOT' | 'MARGIN';
-  }): Promise<{
-    tranId: number;
-  }> {
-    return this.postPrivate('sapi/v1/portfolio/repay', params);
-  }
-
-  getPortfolioMarginProInterestHistory(
-    params: GetPortfolioMarginProInterestHistoryParams,
-  ): Promise<GetPortfolioMarginProInterestHistoryResponse[]> {
-    return this.getPrivate('sapi/v1/portfolio/interest-history', params);
-  }
-
-  getPortfolioMarginIndexPrice(params?: {
-    asset?: string;
-  }): Promise<GetPortfolioMarginAssetIndexPriceResponse[]> {
-    return this.get('sapi/v1/portfolio/asset-index-price', params);
-  }
-
-  submitPortfolioMarginProFullTransfer(): Promise<{
-    msg: string;
-  }> {
-    return this.postPrivate('sapi/v1/portfolio/auto-collection');
-  }
-
-  submitPortfolioMarginProSpecificTransfer(params: { asset: string }): Promise<{
-    msg: string;
-  }> {
-    return this.postPrivate('sapi/v1/portfolio/asset-collection', params);
-  }
-
-  bnbTransfer(params: BnbTransferParams): Promise<{
-    tranId: number;
-  }> {
-    return this.postPrivate('sapi/v1/portfolio/bnb-transfer', params);
-  }
-
-  updateAutoRepayFuturesStatus(params: { autoRepay: string }): Promise<{
-    msg: string;
-  }> {
-    return this.postPrivate('sapi/v1/portfolio/repay-futures-switch', params);
-  }
-
-  getAutoRepayFuturesStatus(): Promise<{
-    autoRepay: boolean;
-  }> {
-    return this.getPrivate('sapi/v1/portfolio/repay-futures-switch');
-  }
-
-  repayFuturesNegativeBalance(): Promise<{
-    msg: string;
-  }> {
-    return this.postPrivate('sapi/v1/portfolio/repay-futures-negative-balance');
-  }
-
-  getPortfolioMarginAssetLeverage(): Promise<
-    GetPortfolioMarginAssetLeverageResponse[]
-  > {
-    return this.getPrivate('sapi/v1/portfolio/margin-asset-leverage');
-  }
 
   /**
    *

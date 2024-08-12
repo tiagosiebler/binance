@@ -3053,6 +3053,103 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
+   * DERIVATIVES - Portfolio Margin Pro - Market Data
+   * This is in mainclient because it shares the same base url
+   *
+   **/
+
+  getPortfolioMarginIndexPrice(params?: {
+    asset?: string;
+  }): Promise<GetPortfolioMarginAssetIndexPriceResponse[]> {
+    return this.get('sapi/v1/portfolio/asset-index-price', params);
+  }
+
+  getPortfolioMarginAssetLeverage(): Promise<
+    GetPortfolioMarginAssetLeverageResponse[]
+  > {
+    return this.getPrivate('sapi/v1/portfolio/margin-asset-leverage');
+  }
+
+  /**
+   *
+   * DERIVATIVES - Portfolio Margin Pro - Account
+   * This is in mainclient because it shares the same base url
+   *
+   **/
+
+  getPortfolioMarginProCollateralRate(): Promise<
+    GetPortfolioMarginProCollateralRateResponse[]
+  > {
+    return this.get('sapi/v1/portfolio/collateralRate');
+  }
+
+  getPortfolioMarginProAccountInfo(): Promise<GetPortfolioMarginProAccountInfoResponse> {
+    return this.getPrivate('sapi/v1/portfolio/account');
+  }
+
+  bnbTransfer(params: BnbTransferParams): Promise<{
+    tranId: number;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/bnb-transfer', params);
+  }
+
+  submitPortfolioMarginProFullTransfer(): Promise<{
+    msg: string;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/auto-collection');
+  }
+
+  submitPortfolioMarginProSpecificTransfer(params: { asset: string }): Promise<{
+    msg: string;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/asset-collection', params);
+  }
+
+  repayPortfolioMarginProBankruptcyLoan(params: {
+    from?: 'SPOT' | 'MARGIN';
+  }): Promise<{
+    tranId: number;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/repay', params);
+  }
+
+  getPortfolioMarginProBankruptcyLoanAmount(): Promise<GetPortfolioMarginProBankruptcyLoanAmountResponse> {
+    return this.getPrivate('sapi/v1/portfolio/pmLoan');
+  }
+
+  repayFuturesNegativeBalance(): Promise<{
+    msg: string;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/repay-futures-negative-balance');
+  }
+
+  updateAutoRepayFuturesStatus(params: { autoRepay: string }): Promise<{
+    msg: string;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/repay-futures-switch', params);
+  }
+
+  getAutoRepayFuturesStatus(): Promise<{
+    autoRepay: boolean;
+  }> {
+    return this.getPrivate('sapi/v1/portfolio/repay-futures-switch');
+  }
+
+  getPortfolioMarginProInterestHistory(
+    params: GetPortfolioMarginProInterestHistoryParams,
+  ): Promise<GetPortfolioMarginProInterestHistoryResponse[]> {
+    return this.getPrivate('sapi/v1/portfolio/interest-history', params);
+  }
+
+  /**
+   *
+   * DERIVATIVES - Portfolio Margin Pro - Market Data
+   * This is in mainclient because it shares the same base url
+   *
+   **/
+
+  /**
+   *
    * DEPRECATED ENDPOINTS
    *
    **/
