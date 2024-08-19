@@ -125,5 +125,6 @@ import {
   // wsClient.subscribeAggregateTrades(market, 'usdm');
   // wsClient.subscribeSpotPartialBookDepth('ETHBTC', 5, 1000);
 
-  wsClient.subscribeAllRollingWindowTickers('spot', '1d');
+  // wsClient.subscribeAllRollingWindowTickers('spot', '1d');
+  wsClient.subscribeContractInfoStream('usdm');
 })();
