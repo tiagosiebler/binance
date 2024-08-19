@@ -1496,7 +1496,7 @@ export class MainClient extends BaseRestClient {
   }
 
   subAccountDeleteIPList(
-    params: EnableOrDisableIPRestrictionForSubAccountParams,
+    params: SubAccountAddOrDeleteIPList,
   ): Promise<SubAccountEnableOrDisableIPRestriction> {
     return this.deletePrivate(
       'sapi/v1/sub-account/subAccountApi/ipRestriction/ipList',

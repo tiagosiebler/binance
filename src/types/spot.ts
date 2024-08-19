@@ -1176,7 +1176,6 @@ export interface CreateSubAccountParams {
 
 export interface EnableOrDisableIPRestrictionForSubAccountParams
   extends BasicSubAccount {
-  status: string;
   ipAddress?: string;
 }
 export interface GetBrokerSubAccountHistoryParams {
