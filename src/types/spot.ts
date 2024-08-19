@@ -1557,10 +1557,6 @@ export interface SubAccountEnableLeverageToken {
   enableBlvt: boolean;
 }
 
-export interface C extends BasicSubAccount {
-  ipRestrict: boolean;
-}
-
 export interface AddIpRestriction extends BasicSubAccount {
   status: string;
   ipAddress: string;
