@@ -1630,6 +1630,22 @@ export class WebsocketClient extends EventEmitter {
   }
 
   /**
+   * Subscribe to best bid/ask for all symbols in spot markets.
+   */
+  public subscribeContractInfoStream(
+    market: 'usdm' | 'coinm',
+    forceNewConnection?: boolean,
+  ): WebSocket {
+    const streamName = '!contractInfo';
+    const wsKey = getWsKeyWithContext(market, streamName);
+    return this.connectToWsUrl(
+      this.getWsBaseUrl(market, wsKey) + `/ws/${streamName}`,
+      wsKey,
+      forceNewConnection,
+    );
+  }
+
+  /**
    * --------------------------
    * SPOT market websocket streams
    * --------------------------
