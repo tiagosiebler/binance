@@ -1178,6 +1178,7 @@ export interface EnableOrDisableIPRestrictionForSubAccountParams
   extends BasicSubAccount {
   ipAddress?: string;
 }
+
 export interface GetBrokerSubAccountHistoryParams {
   fromId?: string;
   toId?: string;
@@ -1217,6 +1218,13 @@ export interface ApiKeyBrokerSubAccount {
   canTrade: boolean;
   marginTrade: boolean;
   futuresTrade: boolean;
+}
+
+export interface UpdateIpRestrictionForSubApiKey {
+  subAccountId: string;
+  ipAddress?: string;
+  subAccountApiKey: string;
+  status: string;
 }
 
 export interface EnableUniversalTransferApiKeyBrokerSubAccountParams {

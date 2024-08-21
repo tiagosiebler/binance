@@ -490,6 +490,7 @@ import {
   GetNftTransactionHistoryParams,
   CollateralRecord,
   DualInvestmentProduct,
+  UpdateIpRestrictionForSubApiKey,
 } from './types/spot';
 
 import {
@@ -3192,6 +3193,328 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
+   * EXCHANGE LINK - Account Endpoints
+   *
+   */
+
+  createBrokerSubAccount(
+    params: CreateBrokerSubAccountParams,
+  ): Promise<BrokerSubAccount> {
+    return this.postPrivate('sapi/v1/broker/subAccount', params);
+  }
+
+  getBrokerSubAccount(
+    params: GetBrokerSubAccountParams,
+  ): Promise<BrokerSubAccount[]> {
+    return this.getPrivate('sapi/v1/broker/subAccount', params);
+  }
+
+  enableMarginBrokerSubAccount(
+    params: EnableMarginBrokerSubAccountParams,
+  ): Promise<EnableMarginBrokerSubAccountResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccount/futures', params);
+  }
+
+  createApiKeyBrokerSubAccount(
+    params: CreateApiKeyBrokerSubAccountParams,
+  ): Promise<CreateApiKeyBrokerSubAccountResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccountApi', params);
+  }
+
+  changePermissionApiKeyBrokerSubAccount(
+    params: ChangePermissionApiKeyBrokerSubAccountParams,
+  ): Promise<ChangePermissionApiKeyBrokerSubAccountResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccountApi/permission', params);
+  }
+
+  changeComissionBrokerSubAccount(
+    params: ChangePermissionApiKeyBrokerSubAccountParams,
+  ): Promise<ChangePermissionApiKeyBrokerSubAccountResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccountApi/permission', params);
+  }
+
+  enableUniversalTransferApiKeyBrokerSubAccount(
+    params: EnableUniversalTransferApiKeyBrokerSubAccountParams,
+  ): Promise<EnableUniversalTransferApiKeyBrokerSubAccountResponse> {
+    return this.postPrivate(
+      'sapi/v1/broker/subAccountApi/permission/universalTransfer',
+      params,
+    );
+  }
+
+  updateIpRestrictionForSubAccountApiKey(
+    params: UpdateIpRestrictionForSubApiKey,
+  ): Promise<{
+    status: string;
+    ipList?: string[];
+    updateTime: number;
+    apiKey: string;
+  }> {
+    return this.postPrivate(
+      'sapi/v2/broker/subAccountApi/ipRestriction',
+      params,
+    );
+  }
+
+  deleteIPRestrictionForSubAccountApiKey(params: {
+    subAccountId: string;
+    subAccountApiKey: string;
+    ipAddress?: string;
+  }): Promise<{
+    subaccountId: string;
+    apikey: string;
+    ipList: string[];
+    updateTime: number;
+  }> {
+    return this.deletePrivate(
+      'sapi/v1/broker/subAccountApi/ipRestriction/ipList',
+      params,
+    );
+  }
+
+  deleteApiKeyBrokerSubAccount(
+    params: DeleteApiKeyBrokerSubAccountParams,
+  ): Promise<{}> {
+    return this.deletePrivate('sapi/v1/broker/subAccountApi', params);
+  }
+
+  getSubAccountBrokerIpRestriction(params: {
+    subAccountId: string;
+    subAccountApiKey: string;
+  }): Promise<{
+    subaccountId: string;
+    ipRestrict: boolean;
+    apikey: string;
+    ipList: string[];
+    updateTime: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/broker/subAccountApi/ipRestriction',
+      params,
+    );
+  }
+
+  getApiKeyBrokerSubAccount(
+    params: GetApiKeyBrokerSubAccountParams,
+  ): Promise<ApiKeyBrokerSubAccount[]> {
+    return this.getPrivate('sapi/v1/broker/subAccountApi', params);
+  }
+
+  getBrokerInfo(): Promise<GetBrokerInfoResponse> {
+    return this.getPrivate('sapi/v1/broker/info');
+  }
+
+  /**
+   *
+   * EXCHANGE LINK - Account Endpoints
+   *
+   */
+
+  transferBrokerSubAccount(
+    params: TransferBrokerSubAccountParams,
+  ): Promise<TransferBrokerSubAccount> {
+    return this.postPrivate('sapi/v1/broker/transfer', params);
+  }
+
+  getBrokerSubAccountHistory(
+    params: GetBrokerSubAccountHistoryParams,
+  ): Promise<BrokerSubAccountHistory[]> {
+    return this.getPrivate('sapi/v1/broker/transfer', params);
+  }
+
+  submitBrokerSubFuturesTransfer(params: {
+    fromId?: string;
+    toId?: string;
+    futuresType: number; // 1: USDT Futures, 2: COIN Futures
+    asset: string;
+    amount: number;
+    clientTranId?: string; // The max length is 32 characters
+  }): Promise<{
+    success: boolean;
+    txnId: string;
+    clientTranId?: string;
+  }> {
+    return this.postPrivate('sapi/v1/broker/transfer/futures', params);
+  }
+
+  getSubAccountFuturesTransferHistory(params: {
+    subAccountId: string;
+    futuresType: number; // 1: USDT Futures, 2: COIN Futures
+    clientTranId?: string;
+    startTime?: number;
+    endTime?: number;
+    page?: number;
+    limit?: number;
+  }): Promise<any> {
+    return this.getPrivate('sapi/v1/broker/transfer/futures', params);
+  }
+
+  universalTransferBroker(
+    params: UniversalTransferBrokerParams,
+  ): Promise<BrokerSubAccount> {
+    return this.postPrivate('sapi/v1/broker/universalTransfer', params);
+  }
+
+  getUniversalTransferBroker(
+    params: GetUniversalTransferBrokerParams,
+  ): Promise<BrokerSubAccount> {
+    return this.getPrivate('sapi/v1/broker/universalTransfer', params);
+  }
+
+  /**
+   *
+   * EXCHANGE LINK - Fee Endpoints
+   *
+   */
+
+  // USD & Coin-M can be found under API getIncome() (find "API rebate" in results)
+  getBrokerSpotRebateHistory(days: 7 | 30, customerId?: string) {
+    if (days === 7) {
+      return this.getPrivate('sapi/v1/apiReferral/rebate/recentRecord', {
+        customerId,
+      });
+    }
+    if (days === 30) {
+      return this.getPrivate('sapi/v1/apiReferral/rebate/historicalRecord', {
+        customerId,
+      });
+    }
+  }
+
+  /**
+   * Broker Endpoints - only on old docs
+   */
+
+  /**
+   * Only in old docs
+   **/
+  getBrokerIfNewSpotUser(): Promise<{
+    rebateWorking: boolean;
+    ifNewUser: boolean;
+  }> {
+    return this.getPrivate('sapi/v1/apiReferral/ifNewUser');
+  }
+
+  /**
+   * Only in old docs
+   **/
+  getBrokerSubAccountDepositHistory(
+    params?: GetBrokerSubAccountDepositHistoryParams,
+  ): Promise<SubAccountDepositHistoryList[]> {
+    return this.getPrivate('sapi/v1/bv1/apiReferral/ifNewUser', params);
+  }
+
+  /**
+   * Only in old docs
+   **/
+  getBrokerUserCustomisedId(market: 'spot' | 'futures') {
+    const prefix = market === 'spot' ? 'sapi' : 'fapi';
+    return this.getPrivate(prefix + '/v1/apiReferral/userCustomization');
+  }
+
+  /**
+   * Only in old docs
+   **/
+  enableFuturesBrokerSubAccount(
+    params: EnableFuturesBrokerSubAccountParams,
+  ): Promise<EnableFuturesBrokerSubAccountResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccount', params);
+  }
+
+  /**
+   * Only in old docs
+   **/
+  enableMarginApiKeyBrokerSubAccount(
+    params: EnableMarginApiKeyBrokerSubAccountParams,
+  ): Promise<BrokerSubAccount> {
+    return this.postPrivate('sapi/v1/broker/subAccount/margin', params);
+  }
+
+  /**
+   * Validate syntax meets requirements set by binance. Log warning if not.
+   */
+  private validateOrderId(
+    params:
+      | NewSpotOrderParams<any, any>
+      | CancelOrderParams
+      | NewOCOParams
+      | CancelOCOParams
+      | NewOrderListParams<any>,
+    orderIdProperty: OrderIdProperty,
+  ): void {
+    const apiCategory = 'spot';
+    if (!params[orderIdProperty]) {
+      params[orderIdProperty] = generateNewOrderId(apiCategory);
+      return;
+    }
+
+    const expectedOrderIdPrefix = `x-${getOrderIdPrefix(apiCategory)}`;
+    if (!params[orderIdProperty].startsWith(expectedOrderIdPrefix)) {
+      logInvalidOrderId(orderIdProperty, expectedOrderIdPrefix, params);
+    }
+  }
+
+  /**
+   *
+   * User Data Stream Endpoints
+   *
+   **/
+
+  // spot
+  getSpotUserDataListenKey(): Promise<{ listenKey: string }> {
+    return this.post('api/v3/userDataStream');
+  }
+
+  keepAliveSpotUserDataListenKey(listenKey: string): Promise<{}> {
+    return this.put(`api/v3/userDataStream?listenKey=${listenKey}`);
+  }
+
+  closeSpotUserDataListenKey(listenKey: string): Promise<{}> {
+    return this.delete(`api/v3/userDataStream?listenKey=${listenKey}`);
+  }
+
+  // margin
+  getMarginUserDataListenKey(): Promise<{ listenKey: string }> {
+    return this.post('sapi/v1/userDataStream');
+  }
+
+  keepAliveMarginUserDataListenKey(listenKey: string): Promise<{}> {
+    return this.put(`sapi/v1/userDataStream?listenKey=${listenKey}`);
+  }
+
+  closeMarginUserDataListenKey(listenKey: string): Promise<{}> {
+    return this.delete(`sapi/v1/userDataStream?listenKey=${listenKey}`);
+  }
+
+  // isolated margin
+  getIsolatedMarginUserDataListenKey(params: {
+    symbol: string;
+  }): Promise<{ listenKey: string }> {
+    return this.post(
+      `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`,
+    );
+  }
+
+  keepAliveIsolatedMarginUserDataListenKey(params: {
+    symbol: string;
+    listenKey: string;
+  }): Promise<{}> {
+    return this.put(
+      `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`,
+    );
+  }
+
+  closeIsolatedMarginUserDataListenKey(params: {
+    symbol: string;
+    listenKey: string;
+  }): Promise<{}> {
+    return this.delete(
+      `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`,
+    );
+  }
+
+  /**
+   *
    * DEPRECATED ENDPOINTS
    *
    **/
@@ -3361,30 +3684,6 @@ export class MainClient extends BaseRestClient {
       'sapi/v1/asset/convert-transfer/queryByPage',
       params,
     );
-  }
-
-  /**
-   * Validate syntax meets requirements set by binance. Log warning if not.
-   */
-  private validateOrderId(
-    params:
-      | NewSpotOrderParams<any, any>
-      | CancelOrderParams
-      | NewOCOParams
-      | CancelOCOParams
-      | NewOrderListParams<any>,
-    orderIdProperty: OrderIdProperty,
-  ): void {
-    const apiCategory = 'spot';
-    if (!params[orderIdProperty]) {
-      params[orderIdProperty] = generateNewOrderId(apiCategory);
-      return;
-    }
-
-    const expectedOrderIdPrefix = `x-${getOrderIdPrefix(apiCategory)}`;
-    if (!params[orderIdProperty].startsWith(expectedOrderIdPrefix)) {
-      logInvalidOrderId(orderIdProperty, expectedOrderIdPrefix, params);
-    }
   }
 }
 

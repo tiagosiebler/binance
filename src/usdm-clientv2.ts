@@ -583,6 +583,150 @@ export class USDMClient extends BaseRestClient {
   }
 
   /**
+   *
+   * Portfolio Margin Pro Endpoints
+   *
+   **/
+
+  getPortfolioMarginProAccountInfo(params: {
+    asset: string;
+  }): Promise<PortfolioMarginProAccountInfo> {
+    return this.getPrivate('fapi/v1/pmAccountInfo', params);
+  }
+
+  /**
+   *
+   * Broker Futures Endpoints
+   * ONLY IN OLD DOCS
+   * All broker endpoints start with /sapi/v1/broker or sapi/v2/broker
+   **/
+
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerIfNewFuturesUser(
+    brokerId: string,
+    type: 1 | 2 = 1,
+  ): Promise<{ brokerId: string; rebateWorking: boolean; ifNewUser: boolean }> {
+    return this.getPrivate('fapi/v1/apiReferral/ifNewUser', {
+      brokerId,
+      type,
+    });
+  }
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  setBrokerCustomIdForClient(
+    customerId: string,
+    email: string,
+  ): Promise<{ customerId: string; email: string }> {
+    return this.postPrivate('fapi/v1/apiReferral/customization', {
+      customerId,
+      email,
+    });
+  }
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerClientCustomIds(
+    customerId: string,
+    email: string,
+    page?: number,
+    limit?: number,
+  ): Promise<any> {
+    return this.getPrivate('fapi/v1/apiReferral/customization', {
+      customerId,
+      email,
+      page,
+      limit,
+    });
+  }
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerUserCustomId(brokerId: string): Promise<any> {
+    return this.getPrivate('fapi/v1/apiReferral/userCustomization', {
+      brokerId,
+    });
+  }
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerRebateDataOverview(type: 1 | 2 = 1): Promise<RebateDataOverview> {
+    return this.getPrivate('fapi/v1/apiReferral/overview', {
+      type,
+    });
+  }
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerUserTradeVolume(
+    type: 1 | 2 = 1,
+    startTime?: number,
+    endTime?: number,
+    limit?: number,
+  ): Promise<any> {
+    return this.getPrivate('fapi/v1/apiReferral/tradeVol', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerRebateVolume(
+    type: 1 | 2 = 1,
+    startTime?: number,
+    endTime?: number,
+    limit?: number,
+  ): Promise<any> {
+    return this.getPrivate('fapi/v1/apiReferral/rebateVol', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerTradeDetail(
+    type: 1 | 2 = 1,
+    startTime?: number,
+    endTime?: number,
+    limit?: number,
+  ): Promise<any> {
+    return this.getPrivate('fapi/v1/apiReferral/traderSummary', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+
+  /**
+   *
+   * User Data Stream Endpoints
+   *
+   **/
+
+  // USD-M Futures
+
+  getFuturesUserDataListenKey(): Promise<{ listenKey: string }> {
+    return this.post('fapi/v1/listenKey');
+  }
+
+  keepAliveFuturesUserDataListenKey(): Promise<{}> {
+    return this.put('fapi/v1/listenKey');
+  }
+
+  closeFuturesUserDataListenKey(): Promise<{}> {
+    return this.delete('fapi/v1/listenKey');
+  }
+
+  /**
    * Validate syntax meets requirements set by binance. Log warning if not.
    */
   private validateOrderId(

@@ -493,6 +493,143 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
+   * ONLY IN OLD DOCS
+   * Broker Futures Endpoints
+   *
+   **/
+
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  // 1 == USDT-Margined, 2 == Coin-margined
+  getBrokerIfNewFuturesUser(
+    brokerId: string,
+    type: 1 | 2 = 1,
+  ): Promise<{ brokerId: string; rebateWorking: boolean; ifNewUser: boolean }> {
+    return this.getPrivate('dapi/v1/apiReferral/ifNewUser', {
+      brokerId,
+      type,
+    });
+  }
+
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  setBrokerCustomIdForClient(
+    customerId: string,
+    email: string,
+  ): Promise<{ customerId: string; email: string }> {
+    return this.postPrivate('dapi/v1/apiReferral/customization', {
+      customerId,
+      email,
+    });
+  }
+
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerClientCustomIds(
+    customerId: string,
+    email: string,
+    page?: number,
+    limit?: number,
+  ): Promise<any> {
+    return this.getPrivate('dapi/v1/apiReferral/customization', {
+      customerId,
+      email,
+      page,
+      limit,
+    });
+  }
+
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerUserCustomId(brokerId: string): Promise<any> {
+    return this.getPrivate('dapi/v1/apiReferral/userCustomization', {
+      brokerId,
+    });
+  }
+
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerRebateDataOverview(type: 1 | 2 = 1): Promise<RebateDataOverview> {
+    return this.getPrivate('dapi/v1/apiReferral/overview', {
+      type,
+    });
+  }
+
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerUserTradeVolume(
+    type: 1 | 2 = 1,
+    startTime?: number,
+    endTime?: number,
+    limit?: number,
+  ): Promise<any> {
+    return this.getPrivate('dapi/v1/apiReferral/tradeVol', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerRebateVolume(
+    type: 1 | 2 = 1,
+    startTime?: number,
+    endTime?: number,
+    limit?: number,
+  ): Promise<any> {
+    return this.getPrivate('dapi/v1/apiReferral/rebateVol', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+
+  /**
+   * ONLY IN OLD DOCS
+   **/
+  getBrokerTradeDetail(
+    type: 1 | 2 = 1,
+    startTime?: number,
+    endTime?: number,
+    limit?: number,
+  ): Promise<any> {
+    return this.getPrivate('dapi/v1/apiReferral/traderSummary', {
+      type,
+      startTime,
+      endTime,
+      limit,
+    });
+  }
+
+  /**
+   *
+   * User Data Stream Endpoints
+   *
+   **/
+
+  getFuturesUserDataListenKey(): Promise<{ listenKey: string }> {
+    return this.post('dapi/v1/listenKey');
+  }
+
+  keepAliveFuturesUserDataListenKey(): Promise<{}> {
+    return this.put('dapi/v1/listenKey');
+  }
+
+  closeFuturesUserDataListenKey(): Promise<{}> {
+    return this.delete('dapi/v1/listenKey');
+  }
+
+  /**
    * Validate syntax meets requirements set by binance. Log warning if not.
    */
   private validateOrderId(
