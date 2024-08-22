@@ -1106,8 +1106,8 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
+   * Possibly @deprecated
    * Only existing in old documentation, not in new documentation
-   * Endpoint works, but I didnt find any information about it in new docs
    */
   getMarginCapitalFlow(
     params: GetMarginCapitalFlowParams,
@@ -1291,7 +1291,7 @@ export class MainClient extends BaseRestClient {
    */
 
   /**
-   * Old docs only
+   * Possibly @deprecated, found only in old docs only
    * Use sapi/v1/asset/transfer instead
    */
   submitNewFutureAccountTransfer(
@@ -1301,7 +1301,7 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
-   * Old docs only
+   * Possibly @deprecated, found only in old docs only
    * Use sapi/v1/asset/transfer instead
    */
   getFutureAccountTransferHistory(
@@ -1515,8 +1515,8 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
-   * Only in old documentation!!
-   * Use new endpoints instead!!
+   * @deprecated
+   * Use subAccountAddIPRestriction instead
    **/
   subAccountAddIPList(
     params: SubAccountEnableOrDisableIPRestriction,
@@ -1528,8 +1528,8 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
-   * Only in old documentation!!
-   * Use new endpoints instead!!
+   * @deprecated
+   * Use subAccountAddIPRestriction instead, or subAccountDeleteIPList
    **/
   subAccountEnableOrDisableIPRestriction(
     params: EnableOrDisableIPRestrictionForSubAccountParams,
@@ -3148,7 +3148,7 @@ export class MainClient extends BaseRestClient {
   /**
    *
    * BLVT Endpoints
-   * Only in old docs
+   * BLVT category is possibly @deprecated, found only in old docs
    **/
 
   getBlvtInfo(params?: { tokenName?: string }): Promise<any[]> {
@@ -3184,9 +3184,8 @@ export class MainClient extends BaseRestClient {
   /**
    *
    * Pay endpoints
-   * only in old docs
+   * Found only in old docs, possibly @deprecated
    **/
-
   getPayTransactions(params: GetPayTradeHistoryParams): Promise<any> {
     return this.getPrivate('sapi/v1/pay/transactions', params);
   }
@@ -3194,7 +3193,7 @@ export class MainClient extends BaseRestClient {
   /**
    *
    * EXCHANGE LINK - Account Endpoints
-   *
+   * https://developers.binance.com/docs/binance_link
    */
 
   createBrokerSubAccount(
@@ -3307,7 +3306,7 @@ export class MainClient extends BaseRestClient {
   /**
    *
    * EXCHANGE LINK - Account Endpoints
-   *
+   * https://developers.binance.com/docs/binance_link
    */
 
   transferBrokerSubAccount(
@@ -3364,9 +3363,13 @@ export class MainClient extends BaseRestClient {
   /**
    *
    * EXCHANGE LINK - Fee Endpoints
-   *
+   * https://developers.binance.com/docs/binance_link
    */
 
+  /**
+   *
+   * @deprecated
+   */
   // USD & Coin-M can be found under API getIncome() (find "API rebate" in results)
   getBrokerSpotRebateHistory(days: 7 | 30, customerId?: string) {
     if (days === 7) {
@@ -3383,10 +3386,13 @@ export class MainClient extends BaseRestClient {
 
   /**
    * Broker Endpoints - only on old docs
+   * @deprecated, found only in old docs
+   * Use EXCHANGE LINK endpoints instead - https://developers.binance.com/docs/binance_link
    */
 
   /**
-   * Only in old docs
+   * @deprecated, found only in old docs
+   * Use EXCHANGE LINK endpoints instead
    **/
   getBrokerIfNewSpotUser(): Promise<{
     rebateWorking: boolean;
@@ -3396,7 +3402,8 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
-   * Only in old docs
+   * @deprecated, found only in old docs
+   * Use EXCHANGE LINK endpoints instead
    **/
   getBrokerSubAccountDepositHistory(
     params?: GetBrokerSubAccountDepositHistoryParams,
@@ -3405,7 +3412,8 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
-   * Only in old docs
+   * @deprecated, found only in old docs
+   * Use EXCHANGE LINK endpoints instead
    **/
   getBrokerUserCustomisedId(market: 'spot' | 'futures') {
     const prefix = market === 'spot' ? 'sapi' : 'fapi';
@@ -3413,7 +3421,8 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
-   * Only in old docs
+   * @deprecated, found only in old docs
+   * Use EXCHANGE LINK endpoints instead
    **/
   enableFuturesBrokerSubAccount(
     params: EnableFuturesBrokerSubAccountParams,
@@ -3422,7 +3431,8 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
-   * Only in old docs
+   * @deprecated, found only in old docs
+   * Use EXCHANGE LINK endpoints instead
    **/
   enableMarginApiKeyBrokerSubAccount(
     params: EnableMarginApiKeyBrokerSubAccountParams,
@@ -3661,7 +3671,7 @@ export class MainClient extends BaseRestClient {
    **/
 
   /**
-   * @deprecated v1/broker doesnt exist anymore
+   * @deprecated
    */
   enableConvertSubAccount(params: EnableConvertSubAccountParams): Promise<any> {
     return this.postPrivate('sapi/v1/broker/subAccount/convert', params);

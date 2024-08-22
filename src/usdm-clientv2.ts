@@ -286,14 +286,14 @@ export class USDMClient extends BaseRestClient {
   }
 
   /**
-   * Only in old documentation, not in new
+   * Possibly @deprecated, found only in old docs
    **/
   getBasis(params: BasisParams): Promise<Basis[]> {
     return this.get('futures/data/basis', params);
   }
 
   /**
-   * Only in old documentation, not in new
+   * Possibly @deprecated, found only in old docs
    **/
   getIndexPriceConstituents(params: {
     symbol: string;
@@ -597,12 +597,13 @@ export class USDMClient extends BaseRestClient {
   /**
    *
    * Broker Futures Endpoints
-   * ONLY IN OLD DOCS
-   * All broker endpoints start with /sapi/v1/broker or sapi/v2/broker
+   * Possibly @deprecated, found only in old docs
+   * All broker endpoints start with /sapi/v1/broker or sapi/v2/broker or sapi/v3/broker
+   * 
    **/
 
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerIfNewFuturesUser(
     brokerId: string,
@@ -614,7 +615,7 @@ export class USDMClient extends BaseRestClient {
     });
   }
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   setBrokerCustomIdForClient(
     customerId: string,
@@ -626,7 +627,7 @@ export class USDMClient extends BaseRestClient {
     });
   }
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerClientCustomIds(
     customerId: string,
@@ -642,7 +643,7 @@ export class USDMClient extends BaseRestClient {
     });
   }
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerUserCustomId(brokerId: string): Promise<any> {
     return this.getPrivate('fapi/v1/apiReferral/userCustomization', {
@@ -650,7 +651,7 @@ export class USDMClient extends BaseRestClient {
     });
   }
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerRebateDataOverview(type: 1 | 2 = 1): Promise<RebateDataOverview> {
     return this.getPrivate('fapi/v1/apiReferral/overview', {
@@ -658,7 +659,7 @@ export class USDMClient extends BaseRestClient {
     });
   }
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerUserTradeVolume(
     type: 1 | 2 = 1,
@@ -674,7 +675,7 @@ export class USDMClient extends BaseRestClient {
     });
   }
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerRebateVolume(
     type: 1 | 2 = 1,
@@ -690,7 +691,7 @@ export class USDMClient extends BaseRestClient {
     });
   }
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerTradeDetail(
     type: 1 | 2 = 1,

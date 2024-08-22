@@ -257,6 +257,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
+   * possibly @deprecated
    * Only in old documentation, not in new one
    **/
   getIndexPriceConstituents(params: {
@@ -266,6 +267,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
+   * possibly @deprecated
    * Only in old documentation, not in new one
    **/
   getQuarterlyContractSettlementPrices(params: {
@@ -482,7 +484,8 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   *Only in old documentation, not in new one
+   * possibly @deprecated
+   * Only in old documentation, not in new one
    **/
   getClassicPortfolioMarginNotionalLimits(
     params?: GetClassicPortfolioMarginNotionalLimitParams,
@@ -493,15 +496,16 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   * ONLY IN OLD DOCS
+   *
    * Broker Futures Endpoints
+   * Possibly @deprecated, found only in old docs
+   * All broker endpoints start with /sapi/v1/broker or sapi/v2/broker or sapi/v3/broker
    *
    **/
 
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
-  // 1 == USDT-Margined, 2 == Coin-margined
   getBrokerIfNewFuturesUser(
     brokerId: string,
     type: 1 | 2 = 1,
@@ -513,7 +517,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   setBrokerCustomIdForClient(
     customerId: string,
@@ -526,7 +530,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerClientCustomIds(
     customerId: string,
@@ -543,7 +547,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerUserCustomId(brokerId: string): Promise<any> {
     return this.getPrivate('dapi/v1/apiReferral/userCustomization', {
@@ -552,7 +556,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerRebateDataOverview(type: 1 | 2 = 1): Promise<RebateDataOverview> {
     return this.getPrivate('dapi/v1/apiReferral/overview', {
@@ -561,7 +565,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerUserTradeVolume(
     type: 1 | 2 = 1,
@@ -578,7 +582,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerRebateVolume(
     type: 1 | 2 = 1,
@@ -595,7 +599,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   * ONLY IN OLD DOCS
+   * @deprecated
    **/
   getBrokerTradeDetail(
     type: 1 | 2 = 1,
