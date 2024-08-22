@@ -1174,6 +1174,11 @@ export interface CreateSubAccountParams {
   subAccountString: string;
 }
 
+export interface EnableOrDisableIPRestrictionForSubAccountParams
+  extends BasicSubAccount {
+  ipAddress?: string;
+}
+
 export interface GetBrokerSubAccountHistoryParams {
   fromId?: string;
   toId?: string;
@@ -1213,6 +1218,13 @@ export interface ApiKeyBrokerSubAccount {
   canTrade: boolean;
   marginTrade: boolean;
   futuresTrade: boolean;
+}
+
+export interface UpdateIpRestrictionForSubApiKey {
+  subAccountId: string;
+  ipAddress?: string;
+  subAccountApiKey: string;
+  status: string;
 }
 
 export interface EnableUniversalTransferApiKeyBrokerSubAccountParams {
@@ -1550,11 +1562,6 @@ export interface SubAccountUniversalTransferHistoryResponse {
 export interface SubAccountEnableLeverageToken {
   email: string;
   enableBlvt: boolean;
-}
-
-export interface EnableOrDisableIPRestrictionForSubAccountParams
-  extends BasicSubAccount {
-  ipRestrict: boolean;
 }
 
 export interface AddIpRestriction extends BasicSubAccount {

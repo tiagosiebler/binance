@@ -77,6 +77,9 @@ import {
   PortfolioMarginProAccountInfo,
   GetFuturesOrderModifyHistoryParams,
   FuturesTradeHistoryDownloadId,
+  FuturesAccountConfig,
+  SymbolConfig,
+  UserForceOrder,
 } from './types/futures';
 
 import {
@@ -116,7 +119,7 @@ export class USDMClient extends BaseRestClient {
 
   /**
    *
-   * Market Data Endpoints
+   * MARKET DATA endpoints - Rest API
    *
    **/
 
@@ -148,28 +151,6 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/aggTrades', params);
   }
 
-  getMarkPrice(params: BasicSymbolParam): Promise<MarkPrice>;
-  getMarkPrice(): Promise<MarkPrice[]>;
-
-  /**
-   * Index Price and Mark Price
-   */
-  getMarkPrice(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<MarkPrice | MarkPrice[]> {
-    return this.get('fapi/v1/premiumIndex', params);
-  }
-
-  getFundingRateHistory(
-    params?: Partial<BasicSymbolPaginatedParams>,
-  ): Promise<FundingRateHistory[]> {
-    return this.get('fapi/v1/fundingRate', params);
-  }
-
-  getFundingRates(): Promise<FundingRate[]> {
-    return this.get('fapi/v1/fundingInfo');
-  }
-
   getKlines(params: KlinesParams): Promise<Kline[]> {
     return this.get('fapi/v1/klines', params);
   }
@@ -190,6 +171,25 @@ export class USDMClient extends BaseRestClient {
 
   getPremiumIndexKlines(params: SymbolKlinePaginatedParams): Promise<Kline[]> {
     return this.get('fapi/v1/premiumIndexKlines', params);
+  }
+
+  getMarkPrice(params: BasicSymbolParam): Promise<MarkPrice>;
+  getMarkPrice(): Promise<MarkPrice[]>;
+
+  getMarkPrice(
+    params?: Partial<BasicSymbolParam>,
+  ): Promise<MarkPrice | MarkPrice[]> {
+    return this.get('fapi/v1/premiumIndex', params);
+  }
+
+  getFundingRateHistory(
+    params?: Partial<BasicSymbolPaginatedParams>,
+  ): Promise<FundingRateHistory[]> {
+    return this.get('fapi/v1/fundingRate', params);
+  }
+
+  getFundingRates(): Promise<FundingRate[]> {
+    return this.get('fapi/v1/fundingInfo');
   }
 
   /**
@@ -235,6 +235,12 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/ticker/bookTicker', params);
   }
 
+  getQuarterlyContractSettlementPrices(params: {
+    pair: string;
+  }): Promise<QuarterlyContractSettlementPrice[]> {
+    return this.get('futures/data/delivery-price', params);
+  }
+
   getOpenInterest(params: BasicSymbolParam): Promise<OpenInterest> {
     return this.get('fapi/v1/openInterest', params);
   }
@@ -245,16 +251,16 @@ export class USDMClient extends BaseRestClient {
     return this.get('futures/data/openInterestHist', params);
   }
 
-  getTopTradersLongShortAccountRatio(
-    params: FuturesDataPaginatedParams,
-  ): Promise<any> {
-    return this.get('futures/data/topLongShortAccountRatio', params);
-  }
-
   getTopTradersLongShortPositionRatio(
     params: FuturesDataPaginatedParams,
   ): Promise<any> {
     return this.get('futures/data/topLongShortPositionRatio', params);
+  }
+
+  getTopTradersLongShortAccountRatio(
+    params: FuturesDataPaginatedParams,
+  ): Promise<any> {
+    return this.get('futures/data/topLongShortAccountRatio', params);
   }
 
   getGlobalLongShortAccountRatio(
@@ -275,20 +281,20 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/indexInfo', params);
   }
 
-  getQuarterlyContractSettlementPrices(params: {
-    pair: string;
-  }): Promise<QuarterlyContractSettlementPrice[]> {
-    return this.get('futures/data/delivery-price', params);
-  }
-
-  getBasis(params: BasisParams): Promise<Basis[]> {
-    return this.get('futures/data/basis', params);
-  }
-
   getMultiAssetsModeAssetIndex(params?: { symbol?: string }): Promise<any> {
     return this.get('fapi/v1/assetIndex', params);
   }
 
+  /**
+   * Possibly @deprecated, found only in old docs
+   **/
+  getBasis(params: BasisParams): Promise<Basis[]> {
+    return this.get('futures/data/basis', params);
+  }
+
+  /**
+   * Possibly @deprecated, found only in old docs
+   **/
   getIndexPriceConstituents(params: {
     symbol: string;
   }): Promise<IndexPriceConstituents> {
@@ -297,48 +303,32 @@ export class USDMClient extends BaseRestClient {
 
   /**
    *
-   * USD-Futures Account/Trade Endpoints
+   * TRADE endpoints - Rest API
    *
    **/
-
-  setPositionMode(params: PositionModeParams): Promise<ModeChangeResult> {
-    return this.postPrivate('fapi/v1/positionSide/dual', params);
-  }
-
-  getCurrentPositionMode(): Promise<PositionModeResponse> {
-    return this.getPrivate('fapi/v1/positionSide/dual');
-  }
-
-  setMultiAssetsMode(params: {
-    multiAssetsMargin: MultiAssetsMode;
-  }): Promise<ModeChangeResult> {
-    return this.postPrivate('fapi/v1/multiAssetsMargin', params);
-  }
-
-  getMultiAssetsMode(): Promise<MultiAssetModeResponse> {
-    return this.getPrivate('fapi/v1/multiAssetsMargin');
-  }
-
-  setBNBBurnEnabled(params: {
-    feeBurn: 'true' | 'false';
-  }): Promise<{ code: number; msg: string }> {
-    return this.postPrivate('fapi/v1/feeBurn', params);
-  }
-
-  getBNBBurnStatus(): Promise<{
-    feeBurn: boolean;
-  }> {
-    return this.getPrivate('fapi/v1/feeBurn');
-  }
 
   submitNewOrder(params: NewFuturesOrderParams): Promise<NewOrderResult> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('fapi/v1/order', params);
   }
 
-  testOrder(params: NewFuturesOrderParams): Promise<any> {
-    this.validateOrderId(params, 'newClientOrderId');
-    return this.postPrivate('fapi/v1/order/test', params);
+  /**
+   * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
+   *
+   * Known issue: `quantity` and `price` should be sent as strings
+   */
+  submitMultipleOrders(
+    orders: NewFuturesOrderParams<string>[],
+  ): Promise<(NewOrderResult | NewOrderError)[]> {
+    const stringOrders = orders.map((order) => {
+      const orderToStringify = { ...order };
+      this.validateOrderId(orderToStringify, 'newClientOrderId');
+      return JSON.stringify(orderToStringify);
+    });
+    const requestBody = {
+      batchOrders: `[${stringOrders.join(',')}]`,
+    };
+    return this.postPrivate('fapi/v1/batchOrders', requestBody);
   }
 
   /**
@@ -364,37 +354,8 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/orderAmendment', params);
   }
 
-  /**
-   * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
-   *
-   * Known issue: `quantity` and `price` should be sent as strings
-   */
-  submitMultipleOrders(
-    orders: NewFuturesOrderParams<string>[],
-  ): Promise<(NewOrderResult | NewOrderError)[]> {
-    const stringOrders = orders.map((order) => {
-      const orderToStringify = { ...order };
-      this.validateOrderId(orderToStringify, 'newClientOrderId');
-      return JSON.stringify(orderToStringify);
-    });
-    const requestBody = {
-      batchOrders: `[${stringOrders.join(',')}]`,
-    };
-    return this.postPrivate('fapi/v1/batchOrders', requestBody);
-  }
-
-  getOrder(params: GetOrderParams): Promise<OrderResult> {
-    return this.getPrivate('fapi/v1/order', params);
-  }
-
   cancelOrder(params: CancelOrderParams): Promise<CancelFuturesOrderResult> {
     return this.deletePrivate('fapi/v1/order', params);
-  }
-
-  cancelAllOpenOrders(
-    params: BasicSymbolParam,
-  ): Promise<CancelAllOpenOrdersResult> {
-    return this.deletePrivate('fapi/v1/allOpenOrders', params);
   }
 
   cancelMultipleOrders(
@@ -417,6 +378,12 @@ export class USDMClient extends BaseRestClient {
     return this.deletePrivate('fapi/v1/batchOrders', requestParams);
   }
 
+  cancelAllOpenOrders(
+    params: BasicSymbolParam,
+  ): Promise<CancelAllOpenOrdersResult> {
+    return this.deletePrivate('fapi/v1/allOpenOrders', params);
+  }
+
   // Auto-cancel all open orders
   setCancelOrdersOnTimeout(
     params: CancelOrdersTimeoutParams,
@@ -424,48 +391,24 @@ export class USDMClient extends BaseRestClient {
     return this.postPrivate('fapi/v1/countdownCancelAll', params);
   }
 
-  getCurrentOpenOrder(params: GetOrderParams): Promise<OrderResult> {
-    return this.getPrivate('fapi/v1/openOrder', params);
-  }
-
-  getAllOpenOrders(params?: Partial<BasicSymbolParam>): Promise<OrderResult[]> {
-    return this.getPrivate('fapi/v1/openOrders', params);
+  getOrder(params: GetOrderParams): Promise<OrderResult> {
+    return this.getPrivate('fapi/v1/order', params);
   }
 
   getAllOrders(params: GetAllOrdersParams): Promise<OrderResult[]> {
     return this.getPrivate('fapi/v1/allOrders', params);
   }
 
-  getBalance(): Promise<FuturesAccountBalance[]> {
-    return this.getPrivate('fapi/v2/balance');
+  getAllOpenOrders(params?: Partial<BasicSymbolParam>): Promise<OrderResult[]> {
+    return this.getPrivate('fapi/v1/openOrders', params);
   }
 
-  getAccountInformation(): Promise<FuturesAccountInformation> {
-    return this.getPrivate('fapi/v2/account');
+  getCurrentOpenOrder(params: GetOrderParams): Promise<OrderResult> {
+    return this.getPrivate('fapi/v1/openOrder', params);
   }
 
-  setLeverage(params: SetLeverageParams): Promise<SetLeverageResult> {
-    return this.postPrivate('fapi/v1/leverage', params);
-  }
-
-  setMarginType(params: SetMarginTypeParams): Promise<ModeChangeResult> {
-    return this.postPrivate('fapi/v1/marginType', params);
-  }
-
-  setIsolatedPositionMargin(
-    params: SetIsolatedMarginParams,
-  ): Promise<SetIsolatedMarginResult> {
-    return this.postPrivate('fapi/v1/positionMargin', params);
-  }
-
-  getPositionMarginChangeHistory(
-    params: GetPositionMarginChangeHistoryParams,
-  ): Promise<any> {
-    return this.getPrivate('fapi/v1/positionMargin/history', params);
-  }
-
-  getPositions(params?: Partial<BasicSymbolParam>): Promise<FuturesPosition[]> {
-    return this.getPrivate('fapi/v2/positionRisk', params);
+  getForceOrders(params?: GetForceOrdersParams): Promise<ForceOrderResult[]> {
+    return this.getPrivate('fapi/v1/forceOrders', params);
   }
 
   getAccountTrades(
@@ -474,8 +417,86 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/userTrades', params);
   }
 
-  getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
-    return this.getPrivate('fapi/v1/income', params);
+  setMarginType(params: SetMarginTypeParams): Promise<ModeChangeResult> {
+    return this.postPrivate('fapi/v1/marginType', params);
+  }
+
+  setPositionMode(params: PositionModeParams): Promise<ModeChangeResult> {
+    return this.postPrivate('fapi/v1/positionSide/dual', params);
+  }
+
+  setLeverage(params: SetLeverageParams): Promise<SetLeverageResult> {
+    return this.postPrivate('fapi/v1/leverage', params);
+  }
+
+  setMultiAssetsMode(params: {
+    multiAssetsMargin: MultiAssetsMode;
+  }): Promise<ModeChangeResult> {
+    return this.postPrivate('fapi/v1/multiAssetsMargin', params);
+  }
+
+  setIsolatedPositionMargin(
+    params: SetIsolatedMarginParams,
+  ): Promise<SetIsolatedMarginResult> {
+    return this.postPrivate('fapi/v1/positionMargin', params);
+  }
+
+  getPositions(params?: Partial<BasicSymbolParam>): Promise<FuturesPosition[]> {
+    return this.getPrivate('fapi/v2/positionRisk', params);
+  }
+
+  getPositionsV3(params?: { symbol?: string }): Promise<FuturesPosition[]> {
+    return this.getPrivate('fapi/v3/positionRisk', params);
+  }
+
+  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
+    return this.getPrivate('fapi/v1/adlQuantile', params);
+  }
+
+  getPositionMarginChangeHistory(
+    params: GetPositionMarginChangeHistoryParams,
+  ): Promise<any> {
+    return this.getPrivate('fapi/v1/positionMargin/history', params);
+  }
+
+  /**
+   *
+   * ACCOUNT endpoints - Rest API
+   *
+   **/
+
+  getBalanceV3(): Promise<FuturesAccountBalance[]> {
+    return this.getPrivate('fapi/v3/balance');
+  }
+
+  getBalance(): Promise<FuturesAccountBalance[]> {
+    return this.getPrivate('fapi/v2/balance');
+  }
+
+  getAccountInformationV3(): Promise<FuturesAccountInformation> {
+    return this.getPrivate('fapi/v3/account');
+  }
+
+  getAccountInformation(): Promise<FuturesAccountInformation> {
+    return this.getPrivate('fapi/v2/account');
+  }
+
+  getAccountComissionRate(
+    params: BasicSymbolParam,
+  ): Promise<UserCommissionRate> {
+    return this.getPrivate('fapi/v1/commissionRate', params);
+  }
+
+  getFuturesAccountConfig(): Promise<FuturesAccountConfig> {
+    return this.getPrivate('fapi/v1/accountConfig');
+  }
+
+  getFuturesSymbolConfig(params: { symbol?: string }): Promise<SymbolConfig[]> {
+    return this.getPrivate('fapi/v1/symbolConfig', params);
+  }
+
+  getUserForceOrders(): Promise<UserForceOrder[]> {
+    return this.getPrivate('fapi/v1/rateLimit/order');
   }
 
   /**
@@ -487,24 +508,22 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/leverageBracket', params);
   }
 
-  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
-    return this.getPrivate('fapi/v1/adlQuantile', params);
+  getMultiAssetsMode(): Promise<MultiAssetModeResponse> {
+    return this.getPrivate('fapi/v1/multiAssetsMargin');
   }
 
-  getForceOrders(params?: GetForceOrdersParams): Promise<ForceOrderResult[]> {
-    return this.getPrivate('fapi/v1/forceOrders', params);
+  getCurrentPositionMode(): Promise<PositionModeResponse> {
+    return this.getPrivate('fapi/v1/positionSide/dual');
+  }
+
+  getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
+    return this.getPrivate('fapi/v1/income', params);
   }
 
   getApiQuantitativeRulesIndicators(
     params?: Partial<BasicSymbolParam>,
   ): Promise<any> {
     return this.getPrivate('fapi/v1/apiTradingStatus', params);
-  }
-
-  getAccountComissionRate(
-    params: BasicSymbolParam,
-  ): Promise<UserCommissionRate> {
-    return this.getPrivate('fapi/v1/commissionRate', params);
   }
 
   getFuturesTransactionHistoryDownloadId(params: {
@@ -546,6 +565,23 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/trade/asyn/id', params);
   }
 
+  setBNBBurnEnabled(params: {
+    feeBurn: 'true' | 'false';
+  }): Promise<{ code: number; msg: string }> {
+    return this.postPrivate('fapi/v1/feeBurn', params);
+  }
+
+  getBNBBurnStatus(): Promise<{
+    feeBurn: boolean;
+  }> {
+    return this.getPrivate('fapi/v1/feeBurn');
+  }
+
+  testOrder(params: NewFuturesOrderParams): Promise<any> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.postPrivate('fapi/v1/order/test', params);
+  }
+
   /**
    *
    * Portfolio Margin Pro Endpoints
@@ -561,10 +597,14 @@ export class USDMClient extends BaseRestClient {
   /**
    *
    * Broker Futures Endpoints
-   *
+   * Possibly @deprecated, found only in old docs
+   * All broker endpoints start with /sapi/v1/broker or sapi/v2/broker or sapi/v3/broker
+   * 
    **/
 
-  // 1 == USDT-Margined, 2 == Coin-margined
+  /**
+   * @deprecated
+   **/
   getBrokerIfNewFuturesUser(
     brokerId: string,
     type: 1 | 2 = 1,
@@ -574,7 +614,9 @@ export class USDMClient extends BaseRestClient {
       type,
     });
   }
-
+  /**
+   * @deprecated
+   **/
   setBrokerCustomIdForClient(
     customerId: string,
     email: string,
@@ -584,7 +626,9 @@ export class USDMClient extends BaseRestClient {
       email,
     });
   }
-
+  /**
+   * @deprecated
+   **/
   getBrokerClientCustomIds(
     customerId: string,
     email: string,
@@ -598,19 +642,25 @@ export class USDMClient extends BaseRestClient {
       limit,
     });
   }
-
+  /**
+   * @deprecated
+   **/
   getBrokerUserCustomId(brokerId: string): Promise<any> {
     return this.getPrivate('fapi/v1/apiReferral/userCustomization', {
       brokerId,
     });
   }
-
+  /**
+   * @deprecated
+   **/
   getBrokerRebateDataOverview(type: 1 | 2 = 1): Promise<RebateDataOverview> {
     return this.getPrivate('fapi/v1/apiReferral/overview', {
       type,
     });
   }
-
+  /**
+   * @deprecated
+   **/
   getBrokerUserTradeVolume(
     type: 1 | 2 = 1,
     startTime?: number,
@@ -624,7 +674,9 @@ export class USDMClient extends BaseRestClient {
       limit,
     });
   }
-
+  /**
+   * @deprecated
+   **/
   getBrokerRebateVolume(
     type: 1 | 2 = 1,
     startTime?: number,
@@ -638,7 +690,9 @@ export class USDMClient extends BaseRestClient {
       limit,
     });
   }
-
+  /**
+   * @deprecated
+   **/
   getBrokerTradeDetail(
     type: 1 | 2 = 1,
     startTime?: number,
