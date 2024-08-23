@@ -484,8 +484,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   * possibly @deprecated
-   * Only in old documentation, not in new one
+   * @deprecated at 6th August, 2024
    **/
   getClassicPortfolioMarginNotionalLimits(
     params?: GetClassicPortfolioMarginNotionalLimitParams,

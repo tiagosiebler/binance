@@ -441,6 +441,10 @@ export class USDMClient extends BaseRestClient {
     return this.postPrivate('fapi/v1/positionMargin', params);
   }
 
+  /**
+   * @deprecated
+   * Use getPositionsV3() instead
+   **/
   getPositions(params?: Partial<BasicSymbolParam>): Promise<FuturesPosition[]> {
     return this.getPrivate('fapi/v2/positionRisk', params);
   }
@@ -469,6 +473,10 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v3/balance');
   }
 
+  /**
+   * @deprecated
+   * Use getBalanceV3() instead
+   **/
   getBalance(): Promise<FuturesAccountBalance[]> {
     return this.getPrivate('fapi/v2/balance');
   }
@@ -477,6 +485,10 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v3/account');
   }
 
+  /**
+   * @deprecated
+   * Use getAccountInformationV3() instead
+   **/
   getAccountInformation(): Promise<FuturesAccountInformation> {
     return this.getPrivate('fapi/v2/account');
   }
@@ -599,7 +611,7 @@ export class USDMClient extends BaseRestClient {
    * Broker Futures Endpoints
    * Possibly @deprecated, found only in old docs
    * All broker endpoints start with /sapi/v1/broker or sapi/v2/broker or sapi/v3/broker
-   * 
+   *
    **/
 
   /**
