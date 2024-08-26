@@ -492,11 +492,7 @@ import {
   DualInvestmentProduct,
   UpdateIpRestrictionForSubApiKey,
   GetSubAccountDepositHistoryParams,
-  SubAccountDepositHistory,
-  SubaccountBrokerSpotAssets,
   QuerySubAccountSpotMarginAssetInfoParams,
-  SubAccountBrokerMarginAssets,
-  BrokerFuturesSubAccountAssets,
   QuerySubAccountFuturesAssetInfoParams,
   BrokerUniversalTransfer,
   ChangeSubAccountCommissionParams,
@@ -511,6 +507,11 @@ import {
   BrokerCommissionRebate,
   QueryBrokerSpotCommissionRebateParams,
   QueryBrokerFuturesCommissionRebateParams,
+  UsdtMarginedFuturesResponse,
+  CoinMarginedFuturesResponse,
+  SubAccountDeposit,
+  SubaccountBrokerSpotAsset,
+  SubAccountBrokerMarginAsset,
 } from './types/spot';
 
 import {
@@ -3323,7 +3324,7 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/broker/info');
   }
 
-  updateBNBBurnSubAccount(params: {
+  updateSubAccountBNBBurn(params: {
     subAccountId: string;
     spotBNBBurn: 'true' | 'false';
   }): Promise<{
@@ -3333,7 +3334,7 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/broker/subAccount/bnbBurn/spot', params);
   }
 
-  updateBNBBurnSubAccountMarginInterest(params: {
+  updateSubAccountMarginInterestBNBBurn(params: {
     subAccountId: string;
     interestBNBBurn: 'true' | 'false';
   }): Promise<{
@@ -3346,7 +3347,7 @@ export class MainClient extends BaseRestClient {
     );
   }
 
-  getBNBBurnStatusSubAccount(params: { subAccountId: string }): Promise<{
+  getSubAccountBNBBurnStatus(params: { subAccountId: string }): Promise<{
     subAccountId: string;
     spotBNBBurn: boolean;
     interestBNBBurn: boolean;
@@ -3401,25 +3402,34 @@ export class MainClient extends BaseRestClient {
 
   getBrokerSubDepositHistory(
     params: GetSubAccountDepositHistoryParams,
-  ): Promise<SubAccountDepositHistory[]> {
+  ): Promise<SubAccountDeposit[]> {
     return this.getPrivate('sapi/v1/broker/subAccount/depositHist', params);
   }
 
   getBrokerSubAccountSpotAssets(
     params: QuerySubAccountSpotMarginAssetInfoParams,
-  ): Promise<SubaccountBrokerSpotAssets> {
+  ): Promise<{
+    data: SubaccountBrokerSpotAsset[];
+    timestamp: number;
+  }> {
     return this.getPrivate('sapi/v1/broker/subAccount/spotSummary', params);
   }
 
   getSubAccountMarginAssetInfo(
     params: QuerySubAccountSpotMarginAssetInfoParams,
-  ): Promise<SubAccountBrokerMarginAssets> {
+  ): Promise<{
+    data: SubAccountBrokerMarginAsset[];
+    timestamp: number;
+  }> {
     return this.getPrivate('sapi/v1/broker/subAccount/marginSummary', params);
   }
 
   querySubAccountFuturesAssetInfo(
     params: QuerySubAccountFuturesAssetInfoParams,
-  ): Promise<BrokerFuturesSubAccountAssets> {
+  ): Promise<{
+    data: (UsdtMarginedFuturesResponse | CoinMarginedFuturesResponse)[];
+    timestamp: number;
+  }> {
     return this.getPrivate('sapi/v3/broker/subAccount/futuresSummary', params);
   }
 

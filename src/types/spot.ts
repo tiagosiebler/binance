@@ -4927,7 +4927,7 @@ export interface GetSubAccountDepositHistoryParams {
   offset?: number;
 }
 
-export interface SubAccountDepositHistory {
+export interface SubAccountDeposit {
   depositId: number;
   subAccountId: string;
   address: string;
@@ -4951,25 +4951,18 @@ export interface QuerySubAccountSpotMarginAssetInfoParams {
   size?: number;
 }
 
-// Response interface for querying sub account spot asset info
-export interface SubaccountBrokerSpotAssets {
-  data: {
-    subAccountId: string;
-    totalBalanceOfBtc: string;
-  }[];
-  timestamp: number;
+export interface SubaccountBrokerSpotAsset {
+  subAccountId: string;
+  totalBalanceOfBtc: string;
 }
 
-export interface SubAccountBrokerMarginAssets {
-  data: {
-    marginEnable: boolean;
-    subAccountId: string;
-    totalAssetOfBtc?: string;
-    totalLiabilityOfBtc?: string;
-    totalNetAssetOfBtc?: string;
-    marginLevel?: string;
-  }[];
-  timestamp: number;
+export interface SubAccountBrokerMarginAsset {
+  marginEnable: boolean;
+  subAccountId: string;
+  totalAssetOfBtc?: string;
+  totalLiabilityOfBtc?: string;
+  totalNetAssetOfBtc?: string;
+  marginLevel?: string;
 }
 
 // Request interface for querying sub account futures asset info
@@ -5115,7 +5108,6 @@ export interface BrokerCommissionRebate {
   time: number;
   status: number;
 }
-
 
 export interface QueryBrokerFuturesCommissionRebateParams {
   futuresType: number; // 1: USDT Futures, 2: Coin Futures
