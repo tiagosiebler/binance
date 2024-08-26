@@ -491,6 +491,27 @@ import {
   CollateralRecord,
   DualInvestmentProduct,
   UpdateIpRestrictionForSubApiKey,
+  GetSubAccountDepositHistoryParams,
+  QuerySubAccountSpotMarginAssetInfoParams,
+  QuerySubAccountFuturesAssetInfoParams,
+  BrokerUniversalTransfer,
+  ChangeSubAccountCommissionParams,
+  ChangeSubAccountCommissionResponse,
+  ChangeSubAccountFuturesCommissionParams,
+  ChangeSubAccountFuturesCommissionResponse,
+  QuerySubAccountFuturesCommissionParams,
+  BrokerSubAccountFuturesCommission,
+  ChangeSubAccountCoinFuturesCommissionParams,
+  BrokerSubAccountCoinFuturesCommission,
+  QuerySubAccountCoinFuturesCommissionParams,
+  BrokerCommissionRebate,
+  QueryBrokerSpotCommissionRebateParams,
+  QueryBrokerFuturesCommissionRebateParams,
+  UsdtMarginedFuturesResponse,
+  CoinMarginedFuturesResponse,
+  SubAccountDeposit,
+  SubaccountBrokerSpotAsset,
+  SubAccountBrokerMarginAsset,
 } from './types/spot';
 
 import {
@@ -3303,6 +3324,37 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/broker/info');
   }
 
+  updateSubAccountBNBBurn(params: {
+    subAccountId: string;
+    spotBNBBurn: 'true' | 'false';
+  }): Promise<{
+    subAccountId: string;
+    spotBNBBurn: boolean;
+  }> {
+    return this.postPrivate('sapi/v1/broker/subAccount/bnbBurn/spot', params);
+  }
+
+  updateSubAccountMarginInterestBNBBurn(params: {
+    subAccountId: string;
+    interestBNBBurn: 'true' | 'false';
+  }): Promise<{
+    subAccountId: string;
+    interestBNBBurn: boolean;
+  }> {
+    return this.postPrivate(
+      'sapi/v1/broker/subAccount/bnbBurn/marginInterest',
+      params,
+    );
+  }
+
+  getSubAccountBNBBurnStatus(params: { subAccountId: string }): Promise<{
+    subAccountId: string;
+    spotBNBBurn: boolean;
+    interestBNBBurn: boolean;
+  }> {
+    return this.getPrivate('sapi/v1/broker/subAccount/bnbBurn/status', params);
+  }
+
   /**
    *
    * EXCHANGE LINK - Account Endpoints
@@ -3348,15 +3400,49 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/broker/transfer/futures', params);
   }
 
-  universalTransferBroker(
-    params: UniversalTransferBrokerParams,
-  ): Promise<BrokerSubAccount> {
+  getBrokerSubDepositHistory(
+    params: GetSubAccountDepositHistoryParams,
+  ): Promise<SubAccountDeposit[]> {
+    return this.getPrivate('sapi/v1/broker/subAccount/depositHist', params);
+  }
+
+  getBrokerSubAccountSpotAssets(
+    params: QuerySubAccountSpotMarginAssetInfoParams,
+  ): Promise<{
+    data: SubaccountBrokerSpotAsset[];
+    timestamp: number;
+  }> {
+    return this.getPrivate('sapi/v1/broker/subAccount/spotSummary', params);
+  }
+
+  getSubAccountMarginAssetInfo(
+    params: QuerySubAccountSpotMarginAssetInfoParams,
+  ): Promise<{
+    data: SubAccountBrokerMarginAsset[];
+    timestamp: number;
+  }> {
+    return this.getPrivate('sapi/v1/broker/subAccount/marginSummary', params);
+  }
+
+  querySubAccountFuturesAssetInfo(
+    params: QuerySubAccountFuturesAssetInfoParams,
+  ): Promise<{
+    data: (UsdtMarginedFuturesResponse | CoinMarginedFuturesResponse)[];
+    timestamp: number;
+  }> {
+    return this.getPrivate('sapi/v3/broker/subAccount/futuresSummary', params);
+  }
+
+  universalTransferBroker(params: UniversalTransferBrokerParams): Promise<{
+    txnId: number;
+    clientTranId: string;
+  }> {
     return this.postPrivate('sapi/v1/broker/universalTransfer', params);
   }
 
   getUniversalTransferBroker(
     params: GetUniversalTransferBrokerParams,
-  ): Promise<BrokerSubAccount> {
+  ): Promise<BrokerUniversalTransfer[]> {
     return this.getPrivate('sapi/v1/broker/universalTransfer', params);
   }
 
@@ -3365,6 +3451,63 @@ export class MainClient extends BaseRestClient {
    * EXCHANGE LINK - Fee Endpoints
    * https://developers.binance.com/docs/binance_link
    */
+
+  updateBrokerSubAccountCommission(
+    params: ChangeSubAccountCommissionParams,
+  ): Promise<ChangeSubAccountCommissionResponse> {
+    return this.postPrivate('sapi/v1/broker/subAccountApi/commission', params);
+  }
+
+  updateBrokerSubAccountFuturesCommission(
+    params: ChangeSubAccountFuturesCommissionParams,
+  ): Promise<ChangeSubAccountFuturesCommissionResponse> {
+    return this.postPrivate(
+      'sapi/v1/broker/subAccountApi/commission/futures',
+      params,
+    );
+  }
+
+  getBrokerSubAccountFuturesCommission(
+    params: QuerySubAccountFuturesCommissionParams,
+  ): Promise<BrokerSubAccountFuturesCommission[]> {
+    return this.getPrivate(
+      'sapi/v1/broker/subAccountApi/commission/futures',
+      params,
+    );
+  }
+
+  updateBrokerSubAccountCoinFuturesCommission(
+    params: ChangeSubAccountCoinFuturesCommissionParams,
+  ): Promise<ChangeSubAccountFuturesCommissionResponse> {
+    return this.postPrivate(
+      'sapi/v1/broker/subAccountApi/commission/coinFutures',
+      params,
+    );
+  }
+
+  getBrokerSubAccountCoinFuturesCommission(
+    params: QuerySubAccountCoinFuturesCommissionParams,
+  ): Promise<BrokerSubAccountCoinFuturesCommission[]> {
+    return this.getPrivate(
+      'sapi/v1/broker/subAccountApi/commission/coinFutures',
+      params,
+    );
+  }
+
+  getBrokerSpotCommissionRebate(
+    params: QueryBrokerSpotCommissionRebateParams,
+  ): Promise<BrokerCommissionRebate[]> {
+    return this.getPrivate('sapi/v1/broker/rebate/recentRecord', params);
+  }
+
+  getBrokerFuturesCommissionRebate(
+    params: QueryBrokerFuturesCommissionRebateParams,
+  ): Promise<BrokerCommissionRebate[]> {
+    return this.getPrivate(
+      'sapi/v1/broker/rebate/futures/recentRecord',
+      params,
+    );
+  }
 
   /**
    *

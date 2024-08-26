@@ -6,3 +6,4 @@ util/config.js
 coverage/
 yarn-error.log
 lib/*
+privaterepotracker

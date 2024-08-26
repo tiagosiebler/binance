@@ -4916,3 +4916,206 @@ export interface SimpleEarnAccountResponse {
   totalLockedinBTC: string;
   totalLockedinUSDT: string;
 }
+
+export interface GetSubAccountDepositHistoryParams {
+  subAccountId?: string;
+  coin?: string;
+  status?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SubAccountDeposit {
+  depositId: number;
+  subAccountId: string;
+  address: string;
+  addressTag: string;
+  amount: string;
+  coin: string;
+  insertTime: number;
+  transferType: number;
+  network: string;
+  status: number;
+  txId: string;
+  sourceAddress: string;
+  confirmTimes: string;
+  selfReturnStatus: number;
+}
+
+// Request interface for querying sub account spot asset info
+export interface QuerySubAccountSpotMarginAssetInfoParams {
+  subAccountId?: string;
+  page?: number;
+  size?: number;
+}
+
+export interface SubaccountBrokerSpotAsset {
+  subAccountId: string;
+  totalBalanceOfBtc: string;
+}
+
+export interface SubAccountBrokerMarginAsset {
+  marginEnable: boolean;
+  subAccountId: string;
+  totalAssetOfBtc?: string;
+  totalLiabilityOfBtc?: string;
+  totalNetAssetOfBtc?: string;
+  marginLevel?: string;
+}
+
+// Request interface for querying sub account futures asset info
+export interface QuerySubAccountFuturesAssetInfoParams {
+  subAccountId?: string;
+  futuresType: number; // 1: USD Margined Futures, 2: COIN Margined Futures
+  page?: number;
+  size?: number;
+}
+
+// Response interface for querying sub account futures asset info (USD Margined Futures)
+export interface UsdtMarginedFuturesResponse {
+  subAccountId: string;
+  totalInitialMargin: string;
+  totalMaintenanceMargin: string;
+  totalWalletBalance: string;
+  totalUnrealizedProfit: string;
+  totalMarginBalance: string;
+  totalPositionInitialMargin: string;
+  totalOpenOrderInitialMargin: string;
+  futuresEnable: boolean;
+  asset: string;
+}
+
+// Response interface for querying sub account futures asset info (COIN Margined Futures)
+export interface CoinMarginedFuturesResponse {
+  subAccountId: string;
+  totalWalletBalanceOfUsdt: string;
+  totalUnrealizedProfitOfUsdt: string;
+  totalMarginBalanceOfUsdt: string;
+  futuresEnable: boolean;
+}
+
+// Combined response interface for querying sub account futures asset info
+export interface BrokerFuturesSubAccountAssets {
+  data: (UsdtMarginedFuturesResponse | CoinMarginedFuturesResponse)[];
+  timestamp: number;
+}
+
+export interface BrokerUniversalTransfer {
+  toId: string;
+  asset: string;
+  qty: string;
+  time: number;
+  status: string;
+  txnId: string;
+  clientTranId: string;
+  fromAccountType: string;
+  toAccountType: string;
+}
+
+// Request interface for changing sub account commission
+export interface ChangeSubAccountCommissionParams {
+  subAccountId: string;
+  makerCommission: number;
+  takerCommission: number;
+  marginMakerCommission?: number;
+  marginTakerCommission?: number;
+}
+
+// Response interface for changing sub account commission
+export interface ChangeSubAccountCommissionResponse {
+  subAccountId: string;
+  makerCommission: number;
+  takerCommission: number;
+  marginMakerCommission: number;
+  marginTakerCommission: number;
+}
+
+// Request interface for changing sub account USDT-Ⓜ futures commission adjustment
+export interface ChangeSubAccountFuturesCommissionParams {
+  subAccountId: string;
+  symbol: string;
+  makerAdjustment: number;
+  takerAdjustment: number;
+}
+
+// Response interface for changing sub account USDT-Ⓜ futures commission adjustment
+export interface ChangeSubAccountFuturesCommissionResponse {
+  subAccountId: string;
+  symbol: string;
+  makerAdjustment: number;
+  takerAdjustment: number;
+  makerCommission: number;
+  takerCommission: number;
+}
+
+// Request interface for querying sub account USDT-Ⓜ futures commission adjustment
+export interface QuerySubAccountFuturesCommissionParams {
+  subAccountId: string;
+  symbol?: string;
+}
+
+// Response interface for querying sub account USDT-Ⓜ futures commission adjustment
+export interface BrokerSubAccountFuturesCommission {
+  subAccountId: string;
+  symbol: string;
+  makerCommission: number;
+  takerCommission: number;
+}
+
+export interface ChangeSubAccountCoinFuturesCommissionParams {
+  subAccountId: string;
+  pair: string;
+  makerAdjustment: number;
+  takerAdjustment: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface QuerySubAccountCoinFuturesCommissionParams {
+  subAccountId: string;
+  pair?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+// Response interface for querying sub account COIN-Ⓜ futures commission adjustment
+export interface BrokerSubAccountCoinFuturesCommission {
+  subAccountId: string;
+  pair: string;
+  makerCommission: number;
+  takerCommission: number;
+}
+
+export interface QueryBrokerSpotCommissionRebateParams {
+  subAccountId?: string;
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  size?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+// Response interface for querying spot commission rebate recent record
+export interface BrokerCommissionRebate {
+  subaccountId: string;
+  income: string;
+  asset: string;
+  symbol: string;
+  tradeId: number;
+  time: number;
+  status: number;
+}
+
+export interface QueryBrokerFuturesCommissionRebateParams {
+  futuresType: number; // 1: USDT Futures, 2: Coin Futures
+  startTime: number;
+  endTime: number;
+  page?: number;
+  size?: number;
+  filterResult?: boolean;
+  recvWindow?: number;
+  timestamp: number;
+}
