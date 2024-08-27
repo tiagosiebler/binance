@@ -383,7 +383,7 @@ Have my projects helped you? Share the love, there are many ways you can show yo
 - Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
 - Have an interesting project? Get in touch & invite me to it.
 - Or buy me all the coffee:
-  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
+  - ETH(ERC20): `0xFa1dB6794de6e994b60741DecaE0567946992181` <!-- coin base wallet -->
 
 For more ways to give thanks & support my efforts, visit [Contributions & Thanks](https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Contributions-&-Thanks)!
 
