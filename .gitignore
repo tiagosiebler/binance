@@ -7,3 +7,4 @@ coverage/
 yarn-error.log
 lib/*
 privaterepotracker
+restClientRegex.ts
