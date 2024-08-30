@@ -50,7 +50,6 @@ This table includes all endpoints from the official Exchange API docs and corres
 
 | Function | AUTH | HTTP Method | Endpoint |
 | -------- | :------: | :------: | -------- |
-| `getServerTime()` |  | GET | `api/v3/ping` |
 | `testConnectivity()` |  | GET | `api/v3/ping` |
 | `getExchangeInfo()` |  | GET | `api/v3/exchangeInfo` |
 | `getOrderBook()` |  | GET | `api/v3/depth` |
@@ -458,7 +457,6 @@ This table includes all endpoints from the official Exchange API docs and corres
 
 | Function | AUTH | HTTP Method | Endpoint |
 | -------- | :------: | :------: | -------- |
-| `getServerTime()` |  | GET | `fapi/v1/ping` |
 | `testConnectivity()` |  | GET | `fapi/v1/ping` |
 | `getExchangeInfo()` |  | GET | `fapi/v1/exchangeInfo` |
 | `getOrderBook()` |  | GET | `fapi/v1/depth` |
@@ -555,7 +553,6 @@ This table includes all endpoints from the official Exchange API docs and corres
 
 | Function | AUTH | HTTP Method | Endpoint |
 | -------- | :------: | :------: | -------- |
-| `getServerTime()` |  | GET | `dapi/v1/ping` |
 | `testConnectivity()` |  | GET | `dapi/v1/ping` |
 | `getExchangeInfo()` |  | GET | `dapi/v1/exchangeInfo` |
 | `getOrderBook()` |  | GET | `dapi/v1/depth` |
