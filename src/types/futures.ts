@@ -871,7 +871,7 @@ export interface PortfolioMarginProAccountInfo {
   maxWithdrawAmount: string; // This field will be ignored in the response
 }
 
-export interface ConvertPair {
+export interface FuturesConvertPair {
   fromAsset: string;
   toAsset: string;
   fromAssetMinAmount: string;
@@ -880,7 +880,7 @@ export interface ConvertPair {
   toAssetMaxAmount: string;
 }
 
-export interface ConvertQuoteParams {
+export interface FuturesConvertQuoteRequest {
   fromAsset: string;
   toAsset: string;
   fromAmount?: number;
@@ -888,7 +888,7 @@ export interface ConvertQuoteParams {
   validTime?: '10s' | '30s' | '1m' | '2m';
 }
 
-export interface ConvertQuote {
+export interface FuturesConvertQuote {
   quoteId: string;
   ratio: string;
   inverseRatio: string;
@@ -897,7 +897,7 @@ export interface ConvertQuote {
   fromAmount: string;
 }
 
-export interface ConvertOrderStatus {
+export interface FuturesConvertOrderStatus {
   orderId: string;
   orderStatus: 'PROCESS' | 'ACCEPT_SUCCESS' | 'SUCCESS' | 'FAIL';
   fromAsset: string;

@@ -369,6 +369,7 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `getPortfolioMarginIndexPrice()` |  | GET | `sapi/v1/portfolio/asset-index-price` |
 | `getPortfolioMarginAssetLeverage()` | :closed_lock_with_key:  | GET | `sapi/v1/portfolio/margin-asset-leverage` |
 | `getPortfolioMarginProCollateralRate()` |  | GET | `sapi/v1/portfolio/collateralRate` |
+| `getPortfolioMarginProTieredCollateralRate()` |  | GET | `sapi/v2/portfolio/collateralRate` |
 | `getPortfolioMarginProAccountInfo()` | :closed_lock_with_key:  | GET | `sapi/v1/portfolio/account` |
 | `bnbTransfer()` | :closed_lock_with_key:  | POST | `sapi/v1/portfolio/bnb-transfer` |
 | `submitPortfolioMarginProFullTransfer()` | :closed_lock_with_key:  | POST | `sapi/v1/portfolio/auto-collection` |
@@ -534,6 +535,10 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `setBNBBurnEnabled()` | :closed_lock_with_key:  | POST | `fapi/v1/feeBurn` |
 | `getBNBBurnStatus()` | :closed_lock_with_key:  | GET | `fapi/v1/feeBurn` |
 | `testOrder()` | :closed_lock_with_key:  | POST | `fapi/v1/order/test` |
+| `getAllConvertPairs()` |  | GET | `fapi/v1/convert/exchangeInfo` |
+| `submitConvertQuoteRequest()` | :closed_lock_with_key:  | POST | `fapi/v1/convert/getQuote` |
+| `acceptConvertQuote()` | :closed_lock_with_key:  | POST | `fapi/v1/convert/acceptQuote` |
+| `getConvertOrderStatus()` | :closed_lock_with_key:  | GET | `fapi/v1/convert/orderStatus` |
 | `getPortfolioMarginProAccountInfo()` | :closed_lock_with_key:  | GET | `fapi/v1/pmAccountInfo` |
 | `getBrokerIfNewFuturesUser()` | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/ifNewUser` |
 | `setBrokerCustomIdForClient()` | :closed_lock_with_key:  | POST | `fapi/v1/apiReferral/customization` |
