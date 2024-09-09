@@ -80,6 +80,10 @@ import {
   FuturesAccountConfig,
   SymbolConfig,
   UserForceOrder,
+  FuturesConvertPair,
+  FuturesConvertQuote,
+  FuturesConvertOrderStatus,
+  FuturesConvertQuoteRequest,
 } from './types/futures';
 
 import {
@@ -592,6 +596,40 @@ export class USDMClient extends BaseRestClient {
   testOrder(params: NewFuturesOrderParams): Promise<any> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('fapi/v1/order/test', params);
+  }
+
+  /**
+   *
+   * Convert Endpoints
+   *
+   **/
+
+  getAllConvertPairs(params?: {
+    fromAsset?: string;
+    toAsset?: string;
+  }): Promise<FuturesConvertPair[]> {
+    return this.get('fapi/v1/convert/exchangeInfo', params);
+  }
+
+  submitConvertQuoteRequest(
+    params: FuturesConvertQuoteRequest,
+  ): Promise<FuturesConvertQuote> {
+    return this.postPrivate('fapi/v1/convert/getQuote', params);
+  }
+
+  acceptConvertQuote(params: { quoteId: string }): Promise<{
+    orderId: string;
+    createTime: number;
+    orderStatus: 'PROCESS' | 'ACCEPT_SUCCESS' | 'SUCCESS' | 'FAIL';
+  }> {
+    return this.postPrivate('fapi/v1/convert/acceptQuote', params);
+  }
+
+  getConvertOrderStatus(params: {
+    orderId?: string;
+    quoteId?: string;
+  }): Promise<FuturesConvertOrderStatus> {
+    return this.getPrivate('fapi/v1/convert/orderStatus', params);
   }
 
   /**

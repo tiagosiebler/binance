@@ -50,7 +50,8 @@ export type WsMessageFuturesUserDataEventRaw =
   | WsMessageFuturesUserDataMarginCallRaw
   | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
   | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw;
+  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw
+  | WsMessageFuturesUserDataTradeLiteEventRaw;
 
 // TODO: consistent across USDM vs COINM?
 export type WsMessageFuturesUserDataEventFormatted =
@@ -59,7 +60,8 @@ export type WsMessageFuturesUserDataEventFormatted =
   | WsMessageFuturesUserDataMarginCallFormatted
   | WsMessageFuturesUserDataTradeUpdateEventFormatted
   | WsMessageFuturesUserDataAccountConfigUpdateEventFormatted
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted;
+  | WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted
+  | WsMessageFuturesUserDataTradeLiteEventFormatted;
 
 export type WsRawMessage =
   | WsMessageKlineRaw
@@ -754,6 +756,39 @@ export interface WsMessageFuturesUserDataOrderTradeUpdateEventRaw
     si: numberInString; // ignore
     ss: numberInString; // ignore
   };
+}
+export interface WsMessageFuturesUserDataTradeLiteEventRaw
+  extends WsSharedBase {
+  e: 'TRADE_LITE'; // Event Type
+  E: number; // Event Time
+  T: number; // Transaction Time
+  s: string; // Symbol
+  q: string; // Original Quantity
+  p: string; // Original Price
+  m: boolean; // Is this trade the maker side?
+  c: string; // Client Order Id
+  S: 'BUY' | 'SELL'; // Side
+  L: string; // Last Filled Price
+  l: string; // Order Last Filled Quantity
+  t: number; // Trade Id
+  i: number; // Order Id
+}
+
+export interface WsMessageFuturesUserDataTradeLiteEventFormatted
+  extends WsSharedBase {
+  eventType: 'TRADE_LITE';
+  eventTime: number;
+  transactionTime: number;
+  symbol: string;
+  originalQuantity: number;
+  originalPrice: number;
+  isMakerSide: boolean;
+  clientOrderId: string;
+  side: 'BUY' | 'SELL';
+  lastFilledPrice: number;
+  lastFilledQuantity: number;
+  tradeId: number;
+  orderId: number;
 }
 
 export interface WsMessageFuturesUserDataTradeUpdateEventFormatted

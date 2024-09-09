@@ -870,3 +870,41 @@ export interface PortfolioMarginProAccountInfo {
   asset: string;
   maxWithdrawAmount: string; // This field will be ignored in the response
 }
+
+export interface FuturesConvertPair {
+  fromAsset: string;
+  toAsset: string;
+  fromAssetMinAmount: string;
+  fromAssetMaxAmount: string;
+  toAssetMinAmount: string;
+  toAssetMaxAmount: string;
+}
+
+export interface FuturesConvertQuoteRequest {
+  fromAsset: string;
+  toAsset: string;
+  fromAmount?: number;
+  toAmount?: number;
+  validTime?: '10s' | '30s' | '1m' | '2m';
+}
+
+export interface FuturesConvertQuote {
+  quoteId: string;
+  ratio: string;
+  inverseRatio: string;
+  validTimestamp: number;
+  toAmount: string;
+  fromAmount: string;
+}
+
+export interface FuturesConvertOrderStatus {
+  orderId: string;
+  orderStatus: 'PROCESS' | 'ACCEPT_SUCCESS' | 'SUCCESS' | 'FAIL';
+  fromAsset: string;
+  fromAmount: string;
+  toAsset: string;
+  toAmount: string;
+  ratio: string;
+  inverseRatio: string;
+  createTime: number;
+}
