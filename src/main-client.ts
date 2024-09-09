@@ -3080,18 +3080,22 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/portfolio/margin-asset-leverage');
   }
 
+  getPortfolioMarginProCollateralRate(): Promise<
+    GetPortfolioMarginProCollateralRateResponse[]
+  > {
+    return this.get('sapi/v1/portfolio/collateralRate');
+  }
+
+  getPortfolioMarginProTieredCollateralRate(): Promise<any[]> {
+    return this.get('sapi/v2/portfolio/collateralRate');
+  }
+
   /**
    *
    * DERIVATIVES - Portfolio Margin Pro - Account
    * This is in mainclient because it shares the same base url
    *
    **/
-
-  getPortfolioMarginProCollateralRate(): Promise<
-    GetPortfolioMarginProCollateralRateResponse[]
-  > {
-    return this.get('sapi/v1/portfolio/collateralRate');
-  }
 
   getPortfolioMarginProAccountInfo(): Promise<GetPortfolioMarginProAccountInfoResponse> {
     return this.getPrivate('sapi/v1/portfolio/account');
