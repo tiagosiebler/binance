@@ -87,5 +87,3 @@ jobs:
           git push origin ${{ env.BRANCH_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FILE_NAME: ${{ env.FILE_NAME }} 
-          BRANCH_NAME: ${{ env.BRANCH_NAME }}
