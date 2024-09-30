@@ -72,6 +72,8 @@ Check out my related JavaScript/TypeScript/Node.js projects:
   - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
   - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
   - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
+  - [Kucoin-api Node.js SDK](https://www.npmjs.com/package/kucoin-api)
+  - [Coinbase-api Node.js SDK](https://www.npmjs.com/package/coinbase-api)
   - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
 - Try my misc utilities:
   - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
@@ -381,6 +383,8 @@ However, note that browser usage will lead to CORS errors due to Binance.
 
 <!-- template_contributions -->
 
+### Contributions & Thanks
+
 Have my projects helped you? Share the love, there are many ways you can show your thanks:
 
 - Star & share my projects.
@@ -406,6 +410,6 @@ Contributions are encouraged, I will review any incoming pull requests. See the 
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
 
 <!-- template_star_history_end -->
