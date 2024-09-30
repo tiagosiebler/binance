@@ -1,0 +1,89 @@
+name: Update README.md templates
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write # Grant write permissions to the contents
+
+env:
+  FILE_NAME: README.md
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: https://registry.npmjs.org/
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Get the current date and time
+        id: datetime
+        run: echo "BRANCH_NAME=$(date +'actions_templates_%Y_%m_%d_%H%M%S')" >> $GITHUB_ENV
+
+      - name: Create update-template.sh script
+        run: |
+          cat << 'EOF' > update-template.sh
+          #!/bin/bash
+
+          TEMPLATE_VALUE=$(curl -s $TEMPLATE_URL)
+
+          perl -0777 -i -pe "
+          my \$tag = quotemeta('<!-- template_${TEMPLATE_TAG} -->');
+          my \$end_tag = quotemeta('<!-- template_${TEMPLATE_TAG}_end -->');
+          my \$replacement = '${TEMPLATE_VALUE}';
+
+          # Match the tag, then any amount of whitespace (including newlines), then the replacement, then any amount of whitespace, then the end tag.
+          s/(\$tag)(\s*)(.*?)(\s*)(\$end_tag)/\$1\n\$replacement\n\$5/s;
+          " "$FILE_NAME"
+
+          EOF
+          chmod +x update-template.sh
+          cat update-template.sh
+
+      - name: Fetch and update RELATED PROJECTS template
+        run: ./update-template.sh
+        env:
+          TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Related-projects.md
+          TEMPLATE_TAG: related_projects
+
+      - name: Fetch and update CONTRIBUTIONS template
+        run: ./update-template.sh
+        env:
+          TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Contributions-%26-Thanks.md
+          TEMPLATE_TAG: contributions
+
+      - name: Fetch and update STAR HISTORY template
+        run: ./update-template.sh
+        env:
+          TEMPLATE_URL: https://raw.githubusercontent.com/wiki/tiagosiebler/awesome-crypto-examples/Star-History.md
+          TEMPLATE_TAG: star_history
+
+      - name: Check for changes before running linter
+        run: git diff
+
+      - name: Check for changes | PR URL HERE
+        id: commitIfChanged
+        run: |
+          npx prettier -w README.md
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git checkout -b ${{ env.BRANCH_NAME }}
+          git add $FILE_NAME
+          git commit -m 'chore(): ${{ env.FILE_NAME }} template sections'
+          git push origin ${{ env.BRANCH_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
