@@ -220,7 +220,6 @@ import {
   TradingDayTickerParams,
   RollingWindowTickerParams,
   NewOrderListOTOParams,
-  NewOrderListOTOResponse,
   NewOrderListOTOCOParams,
   NewOrderListOTOCOResponse,
   PreventedMatchesParams,
@@ -512,6 +511,14 @@ import {
   SubAccountDeposit,
   SubaccountBrokerSpotAsset,
   SubAccountBrokerMarginAsset,
+  SubmitMarginOTOOrderParams,
+  MarginOTOOrder,
+  MarginOTOCOOrder,
+  SubmitMarginOTOCOOrderParams,
+  NewOrderListOTOResponse,
+  CreateSpecialLowLatencyKeyParams,
+  SpecialLowLatencyKeyResponse,
+  SpecialLowLatencyKeyInfo,
 } from './types/spot';
 
 import {
@@ -1039,6 +1046,75 @@ export class MainClient extends BaseRestClient {
     params: ManualLiquidationParams,
   ): Promise<ManualLiquidationResponse[]> {
     return this.postPrivate('sapi/v1/margin/manual-liquidation', params);
+  }
+
+  /**
+   * Post a new OTO order for margin account
+   */
+  submitMarginOTOOrder(
+    params: SubmitMarginOTOOrderParams,
+  ): Promise<MarginOTOOrder> {
+    this.validateOrderId(params, 'listClientOrderId');
+    this.validateOrderId(params, 'workingClientOrderId');
+    this.validateOrderId(params, 'pendingClientOrderId');
+    return this.postPrivate('sapi/v1/margin/order/oto', params);
+  }
+
+  /**
+   * Submit a new OTOCO order for margin account
+   */
+  submitMarginOTOCOOrder(
+    params: SubmitMarginOTOCOOrderParams,
+  ): Promise<MarginOTOCOOrder> {
+    this.validateOrderId(params, 'listClientOrderId');
+    this.validateOrderId(params, 'workingClientOrderId');
+    this.validateOrderId(params, 'pendingAboveClientOrderId');
+    this.validateOrderId(params, 'pendingBelowClientOrderId');
+    return this.postPrivate('sapi/v1/margin/order/otoco', params);
+  }
+
+  /**
+   * Create a special key for low-latency trading (VIP 4+ only)
+   */
+  createMarginSpecialLowLatencyKey(
+    params: CreateSpecialLowLatencyKeyParams,
+  ): Promise<SpecialLowLatencyKeyResponse> {
+    return this.postPrivate('sapi/v1/margin/apiKey', params);
+  }
+
+  deleteMarginSpecialLowLatencyKey(params?: {
+    apiKey?: string;
+    apiName?: string;
+    symbol?: string;
+  }): Promise<any> {
+    return this.deletePrivate('sapi/v1/margin/apiKey', params);
+  }
+
+  updateMarginIPForSpecialLowLatencyKey(params: {
+    apiKey: string;
+    symbol?: string;
+    ip: string;
+  }): Promise<{}> {
+    return this.putPrivate('sapi/v1/margin/apiKey/ip', params);
+  }
+
+  /**
+   * Query the list of special keys for low-latency trading
+   */
+  getMarginSpecialLowLatencyKeys(params: {
+    symbol?: string;
+  }): Promise<SpecialLowLatencyKeyInfo[]> {
+    return this.getPrivate('sapi/v1/margin/api-key-list', params);
+  }
+
+  /**
+   * Query information for a specific special key used in low-latency trading
+   */
+  getMarginSpecialLowLatencyKey(params: {
+    apiKey: string;
+    symbol?: string;
+  }): Promise<SpecialLowLatencyKeyInfo> {
+    return this.getPrivate('sapi/v1/margin/apiKey', params);
   }
 
   /**

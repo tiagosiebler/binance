@@ -5119,3 +5119,174 @@ export interface QueryBrokerFuturesCommissionRebateParams {
   recvWindow?: number;
   timestamp: number;
 }
+
+export interface SubmitMarginOTOOrderParams {
+  symbol: string;
+  isIsolated?: 'TRUE' | 'FALSE';
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  sideEffectType?: 'NO_SIDE_EFFECT' | 'MARGIN_BUY';
+  selfTradePreventionMode?:
+    | 'EXPIRE_TAKER'
+    | 'EXPIRE_MAKER'
+    | 'EXPIRE_BOTH'
+    | 'NONE';
+  autoRepayAtCancel?: boolean;
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: number;
+  workingQuantity: number;
+  workingIcebergQty?: number;
+  workingTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+  pendingType: OrderType;
+  pendingSide: 'BUY' | 'SELL';
+  pendingClientOrderId?: string;
+  pendingPrice?: number;
+  pendingStopPrice?: number;
+  pendingTrailingDelta?: number;
+  pendingQuantity: number;
+  pendingIcebergQty?: number;
+  pendingTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+}
+
+export interface MarginOTOOrder {
+  orderListId: number;
+  contingencyType: string;
+  listStatusType: string;
+  listOrderStatus: string;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  isIsolated: boolean;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+  orderReports: {
+    symbol: string;
+    orderId: number;
+    orderListId: number;
+    clientOrderId: string;
+    transactTime: number;
+    price: string;
+    origQty: string;
+    executedQty: string;
+    cummulativeQuoteQty: string;
+    status: string;
+    timeInForce: string;
+    type: string;
+    side: string;
+    selfTradePreventionMode: string;
+  }[];
+}
+
+export interface SubmitMarginOTOCOOrderParams {
+  symbol: string;
+  isIsolated?: 'TRUE' | 'FALSE';
+  sideEffectType?: 'NO_SIDE_EFFECT' | 'MARGIN_BUY';
+  autoRepayAtCancel?: boolean;
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  selfTradePreventionMode?:
+    | 'EXPIRE_TAKER'
+    | 'EXPIRE_MAKER'
+    | 'EXPIRE_BOTH'
+    | 'NONE';
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: string;
+  workingQuantity: string;
+  workingIcebergQty?: string;
+  workingTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+  pendingSide: 'BUY' | 'SELL';
+  pendingQuantity: string;
+  pendingAboveType: 'LIMIT_MAKER' | 'STOP_LOSS' | 'STOP_LOSS_LIMIT';
+  pendingAboveClientOrderId?: string;
+  pendingAbovePrice?: string;
+  pendingAboveStopPrice?: string;
+  pendingAboveTrailingDelta?: string;
+  pendingAboveIcebergQty?: string;
+  pendingAboveTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+  pendingBelowType: 'LIMIT_MAKER' | 'STOP_LOSS' | 'STOP_LOSS_LIMIT';
+  pendingBelowClientOrderId?: string;
+  pendingBelowPrice?: string;
+  pendingBelowStopPrice?: string;
+  pendingBelowTrailingDelta?: string;
+  pendingBelowIcebergQty?: string;
+  pendingBelowTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+}
+
+export interface MarginOTOCOOrder {
+  orderListId: number;
+  contingencyType: 'OTO';
+  listStatusType: 'EXEC_STARTED';
+  listOrderStatus: 'EXECUTING';
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  isIsolated: boolean;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+  orderReports: {
+    symbol: string;
+    orderId: number;
+    orderListId: number;
+    clientOrderId: string;
+    transactTime: number;
+    price: string;
+    origQty: string;
+    executedQty: string;
+    cummulativeQuoteQty: string;
+    status:
+      | 'NEW'
+      | 'PARTIALLY_FILLED'
+      | 'FILLED'
+      | 'CANCELED'
+      | 'PENDING_CANCEL'
+      | 'REJECTED'
+      | 'EXPIRED'
+      | 'PENDING_NEW';
+    timeInForce: 'GTC' | 'IOC' | 'FOK';
+    type:
+      | 'LIMIT'
+      | 'MARKET'
+      | 'STOP_LOSS'
+      | 'STOP_LOSS_LIMIT'
+      | 'TAKE_PROFIT'
+      | 'TAKE_PROFIT_LIMIT'
+      | 'LIMIT_MAKER';
+    side: 'BUY' | 'SELL';
+    stopPrice?: string;
+    selfTradePreventionMode:
+      | 'EXPIRE_TAKER'
+      | 'EXPIRE_MAKER'
+      | 'EXPIRE_BOTH'
+      | 'NONE';
+  }[];
+}
+
+export interface CreateSpecialLowLatencyKeyParams {
+  apiName: string;
+  symbol?: string;
+  ip?: string;
+  publicKey?: string;
+}
+
+export interface SpecialLowLatencyKeyResponse {
+  apiKey: string;
+  secretKey: string | null;
+  type: 'HMAC_SHA256' | 'RSA' | 'Ed25519';
+}
+
+export interface SpecialLowLatencyKeyInfo {
+  apiName: string;
+  apiKey: string;
+  ip: string;
+  type: 'HMAC_SHA256' | 'RSA' | 'Ed25519';
+}
