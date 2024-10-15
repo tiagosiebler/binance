@@ -1,6 +1,6 @@
 {
   "name": "binance",
-  "version": "2.13.7",
+  "version": "2.13.8",
   "description": "Node.js & JavaScript SDK for Binance REST APIs & WebSockets, with TypeScript & end-to-end tests.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -48,8 +48,8 @@
   },
   "optionalDependencies": {
     "https-proxy-agent": "^6.1.0",
-    "ts-loader": "^8.0.11",
     "source-map-loader": "^2.0.0",
+    "ts-loader": "^8.0.11",
     "webpack": "^5.4.0"
   },
   "keywords": [
