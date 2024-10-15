@@ -17,6 +17,7 @@ import {
   SymbolMaxIcebergOrdersFilter,
   SymbolMaxPositionFilter,
   SymbolPriceFilter,
+  SelfTradePreventionMode,
 } from './shared';
 
 export type FuturesContractType =
@@ -105,12 +106,6 @@ export type FuturesOrderType =
   | 'TAKE_PROFIT'
   | 'TAKE_PROFIT_MARKET'
   | 'TRAILING_STOP_MARKET';
-
-export type SelfTradePreventionMode =
-  | 'NONE'
-  | 'EXPIRE_TAKER'
-  | 'EXPIRE_MAKER'
-  | 'EXPIRE_BOTH';
 
 export type PriceMatchMode =
   | 'NONE'
