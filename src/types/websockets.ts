@@ -755,6 +755,9 @@ export interface WsMessageFuturesUserDataOrderTradeUpdateEventRaw
     pP: boolean; // ignore
     si: numberInString; // ignore
     ss: numberInString; // ignore
+    V: string; 
+    pm: string;
+    gtd: number;
   };
 }
 export interface WsMessageFuturesUserDataTradeLiteEventRaw

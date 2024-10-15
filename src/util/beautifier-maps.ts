@@ -260,6 +260,9 @@ export const BEAUTIFIER_EVENT_MAP = {
     AP: 'trailingStopActivationPrice',
     cr: 'trailingStopCallbackRate',
     rp: 'realisedProfit',
+    V: 'selfTradePrevention',
+    pm: 'priceMatch',
+    gtd: 'goodTillDate',
   },
   ACCOUNT_CONFIG_UPDATEEvent: {
     e: 'eventType',
