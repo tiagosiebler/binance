@@ -5290,3 +5290,107 @@ export interface SpecialLowLatencyKeyInfo {
   ip: string;
   type: 'HMAC_SHA256' | 'RSA' | 'Ed25519';
 }
+
+export interface SolStakingAccount {
+  bnsolAmount: string; // Amount in bNSOL
+  holdingInSOL: string; // Holding in SOL
+  thirtyDaysProfitInSOL: string; // 30 days profit in SOL
+}
+
+export interface SolStakingQuota {
+  leftStakingPersonalQuota: string; // Remaining personal staking quota
+  leftRedemptionPersonalQuota: string; // Remaining personal redemption quota
+  minStakeAmount: string; // Minimum stake amount
+  minRedeemAmount: string; // Minimum redeem amount
+  redeemPeriod: number; // Redemption period in days
+  stakeable: boolean; // Whether staking is possible
+  redeemable: boolean; // Whether redemption is possible
+  soldOut: boolean; // Whether the staking is sold out
+  commissionFee: string; // Commission fee
+  nextEpochTime: number; // Time for the next epoch
+  calculating: boolean; // Whether calculations are ongoing
+}
+
+export interface SubscribeSolStakingResponse {
+  success: boolean; // Indicates if the subscription was successful
+  bnsolAmount: string; // Amount in bNSOL received
+  exchangeRate: string; // SOL amount per 1 BNSOL
+}
+
+export interface RedeemSolResponse {
+  success: boolean; // Indicates if the redemption was successful
+  solAmount: string; // Amount in SOL received
+  exchangeRate: string; // SOL amount per 1 BNSOL
+  arrivalTime: number; // Time of arrival for the redeemed SOL
+}
+
+export interface GetSolStakingHistoryReq {
+  startTime?: number; // Optional, start time in milliseconds
+  endTime?: number; // Optional, end time in milliseconds
+  current?: number; // Optional, current page, default is 1
+  size?: number; // Optional, number of records per page, default is 10, max is 100
+  recvWindow?: number; // Optional, cannot be greater than 60000
+  timestamp: number; // Mandatory
+}
+
+export interface SolStakingHistoryRecord {
+  time: number; // Time of the staking event
+  asset: string; // Asset involved, e.g., SOL
+  amount: string; // Amount staked
+  distributeAsset: string; // Asset distributed, e.g., BNSOL
+  distributeAmount: string; // Amount distributed
+  exchangeRate: string; // Exchange rate at the time
+  status: 'PENDING' | 'SUCCESS' | 'FAILED'; // Status of the staking event
+}
+
+export interface GetSolRedemptionHistoryReq {
+  startTime?: number; // Optional, start time in milliseconds
+  endTime?: number; // Optional, end time in milliseconds
+  current?: number; // Optional, current page, default is 1
+  size?: number; // Optional, number of records per page, default is 10, max is 100
+  recvWindow?: number; // Optional, cannot be greater than 60000
+  timestamp: number; // Mandatory
+}
+
+export interface SolRedemptionHistoryRecord {
+  time: number; // Time of the redemption event
+  arrivalTime: number; // Time of arrival for the redeemed SOL
+  asset: string; // Asset redeemed, e.g., BNSOL
+  amount: string; // Amount redeemed
+  distributeAsset: string; // Asset distributed, e.g., SOL
+  distributeAmount: string; // Amount distributed
+  exchangeRate: string; // Exchange rate at the time
+  status: 'PENDING' | 'SUCCESS' | 'FAILED'; // Status of the redemption event
+}
+
+export interface GetBnsolRewardsHistoryReq {
+  startTime?: number; // Optional, start time in milliseconds
+  endTime?: number; // Optional, end time in milliseconds
+  current?: number; // Optional, current page, default is 1
+  size?: number; // Optional, number of records per page, default is 10, max is 100
+  recvWindow?: number; // Optional, cannot be greater than 60000
+  timestamp: number; // Mandatory
+}
+
+export interface BnsolRewardHistoryRecord {
+  time: number; // Time of the reward event
+  amountInSOL: string; // Reward amount in SOL
+  holding: string; // BNSOL holding balance
+  holdingInSOL: string; // BNSOL holding balance in SOL
+  annualPercentageRate: string; // Annual Percentage Rate (e.g., "0.5" means 50%)
+}
+
+export interface GetBnsolRateHistoryReq {
+  startTime?: number; // Optional, start time in milliseconds
+  endTime?: number; // Optional, end time in milliseconds
+  current?: number; // Optional, current page, default is 1
+  size?: number; // Optional, number of records per page, default is 10, max is 100
+  recvWindow?: number; // Optional, cannot be greater than 60000
+  timestamp: number; // Mandatory
+}
+
+export interface BnsolRateHistoryRecord {
+  annualPercentageRate: string; // BNSOL APR
+  exchangeRate: string; // SOL amount per 1 BNSOL
+  time: number; // Time of the rate record
+}

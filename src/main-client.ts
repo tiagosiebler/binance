@@ -519,6 +519,17 @@ import {
   CreateSpecialLowLatencyKeyParams,
   SpecialLowLatencyKeyResponse,
   SpecialLowLatencyKeyInfo,
+  SolStakingAccount,
+  SolStakingQuota,
+  SubscribeSolStakingResponse,
+  RedeemSolResponse,
+  GetSolStakingHistoryReq,
+  SolStakingHistoryRecord,
+  SolRedemptionHistoryRecord,
+  GetBnsolRewardsHistoryReq,
+  BnsolRewardHistoryRecord,
+  BnsolRateHistoryRecord,
+  GetBnsolRateHistoryReq,
 } from './types/spot';
 
 import {
@@ -2125,7 +2136,7 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
-   * STAKING Endpoints - Account
+   * STAKING Endpoints - ETH Staking - Account
    *
    **/
 
@@ -2146,7 +2157,7 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
-   * STAKING Endpoints - Staking
+   * STAKING Endpoints - ETH Staking- Staking
    *
    **/
 
@@ -2175,7 +2186,7 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
-   * STAKING Endpoints - History
+   * STAKING Endpoints - ETH Staking - History
    *
    **/
 
@@ -2286,6 +2297,83 @@ export class MainClient extends BaseRestClient {
     productId: string;
   }): Promise<StakingPersonalLeftQuota> {
     return this.getPrivate('sapi/v1/staking/personalLeftQuota', params);
+  }
+
+  /**
+   *
+   * STAKING Endpoints - SOL Staking- Account
+   *
+   **/
+
+  getSolStakingAccount(): Promise<SolStakingAccount> {
+    return this.getPrivate('sapi/v1/sol-staking/account');
+  }
+
+  getSolStakingQuota(): Promise<SolStakingQuota> {
+    return this.getPrivate('sapi/v1/sol-staking/sol/quota');
+  }
+
+  /**
+   *
+   * STAKING Endpoints - SOL Staking - Staking
+   *
+   **/
+
+  subscribeSolStaking(params: {
+    amount: number;
+  }): Promise<SubscribeSolStakingResponse> {
+    return this.postPrivate('sapi/v1/sol-staking/sol/stake', params);
+  }
+
+  redeemSol(params: { amount: number }): Promise<RedeemSolResponse> {
+    return this.postPrivate('sapi/v1/sol-staking/sol/redeem', params);
+  }
+
+  /**
+   *
+   * STAKING Endpoints - SOL Staking- History
+   *
+   **/
+
+  getSolStakingHistory(params?: GetSolStakingHistoryReq): Promise<{
+    rows: SolStakingHistoryRecord[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/sol-staking/sol/history/stakingHistory',
+      params,
+    );
+  }
+
+  getSolRedemptionHistory(params?: {
+    rows: SolRedemptionHistoryRecord[];
+    total: number;
+  }): Promise<SolRedemptionHistoryRecord> {
+    return this.getPrivate(
+      'sapi/v1/sol-staking/sol/history/redemptionHistory',
+      params,
+    );
+  }
+
+  getBnsolRewardsHistory(params?: GetBnsolRewardsHistoryReq): Promise<{
+    estRewardsInSOL: string;
+    rows: BnsolRewardHistoryRecord[];
+    total: number;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/sol-staking/sol/history/bnsolRewardsHistory',
+      params,
+    );
+  }
+
+  getBnsolRateHistory(params?: GetBnsolRateHistoryReq): Promise<{
+    rows: BnsolRateHistoryRecord[];
+    total: string;
+  }> {
+    return this.getPrivate(
+      'sapi/v1/sol-staking/sol/history/rateHistory',
+      params,
+    );
   }
 
   /**

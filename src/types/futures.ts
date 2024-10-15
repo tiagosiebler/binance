@@ -106,6 +106,23 @@ export type FuturesOrderType =
   | 'TAKE_PROFIT_MARKET'
   | 'TRAILING_STOP_MARKET';
 
+export type SelfTradePreventionMode =
+  | 'NONE'
+  | 'EXPIRE_TAKER'
+  | 'EXPIRE_MAKER'
+  | 'EXPIRE_BOTH';
+
+export type PriceMatchMode =
+  | 'NONE'
+  | 'OPPONENT'
+  | 'OPPONENT_5'
+  | 'OPPONENT_10'
+  | 'OPPONENT_20'
+  | 'QUEUE'
+  | 'QUEUE_5'
+  | 'QUEUE_10'
+  | 'QUEUE_20';
+
 // When using the submitMultipleOrders() endpoint, it seems to expect strings instead of numbers. All other endpoints use numbers.
 export interface NewFuturesOrderParams<numberType = number> {
   symbol: string;
@@ -124,6 +141,8 @@ export interface NewFuturesOrderParams<numberType = number> {
   workingType?: WorkingType;
   priceProtect?: BooleanStringCapitalised;
   newOrderRespType?: OrderResponseType;
+  selfTradePreventionMode?: SelfTradePreventionMode;
+  priceMatch?: PriceMatchMode;
 }
 
 export interface ModifyFuturesOrderParams<numberType = number> {
@@ -425,6 +444,8 @@ export interface NewOrderResult {
   updateTime: number;
   workingType: WorkingType;
   priceProtect: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  priceMatch: PriceMatchMode;
 }
 
 export interface NewOrderError {
@@ -456,6 +477,8 @@ export interface OrderResult {
   updateTime: number;
   workingType: WorkingType;
   priceProtect: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  priceMatch: PriceMatchMode;
 }
 
 export interface ModifyFuturesOrderResult {
@@ -481,6 +504,8 @@ export interface ModifyFuturesOrderResult {
   priceProtect: boolean;
   origType: FuturesOrderType;
   updateTime: number;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  priceMatch: PriceMatchMode;
 }
 
 export interface CancelFuturesOrderResult {
@@ -506,6 +531,8 @@ export interface CancelFuturesOrderResult {
   updateTime: number;
   workingType: WorkingType;
   priceProtect: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  priceMatch: PriceMatchMode;
 }
 
 export interface CancelAllOpenOrdersResult {

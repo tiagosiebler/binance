@@ -116,6 +116,13 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `queryMarginAccountTradeList()` | :closed_lock_with_key:  | GET | `sapi/v1/margin/myTrades` |
 | `submitSmallLiabilityExchange()` | :closed_lock_with_key:  | POST | `sapi/v1/margin/exchange-small-liability` |
 | `submitManualLiquidation()` | :closed_lock_with_key:  | POST | `sapi/v1/margin/manual-liquidation` |
+| `submitMarginOTOOrder()` | :closed_lock_with_key:  | POST | `sapi/v1/margin/order/oto` |
+| `submitMarginOTOCOOrder()` | :closed_lock_with_key:  | POST | `sapi/v1/margin/order/otoco` |
+| `createMarginSpecialLowLatencyKey()` | :closed_lock_with_key:  | POST | `sapi/v1/margin/apiKey` |
+| `deleteMarginSpecialLowLatencyKey()` | :closed_lock_with_key:  | DELETE | `sapi/v1/margin/apiKey` |
+| `updateMarginIPForSpecialLowLatencyKey()` | :closed_lock_with_key:  | PUT | `sapi/v1/margin/apiKey/ip` |
+| `getMarginSpecialLowLatencyKeys()` | :closed_lock_with_key:  | GET | `sapi/v1/margin/api-key-list` |
+| `getMarginSpecialLowLatencyKey()` | :closed_lock_with_key:  | GET | `sapi/v1/margin/apiKey` |
 | `getCrossMarginTransferHistory()` | :closed_lock_with_key:  | GET | `sapi/v1/margin/transfer` |
 | `queryMaxTransferOutAmount()` | :closed_lock_with_key:  | GET | `sapi/v1/margin/maxTransferable` |
 | `updateCrossMarginMaxLeverage()` | :closed_lock_with_key:  | POST | `sapi/v1/margin/max-leverage` |
@@ -266,6 +273,14 @@ This table includes all endpoints from the official Exchange API docs and corres
 | `getStakingProductPosition()` | :closed_lock_with_key:  | GET | `sapi/v1/staking/position` |
 | `getStakingHistory()` | :closed_lock_with_key:  | GET | `sapi/v1/staking/stakingRecord` |
 | `getPersonalLeftQuotaOfStakingProduct()` | :closed_lock_with_key:  | GET | `sapi/v1/staking/personalLeftQuota` |
+| `getSolStakingAccount()` | :closed_lock_with_key:  | GET | `sapi/v1/sol-staking/account` |
+| `getSolStakingQuota()` | :closed_lock_with_key:  | GET | `sapi/v1/sol-staking/sol/quota` |
+| `subscribeSolStaking()` | :closed_lock_with_key:  | POST | `sapi/v1/sol-staking/sol/stake` |
+| `redeemSol()` | :closed_lock_with_key:  | POST | `sapi/v1/sol-staking/sol/redeem` |
+| `getSolStakingHistory()` | :closed_lock_with_key:  | GET | `sapi/v1/sol-staking/sol/history/stakingHistory` |
+| `getSolRedemptionHistory()` | :closed_lock_with_key:  | GET | `sapi/v1/sol-staking/sol/history/redemptionHistory` |
+| `getBnsolRewardsHistory()` | :closed_lock_with_key:  | GET | `sapi/v1/sol-staking/sol/history/bnsolRewardsHistory` |
+| `getBnsolRateHistory()` | :closed_lock_with_key:  | GET | `sapi/v1/sol-staking/sol/history/rateHistory` |
 | `getFuturesLeadTraderStatus()` | :closed_lock_with_key:  | GET | `sapi/v1/copyTrading/futures/userStatus` |
 | `getFuturesLeadTradingSymbolWhitelist()` | :closed_lock_with_key:  | GET | `sapi/v1/copyTrading/futures/leadSymbol` |
 | `getMiningAlgos()` |  | GET | `sapi/v1/mining/pub/algoList` |
