@@ -1,5 +1,7 @@
 const { MainClient } = require('binance');
 
+  // This example shows how to call this Binance API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "binance" for Binance exchange
+  // This Binance API SDK is available on npm via "npm install binance"
   // ENDPOINT: sapi/v2/futures/loan/wallet
   // METHOD: GET
   // PUBLIC: NO
@@ -11,9 +13,9 @@ const client = new MainClient({
 });
 
 client.getCrossCollateralWalletV2(params)
-  .then(response => {
+  .then((response) => {
     console.log(response);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
   });

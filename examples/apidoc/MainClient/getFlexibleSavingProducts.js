@@ -1,6 +1,8 @@
 const { MainClient } = require('binance');
 
-  // ENDPOINT: /sapi/v1/simple-earn/flexible/list
+  // This example shows how to call this Binance API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "binance" for Binance exchange
+  // This Binance API SDK is available on npm via "npm install binance"
+  // ENDPOINT: sapi/v1/simple-earn/flexible/list
   // METHOD: GET
   // PUBLIC: NO
   // Link to function: https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L2768
@@ -11,9 +13,9 @@ const client = new MainClient({
 });
 
 client.getFlexibleSavingProducts(params)
-  .then(response => {
+  .then((response) => {
     console.log(response);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
   });

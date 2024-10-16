@@ -2762,14 +2762,14 @@ export class MainClient extends BaseRestClient {
    **/
 
   getSimpleEarnAccount(): Promise<SimpleEarnAccountResponse> {
-    return this.getPrivate(`/sapi/v1/simple-earn/account`);
+    return this.getPrivate(`sapi/v1/simple-earn/account`);
   }
 
   getFlexibleSavingProducts(params?: SimpleEarnProductListParams): Promise<{
     rows: SimpleEarnFlexibleProduct[];
     total: number;
   }> {
-    return this.getPrivate(`/sapi/v1/simple-earn/flexible/list`, params);
+    return this.getPrivate(`sapi/v1/simple-earn/flexible/list`, params);
   }
 
   getSimpleEarnLockedProductList(
@@ -2778,7 +2778,7 @@ export class MainClient extends BaseRestClient {
     rows: SimpleEarnLockedProduct[];
     total: number;
   }> {
-    return this.getPrivate(`/sapi/v1/simple-earn/locked/list`, params);
+    return this.getPrivate(`sapi/v1/simple-earn/locked/list`, params);
   }
 
   getFlexibleProductPosition(
@@ -2787,7 +2787,7 @@ export class MainClient extends BaseRestClient {
     rows: any[];
     total: number;
   }> {
-    return this.getPrivate(`/sapi/v1/simple-earn/flexible/position`, params);
+    return this.getPrivate(`sapi/v1/simple-earn/flexible/position`, params);
   }
 
   getLockedProductPosition(
@@ -2796,7 +2796,7 @@ export class MainClient extends BaseRestClient {
     rows: SimpleEarnLockedProductPosition[];
     total: number;
   }> {
-    return this.getPrivate(`/sapi/v1/simple-earn/locked/position`, params);
+    return this.getPrivate(`sapi/v1/simple-earn/locked/position`, params);
   }
 
   getFlexiblePersonalLeftQuota(params: { productId: string }): Promise<{
@@ -2826,25 +2826,25 @@ export class MainClient extends BaseRestClient {
   purchaseFlexibleProduct(
     params: SimpleEarnSubscribeProductParams,
   ): Promise<SimpleEarnSubscribeFlexibleProductResponse> {
-    return this.postPrivate(`/sapi/v1/simple-earn/flexible/subscribe`, params);
+    return this.postPrivate(`sapi/v1/simple-earn/flexible/subscribe`, params);
   }
 
   subscribeSimpleEarnLockedProduct(
     params: SimpleEarnSubscribeProductParams,
   ): Promise<SimpleEarnSubscribeLockedProductResponse> {
-    return this.postPrivate(`/sapi/v1/simple-earn/locked/subscribe`, params);
+    return this.postPrivate(`sapi/v1/simple-earn/locked/subscribe`, params);
   }
 
   redeemFlexibleProduct(params: {
     positionId: string;
   }): Promise<SimpleEarnRedeemResponse> {
-    return this.postPrivate(`/sapi/v1/simple-earn/flexible/redeem`, params);
+    return this.postPrivate(`sapi/v1/simple-earn/flexible/redeem`, params);
   }
 
   redeemLockedProduct(params: {
     positionId: string;
   }): Promise<SimpleEarnRedeemResponse> {
-    return this.postPrivate(`/sapi/v1/simple-earn/locked/redeem`, params);
+    return this.postPrivate(`sapi/v1/simple-earn/locked/redeem`, params);
   }
 
   setFlexibleAutoSubscribe(params: SetAutoSubscribeParams): Promise<{
