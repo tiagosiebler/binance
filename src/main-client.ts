@@ -3728,7 +3728,7 @@ export class MainClient extends BaseRestClient {
    **/
   getBrokerUserCustomisedId(market: 'spot' | 'futures') {
     const prefix = market === 'spot' ? 'sapi' : 'fapi';
-    return this.getPrivate(prefix + 'v1/apiReferral/userCustomization');
+    return this.getPrivate(prefix + '/v1/apiReferral/userCustomization');
   }
 
   /**
