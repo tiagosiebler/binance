@@ -154,7 +154,7 @@ describe('Beautifier', () => {
         ];
 
         expect(
-          beautifier.beautifyWsMessage(data, '24hrMiniTicker')
+          beautifier.beautifyWsMessage(data, '24hrMiniTicker'),
         ).toStrictEqual([
           {
             eventType: '24hrMiniTicker',
@@ -915,6 +915,138 @@ describe('Beautifier', () => {
           },
           unkn: true,
         });
+      });
+    });
+
+    it('should beautify USDM futures STRATEGY_UPDATE events', () => {
+      const data = {
+        e: 'STRATEGY_UPDATE', // Event Type
+        T: 1669261797627, // Transaction Time
+        E: 1669261797628, // Event Time
+        su: {
+          si: 176054594, // Strategy ID
+          st: 'GRID', // Strategy Type
+          ss: 'NEW', // Strategy Status
+          s: 'BTCUSDT', // Symbol
+          ut: 1669261797627, // Update Time
+          c: 8007, // opCode
+        },
+      };
+
+      expect(beautifier.beautifyWsMessage(data, data.e)).toStrictEqual({
+        eventType: 'STRATEGY_UPDATE',
+        transactionTime: 1669261797627,
+        eventTime: 1669261797628,
+        strategy: {
+          strategyId: 176054594,
+          strategyType: 'GRID',
+          strategyStatus: 'NEW',
+          symbol: 'BTCUSDT',
+          updateTime: 1669261797627,
+          opCode: 8007,
+        },
+      });
+    });
+
+    it('should beautify USDM futures GRID_UPDATE events', () => {
+      const data = {
+        e: 'GRID_UPDATE', // Event Type
+        T: 1669262908216, // Transaction Time
+        E: 1669262908218, // Event Time
+        gu: {
+          si: 176057039, // Strategy ID
+          st: 'GRID', // Strategy Type
+          ss: 'WORKING', // Strategy Status
+          s: 'BTCUSDT', // Symbol
+          r: '-0.00300716', // Realized PNL
+          up: '16720', // Unmatched Average Price
+          uq: '-0.001', // Unmatched Qty
+          uf: '-0.00300716', // Unmatched Fee
+          mp: '0.0', // Matched PNL
+          ut: 1669262908197, // Update Time
+        },
+      };
+
+      expect(beautifier.beautifyWsMessage(data, data.e)).toStrictEqual({
+        eventType: 'GRID_UPDATE',
+        transactionTime: 1669262908216,
+        eventTime: 1669262908218,
+        grid: {
+          strategyId: 176057039,
+          strategyType: 'GRID',
+          strategyStatus: 'WORKING',
+          symbol: 'BTCUSDT',
+          realizedPnl: '-0.00300716',
+          unmatchedAveragePrice: '16720',
+          unmatchedQuantity: '-0.001',
+          unmatchedFee: '-0.00300716',
+          matchedPnl: '0.0',
+          updateTime: 1669262908197,
+        },
+      });
+    });
+
+    it('should beautify USDM futures contractInfo events', () => {
+      const data = {
+        e: 'contractInfo', // Event Type
+        E: 1669356423908, // Event Time
+        s: 'IOTAUSDT', // Symbol
+        ps: 'IOTAUSDT', // Pair
+        ct: 'PERPETUAL', // Contract type
+        dt: 4133404800000, // Delivery date time
+        ot: 1569398400000, // onboard date time
+        cs: 'TRADING', // Contract status
+        bks: [
+          {
+            bs: 1, // Notional bracket
+            bnf: 0, // Floor notional of this bracket
+            bnc: 5000, // Cap notional of this bracket
+            mmr: 0.01, // Maintenance ratio for this bracket
+            cf: 0, // Auxiliary number for quick calculation
+            mi: 21, // Min leverage for this bracket
+            ma: 50, // Max leverage for this bracket
+          },
+          {
+            bs: 2,
+            bnf: 5000,
+            bnc: 25000,
+            mmr: 0.025,
+            cf: 75,
+            mi: 11,
+            ma: 20,
+          },
+        ],
+      };
+
+      expect(beautifier.beautifyWsMessage(data, data.e)).toStrictEqual({
+        eventType: 'contractInfo',
+        eventTime: 1669356423908,
+        symbol: 'IOTAUSDT',
+        pair: 'IOTAUSDT',
+        contractType: 'PERPETUAL',
+        deliveryDateTime: 4133404800000,
+        onboardDateTime: 1569398400000,
+        contractStatus: 'TRADING',
+        notionalBrackets: [
+          {
+            notionalBracket: 1,
+            floorNotional: 0,
+            capNotional: 5000,
+            maintenanceRatio: 0.01,
+            auxiliaryNumber: 0,
+            minLeverage: 21,
+            maxLeverage: 50,
+          },
+          {
+            notionalBracket: 2,
+            floorNotional: 5000,
+            capNotional: 25000,
+            maintenanceRatio: 0.025,
+            auxiliaryNumber: 75,
+            minLeverage: 11,
+            maxLeverage: 20,
+          },
+        ],
       });
     });
 

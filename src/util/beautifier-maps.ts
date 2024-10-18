@@ -435,8 +435,8 @@ export const BEAUTIFIER_EVENT_MAP = {
     T: 'orderTradeTime',
   },
 
-  contractInfo: {
-    e: 'contractInfo', // Event Type
+  contractInfoEvent: {
+    e: 'eventType', // Event Type
     E: 'eventTime', // Event Time
     s: 'symbol', // Symbol
     ps: 'pair', // Pair
@@ -446,18 +446,20 @@ export const BEAUTIFIER_EVENT_MAP = {
     cs: 'contractStatus', // Contract status
     bks: 'notionalBrackets',
   },
-  notionalBrackets: {
-    bs: 'notionalBracket', // Notional bracket
-    bnf: 'floorNotional', // Floor notional of this bracket
-    bnc: 'capNotional', // Cap notional of this bracket
-    mmr: 'maintenanceRatio', // Maintenance ratio for this bracket
-    cf: 'auxiliaryNumber', // Auxiliary number for quick calculation
-    mi: 'minLeverage', // Min leverage for this bracket
-    ma: 'maxLeverage', // Max leverage for this bracket
-  },
+  notionalBrackets: [
+    {
+      bs: 'notionalBracket', // Notional bracket
+      bnf: 'floorNotional', // Floor notional of this bracket
+      bnc: 'capNotional', // Cap notional of this bracket
+      mmr: 'maintenanceRatio', // Maintenance ratio for this bracket
+      cf: 'auxiliaryNumber', // Auxiliary number for quick calculation
+      mi: 'minLeverage', // Min leverage for this bracket
+      ma: 'maxLeverage', // Max leverage for this bracket
+    },
+  ],
 
-  gridUpdate: {
-    e: 'GRID_UPDATE', // Event Type
+  GRID_UPDATEEvent: {
+    e: 'eventType', // Event Type
     T: 'transactionTime', // Transaction Time
     E: 'eventTime', // Event Time
     gu: 'grid',
@@ -469,18 +471,19 @@ export const BEAUTIFIER_EVENT_MAP = {
     s: 'symbol', // Symbol
     r: 'realizedPnl', // Realized PNL
     up: 'unmatchedAveragePrice', // Unmatched Average Price
-    uq: 'unmatchedQty', // Unmatched Qty
+    uq: 'unmatchedQuantity', // Unmatched Quantity
     uf: 'unmatchedFee', // Unmatched Fee
     mp: 'matchedPnl', // Matched PNL
     ut: 'updateTime', // Update Time
   },
 
-  strategyUpdate: {
-    e: 'STRATEGY_UPDATE', // Event Type
+  STRATEGY_UPDATEEvent: {
+    e: 'eventType', // Event Type
     T: 'transactionTime', // Transaction Time
     E: 'eventTime', // Event Time
     su: 'strategy',
   },
+
   strategy: {
     si: 'strategyId', // Strategy ID
     st: 'strategyType', // Strategy Type

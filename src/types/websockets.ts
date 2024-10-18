@@ -992,11 +992,11 @@ export interface WsMessageFuturesUserDataGridUpdateFormatted
     strategyType: string;
     strategyStatus: string;
     symbol: string;
-    realizedPnl: number;
-    unmatchedAveragePrice: number;
-    unmatchedQuantity: number;
-    unmatchedFee: number;
-    matchedPnl: number;
+    realizedPnl: numberInString;
+    unmatchedAveragePrice: numberInString;
+    unmatchedQuantity: numberInString;
+    unmatchedFee: numberInString;
+    matchedPnl: numberInString;
     updateTime: number;
   };
 }
