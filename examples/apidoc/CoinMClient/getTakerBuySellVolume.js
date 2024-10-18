@@ -5,7 +5,6 @@ const { CoinMClient } = require('binance');
   // ENDPOINT: futures/data/takerBuySellVol
   // METHOD: GET
   // PUBLIC: YES
-  // Link to function: https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L249
 
 const client = new CoinMClient({
   apiKey: 'insert_api_key_here',

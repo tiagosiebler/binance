@@ -5,7 +5,6 @@ const { USDMClient } = require('binance');
   // ENDPOINT: fapi/v1/apiReferral/rebateVol
   // METHOD: GET
   // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L730
 
 const client = new USDMClient({
   apiKey: 'insert_api_key_here',
