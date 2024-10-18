@@ -5,7 +5,6 @@ const { USDMClient } = require('binance');
   // ENDPOINT: fapi/v1/fundingRate
   // METHOD: GET
   // PUBLIC: YES
-  // Link to function: https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L189
 
 const client = new USDMClient({
   apiKey: 'insert_api_key_here',

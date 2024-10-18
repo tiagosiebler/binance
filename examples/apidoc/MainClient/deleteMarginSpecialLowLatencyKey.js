@@ -5,7 +5,6 @@ const { MainClient } = require('binance');
   // ENDPOINT: sapi/v1/margin/apiKey
   // METHOD: DELETE
   // PUBLIC: NO
-  // Link to function: https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L1096
 
 const client = new MainClient({
   apiKey: 'insert_api_key_here',

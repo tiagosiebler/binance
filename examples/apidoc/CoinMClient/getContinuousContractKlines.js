@@ -5,7 +5,6 @@ const { CoinMClient } = require('binance');
   // ENDPOINT: dapi/v1/continuousKlines
   // METHOD: GET
   // PUBLIC: YES
-  // Link to function: https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L176
 
 const client = new CoinMClient({
   apiKey: 'insert_api_key_here',

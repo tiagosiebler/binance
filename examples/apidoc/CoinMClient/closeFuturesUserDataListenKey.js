@@ -5,7 +5,6 @@ const { CoinMClient } = require('binance');
   // ENDPOINT: dapi/v1/listenKey
   // METHOD: DELETE
   // PUBLIC: YES
-  // Link to function: https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L631
 
 const client = new CoinMClient({
   apiKey: 'insert_api_key_here',

@@ -5,7 +5,6 @@ const { USDMClient } = require('binance');
   // ENDPOINT: fapi/v1/ticker/24hr
   // METHOD: GET
   // PUBLIC: YES
-  // Link to function: https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L218
 
 const client = new USDMClient({
   apiKey: 'insert_api_key_here',
