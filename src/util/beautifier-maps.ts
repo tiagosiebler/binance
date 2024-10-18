@@ -434,4 +434,62 @@ export const BEAUTIFIER_EVENT_MAP = {
     z: 'orderFilledAccumulatedQuantity',
     T: 'orderTradeTime',
   },
+
+  contractInfoEvent: {
+    e: 'eventType', // Event Type
+    E: 'eventTime', // Event Time
+    s: 'symbol', // Symbol
+    ps: 'pair', // Pair
+    ct: 'contractType', // Contract type
+    dt: 'deliveryDateTime', // Delivery date time
+    ot: 'onboardDateTime', // onboard date time
+    cs: 'contractStatus', // Contract status
+    bks: 'notionalBrackets',
+  },
+  notionalBrackets: [
+    {
+      bs: 'notionalBracket', // Notional bracket
+      bnf: 'floorNotional', // Floor notional of this bracket
+      bnc: 'capNotional', // Cap notional of this bracket
+      mmr: 'maintenanceRatio', // Maintenance ratio for this bracket
+      cf: 'auxiliaryNumber', // Auxiliary number for quick calculation
+      mi: 'minLeverage', // Min leverage for this bracket
+      ma: 'maxLeverage', // Max leverage for this bracket
+    },
+  ],
+
+  GRID_UPDATEEvent: {
+    e: 'eventType', // Event Type
+    T: 'transactionTime', // Transaction Time
+    E: 'eventTime', // Event Time
+    gu: 'grid',
+  },
+  grid: {
+    si: 'strategyId', // Strategy ID
+    st: 'strategyType', // Strategy Type
+    ss: 'strategyStatus', // Strategy Status
+    s: 'symbol', // Symbol
+    r: 'realizedPnl', // Realized PNL
+    up: 'unmatchedAveragePrice', // Unmatched Average Price
+    uq: 'unmatchedQuantity', // Unmatched Quantity
+    uf: 'unmatchedFee', // Unmatched Fee
+    mp: 'matchedPnl', // Matched PNL
+    ut: 'updateTime', // Update Time
+  },
+
+  STRATEGY_UPDATEEvent: {
+    e: 'eventType', // Event Type
+    T: 'transactionTime', // Transaction Time
+    E: 'eventTime', // Event Time
+    su: 'strategy',
+  },
+
+  strategy: {
+    si: 'strategyId', // Strategy ID
+    st: 'strategyType', // Strategy Type
+    ss: 'strategyStatus', // Strategy Status
+    s: 'symbol', // Symbol
+    ut: 'updateTime', // Update Time
+    c: 'opCode', // opCode
+  },
 };
