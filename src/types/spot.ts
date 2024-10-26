@@ -99,6 +99,7 @@ export interface AllCoinsInformationResponse {
   free: numberInString;
   freeze: numberInString;
   ipoable: numberInString;
+  ipoing: numberInString;
   isLegalMoney: boolean;
   locked: numberInString;
   name: string;
@@ -120,12 +121,21 @@ export interface CoinNetwork {
   name: string;
   network: string;
   resetAddressStatus: boolean;
-  specialTips: string;
+  specialTips?: string;
+  specialWithdrawTips?: string;
   unlockConfirm: number;
   withdrawDesc: string;
   withdrawEnable: boolean;
   withdrawFee: numberInString;
   withdrawMin: numberInString;
+  withdrawMax: numberInString;
+  withdrawIntegerMultiple: numberInString;
+  depositDust?: numberInString;
+  sameAddress: boolean;
+  estimatedArrivalTime: number;
+  busy: boolean;
+  contractAddressUrl?: string;
+  contractAddress?: string;
 }
 
 export interface SpotBalance {
