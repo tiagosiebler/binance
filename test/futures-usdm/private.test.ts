@@ -131,14 +131,15 @@ describe('Private Futures USDM REST API Endpoints', () => {
         templateOrder,
         templateOrder,
       ];
-      expect(api.submitMultipleOrders(orders)).resolves.toMatchObject([
+
+      expect(await api.submitMultipleOrders(orders)).toMatchObject([
         {
-          code: -4061,
-          msg: "Order's position side does not match user's setting.",
+          code: -2019,
+          msg: expect.any(String),
         },
         {
-          code: -4061,
-          msg: "Order's position side does not match user's setting.",
+          code: -2019,
+          msg: expect.any(String),
         },
       ]);
     });

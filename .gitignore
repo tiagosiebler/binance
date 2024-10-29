@@ -6,3 +6,6 @@ util/config.js
 coverage/
 yarn-error.log
 lib/*
+testfile.ts
+privaterepotracker
+restClientRegex.ts

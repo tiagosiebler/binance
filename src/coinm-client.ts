@@ -1,9 +1,13 @@
 import { AxiosRequestConfig } from 'axios';
 import {
+  ClassicPortfolioMarginAccount,
+  ClassicPortfolioMarginNotionalLimit,
   CoinMAccountTradeParams,
   CoinMOpenInterest,
   CoinMPositionTrade,
   CoinMSymbolOrderBookTicker,
+  FundingRate,
+  GetClassicPortfolioMarginNotionalLimitParams,
   PositionRisk,
   SymbolOrPair,
 } from './types/coin';
@@ -53,6 +57,7 @@ import {
   NewOrderResult,
   NewOrderError,
   OrderResult,
+  QuarterlyContractSettlementPrice,
   CancelFuturesOrderResult,
   CancelAllOpenOrdersResult,
   SetLeverageResult,
@@ -72,6 +77,7 @@ import {
   FuturesCoinMAccountBalance,
   FuturesCoinMAccountInformation,
   UserCommissionRate,
+  IndexPriceConstituents,
 } from './types/futures';
 
 import {
@@ -159,6 +165,10 @@ export class CoinMClient extends BaseRestClient {
     return this.get('dapi/v1/fundingRate', params);
   }
 
+  getFundingRate(params?: { symbol?: string }): Promise<FundingRate[]> {
+    return this.get('dapi/v1/fundingInfo', params);
+  }
+
   getKlines(params: KlinesParams): Promise<Kline[]> {
     return this.get('dapi/v1/klines', params);
   }
@@ -175,6 +185,10 @@ export class CoinMClient extends BaseRestClient {
 
   getMarkPriceKlines(params: SymbolKlinePaginatedParams): Promise<Kline[]> {
     return this.get('dapi/v1/markPriceKlines', params);
+  }
+
+  getPremiumIndexKlines(params: KlinesParams): Promise<Kline[]> {
+    return this.get('dapi/v1/premiumIndexKlines', params);
   }
 
   /**
@@ -243,33 +257,34 @@ export class CoinMClient extends BaseRestClient {
   }
 
   /**
-   *
-   * USD-Futures Account/Trade Endpoints
-   *
+   * possibly @deprecated
+   * Only in old documentation, not in new one
    **/
-
-  setPositionMode(params: PositionModeParams): Promise<ModeChangeResult> {
-    return this.postPrivate('dapi/v1/positionSide/dual', params);
-  }
-
-  getCurrentPositionMode(): Promise<PositionModeResponse> {
-    return this.getPrivate('dapi/v1/positionSide/dual');
-  }
-
-  submitNewOrder(
-    params: NewFuturesOrderParams,
-  ): Promise<NewOrderResult> {
-    this.validateOrderId(params, 'newClientOrderId');
-    return this.postPrivate('dapi/v1/order', params);
+  getIndexPriceConstituents(params: {
+    symbol: string;
+  }): Promise<IndexPriceConstituents> {
+    return this.get('dapi/v1/constituents', params);
   }
 
   /**
-   * Order modify function, currently only LIMIT order modification is supported, modified orders will be reordered in the match queue
-   */
-  modifyOrder(
-    params: ModifyFuturesOrderParams,
-  ): Promise<ModifyFuturesOrderResult> {
-    return this.putPrivate('dapi/v1/order', params);
+   * possibly @deprecated
+   * Only in old documentation, not in new one
+   **/
+  getQuarterlyContractSettlementPrices(params: {
+    pair: string;
+  }): Promise<QuarterlyContractSettlementPrice[]> {
+    return this.get('futures/data/delivery-price', params);
+  }
+
+  /**
+   *
+   * Trade Endpoints
+   *
+   **/
+
+  submitNewOrder(params: NewFuturesOrderParams): Promise<NewOrderResult> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.postPrivate('dapi/v1/order', params);
   }
 
   /**
@@ -289,6 +304,15 @@ export class CoinMClient extends BaseRestClient {
       batchOrders: `[${stringOrders.join(',')}]`,
     };
     return this.postPrivate('dapi/v1/batchOrders', requestBody);
+  }
+
+  /**
+   * Order modify function, currently only LIMIT order modification is supported, modified orders will be reordered in the match queue
+   */
+  modifyOrder(
+    params: ModifyFuturesOrderParams,
+  ): Promise<ModifyFuturesOrderResult> {
+    return this.putPrivate('dapi/v1/order', params);
   }
 
   /**
@@ -313,18 +337,8 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/orderAmendment', params);
   }
 
-  getOrder(params: GetOrderParams): Promise<OrderResult> {
-    return this.getPrivate('dapi/v1/order', params);
-  }
-
   cancelOrder(params: CancelOrderParams): Promise<CancelFuturesOrderResult> {
     return this.deletePrivate('dapi/v1/order', params);
-  }
-
-  cancelAllOpenOrders(
-    params: BasicSymbolParam,
-  ): Promise<CancelAllOpenOrdersResult> {
-    return this.deletePrivate('dapi/v1/allOpenOrders', params);
   }
 
   cancelMultipleOrders(
@@ -347,6 +361,12 @@ export class CoinMClient extends BaseRestClient {
     return this.deletePrivate('dapi/v1/batchOrders', requestParams);
   }
 
+  cancelAllOpenOrders(
+    params: BasicSymbolParam,
+  ): Promise<CancelAllOpenOrdersResult> {
+    return this.deletePrivate('dapi/v1/allOpenOrders', params);
+  }
+
   // Auto-cancel all open orders
   setCancelOrdersOnTimeout(
     params: CancelOrdersTimeoutParams,
@@ -354,32 +374,50 @@ export class CoinMClient extends BaseRestClient {
     return this.postPrivate('dapi/v1/countdownCancelAll', params);
   }
 
-  getCurrentOpenOrder(params: GetOrderParams): Promise<OrderResult> {
-    return this.getPrivate('dapi/v1/openOrder', params);
-  }
-
-  getAllOpenOrders(params?: Partial<BasicSymbolParam>): Promise<OrderResult[]> {
-    return this.getPrivate('dapi/v1/openOrders', params);
+  getOrder(params: GetOrderParams): Promise<OrderResult> {
+    return this.getPrivate('dapi/v1/order', params);
   }
 
   getAllOrders(params: GetAllOrdersParams): Promise<OrderResult[]> {
     return this.getPrivate('dapi/v1/allOrders', params);
   }
 
-  getBalance(): Promise<FuturesCoinMAccountBalance[]> {
-    return this.getPrivate('dapi/v1/balance');
+  getAllOpenOrders(params?: Partial<BasicSymbolParam>): Promise<OrderResult[]> {
+    return this.getPrivate('dapi/v1/openOrders', params);
   }
 
-  getAccountInformation(): Promise<FuturesCoinMAccountInformation> {
-    return this.getPrivate('dapi/v1/account');
+  getCurrentOpenOrder(params: GetOrderParams): Promise<OrderResult> {
+    return this.getPrivate('dapi/v1/openOrder', params);
+  }
+
+  getForceOrders(params?: GetForceOrdersParams): Promise<ForceOrderResult[]> {
+    return this.getPrivate('dapi/v1/forceOrders', params);
+  }
+
+  getAccountTrades(
+    params: CoinMAccountTradeParams & { orderId?: number },
+  ): Promise<CoinMPositionTrade[]> {
+    return this.getPrivate('dapi/v1/userTrades', params);
+  }
+
+  getPositions(): Promise<PositionRisk[]> {
+    return this.getPrivate('dapi/v1/positionRisk');
+  }
+
+  setPositionMode(params: PositionModeParams): Promise<ModeChangeResult> {
+    return this.postPrivate('dapi/v1/positionSide/dual', params);
+  }
+
+  setMarginType(params: SetMarginTypeParams): Promise<ModeChangeResult> {
+    return this.postPrivate('dapi/v1/marginType', params);
   }
 
   setLeverage(params: SetLeverageParams): Promise<SetLeverageResult> {
     return this.postPrivate('dapi/v1/leverage', params);
   }
 
-  setMarginType(params: SetMarginTypeParams): Promise<ModeChangeResult> {
-    return this.postPrivate('dapi/v1/marginType', params);
+  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
+    return this.getPrivate('dapi/v1/adlQuantile', params);
   }
 
   setIsolatedPositionMargin(
@@ -393,19 +431,24 @@ export class CoinMClient extends BaseRestClient {
   ): Promise<any> {
     return this.getPrivate('dapi/v1/positionMargin/history', params);
   }
+  /**
+   *
+   * Account Endpoints
+   *
+   **/
 
-  getPositions(): Promise<PositionRisk[]> {
-    return this.getPrivate('dapi/v1/positionRisk');
+  getBalance(): Promise<FuturesCoinMAccountBalance[]> {
+    return this.getPrivate('dapi/v1/balance');
   }
 
-  getAccountTrades(
-    params: CoinMAccountTradeParams & { orderId?: number },
-  ): Promise<CoinMPositionTrade[]> {
-    return this.getPrivate('dapi/v1/userTrades', params);
+  getAccountComissionRate(
+    params: BasicSymbolParam,
+  ): Promise<UserCommissionRate> {
+    return this.getPrivate('dapi/v1/commissionRate', params);
   }
 
-  getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
-    return this.getPrivate('dapi/v1/income', params);
+  getAccountInformation(): Promise<FuturesCoinMAccountInformation> {
+    return this.getPrivate('dapi/v1/account');
   }
 
   /**
@@ -417,27 +460,51 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v2/leverageBracket', params);
   }
 
-  getForceOrders(params?: GetForceOrdersParams): Promise<ForceOrderResult[]> {
-    return this.getPrivate('dapi/v1/forceOrders', params);
+  // TO ADD: dapi/v1/leverageBracket
+  // can use dapi/v2/leverageBracket
+
+  getCurrentPositionMode(): Promise<PositionModeResponse> {
+    return this.getPrivate('dapi/v1/positionSide/dual');
   }
 
-  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
-    return this.getPrivate('dapi/v1/adlQuantile', params);
+  getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
+    return this.getPrivate('dapi/v1/income', params);
   }
 
-  getAccountComissionRate(
-    params: BasicSymbolParam,
-  ): Promise<UserCommissionRate> {
-    return this.getPrivate('dapi/v1/commissionRate', params);
+  /**
+   *
+   * Portfolio Margin Endpoints
+   *
+   **/
+
+  getClassicPortfolioMarginAccount(params: {
+    asset: string;
+  }): Promise<ClassicPortfolioMarginAccount> {
+    return this.getPrivate('dapi/v1/pmAccountInfo', params);
+  }
+
+  /**
+   * @deprecated at 6th August, 2024
+   **/
+  getClassicPortfolioMarginNotionalLimits(
+    params?: GetClassicPortfolioMarginNotionalLimitParams,
+  ): Promise<{
+    notionalLimits: ClassicPortfolioMarginNotionalLimit[];
+  }> {
+    return this.getPrivate('dapi/v1/pmExchangeInfo', params);
   }
 
   /**
    *
    * Broker Futures Endpoints
+   * Possibly @deprecated, found only in old docs
+   * All broker endpoints start with /sapi/v1/broker or sapi/v2/broker or sapi/v3/broker
    *
    **/
 
-  // 1 == USDT-Margined, 2 == Coin-margined
+  /**
+   * @deprecated
+   **/
   getBrokerIfNewFuturesUser(
     brokerId: string,
     type: 1 | 2 = 1,
@@ -448,6 +515,9 @@ export class CoinMClient extends BaseRestClient {
     });
   }
 
+  /**
+   * @deprecated
+   **/
   setBrokerCustomIdForClient(
     customerId: string,
     email: string,
@@ -458,6 +528,9 @@ export class CoinMClient extends BaseRestClient {
     });
   }
 
+  /**
+   * @deprecated
+   **/
   getBrokerClientCustomIds(
     customerId: string,
     email: string,
@@ -472,18 +545,27 @@ export class CoinMClient extends BaseRestClient {
     });
   }
 
+  /**
+   * @deprecated
+   **/
   getBrokerUserCustomId(brokerId: string): Promise<any> {
     return this.getPrivate('dapi/v1/apiReferral/userCustomization', {
       brokerId,
     });
   }
 
+  /**
+   * @deprecated
+   **/
   getBrokerRebateDataOverview(type: 1 | 2 = 1): Promise<RebateDataOverview> {
     return this.getPrivate('dapi/v1/apiReferral/overview', {
       type,
     });
   }
 
+  /**
+   * @deprecated
+   **/
   getBrokerUserTradeVolume(
     type: 1 | 2 = 1,
     startTime?: number,
@@ -498,6 +580,9 @@ export class CoinMClient extends BaseRestClient {
     });
   }
 
+  /**
+   * @deprecated
+   **/
   getBrokerRebateVolume(
     type: 1 | 2 = 1,
     startTime?: number,
@@ -512,6 +597,9 @@ export class CoinMClient extends BaseRestClient {
     });
   }
 
+  /**
+   * @deprecated
+   **/
   getBrokerTradeDetail(
     type: 1 | 2 = 1,
     startTime?: number,

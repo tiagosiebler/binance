@@ -50,7 +50,11 @@ export type WsMessageFuturesUserDataEventRaw =
   | WsMessageFuturesUserDataMarginCallRaw
   | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
   | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw;
+  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw
+  | WsMessageFuturesUserDataTradeLiteEventRaw
+  | WsMessageFuturesUserDataStrategyUpdateRaw
+  | WsMessageFuturesUserDataGridUpdateRaw
+  | WsMessageFuturesUserDataContractInfoRaw;
 
 // TODO: consistent across USDM vs COINM?
 export type WsMessageFuturesUserDataEventFormatted =
@@ -59,7 +63,11 @@ export type WsMessageFuturesUserDataEventFormatted =
   | WsMessageFuturesUserDataMarginCallFormatted
   | WsMessageFuturesUserDataTradeUpdateEventFormatted
   | WsMessageFuturesUserDataAccountConfigUpdateEventFormatted
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted;
+  | WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted
+  | WsMessageFuturesUserDataTradeLiteEventFormatted
+  | WsMessageFuturesUserDataStrategyUpdateFormatted
+  | WsMessageFuturesUserDataGridUpdateFormatted
+  | WsMessageFuturesUserDataContractInfoFormatted;
 
 export type WsRawMessage =
   | WsMessageKlineRaw
@@ -753,7 +761,43 @@ export interface WsMessageFuturesUserDataOrderTradeUpdateEventRaw
     pP: boolean; // ignore
     si: numberInString; // ignore
     ss: numberInString; // ignore
+    V: string;
+    pm: string;
+    gtd: number;
   };
+}
+export interface WsMessageFuturesUserDataTradeLiteEventRaw
+  extends WsSharedBase {
+  e: 'TRADE_LITE'; // Event Type
+  E: number; // Event Time
+  T: number; // Transaction Time
+  s: string; // Symbol
+  q: string; // Original Quantity
+  p: string; // Original Price
+  m: boolean; // Is this trade the maker side?
+  c: string; // Client Order Id
+  S: 'BUY' | 'SELL'; // Side
+  L: string; // Last Filled Price
+  l: string; // Order Last Filled Quantity
+  t: number; // Trade Id
+  i: number; // Order Id
+}
+
+export interface WsMessageFuturesUserDataTradeLiteEventFormatted
+  extends WsSharedBase {
+  eventType: 'TRADE_LITE';
+  eventTime: number;
+  transactionTime: number;
+  symbol: string;
+  originalQuantity: number;
+  originalPrice: number;
+  isMakerSide: boolean;
+  clientOrderId: string;
+  side: 'BUY' | 'SELL';
+  lastFilledPrice: number;
+  lastFilledQuantity: number;
+  tradeId: number;
+  orderId: number;
 }
 
 export interface WsMessageFuturesUserDataTradeUpdateEventFormatted
@@ -888,4 +932,112 @@ export interface WsMessageForceOrderRaw extends WsSharedBase {
     z: string;
     T: number;
   };
+}
+
+export interface WsMessageFuturesUserDataStrategyUpdateRaw
+  extends WsSharedBase {
+  e: 'STRATEGY_UPDATE'; // Event Type
+  T: number; // Transaction Time
+  E: number; // Event Time
+  su: {
+    si: number; // Strategy ID
+    st: string; // Strategy Type
+    ss: string; // Strategy Status
+    s: string; // Symbol
+    ut: number; // Update Time
+    c: number; // opCode
+  };
+}
+
+export interface WsMessageFuturesUserDataStrategyUpdateFormatted
+  extends WsSharedBase {
+  eventType: 'STRATEGY_UPDATE';
+  transactionTime: number;
+  eventTime: number;
+  strategy: {
+    strategyId: number;
+    strategyType: string;
+    strategyStatus: string;
+    symbol: string;
+    updateTime: number;
+    opCode: number;
+  };
+}
+
+export interface WsMessageFuturesUserDataGridUpdateRaw extends WsSharedBase {
+  e: 'GRID_UPDATE'; // Event Type
+  T: number; // Transaction Time
+  E: number; // Event Time
+  gu: {
+    si: number; // Strategy ID
+    st: string; // Strategy Type
+    ss: string; // Strategy Status
+    s: string; // Symbol
+    r: numberInString; // Realized PNL
+    up: numberInString; // Unmatched Average Price
+    uq: numberInString; // Unmatched Qty
+    uf: numberInString; // Unmatched Fee
+    mp: numberInString; // Matched PNL
+    ut: number; // Update Time
+  };
+}
+
+export interface WsMessageFuturesUserDataGridUpdateFormatted
+  extends WsSharedBase {
+  eventType: 'GRID_UPDATE';
+  transactionTime: number;
+  eventTime: number;
+  grid: {
+    strategyId: number;
+    strategyType: string;
+    strategyStatus: string;
+    symbol: string;
+    realizedPnl: numberInString;
+    unmatchedAveragePrice: numberInString;
+    unmatchedQuantity: numberInString;
+    unmatchedFee: numberInString;
+    matchedPnl: numberInString;
+    updateTime: number;
+  };
+}
+
+export interface WsMessageFuturesUserDataContractInfoRaw extends WsSharedBase {
+  e: 'contractInfo'; // Event Type
+  E: number; // Event Time
+  s: string; // Symbol
+  ps: string; // Pair
+  ct: string; // Contract type
+  dt: number; // Delivery date time
+  ot: number; // onboard date time
+  cs: string; // Contract status
+  bks: {
+    bs: number; // Notional bracket
+    bnf: number; // Floor notional of this bracket
+    bnc: number; // Cap notional of this bracket
+    mmr: number; // Maintenance ratio for this bracket
+    cf: number; // Auxiliary number for quick calculation
+    mi: number; // Min leverage for this bracket
+    ma: number; // Max leverage for this bracket
+  }[];
+}
+
+export interface WsMessageFuturesUserDataContractInfoFormatted
+  extends WsSharedBase {
+  eventType: 'contractInfo';
+  eventTime: number;
+  symbol: string;
+  pair: string;
+  contractType: string;
+  deliveryDateTime: number;
+  onboardDateTime: number;
+  contractStatus: string;
+  notionalBrackets: {
+    notionalBracket: number;
+    floorNotional: number;
+    capNotional: number;
+    maintenanceRatio: number;
+    auxiliaryNumber: number;
+    minLeverage: number;
+    maxLeverage: number;
+  }[];
 }

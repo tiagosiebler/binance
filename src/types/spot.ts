@@ -99,6 +99,7 @@ export interface AllCoinsInformationResponse {
   free: numberInString;
   freeze: numberInString;
   ipoable: numberInString;
+  ipoing: numberInString;
   isLegalMoney: boolean;
   locked: numberInString;
   name: string;
@@ -120,12 +121,21 @@ export interface CoinNetwork {
   name: string;
   network: string;
   resetAddressStatus: boolean;
-  specialTips: string;
+  specialTips?: string;
+  specialWithdrawTips?: string;
   unlockConfirm: number;
   withdrawDesc: string;
   withdrawEnable: boolean;
   withdrawFee: numberInString;
   withdrawMin: numberInString;
+  withdrawMax: numberInString;
+  withdrawIntegerMultiple: numberInString;
+  depositDust?: numberInString;
+  sameAddress: boolean;
+  estimatedArrivalTime: number;
+  busy: boolean;
+  contractAddressUrl?: string;
+  contractAddress?: string;
 }
 
 export interface SpotBalance {
@@ -1174,6 +1184,11 @@ export interface CreateSubAccountParams {
   subAccountString: string;
 }
 
+export interface EnableOrDisableIPRestrictionForSubAccountParams
+  extends BasicSubAccount {
+  ipAddress?: string;
+}
+
 export interface GetBrokerSubAccountHistoryParams {
   fromId?: string;
   toId?: string;
@@ -1213,6 +1228,13 @@ export interface ApiKeyBrokerSubAccount {
   canTrade: boolean;
   marginTrade: boolean;
   futuresTrade: boolean;
+}
+
+export interface UpdateIpRestrictionForSubApiKey {
+  subAccountId: string;
+  ipAddress?: string;
+  subAccountApiKey: string;
+  status: string;
 }
 
 export interface EnableUniversalTransferApiKeyBrokerSubAccountParams {
@@ -1552,13 +1574,7 @@ export interface SubAccountEnableLeverageToken {
   enableBlvt: boolean;
 }
 
-export interface EnableOrDisableIPRestrictionForSubAccountParams
-  extends BasicSubAccount {
-  ipRestrict: boolean;
-}
-
-export interface AddIpRestriction
-  extends BasicSubAccount {
+export interface AddIpRestriction extends BasicSubAccount {
   status: string;
   ipAddress: string;
 }
@@ -1912,10 +1928,6 @@ export interface AddBSwapLiquidityParams {
   quantity: number;
 }
 
-export interface BasicBSwapResp {
-  operationId: number;
-}
-
 export interface BSwapShare {
   shareAmount: number;
   sharePercentage: number;
@@ -1928,4 +1940,3467 @@ export interface BSwapLiquidity {
   updateTime: number;
   liquidity: { [k: string]: number };
   share: BSwapShare;
+}
+
+export interface FundingAsset {
+  asset: string;
+  free: string;
+  locked: string;
+  freeze: string;
+  withdrawing: string;
+  btcValuation: string;
+}
+
+export interface GetAssetParams {
+  asset?: string;
+  needBtcValuation?: boolean;
+}
+
+export interface UserAsset {
+  asset: string;
+  free: string;
+  locked: string;
+  freeze: string;
+  withdrawing: string;
+  ipoable: string;
+  btcValuation: string;
+}
+
+export interface ConvertTransfer {
+  clientTranId: string;
+  asset: string;
+  amount: number;
+  targetAsset: string;
+  accountType?: string;
+}
+
+export interface ConvertTransferResponse {
+  tranId: number;
+  status: string;
+}
+
+export interface GetConvertBUSDHistoryParams {
+  tranId?: number;
+  clientTranId?: string;
+  asset?: string;
+  startTime: number;
+  endTime: number;
+  accountType?: string;
+  current?: number;
+  size?: number;
+}
+
+export interface BUSDConversionRecord {
+  tranId: number;
+  type: number;
+  time: number;
+  deductedAsset: string;
+  deductedAmount: string;
+  targetAsset: string;
+  targetAmount: string;
+  status: string;
+  accountType: string;
+}
+
+export interface CloudMiningHistoryParams {
+  tranId?: number;
+  clientTranId?: string;
+  asset?: string;
+  startTime: number;
+  endTime: number;
+  current?: number;
+  size?: number;
+}
+
+export interface CloudMining {
+  createTime: number;
+  tranId: number;
+  type: number;
+  asset: string;
+  amount: string;
+  status: string;
+}
+
+export interface ConvertibleCoinsResponse {
+  convertEnabled: boolean;
+  coins: string[];
+  exchangeRates: any;
+}
+
+export interface ConvertibleCoinsParams {
+  coin: string;
+  enable: boolean;
+}
+
+export interface SubmitDepositCreditParams {
+  depositId?: number;
+  txId?: string;
+  subAccountId?: number;
+  subUserId?: number;
+}
+
+export interface SubmitDepositCreditResponse {
+  code: string;
+  message: string;
+  data: boolean;
+  success: boolean;
+}
+
+export interface DepositAddressListParams {
+  coin: string;
+  network?: string;
+  timestamp: number;
+}
+
+export interface DepositAddress {
+  coin: string;
+  address: string;
+  tag: string;
+  isDefault: number;
+}
+
+export interface WalletBalance {
+  activate: boolean;
+  balance: string;
+  walletName: string;
+}
+
+export interface DelegationHistoryParams {
+  email: string;
+  startTime: number;
+  endTime: number;
+  type?: 'Delegate' | 'Undelegate';
+  asset?: string;
+  current?: number;
+  size?: number;
+}
+
+export interface DelegationHistory {
+  clientTranId: string;
+  transferType: 'Delegate' | 'Undelegate';
+  asset: string;
+  amount: string;
+  time: number;
+}
+
+export interface DelistScheduleResponse {
+  delistTime: number;
+  symbols: string[];
+}
+
+export interface WithdrawAddress {
+  address: string;
+  addressTag: string;
+  coin: string;
+  name: string;
+  network: string;
+  origin: string;
+  originType: string;
+  whiteStatus: boolean;
+}
+
+export interface AccountInfo {
+  vipLevel: number;
+  isMarginEnabled: boolean;
+  isFutureEnabled: boolean;
+}
+
+export interface ManagedSubAccountSnapshotParams {
+  email: string;
+  type: 'SPOT' | 'MARGIN' | 'FUTURES';
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
+export interface SubaccountBalances {
+  asset: string;
+  free: string;
+  locked: string;
+}
+
+export interface SubaccountUserAssets {
+  asset: string;
+  borrowed: string;
+  free: string;
+  interest: string;
+  locked: string;
+  netAsset: string;
+}
+
+export interface SubaccountAssets {
+  asset: string;
+  marginBalance: string;
+  walletBalance: string;
+}
+
+export interface SubaccountPosition {
+  entryPrice: string;
+  markPrice: string;
+  positionAmt: string;
+  symbol: string;
+  unRealizedProfit: string;
+}
+
+export interface ManagedSubAccountSnapshot {
+  code: number;
+  msg: string;
+  snapshotVos: {
+    data: {
+      balances?: SubaccountBalances[];
+      totalAssetOfBtc?: string;
+      marginLevel?: string;
+      totalLiabilityOfBtc?: string;
+      totalNetAssetOfBtc?: string;
+      userAssets?: SubaccountUserAssets[];
+      assets?: SubaccountAssets[];
+      position?: SubaccountPosition[];
+    };
+    type: string;
+    updateTime: number;
+  }[];
+}
+
+export interface ManagedSubAccountTransferLogParams {
+  email: string;
+  startTime: number;
+  endTime: number;
+  page: number;
+  limit: number;
+  transfers?: 'from' | 'to';
+  transferFunctionAccountType?:
+    | 'SPOT'
+    | 'MARGIN'
+    | 'ISOLATED_MARGIN'
+    | 'USDT_FUTURE'
+    | 'COIN_FUTURE';
+}
+
+export interface ManagerSubTransferHistoryVos {
+  fromEmail: string;
+  fromAccountType: string;
+  toEmail: string;
+  toAccountType: string;
+  asset: string;
+  amount: string;
+  scheduledData: number;
+  createTime: number;
+  status: string;
+  tranId: number;
+}
+
+export interface ManagedSubAccountFuturesAssetsResponse {
+  code: string;
+  message: string;
+  snapshotVos: {
+    type: string;
+    updateTime: number;
+    data: {
+      assets: SubaccountAssets[];
+      position: SubaccountPosition[];
+    };
+  }[];
+}
+
+export interface ManagedSubAccountMarginAssetsResponse {
+  marginLevel: string;
+  totalAssetOfBtc: string;
+  totalLiabilityOfBtc: string;
+  totalNetAssetOfBtc: string;
+  userAssets: SubaccountUserAssets[];
+}
+
+export interface ManagedSubAccountListParams {
+  email?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface ManagerSubUserInfoVo {
+  rootUserId: number;
+  managersubUserId: number;
+  bindParentUserId: number;
+  email: string;
+  insertTimeStamp: number;
+  bindParentEmail: string;
+  isSubUserEnabled: boolean;
+  isUserActive: boolean;
+  isMarginEnabled: boolean;
+  isFutureEnabled: boolean;
+  isSignedLVTRiskAgreement: boolean;
+}
+
+export interface SubaccountTradeInfoVos {
+  userId: number;
+  btc: number;
+  btcFutures: number;
+  btcMargin: number;
+  busd: number;
+  busdFutures: number;
+  busdMargin: number;
+  date: number;
+}
+export interface SubAccountTransactionStatistics {
+  recent30BtcTotal: string;
+  recent30BtcFuturesTotal: string;
+  recent30BtcMarginTotal: string;
+  recent30BusdTotal: string;
+  recent30BusdFuturesTotal: string;
+  recent30BusdMarginTotal: string;
+  tradeInfoVos: SubaccountTradeInfoVos[];
+}
+
+export interface ManagedSubAccountDepositAddressParams {
+  email: string;
+  coin: string;
+  network?: string;
+}
+
+export interface ManagedSubAccountDepositAddress {
+  coin: string;
+  address: string;
+  tag: string;
+  url: string;
+}
+
+export interface EnableOptionsForSubAccountResponse {
+  email: string;
+  isEOptionsEnabled: boolean;
+}
+
+export interface ManagedSubAccountTransferTTLogParams {
+  startTime: number;
+  endTime: number;
+  page: number;
+  limit: number;
+  transfers?: string;
+  transferFunctionAccountType?: string;
+}
+
+export interface UIKlinesParams {
+  symbol: string;
+  interval: string;
+  startTime?: number;
+  endTime?: number;
+  timeZone?: string;
+  limit?: number;
+}
+
+export interface TradingDayTickerParams {
+  symbol?: string;
+  symbols?: string[];
+  timeZone?: string;
+  type?: 'FULL' | 'MINI';
+}
+
+export type TradingDayTickerFull = {
+  symbol: string;
+  priceChange: string;
+  priceChangePercent: string;
+  weightedAvgPrice: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
+  lastPrice: string;
+  volume: string;
+  quoteVolume: string;
+  openTime: number;
+  closeTime: number;
+  firstId: number;
+  lastId: number;
+  count: number;
+};
+
+export interface TradingDayTickerMini {
+  symbol: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
+  lastPrice: string;
+  volume: string;
+  quoteVolume: string;
+  openTime: number;
+  closeTime: number;
+  firstId: number;
+  lastId: number;
+  count: number;
+}
+
+export interface RollingWindowTickerParams {
+  symbol?: string;
+  symbols?: string[];
+  windowSize?: string;
+  type?: 'FULL' | 'MINI';
+}
+
+export interface NewOrderListOTOParams {
+  symbol: string;
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'FULL' | 'RESULT';
+  selfTradePreventionMode?: string;
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: string;
+  workingQuantity: string;
+  workingIcebergQty?: string;
+  workingTimeInForce?: 'FOK' | 'IOC' | 'GTC';
+  workingStrategyId?: number;
+  workingStrategyType?: number;
+  pendingType: string;
+  pendingSide: 'BUY' | 'SELL';
+  pendingClientOrderId?: string;
+  pendingPrice?: string;
+  pendingStopPrice?: string;
+  pendingTrailingDelta?: string;
+  pendingQuantity: string;
+  pendingIcebergQty?: string;
+  pendingTimeInForce?: 'GTC' | 'FOK' | 'IOC';
+  pendingStrategyId?: number;
+  pendingStrategyType?: number;
+}
+
+export interface NewOrderListOTOResponse {
+  orderListId: number;
+  contingencyType: string;
+  listStatusType: string;
+  listOrderStatus: string;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+  orderReports: {
+    symbol: string;
+    orderId: number;
+    orderListId: number;
+    clientOrderId: string;
+    transactTime: number;
+    price: string;
+    origQty: string;
+    executedQty: string;
+    cummulativeQuoteQty: string;
+    status: string;
+    timeInForce: string;
+    type: string;
+    side: string;
+    workingTime: number;
+    selfTradePreventionMode: string;
+  }[];
+}
+
+export interface NewOrderListOTOCOParams {
+  symbol: string;
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'FULL' | 'RESPONSE';
+  selfTradePreventionMode?: string;
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: string;
+  workingQuantity: string;
+  workingIcebergQty?: string;
+  workingTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+  workingStrategyId?: number;
+  workingStrategyType?: number;
+  pendingSide: 'BUY' | 'SELL';
+  pendingQuantity: string;
+  pendingAboveType: 'LIMIT_MAKER' | 'STOP_LOSS' | 'STOP_LOSS_LIMIT';
+  pendingAboveClientOrderId?: string;
+  pendingAbovePrice?: string;
+  pendingAboveStopPrice?: string;
+  pendingAboveTrailingDelta?: string;
+  pendingAboveIcebergQty?: string;
+  pendingAboveTimeInForce?: 'GTC' | 'FOK' | 'IOC';
+  pendingAboveStrategyId?: number;
+  pendingAboveStrategyType?: number;
+  pendingBelowType: 'LIMIT_MAKER' | 'STOP_LOSS' | 'STOP_LOSS_LIMIT';
+  pendingBelowClientOrderId?: string;
+  pendingBelowPrice?: string;
+  pendingBelowStopPrice?: string;
+  pendingBelowTrailingDelta?: string;
+  pendingBelowIcebergQty?: string;
+  pendingBelowTimeInForce?: 'GTC' | 'FOK' | 'IOC';
+  pendingBelowStrategyId?: number;
+  pendingBelowStrategyType?: number;
+}
+
+export interface NewOrderListOTOCOResponse {
+  orderListId: number;
+  contingencyType: string;
+  listStatusType: string;
+  listOrderStatus: string;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+  orderReports: {
+    symbol: string;
+    orderId: number;
+    orderListId: number;
+    clientOrderId: string;
+    transactTime: number;
+    price: string;
+    origQty: string;
+    executedQty: string;
+    cummulativeQuoteQty: string;
+    status: string;
+    timeInForce: string;
+    type: string;
+    side: string;
+    stopPrice?: string;
+    workingTime: number;
+    selfTradePreventionMode: string;
+  }[];
+}
+
+export interface OrderRateLimitUsage {
+  rateLimitType: string;
+  interval: string;
+  intervalNum: number;
+  limit: number;
+  count: number;
+}
+
+export interface PreventedMatchesParams {
+  symbol: string;
+  preventedMatchId?: number;
+  orderId?: number;
+  fromPreventedMatchId?: number;
+  limit?: number;
+}
+
+export interface PreventedMatch {
+  symbol: string;
+  preventedMatchId: number;
+  takerOrderId: number;
+  makerOrderId: number;
+  tradeGroupId: number;
+  selfTradePreventionMode: string;
+  price: string;
+  makerPreventedQuantity: string;
+  transactTime: number;
+}
+
+export interface AllocationsParams {
+  symbol: string;
+  startTime?: number;
+  endTime?: number;
+  fromAllocationId?: number;
+  limit?: number;
+  orderId?: number;
+}
+
+export interface CommissionRates {
+  symbol: string;
+  standardCommission: {
+    maker: string;
+    taker: string;
+    buyer: string;
+    seller: string;
+  };
+  taxCommission: {
+    maker: string;
+    taker: string;
+    buyer: string;
+    seller: string;
+  };
+  discount: {
+    enabledForAccount: boolean;
+    enabledForSymbol: boolean;
+    discountAsset: string;
+    discount: string;
+  };
+}
+
+export interface GetCrossMarginTransferHistoryParams {
+  asset?: string;
+  type?: 'ROLL_IN' | 'ROLL_OUT';
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+  isolatedSymbol?: string;
+}
+
+export interface CrossMarginTransferHistory {
+  amount: string;
+  asset: string;
+  status: string;
+  timestamp: number;
+  txId: number;
+  type: 'ROLL_IN' | 'ROLL_OUT';
+  transFrom?: string;
+  transTo?: string;
+  fromSymbol?: string;
+  toSymbol?: string;
+}
+
+export interface GetMarginInterestHistoryParams {
+  asset?: string;
+  isolatedSymbol?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface MarginInterestHistory {
+  txId: number;
+  interestAccuredTime: number;
+  asset: string;
+  rawAsset?: string;
+  principal: string;
+  interest: string;
+  interestRate: string;
+  type:
+    | 'PERIODIC'
+    | 'ON_BORROW'
+    | 'PERIODIC_CONVERTED'
+    | 'ON_BORROW_CONVERTED'
+    | 'PORTFOLIO';
+  isolatedSymbol?: string;
+}
+
+export interface GetForceLiquidationRecordParams {
+  startTime?: number;
+  endTime?: number;
+  isolatedSymbol?: string;
+  current?: number;
+  size?: number;
+}
+
+export interface ForceLiquidationRecord {
+  avgPrice: string;
+  executedQty: string;
+  orderId: number;
+  price: string;
+  qty: string;
+  side: 'BUY' | 'SELL';
+  symbol: string;
+  timeInForce: string;
+  isIsolated: boolean;
+  updatedTime: number;
+}
+
+export interface QueryMarginAccountAllOCOParams {
+  isIsolated?: 'TRUE' | 'FALSE';
+  symbol?: string;
+  fromId?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
+export interface QueryMarginAccountTradeListParams {
+  symbol: string;
+  isIsolated?: 'TRUE' | 'FALSE';
+  orderId?: number;
+  startTime?: number;
+  endTime?: number;
+  fromId?: number;
+  limit?: number;
+}
+
+export interface IsolatedMarginSymbol {
+  base: string;
+  isBuyAllowed: boolean;
+  isMarginTrade: boolean;
+  isSellAllowed: boolean;
+  quote: string;
+  symbol: string;
+  delistTime?: number;
+}
+
+export interface ToggleBNBBurnParams {
+  spotBNBBurn?: 'true' | 'false';
+  interestBNBBurn?: 'true' | 'false';
+}
+
+export interface BNBBurnResponse {
+  spotBNBBurn: boolean;
+  interestBNBBurn: boolean;
+}
+
+export interface QueryMarginInterestRateHistoryParams {
+  asset: string;
+  vipLevel?: number;
+  startTime?: number;
+  endTime?: number;
+}
+
+export interface MarginInterestRateHistory {
+  asset: string;
+  dailyInterestRate: string;
+  timestamp: number;
+  vipLevel: number;
+}
+
+export interface QueryCrossMarginFeeDataParams {
+  vipLevel?: number;
+  coin?: string;
+}
+
+export interface CrossMarginFeeData {
+  vipLevel: number;
+  coin: string;
+  transferIn: boolean;
+  borrowable: boolean;
+  dailyInterest: string;
+  yearlyInterest: string;
+  borrowLimit: string;
+  marginablePairs: string[];
+}
+
+export interface IsolatedMarginFeeData {
+  vipLevel: number;
+  symbol: string;
+  leverage: string;
+  data: {
+    coin: string;
+    dailyInterest: string;
+    borrowLimit: string;
+  }[];
+}
+
+export interface QueryIsolatedMarginTierDataParams {
+  symbol: string;
+  tier?: number;
+}
+
+export interface IsolatedMarginTierData {
+  symbol: string;
+  tier: number;
+  effectiveMultiple: string;
+  initialRiskRatio: string;
+  liquidationRiskRatio: string;
+  baseAssetMaxBorrowable: string;
+  quoteAssetMaxBorrowable: string;
+}
+
+export interface GetMarginOrderCountUsageParams {
+  isIsolated?: string;
+  symbol?: string;
+}
+
+export interface MarginOrderCountUsageResponse {
+  rateLimitType: string;
+  interval: string;
+  intervalNum: number;
+  limit: number;
+  count: number;
+}
+
+export interface Collateral {
+  minUsdValue: string;
+  maxUsdValue?: string;
+  discountRate: string;
+}
+
+export interface SmallLiabilityExchangeCoin {
+  asset: string;
+  interest: string;
+  principal: string;
+  liabilityAsset: string;
+  liabilityQty: number;
+}
+export interface GetSmallLiabilityExchangeHistoryParams {
+  current: number;
+  size: number;
+  startTime?: number;
+  endTime?: number;
+}
+
+export interface SmallLiabilityExchangeHistory {
+  asset: string;
+  amount: string;
+  targetAsset: string;
+  targetAmount: string;
+  bizType: string;
+  timestamp: number;
+}
+
+export interface GetNextHourlyInterestRateParams {
+  assets: string;
+  isIsolated: boolean;
+}
+
+export interface NextHourlyInterestRate {
+  asset: string;
+  nextHourlyInterestRate: string;
+}
+
+export interface GetMarginCapitalFlowParams {
+  asset?: string;
+  symbol?: string;
+  type?: string;
+  startTime?: number;
+  endTime?: number;
+  fromId?: number;
+  limit?: number;
+}
+
+export interface MarginCapitalFlow {
+  id: number;
+  tranId: number;
+  timestamp: number;
+  asset: string;
+  symbol: string;
+  type: string;
+  amount: string;
+}
+
+export interface MarginDelistSchedule {
+  delistTime: number;
+  crossMarginAssets: string[];
+  isolatedMarginSymbols: string[];
+  updateTime: number;
+}
+
+export interface MarginAvailableInventoryResponse {
+  assets: any;
+  updateTime: number;
+}
+
+export interface ManualLiquidationParams {
+  type: string;
+  symbol?: string;
+}
+
+export interface ManualLiquidationResponse {
+  asset: string;
+  interest: string;
+  principal: string;
+  liabilityAsset: string;
+  liabilityQty: number;
+}
+
+export interface LeverageBracket {
+  leverage: number;
+  maxDebt: number;
+  maintenanceMarginRate: number;
+  initialMarginRate: number;
+  fastNum: number;
+}
+
+export interface LiabilityCoinLeverageBracket {
+  assetNames: string[];
+  rank: number;
+  brackets: LeverageBracket[];
+}
+export interface GetFlexibleSubscriptionRecordParams {
+  productId?: string;
+  purchaseId?: string;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface GetFlexibleSubscriptionRecordResponse {
+  amount: string;
+  asset: string;
+  time: number;
+  purchaseId: number;
+  type: string;
+  sourceAccount: string;
+  amtFromSpot?: string;
+  amtFromFunding?: string;
+  status: string;
+}
+
+export interface GetLockedSubscriptionRecordParams {
+  purchaseId?: string;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface LockedSubscriptionRecord {
+  positionId: string;
+  purchaseId: number;
+  time: number;
+  asset: string;
+  amount: string;
+  lockPeriod: string;
+  type: string;
+  sourceAccount: string;
+  amtFromSpot?: string;
+  amtFromFunding?: string;
+  status: string;
+}
+
+export interface GetFlexibleRedemptionRecordParams {
+  productId?: string;
+  redeemId?: string;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface FlexibleRedemptionRecord {
+  amount: string;
+  asset: string;
+  time: number;
+  productId: string;
+  redeemId: number;
+  destAccount: string;
+  status: string;
+}
+
+export interface GetLockedRedemptionRecordParams {
+  positionId?: string;
+  redeemId?: string;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface LockedRedemptionRecord {
+  positionId: string;
+  redeemId: number;
+  time: number;
+  asset: string;
+  lockPeriod: string;
+  amount: string;
+  type: string;
+  deliverDate: string;
+  status: string;
+}
+
+export interface GetFlexibleRewardsHistoryParams {
+  productId?: string;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  type: 'BONUS' | 'REALTIME' | 'REWARDS';
+  current?: number;
+  size?: number;
+}
+
+export interface FlexibleRewardsHistory {
+  asset: string;
+  rewards: string;
+  projectId: string;
+  type: string;
+  time: number;
+}
+
+export interface GetLockedRewardsHistoryParams {
+  positionId?: string;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface GetLockedRewardsHistory {
+  positionId: string;
+  time: number;
+  asset: string;
+  lockPeriod: string;
+  amount: string;
+}
+
+export interface SetAutoSubscribeParams {
+  productId: string;
+  autoSubscribe: boolean;
+}
+
+export interface GetFlexibleSubscriptionPreviewParams {
+  productId: string;
+  amount: number;
+}
+
+export interface FlexibleSubscriptionPreview {
+  totalAmount: string;
+  rewardAsset: string;
+  airDropAsset: string;
+  estDailyBonusRewards: string;
+  estDailyRealTimeRewards: string;
+  estDailyAirdropRewards: string;
+}
+
+export interface GetLockedSubscriptionPreviewParams {
+  projectId: string;
+  amount: number;
+  autoSubscribe?: boolean;
+}
+
+export interface LockedSubscriptionPreview {
+  rewardAsset: string;
+  totalRewardAmt: string;
+  extraRewardAsset: string;
+  estTotalExtraRewardAmt: string;
+  nextPay: string;
+  nextPayDate: string;
+  valueDate: string;
+  rewardsEndDate: string;
+  deliverDate: string;
+  nextSubscriptionDate: string;
+}
+
+export interface GetRateHistoryParams {
+  productId: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface GetRateHistory {
+  productId: string;
+  asset: string;
+  annualPercentageRate: string;
+  time: number;
+}
+
+export interface GetCollateralRecordParams {
+  productId?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface CollateralRecord {
+  amount: string;
+  productId: string;
+  asset: string;
+  createTime: number;
+  type: string;
+  productName: string;
+  orderId: number;
+}
+
+export interface GetDualInvestmentProductListParams {
+  optionType: string;
+  exercisedCoin: string;
+  investCoin: string;
+  pageSize?: number;
+  pageIndex?: number;
+}
+
+export interface DualInvestmentProduct {
+  id: string;
+  investCoin: string;
+  exercisedCoin: string;
+  strikePrice: string;
+  duration: number;
+  settleDate: number;
+  purchaseDecimal: number;
+  purchaseEndTime: number;
+  canPurchase: boolean;
+  apr: string;
+  orderId: number;
+  minAmount: string;
+  maxAmount: string;
+  createTimestamp: number;
+  optionType: string;
+  isAutoCompoundEnable: boolean;
+  autoCompoundPlanList: string[];
+}
+
+export interface SubscribeDualInvestmentProductParams {
+  id: string;
+  orderId: string;
+  depositAmount: number;
+  autoCompoundPlan: 'NONE' | 'STANDARD' | 'ADVANCED';
+}
+
+export interface SubscribeDualInvestmentProductResponse {
+  positionId: number;
+  investCoin: string;
+  exercisedCoin: string;
+  subscriptionAmount: string;
+  duration: number;
+  autoCompoundPlan?: 'STANDARD' | 'ADVANCED';
+  strikePrice: string;
+  settleDate: number;
+  purchaseStatus: string;
+  apr: string;
+  orderId: number;
+  purchaseTime: number;
+  optionType: string;
+}
+
+export interface GetDualInvestmentPositionsParams {
+  status?:
+    | 'PENDING'
+    | 'PURCHASE_SUCCESS'
+    | 'SETTLED'
+    | 'PURCHASE_FAIL'
+    | 'REFUNDING'
+    | 'REFUND_SUCCESS'
+    | 'SETTLING';
+  pageSize?: number;
+  pageIndex?: number;
+}
+
+export interface DualInvestmentPosition {
+  id: string;
+  investCoin: string;
+  exercisedCoin: string;
+  subscriptionAmount: string;
+  strikePrice: string;
+  duration: number;
+  settleDate: number;
+  purchaseStatus: string;
+  apr: string;
+  orderId: number;
+  purchaseEndTime: number;
+  optionType: string;
+  autoCompoundPlan: 'STANDARD' | 'ADVANCED' | 'NONE';
+}
+
+export interface CheckDualInvestmentAccountsResponse {
+  totalAmountInBTC: string;
+  totalAmountInUSDT: string;
+}
+
+export interface ChangeAutoCompoundStatusParams {
+  positionId: string;
+  autoCompoundPlan: 'NONE' | 'STANDARD' | 'ADVANCED';
+}
+
+export interface ChangeAutoCompoundStatusResponse {
+  positionId: string;
+  autoCompoundPlan: 'NONE' | 'STANDARD' | 'ADVANCED';
+}
+
+export interface GetTargetAssetListParams {
+  targetAsset?: string;
+  size?: number;
+  current?: number;
+}
+
+export interface RoiAndDimensionType {
+  simulateRoi: string;
+  dimensionValue: string;
+  dimensionUnit: string;
+}
+
+export interface AutoInvestAsset {
+  targetAsset: string;
+  roiAndDimensionTypeList: RoiAndDimensionType[];
+}
+
+export interface GetTargetAssetListResponse {
+  targetAssets: string[];
+  autoInvestAssetList: AutoInvestAsset[];
+}
+
+export interface GetTargetAssetROIParams {
+  targetAsset: string;
+  hisRoiType:
+    | 'FIVE_YEAR'
+    | 'THREE_YEAR'
+    | 'ONE_YEAR'
+    | 'SIX_MONTH'
+    | 'THREE_MONTH'
+    | 'SEVEN_DAY';
+}
+
+export interface TargetAssetROI {
+  date: string;
+  simulateRoi: string;
+}
+
+export interface GetSourceAssetListParams {
+  targetAsset?: string[];
+  indexId?: number;
+  usageType: 'RECURRING' | 'ONE_TIME';
+  flexibleAllowedToUse?: boolean;
+  sourceType?: 'MAIN_SITE' | 'TR';
+}
+
+export interface SourceAsset {
+  sourceAsset: string;
+  assetMinAmount: string;
+  assetMaxAmount: string;
+  scale: string;
+  flexibleAmount: string;
+}
+
+export interface GetSourceAssetListResponse {
+  feeRate: string;
+  taxRate: string;
+  sourceAssets: SourceAsset[];
+}
+
+export interface AutoInvestPortfolioDetail {
+  targetAsset: string;
+  percentage: number;
+}
+
+export interface CreateInvestmentPlanParams {
+  UID: string;
+  sourceType: 'MAIN_SITE' | 'TR';
+  requestId?: string;
+  planType: 'SINGLE' | 'PORTFOLIO' | 'INDEX';
+  indexId?: number;
+  subscriptionAmount: number;
+  subscriptionCycle:
+    | 'H1'
+    | 'H4'
+    | 'H8'
+    | 'H12'
+    | 'WEEKLY'
+    | 'DAILY'
+    | 'MONTHLY'
+    | 'BI_WEEKLY';
+  subscriptionStartDay?: number;
+  subscriptionStartWeekday?:
+    | 'MON'
+    | 'TUE'
+    | 'WED'
+    | 'THU'
+    | 'FRI'
+    | 'SAT'
+    | 'SUN';
+  subscriptionStartTime: number;
+  sourceAsset: string;
+  flexibleAllowedToUse: boolean;
+  details: AutoInvestPortfolioDetail[];
+}
+
+export interface CreateInvestmentPlanResponse {
+  planId: number;
+  nextExecutionDateTime: number;
+}
+
+export interface EditInvestmentPlanParams {
+  planId: number;
+  subscriptionAmount: number;
+  subscriptionCycle:
+    | 'H1'
+    | 'H4'
+    | 'H8'
+    | 'H12'
+    | 'WEEKLY'
+    | 'DAILY'
+    | 'MONTHLY'
+    | 'BI_WEEKLY';
+  subscriptionStartDay?: number;
+  subscriptionStartWeekday?:
+    | 'MON'
+    | 'TUE'
+    | 'WED'
+    | 'THU'
+    | 'FRI'
+    | 'SAT'
+    | 'SUN';
+  subscriptionStartTime: number;
+  sourceAsset: string;
+  flexibleAllowedToUse?: boolean;
+  details: AutoInvestPortfolioDetail[];
+}
+
+export interface EditInvestmentPlanResponse {
+  planId: number;
+  nextExecutionDateTime: number;
+}
+
+export interface ChangePlanStatusParams {
+  planId: number;
+  status: 'ONGOING' | 'PAUSED' | 'REMOVED';
+}
+
+export interface ChangePlanStatusResponse {
+  planId: number;
+  nextExecutionDateTime: number;
+  status: 'ONGOING' | 'PAUSED' | 'REMOVED';
+}
+
+export interface GetPlanDetailsParams {
+  planId?: number;
+  requestId?: string;
+}
+
+export interface GetSubscriptionTransactionHistoryParams {
+  planId?: number;
+  startTime?: number;
+  endTime?: number;
+  targetAsset?: string;
+  planType?: 'SINGLE' | 'PORTFOLIO' | 'INDEX' | 'ALL';
+  size?: number;
+  current?: number;
+}
+
+export interface AssetAllocation {
+  targetAsset: string;
+  allocation: string;
+}
+
+export interface GetIndexDetailsResponse {
+  indexId: number;
+  indexName: string;
+  status: 'RUNNING' | 'REBALANCING' | 'PAUSED';
+  assetAllocation: AssetAllocation[];
+}
+
+export interface IndexLinkedPlanDetail {
+  targetAsset: string;
+  averagePriceInUSD: string;
+  totalInvestedInUSD: string;
+  currentInvestedInUSD: string;
+  purchasedAmount: string;
+  pnlInUSD: string;
+  roi: string;
+  percentage: string;
+  availableAmount: string;
+  redeemedAmount: string;
+  assetValueInUSD: string;
+}
+
+export interface GetIndexLinkedPlanPositionDetailsResponse {
+  indexId: number;
+  totalInvestedInUSD: string;
+  currentInvestedInUSD: string;
+  pnlInUSD: string;
+  roi: string;
+  assetAllocation: { targetAsset: string; allocation: string }[];
+  details: IndexLinkedPlanDetail[];
+}
+
+export interface SubmitOneTimeTransactionParams {
+  sourceType: 'MAIN_SITE' | 'TR';
+  requestId?: string;
+  subscriptionAmount: number;
+  sourceAsset: string;
+  flexibleAllowedToUse?: boolean;
+  planId?: number;
+  indexId?: number;
+  details: AutoInvestPortfolioDetail[];
+}
+
+export interface SubmitOneTimeTransactionResponse {
+  transactionId: number;
+  waitSecond: number;
+}
+
+export interface GetOneTimeTransactionStatusParams {
+  transactionId: number;
+  requestId?: string;
+}
+
+export interface GetOneTimeTransactionStatusResponse {
+  transactionId: number;
+  status: 'SUCCESS' | 'CONVERTING';
+}
+
+export interface SubmitIndexLinkedPlanRedemptionParams {
+  indexId: number;
+  requestId?: string;
+  redemptionPercentage: number;
+}
+
+export interface GetIndexLinkedPlanRedemptionHistoryParams {
+  requestId: number;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  asset?: string;
+  size?: number;
+}
+
+export interface IndexLinkedPlanRedemptionRecord {
+  indexId: number;
+  indexName: string;
+  redemptionId: number;
+  status: 'SUCCESS' | 'FAILED';
+  asset: string;
+  amount: string;
+  redemptionDateTime: number;
+  transactionFee: string;
+  transactionFeeUnit: string;
+}
+
+export interface GetIndexLinkedPlanRebalanceHistoryParams {
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface RebalanceTransactionDetail {
+  asset: string;
+  transactionDateTime: number;
+  rebalanceDirection: 'BUY' | 'SELL';
+  rebalanceAmount: string;
+}
+
+export interface IndexLinkedPlanRebalanceRecord {
+  indexId: number;
+  indexName: string;
+  rebalanceId: number;
+  status: 'SUCCESS' | 'INIT';
+  rebalanceFee: string;
+  rebalanceFeeUnit: string;
+  transactionDetails: RebalanceTransactionDetail[];
+}
+
+export interface SubscribeEthStakingV2Response {
+  success: boolean;
+  wbethAmount: string;
+  conversionRatio: string;
+}
+
+export interface RedeemEthParams {
+  asset?: string;
+  amount: number;
+}
+
+export interface RedeemEthResponse {
+  success: boolean;
+  arrivalTime: number;
+  ethAmount: string;
+  conversionRatio: string;
+}
+
+export interface GetEthStakingHistoryParams {
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface EthStakingHistory {
+  time: number;
+  asset: string;
+  amount: string;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+  distributeAmount: string;
+  conversionRatio: string;
+}
+
+export interface GetEthRedemptionHistoryParams {
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface EthRedemptionHistory {
+  time: number;
+  arrivalTime: number;
+  asset: string;
+  amount: string;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+  distributeAsset: string;
+  distributeAmount: string;
+  conversionRatio: string;
+}
+
+export interface GetBethRewardsHistoryParams {
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface BethRewardsHistory {
+  time: number;
+  asset: string;
+  holding: string;
+  amount: string;
+  annualPercentageRate: string;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+}
+
+export interface GetEthStakingQuotaResponse {
+  leftStakingPersonalQuota: string;
+  leftRedemptionPersonalQuota: string;
+}
+
+export interface GetETHRateHistoryParams {
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface ETHRateHistory {
+  annualPercentageRate: string;
+  exchangeRate: string;
+  time: number;
+}
+
+export interface GetEthStakingAccountResponse {
+  cumulativeProfitInBETH: string;
+  lastDayProfitInBETH: string;
+}
+
+export interface GetEthStakingAccountV2Response {
+  holdingInETH: string;
+  holdings: {
+    wbethAmount: string;
+    bethAmount: string;
+  };
+  thirtyDaysProfitInETH: string;
+  profit: {
+    amountFromWBETH: string;
+    amountFromBETH: string;
+  };
+}
+
+export interface WrapBethResponse {
+  success: boolean;
+  wbethAmount: string;
+  exchangeRate: string;
+}
+
+export interface GetWrapHistoryParams {
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface WrapHistory {
+  time: number;
+  fromAsset: string;
+  fromAmount: string;
+  toAsset: string;
+  toAmount: string;
+  exchangeRate: string;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+}
+
+export interface WbethRewardsHistory {
+  time: number;
+  amountInETH: string;
+  holding: string;
+  holdingInETH: string;
+  annualPercentageRate: string;
+}
+
+export interface GetWbethRewardsHistoryResponse {
+  estRewardsInETH: string;
+  rows: WbethRewardsHistory[];
+  total: number;
+}
+
+export interface GetMiningAlgoListResponse {
+  algoName: string; // Algorithm name
+  algoId: number; // Algorithm ID
+  poolIndex: number; // Sequence
+  unit: string; // Unit
+}
+
+export interface GetMiningCoinListResponse {
+  coinName: string; // Coin name
+  coinId: number; // Coin ID
+  poolIndex: number; // Sequence
+  unit: string; // Unit
+}
+
+export interface GetMinerDetailsParams {
+  algo: string;
+  userName: string;
+  workerName: string;
+}
+
+export interface HashrateData {
+  time: number;
+  hashrate: string;
+  reject: number;
+}
+
+export interface MinerDetail {
+  workerName: string;
+  type: string;
+  hashrateDatas: HashrateData[];
+}
+
+export interface GetMinerDetailsResponse {
+  code: number;
+  msg: string;
+  data: MinerDetail[];
+}
+
+export interface GetMinerListParams {
+  algo: string;
+  userName: string;
+  pageIndex?: number;
+  sort?: number;
+  sortColumn?: number;
+  workerStatus?: number;
+}
+
+export interface WorkerData {
+  workerId: string;
+  workerName: string;
+  status: number;
+  hashRate: number;
+  dayHashRate: number;
+  rejectRate: number;
+  lastShareTime: number;
+}
+
+export interface GetMinerListResponse {
+  code: number;
+  msg: string;
+  data: {
+    workerDatas: WorkerData[];
+    totalNum: number;
+    pageSize: number;
+  };
+}
+
+export interface GetEarningsListParams {
+  algo: string;
+  userName: string;
+  coin?: string;
+  startDate?: number;
+  endDate?: number;
+  pageIndex?: number;
+  pageSize?: number;
+}
+
+export interface AccountEarningsProfit {
+  time: number;
+  type: number;
+  hashTransfer: number | null;
+  transferAmount: number | null;
+  dayHashRate: number;
+  profitAmount: number;
+  coinName: string;
+  status: number;
+}
+
+export interface GetEarningsListResponse {
+  code: number;
+  msg: string;
+  data: {
+    accountProfits: AccountEarningsProfit[];
+    totalNum: number;
+    pageSize: number;
+  };
+}
+
+export interface GetExtraBonusListParams {
+  algo: string;
+  userName: string;
+  coin?: string;
+  startDate?: number;
+  endDate?: number;
+  pageIndex?: number;
+  pageSize?: number;
+}
+
+export interface OtherProfit {
+  time: number;
+  coinName: string;
+  type: number;
+  profitAmount: number;
+  status: number;
+}
+
+export interface GetExtraBonusListResponse {
+  code: number;
+  msg: string;
+  data: {
+    otherProfits: OtherProfit[];
+    totalNum: number;
+    pageSize: number;
+  };
+}
+
+export interface GetHashrateResaleListParams {
+  pageIndex?: number;
+  pageSize?: number;
+}
+
+export interface ConfigDetail {
+  configId: number;
+  poolUsername: string;
+  toPoolUsername: string;
+  algoName: string;
+  hashRate: number;
+  startDay: number;
+  endDay: number;
+  status: number;
+}
+
+export interface GetHashrateResaleListResponse {
+  code: number;
+  msg: string;
+  data: {
+    configDetails: ConfigDetail[];
+    totalNum: number;
+    pageSize: number;
+  };
+}
+
+export interface GetHashrateResaleDetailParams {
+  configId: number;
+  userName: string;
+  pageIndex?: number;
+  pageSize?: number;
+}
+
+export interface ProfitTransferDetail {
+  poolUsername: string;
+  toPoolUsername: string;
+  algoName: string;
+  hashRate: number;
+  day: number;
+  amount: number;
+  coinName: string;
+}
+
+export interface GetHashrateResaleDetailResponse {
+  code: number;
+  msg: string;
+  data: {
+    profitTransferDetails: ProfitTransferDetail[];
+    totalNum: number;
+    pageSize: number;
+  };
+}
+export interface SubmitHashrateResaleParams {
+  userName: string;
+  algo: string;
+  endDate: number;
+  startDate: number;
+  toPoolUser: string;
+  hashRate: number;
+}
+
+export interface CancelHashrateResaleConfigParams {
+  configId: number;
+  userName: string;
+}
+
+export interface GetStatisticListParams {
+  algo: string;
+  userName: string;
+}
+
+export interface Profit {
+  BTC: string;
+  BSV: string;
+  BCH: string;
+}
+
+export interface GetStatisticListResponse {
+  code: number;
+  msg: string;
+  data: {
+    fifteenMinHashRate: string;
+    dayHashRate: string;
+    validNum: number;
+    invalidNum: number;
+    profitToday: Profit;
+    profitYesterday: Profit;
+    userName: string;
+    unit: string;
+    algo: string;
+  };
+}
+
+export interface getMiningAccountsListParams {
+  algo: string;
+  userName: string;
+}
+
+export interface MiningHashrateData {
+  time: number;
+  hashrate: string;
+  reject: string;
+}
+
+export interface MiningAccountData {
+  type: string;
+  userName: string;
+  list: MiningHashrateData[];
+}
+
+export interface getMiningAccountsListResponse {
+  code: number;
+  msg: string;
+  data: MiningAccountData[];
+}
+
+export interface GetMiningAccountEarningParams {
+  algo: string;
+  startDate?: number;
+  endDate?: number;
+  pageIndex?: number;
+  pageSize?: number;
+}
+
+export interface AccountMiningProfit {
+  time: number;
+  coinName: string;
+  type: number;
+  puid: number;
+  subName: string;
+  amount: number;
+}
+
+export interface GetMiningAccountEarningResponse {
+  code: number;
+  msg: string;
+  data: {
+    accountProfits: AccountMiningProfit[];
+    totalNum: number;
+    pageSize: number;
+  };
+}
+
+export interface GetFutureTickLevelOrderbookDataLinkParams {
+  symbol: string;
+  dataType: 'T_DEPTH' | 'S_DEPTH';
+  startTime: number;
+  endTime: number;
+}
+
+export interface HistoricalDataLink {
+  day: string;
+  url: string;
+}
+
+export interface SubmitVpNewOrderParams {
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  positionSide?: 'BOTH' | 'LONG' | 'SHORT';
+  quantity: number;
+  urgency: 'LOW' | 'MEDIUM' | 'HIGH';
+  clientAlgoId?: string;
+  reduceOnly?: boolean;
+  limitPrice?: number;
+}
+
+export interface SubmitVpNewOrderResponse {
+  clientAlgoId: string;
+  success: boolean;
+  code: number;
+  msg: string;
+}
+
+export interface SubmitTwapNewOrderParams {
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  positionSide?: 'BOTH' | 'LONG' | 'SHORT';
+  quantity: number;
+  duration: number;
+  clientAlgoId?: string;
+  reduceOnly?: boolean;
+  limitPrice?: number;
+}
+
+export interface SubmitTwapNewOrderResponse {
+  clientAlgoId: string;
+  success: boolean;
+  code: number;
+  msg: string;
+}
+
+export interface CancelAlgoOrderResponse {
+  algoId: number;
+  success: boolean;
+  code: number;
+  msg: string;
+}
+
+export interface AlgoOrder {
+  algoId: number;
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  positionSide: 'BOTH' | 'LONG' | 'SHORT';
+  totalQty: string;
+  executedQty: string;
+  executedAmt: string;
+  avgPrice: string;
+  clientAlgoId: string;
+  bookTime: number;
+  endTime: number;
+  algoStatus: string;
+  algoType: string;
+  urgency: string;
+}
+
+export interface GetAlgoHistoricalOrdersParams {
+  symbol?: string;
+  side?: 'BUY' | 'SELL';
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface HistoricalAlgoOrder {
+  algoId: number;
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  positionSide: 'BOTH' | 'LONG' | 'SHORT';
+  totalQty: string;
+  executedQty: string;
+  executedAmt: string;
+  avgPrice: string;
+  clientAlgoId: string;
+  bookTime: number;
+  endTime: number;
+  algoStatus: string;
+  algoType: string;
+  urgency: string;
+}
+
+export interface GetAlgoSubOrdersParams {
+  algoId: number;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface SubOrder {
+  algoId: number;
+  orderId: number;
+  orderStatus: string;
+  executedQty: string;
+  executedAmt: string;
+  feeAmt: string;
+  feeAsset: string;
+  bookTime: number;
+  avgPrice: string;
+  side: 'BUY' | 'SELL';
+  symbol: string;
+  subId: number;
+  timeInForce: string;
+  origQty: string;
+}
+
+export interface GetAlgoSubOrdersResponse {
+  total: number;
+  executedQty: string;
+  executedAmt: string;
+  subOrders: SubOrder[];
+}
+
+export interface SubmitSpotTwapNewOrderParams {
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  quantity: number;
+  duration: number;
+  clientAlgoId?: string;
+  limitPrice?: number;
+  stpMode?: 'EXPIRE_TAKER' | 'EXPIRE_MAKER' | 'EXPIRE_BOTH' | 'NONE';
+}
+
+export interface SubmitSpotTwapNewOrderResponse {
+  clientAlgoId: string;
+  success: boolean;
+  code: number;
+  msg: string;
+}
+
+export interface CancelSpotAlgoOrderResponse {
+  algoId: number;
+  success: boolean;
+  code: number;
+  msg: string;
+}
+
+export interface SpotAlgoOrder {
+  algoId: number;
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  totalQty: string;
+  executedQty: string;
+  executedAmt: string;
+  avgPrice: string;
+  clientAlgoId: string;
+  bookTime: number;
+  endTime: number;
+  algoStatus: string;
+  algoType: string;
+  urgency: string;
+}
+
+export interface GetSpotAlgoHistoricalOrdersParams {
+  symbol?: string;
+  side?: 'BUY' | 'SELL';
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface HistoricalSpotAlgoOrder {
+  algoId: number;
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  totalQty: string;
+  executedQty: string;
+  executedAmt: string;
+  avgPrice: string;
+  clientAlgoId: string;
+  bookTime: number;
+  endTime: number;
+  algoStatus: string;
+  algoType: string;
+  urgency: string;
+}
+
+export interface GetSpotAlgoSubOrdersParams {
+  algoId: number;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface SpotSubOrder {
+  algoId: number;
+  orderId: number;
+  orderStatus: string;
+  executedQty: string;
+  executedAmt: string;
+  feeAmt: string;
+  feeAsset: string;
+  bookTime: number;
+  avgPrice: string;
+  side: 'BUY' | 'SELL';
+  symbol: string;
+  subId: number;
+  timeInForce: string;
+  origQty: string;
+}
+
+export interface GetSpotAlgoSubOrdersResponse {
+  total: number;
+  executedQty: string;
+  executedAmt: string;
+  subOrders: SpotSubOrder[];
+}
+
+export interface GetPortfolioMarginProAccountInfoResponse {
+  uniMMR: string;
+  accountEquity: string;
+  actualEquity: string;
+  accountMaintMargin: string;
+  accountStatus: string;
+  accountType: string;
+}
+
+export interface GetPortfolioMarginProCollateralRateResponse {
+  asset: string;
+  collateralRate: string;
+}
+
+export interface GetPortfolioMarginProBankruptcyLoanAmountResponse {
+  asset: string;
+  amount: string;
+}
+
+export interface GetPortfolioMarginProInterestHistoryParams {
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  size?: number;
+}
+
+export interface GetPortfolioMarginProInterestHistoryResponse {
+  asset: string;
+  interest: string;
+  interestAccruedTime: number;
+  interestRate: string;
+  principal: string;
+}
+
+export interface GetPortfolioMarginAssetIndexPriceResponse {
+  asset: string;
+  assetIndexPrice: string;
+  time: number;
+}
+
+export interface BnbTransferParams {
+  amount: number;
+  transferSide: 'TO_UM' | 'FROM_UM';
+}
+
+export interface GetPortfolioMarginAssetLeverageResponse {
+  asset: string;
+  leverage: number;
+}
+
+export interface SubscribeBlvtParams {
+  tokenName: string;
+  cost: number;
+}
+
+export interface SubscribeBlvtResponse {
+  id: number;
+  status: 'S' | 'P' | 'F';
+  tokenName: string;
+  amount: string;
+  cost: string;
+  timestamp: number;
+}
+
+export interface GetBlvtSubscriptionRecordParams {
+  tokenName?: string;
+  id?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
+export interface BlvtSubscriptionRecord {
+  id: number;
+  tokenName: string;
+  amount: string;
+  nav: string;
+  fee: string;
+  totalCharge: string;
+  timestamp: number;
+}
+
+export interface RedeemBlvtParams {
+  tokenName: string;
+  amount: number;
+}
+
+export interface RedeemBlvtResponse {
+  id: number;
+  status: 'S' | 'P' | 'F';
+  tokenName: string;
+  redeemAmount: string;
+  amount: string;
+  timestamp: number;
+}
+
+export interface GetBlvtRedemptionRecordParams {
+  tokenName?: string;
+  id?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
+export interface BlvtRedemptionRecord {
+  id: number;
+  tokenName: string;
+  amount: string;
+  nav: string;
+  fee: string;
+  netProceed: string;
+  timestamp: number;
+}
+
+export interface BlvtUserLimitInfo {
+  tokenName: string;
+  userDailyTotalPurchaseLimit: string;
+  userDailyTotalRedeemLimit: string;
+}
+
+export interface GetFiatOrderHistoryParams {
+  transactionType: string;
+  beginTime?: number;
+  endTime?: number;
+  page?: number;
+  rows?: number;
+}
+
+export interface GetFiatOrderHistoryResponse {
+  code: string;
+  message: string;
+  data: {
+    orderNo: string;
+    fiatCurrency: string;
+    indicatedAmount: string;
+    amount: string;
+    totalFee: string;
+    method: string;
+    status: string;
+    createTime: number;
+    updateTime: number;
+  }[];
+  total: number;
+  success: boolean;
+}
+
+export interface GetFiatPaymentsHistoryResponse {
+  code: string;
+  message: string;
+  data: {
+    orderNo: string;
+    sourceAmount: string;
+    fiatCurrency: string;
+    obtainAmount: string;
+    cryptoCurrency: string;
+    totalFee: string;
+    price: string;
+    status: string;
+    paymentMethod?: string;
+    createTime: number;
+    updateTime: number;
+  }[];
+  total: number;
+  success: boolean;
+}
+
+export interface GetC2CTradeHistoryParams {
+  tradeType: string;
+  startTimestamp?: number;
+  endTimestamp?: number;
+  page?: number;
+  rows?: number;
+}
+
+export interface c2cTradeData {
+  orderNumber: string;
+  advNo: string;
+  tradeType: string;
+  asset: string;
+  fiat: string;
+  fiatSymbol: string;
+  amount: string;
+  totalPrice: string;
+  unitPrice: string;
+  orderStatus: string;
+  createTime: number;
+  commission: string;
+  counterPartNickName: string;
+  advertisementRole: string;
+}
+export interface GetC2CTradeHistoryResponse {
+  code: string;
+  message: string;
+  data: c2cTradeData[];
+  total: number;
+  success: boolean;
+}
+
+export interface GetVipLoanOngoingOrdersParams {
+  orderId?: number;
+  collateralAccountId?: number;
+  loanCoin?: string;
+  collateralCoin?: string;
+  current?: number;
+  limit?: number;
+}
+
+export interface VipOngoingOrder {
+  orderId: number;
+  loanCoin: string;
+  totalDebt: string;
+  loanRate: string;
+  residualInterest: string;
+  collateralAccountId: string;
+  collateralCoin: string;
+  totalCollateralValueAfterHaircut: string;
+  lockedCollateralValue: string;
+  currentLTV: string;
+  expirationTime: number;
+  loanDate: string;
+  loanTerm: string;
+  initialLtv: string;
+  marginCallLtv: string;
+  liquidationLtv: string;
+}
+
+export interface VipLoanRepayParams {
+  orderId: number;
+  amount: number;
+}
+
+export interface VipLoanRepayResponse {
+  loanCoin: string;
+  repayAmount: string;
+  remainingPrincipal: string;
+  remainingInterest: string;
+  collateralCoin: string;
+  currentLTV: string;
+  repayStatus: string;
+}
+
+export interface GetVipLoanRepaymentHistoryParams {
+  orderId?: number;
+  loanCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface VipLoanRepaymentHistory {
+  loanCoin: string;
+  repayAmount: string;
+  collateralCoin: string;
+  repayStatus: string;
+  loanDate: string;
+  repayTime: string;
+  orderId: string;
+}
+
+export interface VipLoanRenewParams {
+  orderId: number;
+  loanTerm?: number;
+}
+
+export interface VipLoanRenewResponse {
+  loanAccountId: string;
+  loanCoin: string;
+  loanAmount: string;
+  collateralAccountId: string;
+  collateralCoin: string;
+  loanTerm: string;
+}
+
+export interface CheckVipCollateralAccountParams {
+  orderId?: number;
+  collateralAccountId?: number;
+}
+
+export interface VipCollateralAccount {
+  collateralAccountId: string;
+  collateralCoin: string;
+}
+
+export interface VipLoanBorrowParams {
+  loanAccountId: number;
+  loanCoin: string;
+  loanAmount: number;
+  collateralAccountId: string;
+  collateralCoin: string;
+  isFlexibleRate: boolean;
+  loanTerm?: number;
+}
+
+export interface VipLoanBorrowResponse {
+  loanAccountId: string;
+  requestId: string;
+  loanCoin: string;
+  isFlexibleRate: string;
+  loanAmount: string;
+  collateralAccountId: string;
+  collateralCoin: string;
+  loanTerm?: string;
+}
+
+export interface GetLoanableAssetsDataParams {
+  loanCoin?: string;
+  vipLevel?: number;
+}
+
+export interface GetApplicationStatusParams {
+  current?: number;
+  limit?: number;
+}
+
+export interface ApplicationStatus {
+  loanAccountId: string;
+  orderId: string;
+  requestId: string;
+  loanCoin: string;
+  loanAmount: string;
+  collateralAccountId: string;
+  collateralCoin: string;
+  loanTerm: string;
+  status: string;
+  loanDate: string;
+}
+
+export interface BorrowInterestRate {
+  asset: string;
+  flexibleDailyInterestRate: string;
+  flexibleYearlyInterestRate: string;
+  time: number;
+}
+
+export interface GetCryptoLoansIncomeHistoryParams {
+  asset?: string;
+  type?: string;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
+export interface GetCryptoLoansIncomeHistoryResponse {
+  asset: string;
+  type: string;
+  amount: string;
+  timestamp: number;
+  tranId: string;
+}
+
+export interface BorrowCryptoLoanParams {
+  loanCoin: string;
+  loanAmount?: number;
+  collateralCoin: string;
+  collateralAmount?: number;
+  loanTerm: number;
+}
+
+export interface BorrowCryptoLoanResponse {
+  loanCoin: string;
+  loanAmount: string;
+  collateralCoin: string;
+  collateralAmount: string;
+  hourlyInterestRate: string;
+  orderId: string;
+}
+
+export interface GetLoanBorrowHistoryParams {
+  orderId?: number;
+  loanCoin?: string;
+  collateralCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface LoanBorrowHistory {
+  orderId: number;
+  loanCoin: string;
+  initialLoanAmount: string;
+  hourlyInterestRate: string;
+  loanTerm: string;
+  collateralCoin: string;
+  initialCollateralAmount: string;
+  borrowTime: number;
+  status: string;
+}
+
+export interface GetLoanOngoingOrdersParams {
+  orderId?: number;
+  loanCoin?: string;
+  collateralCoin?: string;
+  current?: number;
+  limit?: number;
+}
+
+export interface LoanOngoingOrder {
+  orderId: number;
+  loanCoin: string;
+  totalDebt: string;
+  residualInterest: string;
+  collateralCoin: string;
+  collateralAmount: string;
+  currentLTV: string;
+  expirationTime: number;
+}
+
+export interface RepayCryptoLoanParams {
+  orderId: number;
+  amount: number;
+  type?: number;
+  collateralReturn?: boolean;
+}
+
+export interface RepayCryptoLoanResponse {
+  loanCoin: string;
+  remainingPrincipal?: string;
+  remainingInterest?: string;
+  collateralCoin: string;
+  remainingCollateral?: string;
+  currentLTV?: string;
+  repayStatus: string;
+}
+
+export interface GetLoanRepaymentHistoryParams {
+  orderId?: number;
+  loanCoin?: string;
+  collateralCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface LoanRepaymentHistory {
+  loanCoin: string;
+  repayAmount: string;
+  collateralCoin: string;
+  collateralUsed: string;
+  collateralReturn: string;
+  repayType: string;
+  repayStatus: string;
+  repayTime: number;
+  orderId: number;
+}
+
+export interface AdjustCryptoLoanLTVParams {
+  orderId: number;
+  amount: number;
+  direction: 'ADDITIONAL' | 'REDUCED';
+}
+
+export interface AdjustCryptoLoanLTVResponse {
+  loanCoin: string;
+  collateralCoin: string;
+  direction: 'ADDITIONAL' | 'REDUCED';
+  amount: string;
+  currentLTV: string;
+}
+
+export interface GetLoanLTVAdjustmentHistoryParams {
+  orderId?: number;
+  loanCoin?: string;
+  collateralCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface LoanLTVAdjustmentHistory {
+  loanCoin: string;
+  collateralCoin: string;
+  direction: 'ADDITIONAL' | 'REDUCED';
+  amount: string;
+  preLTV: string;
+  afterLTV: string;
+  adjustTime: number;
+  orderId: number;
+}
+
+export interface LoanableAssetData {
+  loanCoin: string;
+  _7dHourlyInterestRate: string;
+  _7dDailyInterestRate: string;
+  _14dHourlyInterestRate: string;
+  _14dDailyInterestRate: string;
+  _30dHourlyInterestRate: string;
+  _30dDailyInterestRate: string;
+  _90dHourlyInterestRate: string;
+  _90dDailyInterestRate: string;
+  _180dHourlyInterestRate: string;
+  _180dDailyInterestRate: string;
+  minLimit: string;
+  maxLimit: string;
+  vipLevel: number;
+}
+
+export interface GetCollateralAssetDataParams {
+  collateralCoin?: string;
+  vipLevel?: number;
+}
+
+export interface CollateralAssetData {
+  collateralCoin: string;
+  initialLTV: string;
+  marginCallLTV: string;
+  liquidationLTV: string;
+  maxLimit: string;
+  vipLevel: number;
+}
+
+export interface CheckCollateralRepayRateParams {
+  loanCoin: string;
+  collateralCoin: string;
+  repayAmount: number;
+}
+
+export interface CheckCollateralRepayRateResponse {
+  loanCoin: string;
+  collateralCoin: string;
+  repayAmount: string;
+  rate: string;
+}
+
+export interface CustomizeMarginCallParams {
+  orderId?: number;
+  collateralCoin?: string;
+  marginCall: number;
+}
+
+export interface CustomizeMarginCall {
+  orderId: string;
+  collateralCoin: string;
+  preMarginCall: string;
+  afterMarginCall: string;
+  customizeTime: number;
+}
+
+export interface BorrowFlexibleLoanParams {
+  loanCoin: string;
+  loanAmount?: number;
+  collateralCoin: string;
+  collateralAmount?: number;
+}
+
+export interface BorrowFlexibleLoanResponse {
+  loanCoin: string;
+  loanAmount: string;
+  collateralCoin: string;
+  collateralAmount: string;
+  status: 'Succeeds' | 'Failed' | 'Processing';
+}
+
+export interface GetFlexibleLoanOngoingOrdersParams {
+  loanCoin?: string;
+  collateralCoin?: string;
+  current?: number;
+  limit?: number;
+}
+
+export interface FlexibleLoanOngoingOrder {
+  loanCoin: string;
+  totalDebt: string;
+  collateralCoin: string;
+  collateralAmount: string;
+  currentLTV: string;
+}
+
+export interface GetFlexibleCryptoLoanBorrowHistoryParams {
+  loanCoin?: string;
+  collateralCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface FlexibleCryptoLoanBorrowHistory {
+  loanCoin: string;
+  initialLoanAmount: string;
+  collateralCoin: string;
+  initialCollateralAmount: string;
+  borrowTime: number;
+  status: 'Succeeds' | 'Failed' | 'Processing';
+}
+
+export interface RepayCryptoFlexibleLoanParams {
+  loanCoin: string;
+  collateralCoin: string;
+  repayAmount: number;
+  collateralReturn?: boolean;
+  fullRepayment?: boolean;
+}
+
+export interface RepayCryptoFlexibleLoanResponse {
+  loanCoin: string;
+  collateralCoin: string;
+  remainingDebt: string;
+  remainingCollateral: string;
+  fullRepayment: boolean;
+  currentLTV: string;
+  repayStatus: 'Repaid' | 'Repaying' | 'Failed';
+}
+
+export interface GetFlexibleCryptoLoanRepaymentHistoryParams {
+  loanCoin?: string;
+  collateralCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface FlexibleCryptoLoanRepaymentHistory {
+  loanCoin: string;
+  repayAmount: string;
+  collateralCoin: string;
+  collateralReturn: string;
+  repayStatus: 'Repaid' | 'Repaying' | 'Failed';
+  repayTime: number;
+}
+
+export interface AdjustFlexibleCryptoLoanLTVParams {
+  loanCoin: string;
+  collateralCoin: string;
+  adjustmentAmount: number;
+  direction: 'ADDITIONAL' | 'REDUCED';
+}
+
+export interface AdjustFlexibleCryptoLoanLTVResponse {
+  loanCoin: string;
+  collateralCoin: string;
+  direction: 'ADDITIONAL' | 'REDUCED';
+  adjustmentAmount: string;
+  currentLTV: string;
+}
+
+export interface GetFlexibleLoanLTVAdjustmentHistoryParams {
+  loanCoin?: string;
+  collateralCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface FlexibleLoanLTVAdjustmentHistory {
+  loanCoin: string;
+  collateralCoin: string;
+  direction: 'ADDITIONAL' | 'REDUCED';
+  collateralAmount: string;
+  preLTV: string;
+  afterLTV: string;
+  adjustTime: number;
+}
+
+export interface FlexibleLoanAssetData {
+  loanCoin: string;
+  flexibleInterestRate: string;
+  flexibleMinLimit: string;
+  flexibleMaxLimit: string;
+}
+
+export interface FlexibleLoanCollateralAssetData {
+  collateralCoin: string;
+  initialLTV: string;
+  marginCallLTV: string;
+  liquidationLTV: string;
+  maxLimit: string;
+}
+
+export interface GetFuturesLeadTraderStatusResponse {
+  code: string;
+  message: string;
+  data: {
+    isLeadTrader: boolean;
+    time: number;
+  };
+  success: boolean;
+}
+
+export interface GetFuturesLeadTradingSymbolWhitelistResponse {
+  code: string;
+  message: string;
+  data: {
+    symbol: string;
+    baseAsset: string;
+    quoteAsset: string;
+  }[];
+}
+
+export interface GetPayTradeHistoryParams {
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
+export interface GetAllConvertPairsParams {
+  fromAsset?: string;
+  toAsset?: string;
+}
+
+export interface SubmitConvertLimitOrderParams {
+  baseAsset: string;
+  quoteAsset: string;
+  limitPrice: number;
+  baseAmount?: number;
+  quoteAmount?: number;
+  side: 'BUY' | 'SELL';
+  walletType?: 'SPOT' | 'FUNDING' | 'SPOT_FUNDING';
+  expiredType: '1_D' | '3_D' | '7_D' | '30_D';
+}
+
+export interface ConvertLimitOpenOrder {
+  quoteId: string;
+  orderId: number;
+  orderStatus: string;
+  fromAsset: string;
+  fromAmount: string;
+  toAsset: string;
+  toAmount: string;
+  ratio: string;
+  inverseRatio: string;
+  createTime: number;
+  expiredTimestamp: number;
+}
+
+export interface GetSpotRebateHistoryRecordsParams {
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+}
+
+export interface SpotRebateHistoryRecord {
+  asset: string;
+  type: number;
+  amount: string;
+  updateTime: number;
+}
+
+export interface GetSpotRebateHistoryRecordsResponse {
+  status: string;
+  type: string;
+  code: string;
+  data: {
+    page: number;
+    totalRecords: number;
+    totalPageNum: number;
+    data: SpotRebateHistoryRecord[];
+  };
+}
+
+export interface GetNftTransactionHistoryParams {
+  orderType: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+  page?: number;
+}
+
+export interface NftToken {
+  network: string;
+  tokenId: string;
+  contractAddress: string;
+}
+
+export interface NftTransaction {
+  orderNo: string;
+  tokens: NftToken[];
+  tradeTime: number;
+  tradeAmount: string;
+  tradeCurrency: string;
+}
+
+export interface GetNftDepositHistoryParams {
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+  page?: number;
+}
+
+export interface NftDeposit {
+  network: string;
+  txID: string | null;
+  contractAdrress: string;
+  tokenId: string;
+  timestamp: number;
+}
+
+export interface GetNftWithdrawHistoryParams {
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+  page?: number;
+}
+
+export interface NftWithdraw {
+  network: string;
+  txID: string;
+  contractAdrress: string;
+  tokenId: string;
+  timestamp: number;
+  fee: number;
+  feeAsset: string;
+}
+
+export interface GetNftAssetParams {
+  limit?: number;
+  page?: number;
+}
+
+export interface NftAsset {
+  network: string;
+  contractAddress: string;
+  tokenId: string;
+}
+
+export interface CreateGiftCardParams {
+  token: string;
+  amount: number;
+}
+
+export interface CreateDualTokenGiftCardParams {
+  baseToken: string;
+  faceToken: string;
+  baseTokenAmount: number;
+  discount?: number;
+}
+
+export interface RedeemGiftCardParams {
+  code: string;
+  externalUid?: string;
+}
+
+export interface SimpleEarnProductListParams {
+  asset?: string;
+  current?: number;
+  size?: number;
+}
+
+export interface SimpleEarnFlexibleProduct {
+  asset: string;
+  latestAnnualInterestRate: string;
+  tierAnnualPercentageRate: Record<string, number>;
+  airDropPercentageRate: string;
+  canPurchase: boolean;
+  canRedeem: boolean;
+  isSoldOut: boolean;
+  hot: boolean;
+  minPurchaseAmount: string;
+  productId: string;
+  subscriptionStartTime: number;
+  status: string;
+}
+
+export interface SimpleEarnLockedProduct {
+  projectId: string;
+  detail: {
+    asset: string;
+    rewardAsset: string;
+    duration: number;
+    renewable: boolean;
+    isSoldOut: boolean;
+    apr: string;
+    status: string;
+    subscriptionStartTime: number;
+    extraRewardAsset: string;
+    extraRewardAPR: string;
+  };
+  quota: {
+    totalPersonalQuota: string;
+    minimum: string;
+  };
+}
+
+export interface SimpleEarnSubscribeProductParams {
+  productId: string;
+  amount: number;
+  autoSubscribe?: boolean;
+  sourceAccount?: 'SPOT' | 'FUND' | 'ALL';
+}
+
+export interface SimpleEarnSubscribeFlexibleProductResponse {
+  purchaseId: string;
+  success: boolean;
+}
+
+export interface SimpleEarnSubscribeLockedProductResponse {
+  purchaseId: string;
+  positionId: string;
+  success: boolean;
+}
+export interface SimpleEarnRedeemResponse {
+  success: boolean;
+  redeemId: string;
+}
+
+export interface SimpleEarnFlexibleProductPositionParams {
+  asset?: string;
+  productId?: string;
+  current?: number;
+  size?: number;
+}
+
+export interface SimpleEarnLockedProductPositionParams {
+  asset?: string;
+  productId?: string;
+  current?: number;
+  size?: number;
+  positionId?: string;
+}
+
+export interface SimpleEarnLockedProductPosition {
+  positionId: string;
+  projectId: string;
+  asset: string;
+  amount: string;
+  purchaseTime: string;
+  duration: string;
+  accrualDays: string;
+  rewardAsset: string;
+  APY: string;
+  isRenewable: boolean;
+  isAutoRenew: boolean;
+  redeemDate: string;
+}
+
+export interface SimpleEarnAccountResponse {
+  totalAmountInBTC: string;
+  totalAmountInUSDT: string;
+  totalFlexibleAmountInBTC: string;
+  totalFlexibleAmountInUSDT: string;
+  totalLockedinBTC: string;
+  totalLockedinUSDT: string;
+}
+
+export interface GetSubAccountDepositHistoryParams {
+  subAccountId?: string;
+  coin?: string;
+  status?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+  offset?: number;
+}
+
+export interface SubAccountDeposit {
+  depositId: number;
+  subAccountId: string;
+  address: string;
+  addressTag: string;
+  amount: string;
+  coin: string;
+  insertTime: number;
+  transferType: number;
+  network: string;
+  status: number;
+  txId: string;
+  sourceAddress: string;
+  confirmTimes: string;
+  selfReturnStatus: number;
+}
+
+// Request interface for querying sub account spot asset info
+export interface QuerySubAccountSpotMarginAssetInfoParams {
+  subAccountId?: string;
+  page?: number;
+  size?: number;
+}
+
+export interface SubaccountBrokerSpotAsset {
+  subAccountId: string;
+  totalBalanceOfBtc: string;
+}
+
+export interface SubAccountBrokerMarginAsset {
+  marginEnable: boolean;
+  subAccountId: string;
+  totalAssetOfBtc?: string;
+  totalLiabilityOfBtc?: string;
+  totalNetAssetOfBtc?: string;
+  marginLevel?: string;
+}
+
+// Request interface for querying sub account futures asset info
+export interface QuerySubAccountFuturesAssetInfoParams {
+  subAccountId?: string;
+  futuresType: number; // 1: USD Margined Futures, 2: COIN Margined Futures
+  page?: number;
+  size?: number;
+}
+
+// Response interface for querying sub account futures asset info (USD Margined Futures)
+export interface UsdtMarginedFuturesResponse {
+  subAccountId: string;
+  totalInitialMargin: string;
+  totalMaintenanceMargin: string;
+  totalWalletBalance: string;
+  totalUnrealizedProfit: string;
+  totalMarginBalance: string;
+  totalPositionInitialMargin: string;
+  totalOpenOrderInitialMargin: string;
+  futuresEnable: boolean;
+  asset: string;
+}
+
+// Response interface for querying sub account futures asset info (COIN Margined Futures)
+export interface CoinMarginedFuturesResponse {
+  subAccountId: string;
+  totalWalletBalanceOfUsdt: string;
+  totalUnrealizedProfitOfUsdt: string;
+  totalMarginBalanceOfUsdt: string;
+  futuresEnable: boolean;
+}
+
+// Combined response interface for querying sub account futures asset info
+export interface BrokerFuturesSubAccountAssets {
+  data: (UsdtMarginedFuturesResponse | CoinMarginedFuturesResponse)[];
+  timestamp: number;
+}
+
+export interface BrokerUniversalTransfer {
+  toId: string;
+  asset: string;
+  qty: string;
+  time: number;
+  status: string;
+  txnId: string;
+  clientTranId: string;
+  fromAccountType: string;
+  toAccountType: string;
+}
+
+// Request interface for changing sub account commission
+export interface ChangeSubAccountCommissionParams {
+  subAccountId: string;
+  makerCommission: number;
+  takerCommission: number;
+  marginMakerCommission?: number;
+  marginTakerCommission?: number;
+}
+
+// Response interface for changing sub account commission
+export interface ChangeSubAccountCommissionResponse {
+  subAccountId: string;
+  makerCommission: number;
+  takerCommission: number;
+  marginMakerCommission: number;
+  marginTakerCommission: number;
+}
+
+// Request interface for changing sub account USDT-Ⓜ futures commission adjustment
+export interface ChangeSubAccountFuturesCommissionParams {
+  subAccountId: string;
+  symbol: string;
+  makerAdjustment: number;
+  takerAdjustment: number;
+}
+
+// Response interface for changing sub account USDT-Ⓜ futures commission adjustment
+export interface ChangeSubAccountFuturesCommissionResponse {
+  subAccountId: string;
+  symbol: string;
+  makerAdjustment: number;
+  takerAdjustment: number;
+  makerCommission: number;
+  takerCommission: number;
+}
+
+// Request interface for querying sub account USDT-Ⓜ futures commission adjustment
+export interface QuerySubAccountFuturesCommissionParams {
+  subAccountId: string;
+  symbol?: string;
+}
+
+// Response interface for querying sub account USDT-Ⓜ futures commission adjustment
+export interface BrokerSubAccountFuturesCommission {
+  subAccountId: string;
+  symbol: string;
+  makerCommission: number;
+  takerCommission: number;
+}
+
+export interface ChangeSubAccountCoinFuturesCommissionParams {
+  subAccountId: string;
+  pair: string;
+  makerAdjustment: number;
+  takerAdjustment: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface QuerySubAccountCoinFuturesCommissionParams {
+  subAccountId: string;
+  pair?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+// Response interface for querying sub account COIN-Ⓜ futures commission adjustment
+export interface BrokerSubAccountCoinFuturesCommission {
+  subAccountId: string;
+  pair: string;
+  makerCommission: number;
+  takerCommission: number;
+}
+
+export interface QueryBrokerSpotCommissionRebateParams {
+  subAccountId?: string;
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  size?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+// Response interface for querying spot commission rebate recent record
+export interface BrokerCommissionRebate {
+  subaccountId: string;
+  income: string;
+  asset: string;
+  symbol: string;
+  tradeId: number;
+  time: number;
+  status: number;
+}
+
+export interface QueryBrokerFuturesCommissionRebateParams {
+  futuresType: number; // 1: USDT Futures, 2: Coin Futures
+  startTime: number;
+  endTime: number;
+  page?: number;
+  size?: number;
+  filterResult?: boolean;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface SubmitMarginOTOOrderParams {
+  symbol: string;
+  isIsolated?: 'TRUE' | 'FALSE';
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  sideEffectType?: 'NO_SIDE_EFFECT' | 'MARGIN_BUY';
+  selfTradePreventionMode?:
+    | 'EXPIRE_TAKER'
+    | 'EXPIRE_MAKER'
+    | 'EXPIRE_BOTH'
+    | 'NONE';
+  autoRepayAtCancel?: boolean;
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: number;
+  workingQuantity: number;
+  workingIcebergQty?: number;
+  workingTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+  pendingType: OrderType;
+  pendingSide: 'BUY' | 'SELL';
+  pendingClientOrderId?: string;
+  pendingPrice?: number;
+  pendingStopPrice?: number;
+  pendingTrailingDelta?: number;
+  pendingQuantity: number;
+  pendingIcebergQty?: number;
+  pendingTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+}
+
+export interface MarginOTOOrder {
+  orderListId: number;
+  contingencyType: string;
+  listStatusType: string;
+  listOrderStatus: string;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  isIsolated: boolean;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+  orderReports: {
+    symbol: string;
+    orderId: number;
+    orderListId: number;
+    clientOrderId: string;
+    transactTime: number;
+    price: string;
+    origQty: string;
+    executedQty: string;
+    cummulativeQuoteQty: string;
+    status: string;
+    timeInForce: string;
+    type: string;
+    side: string;
+    selfTradePreventionMode: string;
+  }[];
+}
+
+export interface SubmitMarginOTOCOOrderParams {
+  symbol: string;
+  isIsolated?: 'TRUE' | 'FALSE';
+  sideEffectType?: 'NO_SIDE_EFFECT' | 'MARGIN_BUY';
+  autoRepayAtCancel?: boolean;
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  selfTradePreventionMode?:
+    | 'EXPIRE_TAKER'
+    | 'EXPIRE_MAKER'
+    | 'EXPIRE_BOTH'
+    | 'NONE';
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: string;
+  workingQuantity: string;
+  workingIcebergQty?: string;
+  workingTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+  pendingSide: 'BUY' | 'SELL';
+  pendingQuantity: string;
+  pendingAboveType: 'LIMIT_MAKER' | 'STOP_LOSS' | 'STOP_LOSS_LIMIT';
+  pendingAboveClientOrderId?: string;
+  pendingAbovePrice?: string;
+  pendingAboveStopPrice?: string;
+  pendingAboveTrailingDelta?: string;
+  pendingAboveIcebergQty?: string;
+  pendingAboveTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+  pendingBelowType: 'LIMIT_MAKER' | 'STOP_LOSS' | 'STOP_LOSS_LIMIT';
+  pendingBelowClientOrderId?: string;
+  pendingBelowPrice?: string;
+  pendingBelowStopPrice?: string;
+  pendingBelowTrailingDelta?: string;
+  pendingBelowIcebergQty?: string;
+  pendingBelowTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+}
+
+export interface MarginOTOCOOrder {
+  orderListId: number;
+  contingencyType: 'OTO';
+  listStatusType: 'EXEC_STARTED';
+  listOrderStatus: 'EXECUTING';
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  isIsolated: boolean;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+  orderReports: {
+    symbol: string;
+    orderId: number;
+    orderListId: number;
+    clientOrderId: string;
+    transactTime: number;
+    price: string;
+    origQty: string;
+    executedQty: string;
+    cummulativeQuoteQty: string;
+    status:
+      | 'NEW'
+      | 'PARTIALLY_FILLED'
+      | 'FILLED'
+      | 'CANCELED'
+      | 'PENDING_CANCEL'
+      | 'REJECTED'
+      | 'EXPIRED'
+      | 'PENDING_NEW';
+    timeInForce: 'GTC' | 'IOC' | 'FOK';
+    type:
+      | 'LIMIT'
+      | 'MARKET'
+      | 'STOP_LOSS'
+      | 'STOP_LOSS_LIMIT'
+      | 'TAKE_PROFIT'
+      | 'TAKE_PROFIT_LIMIT'
+      | 'LIMIT_MAKER';
+    side: 'BUY' | 'SELL';
+    stopPrice?: string;
+    selfTradePreventionMode:
+      | 'EXPIRE_TAKER'
+      | 'EXPIRE_MAKER'
+      | 'EXPIRE_BOTH'
+      | 'NONE';
+  }[];
+}
+
+export interface CreateSpecialLowLatencyKeyParams {
+  apiName: string;
+  symbol?: string;
+  ip?: string;
+  publicKey?: string;
+}
+
+export interface SpecialLowLatencyKeyResponse {
+  apiKey: string;
+  secretKey: string | null;
+  type: 'HMAC_SHA256' | 'RSA' | 'Ed25519';
+}
+
+export interface SpecialLowLatencyKeyInfo {
+  apiName: string;
+  apiKey: string;
+  ip: string;
+  type: 'HMAC_SHA256' | 'RSA' | 'Ed25519';
+}
+
+export interface SolStakingAccount {
+  bnsolAmount: string; // Amount in bNSOL
+  holdingInSOL: string; // Holding in SOL
+  thirtyDaysProfitInSOL: string; // 30 days profit in SOL
+}
+
+export interface SolStakingQuota {
+  leftStakingPersonalQuota: string; // Remaining personal staking quota
+  leftRedemptionPersonalQuota: string; // Remaining personal redemption quota
+  minStakeAmount: string; // Minimum stake amount
+  minRedeemAmount: string; // Minimum redeem amount
+  redeemPeriod: number; // Redemption period in days
+  stakeable: boolean; // Whether staking is possible
+  redeemable: boolean; // Whether redemption is possible
+  soldOut: boolean; // Whether the staking is sold out
+  commissionFee: string; // Commission fee
+  nextEpochTime: number; // Time for the next epoch
+  calculating: boolean; // Whether calculations are ongoing
+}
+
+export interface SubscribeSolStakingResponse {
+  success: boolean; // Indicates if the subscription was successful
+  bnsolAmount: string; // Amount in bNSOL received
+  exchangeRate: string; // SOL amount per 1 BNSOL
+}
+
+export interface RedeemSolResponse {
+  success: boolean; // Indicates if the redemption was successful
+  solAmount: string; // Amount in SOL received
+  exchangeRate: string; // SOL amount per 1 BNSOL
+  arrivalTime: number; // Time of arrival for the redeemed SOL
+}
+
+export interface GetSolStakingHistoryReq {
+  startTime?: number; // Optional, start time in milliseconds
+  endTime?: number; // Optional, end time in milliseconds
+  current?: number; // Optional, current page, default is 1
+  size?: number; // Optional, number of records per page, default is 10, max is 100
+  recvWindow?: number; // Optional, cannot be greater than 60000
+  timestamp: number; // Mandatory
+}
+
+export interface SolStakingHistoryRecord {
+  time: number; // Time of the staking event
+  asset: string; // Asset involved, e.g., SOL
+  amount: string; // Amount staked
+  distributeAsset: string; // Asset distributed, e.g., BNSOL
+  distributeAmount: string; // Amount distributed
+  exchangeRate: string; // Exchange rate at the time
+  status: 'PENDING' | 'SUCCESS' | 'FAILED'; // Status of the staking event
+}
+
+export interface GetSolRedemptionHistoryReq {
+  startTime?: number; // Optional, start time in milliseconds
+  endTime?: number; // Optional, end time in milliseconds
+  current?: number; // Optional, current page, default is 1
+  size?: number; // Optional, number of records per page, default is 10, max is 100
+  recvWindow?: number; // Optional, cannot be greater than 60000
+  timestamp: number; // Mandatory
+}
+
+export interface SolRedemptionHistoryRecord {
+  time: number; // Time of the redemption event
+  arrivalTime: number; // Time of arrival for the redeemed SOL
+  asset: string; // Asset redeemed, e.g., BNSOL
+  amount: string; // Amount redeemed
+  distributeAsset: string; // Asset distributed, e.g., SOL
+  distributeAmount: string; // Amount distributed
+  exchangeRate: string; // Exchange rate at the time
+  status: 'PENDING' | 'SUCCESS' | 'FAILED'; // Status of the redemption event
+}
+
+export interface GetBnsolRewardsHistoryReq {
+  startTime?: number; // Optional, start time in milliseconds
+  endTime?: number; // Optional, end time in milliseconds
+  current?: number; // Optional, current page, default is 1
+  size?: number; // Optional, number of records per page, default is 10, max is 100
+  recvWindow?: number; // Optional, cannot be greater than 60000
+  timestamp: number; // Mandatory
+}
+
+export interface BnsolRewardHistoryRecord {
+  time: number; // Time of the reward event
+  amountInSOL: string; // Reward amount in SOL
+  holding: string; // BNSOL holding balance
+  holdingInSOL: string; // BNSOL holding balance in SOL
+  annualPercentageRate: string; // Annual Percentage Rate (e.g., "0.5" means 50%)
+}
+
+export interface GetBnsolRateHistoryReq {
+  startTime?: number; // Optional, start time in milliseconds
+  endTime?: number; // Optional, end time in milliseconds
+  current?: number; // Optional, current page, default is 1
+  size?: number; // Optional, number of records per page, default is 10, max is 100
+  recvWindow?: number; // Optional, cannot be greater than 60000
+  timestamp: number; // Mandatory
+}
+
+export interface BnsolRateHistoryRecord {
+  annualPercentageRate: string; // BNSOL APR
+  exchangeRate: string; // SOL amount per 1 BNSOL
+  time: number; // Time of the rate record
 }

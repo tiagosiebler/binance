@@ -17,6 +17,7 @@ import {
   SymbolMaxIcebergOrdersFilter,
   SymbolMaxPositionFilter,
   SymbolPriceFilter,
+  SelfTradePreventionMode,
 } from './shared';
 
 export type FuturesContractType =
@@ -106,6 +107,17 @@ export type FuturesOrderType =
   | 'TAKE_PROFIT_MARKET'
   | 'TRAILING_STOP_MARKET';
 
+export type PriceMatchMode =
+  | 'NONE'
+  | 'OPPONENT'
+  | 'OPPONENT_5'
+  | 'OPPONENT_10'
+  | 'OPPONENT_20'
+  | 'QUEUE'
+  | 'QUEUE_5'
+  | 'QUEUE_10'
+  | 'QUEUE_20';
+
 // When using the submitMultipleOrders() endpoint, it seems to expect strings instead of numbers. All other endpoints use numbers.
 export interface NewFuturesOrderParams<numberType = number> {
   symbol: string;
@@ -124,6 +136,8 @@ export interface NewFuturesOrderParams<numberType = number> {
   workingType?: WorkingType;
   priceProtect?: BooleanStringCapitalised;
   newOrderRespType?: OrderResponseType;
+  selfTradePreventionMode?: SelfTradePreventionMode;
+  priceMatch?: PriceMatchMode;
 }
 
 export interface ModifyFuturesOrderParams<numberType = number> {
@@ -306,7 +320,7 @@ export interface FuturesSymbolExchangeInfo {
   timeInForce: OrderTimeInForce[];
   liquidationFee: numberInString;
   marketTakeBound: numberInString;
-  contractSize?:number;
+  contractSize?: number;
 }
 
 export interface FuturesExchangeInfo {
@@ -425,6 +439,8 @@ export interface NewOrderResult {
   updateTime: number;
   workingType: WorkingType;
   priceProtect: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  priceMatch: PriceMatchMode;
 }
 
 export interface NewOrderError {
@@ -456,6 +472,8 @@ export interface OrderResult {
   updateTime: number;
   workingType: WorkingType;
   priceProtect: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  priceMatch: PriceMatchMode;
 }
 
 export interface ModifyFuturesOrderResult {
@@ -481,6 +499,8 @@ export interface ModifyFuturesOrderResult {
   priceProtect: boolean;
   origType: FuturesOrderType;
   updateTime: number;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  priceMatch: PriceMatchMode;
 }
 
 export interface CancelFuturesOrderResult {
@@ -506,6 +526,8 @@ export interface CancelFuturesOrderResult {
   updateTime: number;
   workingType: WorkingType;
   priceProtect: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  priceMatch: PriceMatchMode;
 }
 
 export interface CancelAllOpenOrdersResult {
@@ -698,6 +720,32 @@ export interface UserCommissionRate {
   takerCommissionRate: numberInString;
 }
 
+export interface FuturesAccountConfig {
+  feeTier: number;
+  canTrade: boolean;
+  canDeposit: boolean;
+  canWithdraw: boolean;
+  dualSidePosition: boolean;
+  updateTime: number;
+  multiAssetsMargin: boolean;
+  tradeGroupId: number;
+}
+
+export interface SymbolConfig {
+  symbol: string;
+  marginType: string;
+  isAutoAddMargin: string;
+  leverage: number;
+  maxNotionalValue: string;
+}
+
+export interface UserForceOrder {
+  rateLimitType: string;
+  interval: string;
+  intervalNum: number;
+  limit: number;
+}
+
 export interface RebateDataOverview {
   brokerId: string;
   newTraderRebateCommission: numberInString;
@@ -757,4 +805,128 @@ export interface OrderAmendment {
   clientOrderId: string;
   time: number;
   amendment: OrderAmendmentDetail;
+}
+
+export interface QuarterlyContractSettlementPrice {
+  deliveryTime: number;
+  deliveryPrice: string;
+}
+
+export interface BasisParams {
+  pair: string;
+  contractType: 'CURRENT_QUARTER' | 'NEXT_QUARTER' | 'PERPETUAL';
+  period: '5m' | '15m' | '30m' | '1h' | '2h' | '4h' | '6h' | '12h' | '1d';
+  limit: number;
+  startTime?: number;
+  endTime?: number;
+}
+
+export interface Basis {
+  indexPrice: string;
+  contractType: string;
+  basisRate: string;
+  futuresPrice: string;
+  annualizedBasisRate: string;
+  basis: string;
+  pair: string;
+  timestamp: number;
+}
+
+export interface IndexPriceConstituent {
+  exchange: string;
+  symbol: string;
+}
+
+export interface IndexPriceConstituents {
+  symbol: string;
+  time: number;
+  constituents: IndexPriceConstituent[];
+}
+
+export interface ModifyOrderParams {
+  orderId?: number;
+  origClientOrderId?: string;
+  symbol: string;
+  side: 'SELL' | 'BUY';
+  quantity: string;
+  price: string;
+  priceMatch?:
+    | 'OPPONENT'
+    | 'OPPONENT_5'
+    | 'OPPONENT_10'
+    | 'OPPONENT_20'
+    | 'QUEUE'
+    | 'QUEUE_5'
+    | 'QUEUE_10'
+    | 'QUEUE_20';
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface GetFuturesOrderModifyHistoryParams {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface FuturesTradeHistoryDownloadId {
+  avgCostTimestampOfLast30d: number;
+  downloadId: string;
+}
+
+export interface FuturesTransactionDownloadLink {
+  downloadId: string;
+  status: 'completed' | 'processing';
+  url: string;
+  expirationTimestamp: number;
+  isExpired: boolean | null;
+}
+
+export interface PortfolioMarginProAccountInfo {
+  maxWithdrawAmountUSD: string;
+  asset: string;
+  maxWithdrawAmount: string; // This field will be ignored in the response
+}
+
+export interface FuturesConvertPair {
+  fromAsset: string;
+  toAsset: string;
+  fromAssetMinAmount: string;
+  fromAssetMaxAmount: string;
+  toAssetMinAmount: string;
+  toAssetMaxAmount: string;
+}
+
+export interface FuturesConvertQuoteRequest {
+  fromAsset: string;
+  toAsset: string;
+  fromAmount?: number;
+  toAmount?: number;
+  validTime?: '10s' | '30s' | '1m' | '2m';
+}
+
+export interface FuturesConvertQuote {
+  quoteId: string;
+  ratio: string;
+  inverseRatio: string;
+  validTimestamp: number;
+  toAmount: string;
+  fromAmount: string;
+}
+
+export interface FuturesConvertOrderStatus {
+  orderId: string;
+  orderStatus: 'PROCESS' | 'ACCEPT_SUCCESS' | 'SUCCESS' | 'FAIL';
+  fromAsset: string;
+  fromAmount: string;
+  toAsset: string;
+  toAmount: string;
+  ratio: string;
+  inverseRatio: string;
+  createTime: number;
 }
