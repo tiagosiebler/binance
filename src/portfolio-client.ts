@@ -122,6 +122,17 @@ export class PortfolioClient extends BaseRestClient {
     return this.get('papi/v1/ping');
   }
 
+  /**
+   *
+   * TRADE endpoints - Rest API
+   *
+   **/
+
+  submitNewOrder(params: NewFuturesOrderParams): Promise<NewOrderResult> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.postPrivate('papi/v1/um/order', params);
+  }
+
   getBalance(params?: { asset?: string }): Promise<unknown[]> {
     return this.getPrivate('papi/v1/balance', params);
   }
@@ -138,6 +149,7 @@ export class PortfolioClient extends BaseRestClient {
     orderIdProperty: OrderIdProperty,
   ): void {
     const apiCategory = this.clientId;
+
     if (!params[orderIdProperty]) {
       params[orderIdProperty] = generateNewOrderId(apiCategory);
       return;
@@ -147,5 +159,22 @@ export class PortfolioClient extends BaseRestClient {
     if (!params[orderIdProperty].startsWith(expectedOrderIdPrefix)) {
       logInvalidOrderId(orderIdProperty, expectedOrderIdPrefix, params);
     }
+  }
+
+  /**
+   *
+   * User Data Stream Endpoints
+   *
+   **/
+  getPMUserDataListenKey(): Promise<{ listenKey: string }> {
+    return this.post('papi/v1/listenKey');
+  }
+
+  keepAlivePMUserDataListenKey(): Promise<{}> {
+    return this.put('papi/v1/listenKey');
+  }
+
+  closePMUserDataListenKey(): Promise<{}> {
+    return this.delete('papi/v1/listenKey');
   }
 }

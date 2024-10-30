@@ -104,10 +104,6 @@ export default abstract class BaseRestClient {
     baseUrlKeyOverride?: BinanceBaseUrlKey,
   ): Promise<number>;
 
-  public isTestnet(): boolean {
-    return this.options.useTestnet === true;
-  }
-
   public getBaseUrlKey(): BinanceBaseUrlKey {
     return this.baseUrlKey;
   }
