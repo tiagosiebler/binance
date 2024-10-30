@@ -84,6 +84,8 @@ const PORTFOLIO_MARGIN_BASE_URL_KEY = 'papi';
 
 /**
  * REST client for Portfolio Margin APIs (papi)
+ *
+ * https://developers.binance.com/docs/derivatives/portfolio-margin/general-info
  */
 export class PortfolioClient extends BaseRestClient {
   private clientId: BinanceBaseUrlKey = PORTFOLIO_MARGIN_BASE_URL_KEY;
