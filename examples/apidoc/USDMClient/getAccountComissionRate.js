@@ -11,7 +11,7 @@ const client = new USDMClient({
   apiSecret: 'insert_api_secret_here',
 });
 
-client.getAccountComissionRate(params)
+client.getAccountCommissionRate(params)
   .then((response) => {
     console.log(response);
   })

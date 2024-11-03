@@ -441,7 +441,7 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/balance');
   }
 
-  getAccountComissionRate(
+  getAccountCommissionRate(
     params: BasicSymbolParam,
   ): Promise<UserCommissionRate> {
     return this.getPrivate('dapi/v1/commissionRate', params);
