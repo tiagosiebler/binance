@@ -441,6 +441,15 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/balance');
   }
 
+  /**
+   * @deprecated Please use `getAccountCommissionRate()` instead. This will be removed in the next major release.
+   */
+  getAccountComissionRate(
+    params: BasicSymbolParam,
+  ): Promise<UserCommissionRate> {
+    return this.getPrivate('dapi/v1/commissionRate', params);
+  }
+
   getAccountCommissionRate(
     params: BasicSymbolParam,
   ): Promise<UserCommissionRate> {

@@ -497,6 +497,15 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v2/account');
   }
 
+  /**
+   * @deprecated Please use `getAccountCommissionRate()` instead. This will be removed in the next major release.
+   */
+  getAccountComissionRate(
+    params: BasicSymbolParam,
+  ): Promise<UserCommissionRate> {
+    return this.getPrivate('fapi/v1/commissionRate', params);
+  }
+
   getAccountCommissionRate(
     params: BasicSymbolParam,
   ): Promise<UserCommissionRate> {
