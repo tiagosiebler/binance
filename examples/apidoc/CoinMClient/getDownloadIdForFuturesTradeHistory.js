@@ -2,7 +2,7 @@ const { CoinMClient } = require('binance');
 
   // This example shows how to call this Binance API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "binance" for Binance exchange
   // This Binance API SDK is available on npm via "npm install binance"
-  // ENDPOINT: dapi/v1/commissionRate
+  // ENDPOINT: dapi/v1/trade/asyn
   // METHOD: GET
   // PUBLIC: NO
 
@@ -11,7 +11,7 @@ const client = new CoinMClient({
   apiSecret: 'insert_api_secret_here',
 });
 
-client.getAccountComissionRate(params)
+client.getDownloadIdForFuturesTradeHistory(params)
   .then((response) => {
     console.log(response);
   })

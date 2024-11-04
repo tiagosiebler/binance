@@ -7,6 +7,7 @@ import {
   CoinMPositionTrade,
   CoinMSymbolOrderBookTicker,
   FundingRate,
+  FuturesTransactionHistoryDownloadLink,
   GetClassicPortfolioMarginNotionalLimitParams,
   PositionRisk,
   SymbolOrPair,
@@ -478,6 +479,54 @@ export class CoinMClient extends BaseRestClient {
 
   getIncomeHistory(params?: GetIncomeHistoryParams): Promise<IncomeHistory[]> {
     return this.getPrivate('dapi/v1/income', params);
+  }
+
+  getDownloadIdForFuturesTransactionHistory(params: {
+    startTime: number;
+    endTime: number;
+  }): Promise<{
+    avgCostTimestampOfLast30d: number;
+    downloadId: string;
+  }> {
+    return this.getPrivate('dapi/v1/income/asyn', params);
+  }
+
+  getFuturesTransactionHistoryDownloadLink(params: {
+    downloadId: string;
+  }): Promise<FuturesTransactionHistoryDownloadLink> {
+    return this.getPrivate('dapi/v1/income/asyn/id', params);
+  }
+
+  getDownloadIdForFuturesOrderHistory(params: {
+    startTime: number;
+    endTime: number;
+  }): Promise<{
+    avgCostTimestampOfLast30d: number;
+    downloadId: string;
+  }> {
+    return this.getPrivate('dapi/v1/order/asyn', params);
+  }
+
+  getFuturesOrderHistoryDownloadLink(params: {
+    downloadId: string;
+  }): Promise<FuturesTransactionHistoryDownloadLink> {
+    return this.getPrivate('dapi/v1/order/asyn/id', params);
+  }
+
+  getDownloadIdForFuturesTradeHistory(params: {
+    startTime: number;
+    endTime: number;
+  }): Promise<{
+    avgCostTimestampOfLast30d: number;
+    downloadId: string;
+  }> {
+    return this.getPrivate('dapi/v1/trade/asyn', params);
+  }
+
+  getFuturesTradeHistoryDownloadLink(params: {
+    downloadId: string;
+  }): Promise<FuturesTransactionHistoryDownloadLink> {
+    return this.getPrivate('dapi/v1/trade/asyn/id', params);
   }
 
   /**
