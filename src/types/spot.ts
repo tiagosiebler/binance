@@ -416,6 +416,9 @@ export interface UniversalTransferHistoryParams {
 export interface ExchangeInfoParams {
   symbol?: string;
   symbols?: string[];
+  permissions?: string | string[];
+  showPermissionSets?: boolean;
+  symbolStatus?: string;
 }
 
 export interface NewSpotOrderParams<
@@ -5403,4 +5406,46 @@ export interface BnsolRateHistoryRecord {
   annualPercentageRate: string; // BNSOL APR
   exchangeRate: string; // SOL amount per 1 BNSOL
   time: number; // Time of the rate record
+}
+
+export interface RiskUnitMM {
+  asset: string;
+  uniMaintainUsd: string;
+}
+
+export interface PortfolioMarginProSpanAccountInfo {
+  uniMMR: string;
+  accountEquity: string;
+  actualEquity: string;
+  accountMaintMargin: string;
+  riskUnitMMList: RiskUnitMM[];
+  marginMM: string;
+  otherMM: string;
+  accountStatus:
+    | 'NORMAL'
+    | 'MARGIN_CALL'
+    | 'SUPPLY_MARGIN'
+    | 'REDUCE_ONLY'
+    | 'ACTIVE_LIQUIDATION'
+    | 'FORCE_LIQUIDATION'
+    | 'BANKRUPTED';
+  accountType: 'PM_1' | 'PM_2' | 'PM_3'; // PM_1 for classic PM, PM_2 for PM, PM_3 for PM Pro(SPAN)
+}
+
+export interface PortfolioMarginProAccountBalance {
+  asset: string;
+  totalWalletBalance: string;
+  crossMarginAsset: string;
+  crossMarginBorrowed: string;
+  crossMarginFree: string;
+  crossMarginInterest: string;
+  crossMarginLocked: string;
+  umWalletBalance: string;
+  umUnrealizedPNL: string;
+  cmWalletBalance: string;
+  cmUnrealizedPNL: string;
+  updateTime: number;
+  negativeBalance: string;
+  optionWalletBalance: string; // only for PM PRO SPAN
+  optionEquity: string; // only for PM PRO SPAN
 }
