@@ -534,7 +534,7 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [getBalance()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L484) | :closed_lock_with_key:  | GET | `fapi/v2/balance` |
 | [getAccountInformationV3()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L488) | :closed_lock_with_key:  | GET | `fapi/v3/account` |
 | [getAccountInformation()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L496) | :closed_lock_with_key:  | GET | `fapi/v2/account` |
-| [getAccountComissionRate()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L500) | :closed_lock_with_key:  | GET | `fapi/v1/commissionRate` |
+| [getAccountCommissionRate()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L500) | :closed_lock_with_key:  | GET | `fapi/v1/commissionRate` |
 | [getFuturesAccountConfig()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L506) | :closed_lock_with_key:  | GET | `fapi/v1/accountConfig` |
 | [getFuturesSymbolConfig()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L510) | :closed_lock_with_key:  | GET | `fapi/v1/symbolConfig` |
 | [getUserForceOrders()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L514) | :closed_lock_with_key:  | GET | `fapi/v1/rateLimit/order` |
