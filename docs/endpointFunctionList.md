@@ -534,40 +534,41 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [getBalance()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L484) | :closed_lock_with_key:  | GET | `fapi/v2/balance` |
 | [getAccountInformationV3()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L488) | :closed_lock_with_key:  | GET | `fapi/v3/account` |
 | [getAccountInformation()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L496) | :closed_lock_with_key:  | GET | `fapi/v2/account` |
-| [getAccountCommissionRate()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L500) | :closed_lock_with_key:  | GET | `fapi/v1/commissionRate` |
-| [getFuturesAccountConfig()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L506) | :closed_lock_with_key:  | GET | `fapi/v1/accountConfig` |
-| [getFuturesSymbolConfig()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L510) | :closed_lock_with_key:  | GET | `fapi/v1/symbolConfig` |
-| [getUserForceOrders()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L514) | :closed_lock_with_key:  | GET | `fapi/v1/rateLimit/order` |
-| [getNotionalAndLeverageBrackets()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L521) | :closed_lock_with_key:  | GET | `fapi/v1/leverageBracket` |
-| [getMultiAssetsMode()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L527) | :closed_lock_with_key:  | GET | `fapi/v1/multiAssetsMargin` |
-| [getCurrentPositionMode()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L531) | :closed_lock_with_key:  | GET | `fapi/v1/positionSide/dual` |
-| [getIncomeHistory()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L535) | :closed_lock_with_key:  | GET | `fapi/v1/income` |
-| [getApiQuantitativeRulesIndicators()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L539) | :closed_lock_with_key:  | GET | `fapi/v1/apiTradingStatus` |
-| [getFuturesTransactionHistoryDownloadId()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L545) | :closed_lock_with_key:  | GET | `fapi/v1/income/asyn` |
-| [getFuturesTransactionHistoryDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L552) | :closed_lock_with_key:  | GET | `fapi/v1/income/asyn/id` |
-| [getFuturesOrderHistoryDownloadId()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L558) | :closed_lock_with_key:  | GET | `fapi/v1/order/asyn` |
-| [getFuturesOrderHistoryDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L565) | :closed_lock_with_key:  | GET | `fapi/v1/order/asyn/id` |
-| [getFuturesTradeHistoryDownloadId()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L571) | :closed_lock_with_key:  | GET | `fapi/v1/trade/asyn` |
-| [getFuturesTradeDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L578) | :closed_lock_with_key:  | GET | `fapi/v1/trade/asyn/id` |
-| [setBNBBurnEnabled()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L584) | :closed_lock_with_key:  | POST | `fapi/v1/feeBurn` |
-| [getBNBBurnStatus()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L590) | :closed_lock_with_key:  | GET | `fapi/v1/feeBurn` |
-| [testOrder()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L596) | :closed_lock_with_key:  | POST | `fapi/v1/order/test` |
-| [getAllConvertPairs()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L607) |  | GET | `fapi/v1/convert/exchangeInfo` |
-| [submitConvertQuoteRequest()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L614) | :closed_lock_with_key:  | POST | `fapi/v1/convert/getQuote` |
-| [acceptConvertQuote()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L620) | :closed_lock_with_key:  | POST | `fapi/v1/convert/acceptQuote` |
-| [getConvertOrderStatus()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L628) | :closed_lock_with_key:  | GET | `fapi/v1/convert/orderStatus` |
-| [getPortfolioMarginProAccountInfo()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L641) | :closed_lock_with_key:  | GET | `fapi/v1/pmAccountInfo` |
-| [getBrokerIfNewFuturesUser()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L658) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/ifNewUser` |
-| [setBrokerCustomIdForClient()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L670) | :closed_lock_with_key:  | POST | `fapi/v1/apiReferral/customization` |
-| [getBrokerClientCustomIds()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L682) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/customization` |
-| [getBrokerUserCustomId()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L698) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/userCustomization` |
-| [getBrokerRebateDataOverview()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L706) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/overview` |
-| [getBrokerUserTradeVolume()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L714) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/tradeVol` |
-| [getBrokerRebateVolume()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L730) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/rebateVol` |
-| [getBrokerTradeDetail()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L746) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/traderSummary` |
-| [getFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L768) |  | POST | `fapi/v1/listenKey` |
-| [keepAliveFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L772) |  | PUT | `fapi/v1/listenKey` |
-| [closeFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L776) |  | DELETE | `fapi/v1/listenKey` |
+| [getAccountComissionRate()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L503) | :closed_lock_with_key:  | GET | `fapi/v1/commissionRate` |
+| [getAccountCommissionRate()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L509) | :closed_lock_with_key:  | GET | `fapi/v1/commissionRate` |
+| [getFuturesAccountConfig()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L515) | :closed_lock_with_key:  | GET | `fapi/v1/accountConfig` |
+| [getFuturesSymbolConfig()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L519) | :closed_lock_with_key:  | GET | `fapi/v1/symbolConfig` |
+| [getUserForceOrders()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L523) | :closed_lock_with_key:  | GET | `fapi/v1/rateLimit/order` |
+| [getNotionalAndLeverageBrackets()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L530) | :closed_lock_with_key:  | GET | `fapi/v1/leverageBracket` |
+| [getMultiAssetsMode()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L536) | :closed_lock_with_key:  | GET | `fapi/v1/multiAssetsMargin` |
+| [getCurrentPositionMode()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L540) | :closed_lock_with_key:  | GET | `fapi/v1/positionSide/dual` |
+| [getIncomeHistory()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L544) | :closed_lock_with_key:  | GET | `fapi/v1/income` |
+| [getApiQuantitativeRulesIndicators()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L548) | :closed_lock_with_key:  | GET | `fapi/v1/apiTradingStatus` |
+| [getFuturesTransactionHistoryDownloadId()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L554) | :closed_lock_with_key:  | GET | `fapi/v1/income/asyn` |
+| [getFuturesTransactionHistoryDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L561) | :closed_lock_with_key:  | GET | `fapi/v1/income/asyn/id` |
+| [getFuturesOrderHistoryDownloadId()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L567) | :closed_lock_with_key:  | GET | `fapi/v1/order/asyn` |
+| [getFuturesOrderHistoryDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L574) | :closed_lock_with_key:  | GET | `fapi/v1/order/asyn/id` |
+| [getFuturesTradeHistoryDownloadId()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L580) | :closed_lock_with_key:  | GET | `fapi/v1/trade/asyn` |
+| [getFuturesTradeDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L587) | :closed_lock_with_key:  | GET | `fapi/v1/trade/asyn/id` |
+| [setBNBBurnEnabled()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L593) | :closed_lock_with_key:  | POST | `fapi/v1/feeBurn` |
+| [getBNBBurnStatus()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L599) | :closed_lock_with_key:  | GET | `fapi/v1/feeBurn` |
+| [testOrder()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L605) | :closed_lock_with_key:  | POST | `fapi/v1/order/test` |
+| [getAllConvertPairs()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L616) |  | GET | `fapi/v1/convert/exchangeInfo` |
+| [submitConvertQuoteRequest()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L623) | :closed_lock_with_key:  | POST | `fapi/v1/convert/getQuote` |
+| [acceptConvertQuote()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L629) | :closed_lock_with_key:  | POST | `fapi/v1/convert/acceptQuote` |
+| [getConvertOrderStatus()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L637) | :closed_lock_with_key:  | GET | `fapi/v1/convert/orderStatus` |
+| [getPortfolioMarginProAccountInfo()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L650) | :closed_lock_with_key:  | GET | `fapi/v1/pmAccountInfo` |
+| [getBrokerIfNewFuturesUser()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L667) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/ifNewUser` |
+| [setBrokerCustomIdForClient()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L679) | :closed_lock_with_key:  | POST | `fapi/v1/apiReferral/customization` |
+| [getBrokerClientCustomIds()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L691) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/customization` |
+| [getBrokerUserCustomId()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L707) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/userCustomization` |
+| [getBrokerRebateDataOverview()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L715) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/overview` |
+| [getBrokerUserTradeVolume()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L723) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/tradeVol` |
+| [getBrokerRebateVolume()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L739) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/rebateVol` |
+| [getBrokerTradeDetail()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L755) | :closed_lock_with_key:  | GET | `fapi/v1/apiReferral/traderSummary` |
+| [getFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L777) |  | POST | `fapi/v1/listenKey` |
+| [keepAliveFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L781) |  | PUT | `fapi/v1/listenKey` |
+| [closeFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L785) |  | DELETE | `fapi/v1/listenKey` |
 
 # coinm-client.ts
 
@@ -625,27 +626,28 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [setIsolatedPositionMargin()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L424) | :closed_lock_with_key:  | POST | `dapi/v1/positionMargin` |
 | [getPositionMarginChangeHistory()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L430) | :closed_lock_with_key:  | GET | `dapi/v1/positionMargin/history` |
 | [getBalance()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L441) | :closed_lock_with_key:  | GET | `dapi/v1/balance` |
-| [getAccountComissionRate()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L445) | :closed_lock_with_key:  | GET | `dapi/v1/commissionRate` |
-| [getAccountInformation()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L451) | :closed_lock_with_key:  | GET | `dapi/v1/account` |
-| [getNotionalAndLeverageBrackets()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L458) | :closed_lock_with_key:  | GET | `dapi/v2/leverageBracket` |
-| [getCurrentPositionMode()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L467) | :closed_lock_with_key:  | GET | `dapi/v1/positionSide/dual` |
-| [getIncomeHistory()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L471) | :closed_lock_with_key:  | GET | `dapi/v1/income` |
-| [getDownloadIdForFuturesTransactionHistory()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L475) | :closed_lock_with_key:  | GET | `dapi/v1/income/asyn` |
-| [getFuturesTransactionHistoryDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L485) | :closed_lock_with_key:  | GET | `dapi/v1/income/asyn/id` |
-| [getDownloadIdForFuturesOrderHistory()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L491) | :closed_lock_with_key:  | GET | `dapi/v1/order/asyn` |
-| [getFuturesOrderHistoryDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L501) | :closed_lock_with_key:  | GET | `dapi/v1/order/asyn/id` |
-| [getDownloadIdForFuturesTradeHistory()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L507) | :closed_lock_with_key:  | GET | `dapi/v1/trade/asyn` |
-| [getFuturesTradeHistoryDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L517) | :closed_lock_with_key:  | GET | `dapi/v1/trade/asyn/id` |
-| [getClassicPortfolioMarginAccount()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L529) | :closed_lock_with_key:  | GET | `dapi/v1/pmAccountInfo` |
-| [getClassicPortfolioMarginNotionalLimits()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L538) | :closed_lock_with_key:  | GET | `dapi/v1/pmExchangeInfo` |
-| [getBrokerIfNewFuturesUser()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L557) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/ifNewUser` |
-| [setBrokerCustomIdForClient()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L570) | :closed_lock_with_key:  | POST | `dapi/v1/apiReferral/customization` |
-| [getBrokerClientCustomIds()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L583) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/customization` |
-| [getBrokerUserCustomId()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L600) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/userCustomization` |
-| [getBrokerRebateDataOverview()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L609) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/overview` |
-| [getBrokerUserTradeVolume()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L618) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/tradeVol` |
-| [getBrokerRebateVolume()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L635) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/rebateVol` |
-| [getBrokerTradeDetail()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L652) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/traderSummary` |
-| [getFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L672) |  | POST | `dapi/v1/listenKey` |
-| [keepAliveFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L676) |  | PUT | `dapi/v1/listenKey` |
-| [closeFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L680) |  | DELETE | `dapi/v1/listenKey` |
+| [getAccountComissionRate()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L448) | :closed_lock_with_key:  | GET | `dapi/v1/commissionRate` |
+| [getAccountCommissionRate()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L454) | :closed_lock_with_key:  | GET | `dapi/v1/commissionRate` |
+| [getAccountInformation()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L460) | :closed_lock_with_key:  | GET | `dapi/v1/account` |
+| [getNotionalAndLeverageBrackets()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L467) | :closed_lock_with_key:  | GET | `dapi/v2/leverageBracket` |
+| [getCurrentPositionMode()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L476) | :closed_lock_with_key:  | GET | `dapi/v1/positionSide/dual` |
+| [getIncomeHistory()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L480) | :closed_lock_with_key:  | GET | `dapi/v1/income` |
+| [getDownloadIdForFuturesTransactionHistory()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L484) | :closed_lock_with_key:  | GET | `dapi/v1/income/asyn` |
+| [getFuturesTransactionHistoryDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L494) | :closed_lock_with_key:  | GET | `dapi/v1/income/asyn/id` |
+| [getDownloadIdForFuturesOrderHistory()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L500) | :closed_lock_with_key:  | GET | `dapi/v1/order/asyn` |
+| [getFuturesOrderHistoryDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L510) | :closed_lock_with_key:  | GET | `dapi/v1/order/asyn/id` |
+| [getDownloadIdForFuturesTradeHistory()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L516) | :closed_lock_with_key:  | GET | `dapi/v1/trade/asyn` |
+| [getFuturesTradeHistoryDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L526) | :closed_lock_with_key:  | GET | `dapi/v1/trade/asyn/id` |
+| [getClassicPortfolioMarginAccount()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L538) | :closed_lock_with_key:  | GET | `dapi/v1/pmAccountInfo` |
+| [getClassicPortfolioMarginNotionalLimits()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L547) | :closed_lock_with_key:  | GET | `dapi/v1/pmExchangeInfo` |
+| [getBrokerIfNewFuturesUser()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L566) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/ifNewUser` |
+| [setBrokerCustomIdForClient()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L579) | :closed_lock_with_key:  | POST | `dapi/v1/apiReferral/customization` |
+| [getBrokerClientCustomIds()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L592) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/customization` |
+| [getBrokerUserCustomId()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L609) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/userCustomization` |
+| [getBrokerRebateDataOverview()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L618) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/overview` |
+| [getBrokerUserTradeVolume()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L627) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/tradeVol` |
+| [getBrokerRebateVolume()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L644) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/rebateVol` |
+| [getBrokerTradeDetail()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L661) | :closed_lock_with_key:  | GET | `dapi/v1/apiReferral/traderSummary` |
+| [getFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L681) |  | POST | `dapi/v1/listenKey` |
+| [keepAliveFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L685) |  | PUT | `dapi/v1/listenKey` |
+| [closeFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L689) |  | DELETE | `dapi/v1/listenKey` |
