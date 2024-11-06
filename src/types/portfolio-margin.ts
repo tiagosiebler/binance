@@ -1,58 +1,85 @@
 // Enums
-export enum PortfolioStrategyType {
-  STOP = 'STOP',
-  STOP_MARKET = 'STOP_MARKET',
-  TAKE_PROFIT = 'TAKE_PROFIT',
-  TAKE_PROFIT_MARKET = 'TAKE_PROFIT_MARKET',
-  TRAILING_STOP_MARKET = 'TRAILING_STOP_MARKET',
+export type PortfolioStrategyType =
+  | 'STOP'
+  | 'STOP_MARKET'
+  | 'TAKE_PROFIT'
+  | 'TAKE_PROFIT_MARKET'
+  | 'TRAILING_STOP_MARKET';
+
+export type WorkingType = 'MARK_PRICE' | 'CONTRACT_PRICE';
+
+export type PriceMatch =
+  | 'NONE'
+  | 'OPPONENT'
+  | 'OPPONENT_5'
+  | 'OPPONENT_10'
+  | 'OPPONENT_20'
+  | 'QUEUE'
+  | 'QUEUE_5'
+  | 'QUEUE_10'
+  | 'QUEUE_20';
+
+export type SelfTradePreventionMode =
+  | 'NONE'
+  | 'EXPIRE_TAKER'
+  | 'EXPIRE_MAKER'
+  | 'EXPIRE_BOTH';
+
+export type MarginOrderType =
+  | 'LIMIT'
+  | 'MARKET'
+  | 'STOP_LOSS'
+  | 'STOP_LOSS_LIMIT'
+  | 'TAKE_PROFIT'
+  | 'TAKE_PROFIT_LIMIT';
+
+export type MarginSideEffectType =
+  | 'NO_SIDE_EFFECT'
+  | 'MARGIN_BUY'
+  | 'AUTO_REPAY'
+  | 'AUTO_BORROW_REPAY';
+
+export type AutoCloseType = 'LIQUIDATION' | 'ADL';
+
+export interface NewPortfolioUMOrderParams {
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  positionSide?: 'BOTH' | 'LONG' | 'SHORT'; // Default BOTH for One-way Mode
+  type: 'LIMIT' | 'MARKET';
+  timeInForce?: string;
+  quantity?: string;
+  reduceOnly?: boolean; // Cannot be sent in Hedge Mode
+  price?: string;
+  newClientOrderId?: string; // Must match: ^[\.A-Z\:/a-z0-9_-]{1,32}$
+  newOrderRespType?: 'ACK' | 'RESULT'; // Default: ACK
+  priceMatch?: PriceMatch; // Only for LIMIT/STOP/TAKE_PROFIT orders
+  selfTradePreventionMode?: SelfTradePreventionMode;
+  goodTillDate?: number; // Mandatory when timeInForce is GTD
 }
 
-export enum WorkingType {
-  MARK_PRICE = 'MARK_PRICE',
-  CONTRACT_PRICE = 'CONTRACT_PRICE',
+export interface NewPortfolioUMOrderResponse {
+  clientOrderId: string;
+  cumQty: string;
+  cumQuote: string;
+  executedQty: string;
+  orderId: number;
+  avgPrice: string;
+  origQty: string;
+  price: string;
+  reduceOnly: boolean;
+  side: 'BUY' | 'SELL';
+  positionSide: 'BOTH' | 'LONG' | 'SHORT';
+  status: string;
+  symbol: string;
+  timeInForce: string;
+  type: 'LIMIT' | 'MARKET';
+  selfTradePreventionMode: SelfTradePreventionMode;
+  goodTillDate?: number;
+  updateTime: number;
+  priceMatch: PriceMatch;
 }
 
-export enum PriceMatch {
-  NONE = 'NONE',
-  OPPONENT = 'OPPONENT',
-  OPPONENT_5 = 'OPPONENT_5',
-  OPPONENT_10 = 'OPPONENT_10',
-  OPPONENT_20 = 'OPPONENT_20',
-  QUEUE = 'QUEUE',
-  QUEUE_5 = 'QUEUE_5',
-  QUEUE_10 = 'QUEUE_10',
-  QUEUE_20 = 'QUEUE_20',
-}
-
-export enum SelfTradePreventionMode {
-  NONE = 'NONE',
-  EXPIRE_TAKER = 'EXPIRE_TAKER',
-  EXPIRE_MAKER = 'EXPIRE_MAKER',
-  EXPIRE_BOTH = 'EXPIRE_BOTH',
-}
-
-export enum MarginOrderType {
-  LIMIT = 'LIMIT',
-  MARKET = 'MARKET',
-  STOP_LOSS = 'STOP_LOSS',
-  STOP_LOSS_LIMIT = 'STOP_LOSS_LIMIT',
-  TAKE_PROFIT = 'TAKE_PROFIT',
-  TAKE_PROFIT_LIMIT = 'TAKE_PROFIT_LIMIT',
-}
-
-export enum MarginSideEffectType {
-  NO_SIDE_EFFECT = 'NO_SIDE_EFFECT',
-  MARGIN_BUY = 'MARGIN_BUY',
-  AUTO_REPAY = 'AUTO_REPAY',
-  AUTO_BORROW_REPAY = 'AUTO_BORROW_REPAY',
-}
-
-export enum AutoCloseType {
-  LIQUIDATION = 'LIQUIDATION',
-  ADL = 'ADL',
-}
-
-export interface NewPortfolioConditionalOrderParams {
+export interface NewPortfolioUMConditionalOrderParams {
   symbol: string;
   side: 'BUY' | 'SELL';
   positionSide?: 'BOTH' | 'LONG' | 'SHORT';
@@ -70,11 +97,9 @@ export interface NewPortfolioConditionalOrderParams {
   priceMatch?: PriceMatch;
   selfTradePreventionMode?: SelfTradePreventionMode;
   goodTillDate?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface PortfolioConditionalOrderResponse {
+export interface NewPortfolioConditionalOrderResponse {
   newClientStrategyId: string;
   strategyId: number;
   strategyStatus: string;
@@ -109,11 +134,9 @@ export interface NewPortfolioCMOrderParams {
   price?: string;
   newClientOrderId?: string;
   newOrderRespType?: 'ACK' | 'RESULT';
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface PortfolioCMOrderResponse {
+export interface NewPortfolioCMOrderResponse {
   clientOrderId: string;
   cumQty: string;
   cumBase: string;
@@ -148,11 +171,9 @@ export interface NewPortfolioCMConditionalOrderParams {
   stopPrice?: string;
   activationPrice?: string;
   callbackRate?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface PortfolioCMConditionalOrderResponse {
+export interface NewPortfolioCMConditionalOrderResponse {
   newClientStrategyId: string;
   strategyId: number;
   strategyStatus: string;
@@ -196,11 +217,9 @@ export interface NewPortfolioMarginOrderParams {
   timeInForce?: string;
   selfTradePreventionMode?: SelfTradePreventionMode;
   autoRepayAtCancel?: boolean;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface PortfolioMarginOrderResponse {
+export interface NewPortfolioMarginOrderResponse {
   symbol: string;
   orderId: number;
   clientOrderId: string;
@@ -256,11 +275,9 @@ export interface NewPortfolioMarginOCOParams {
   stopLimitTimeInForce?: 'GTC' | 'FOK' | 'IOC';
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
   sideEffectType?: MarginSideEffectType;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface PortfolioMarginOCOResponse {
+export interface NewPortfolioMarginOCOResponse {
   orderListId: number;
   contingencyType: 'OCO';
   listStatusType: string;
@@ -279,8 +296,6 @@ export interface CancelPortfolioUMOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioUMCancelOrderResponse {
@@ -339,8 +354,6 @@ export interface CancelPortfolioCMOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioCMCancelOrderResponse {
@@ -367,8 +380,6 @@ export interface CancelPortfolioCMConditionalOrderParams {
   symbol: string;
   strategyId?: number;
   newClientStrategyId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioCMCancelConditionalOrderResponse {
@@ -397,8 +408,6 @@ export interface CancelPortfolioMarginOrderParams {
   orderId?: number;
   origClientOrderId?: string;
   newClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioMarginCancelOrderResponse {
@@ -421,8 +430,6 @@ export interface CancelPortfolioMarginOCOParams {
   orderListId?: number;
   listClientOrderId?: string;
   newClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioMarginOCOCancelOrder {
@@ -502,8 +509,6 @@ export interface ModifyPortfolioUMOrderParams {
   orderId?: number;
   origClientOrderId?: string;
   priceMatch?: PriceMatch;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioUMModifyOrderResponse {
@@ -536,8 +541,6 @@ export interface ModifyPortfolioCMOrderParams {
   price: string;
   orderId?: number;
   origClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioCMModifyOrderResponse {
@@ -565,11 +568,9 @@ export interface QueryPortfolioUMOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface PortfolioUMOrderQueryResponse {
+export interface PortfolioUMOrder {
   avgPrice: string;
   clientOrderId: string;
   cumQuote: string;
@@ -598,24 +599,13 @@ export interface QueryPortfolioAllUMOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
-
-// We can reuse the PortfolioUMOrderQueryResponse interface since the response format is the same
-export type QueryPortfolioAllUMOrdersResponse = PortfolioUMOrderQueryResponse[];
 
 export interface QueryPortfolioUMOpenOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
-
-// We can reuse PortfolioUMOrderQueryResponse since the response format is identical
-export type QueryPortfolioUMAllOpenOrdersResponse =
-  PortfolioUMOrderQueryResponse[];
 
 export interface QueryPortfolioAllUMConditionalOrdersParams {
   symbol?: string;
@@ -623,11 +613,9 @@ export interface QueryPortfolioAllUMConditionalOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface PortfolioUMConditionalOrderQueryResponse {
+export interface PortfolioUMConditionalOrder {
   newClientStrategyId: string;
   strategyId: number;
   strategyStatus: string;
@@ -646,28 +634,6 @@ export interface PortfolioUMConditionalOrderQueryResponse {
   triggerTime?: number;
   timeInForce: string;
   type?: 'MARKET' | 'LIMIT';
-  activatePrice?: string;
-  priceRate?: string;
-  selfTradePreventionMode: SelfTradePreventionMode;
-  goodTillDate: number;
-  priceMatch: PriceMatch;
-}
-
-export interface PortfolioUMOpenConditionalOrderResponse {
-  newClientStrategyId: string;
-  strategyId: number;
-  strategyStatus: string;
-  strategyType: PortfolioStrategyType;
-  origQty: string;
-  price: string;
-  reduceOnly: boolean;
-  side: 'BUY' | 'SELL';
-  positionSide: 'LONG' | 'SHORT' | 'BOTH';
-  stopPrice?: string;
-  symbol: string;
-  bookTime: number;
-  updateTime: number;
-  timeInForce: string;
   activatePrice?: string;
   priceRate?: string;
   selfTradePreventionMode: SelfTradePreventionMode;
@@ -679,54 +645,21 @@ export interface QueryPortfolioUMOpenConditionalOrderParams {
   symbol: string;
   strategyId?: number;
   newClientStrategyId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface QueryPortfolioUMConditionalOrderHistoryParams {
   symbol: string;
   strategyId?: number;
   newClientStrategyId?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-
-export interface PortfolioUMConditionalOrderHistoryResponse {
-  newClientStrategyId: string;
-  strategyId: number;
-  strategyStatus: string;
-  strategyType: PortfolioStrategyType;
-  origQty: string;
-  price: string;
-  reduceOnly: boolean;
-  side: 'BUY' | 'SELL';
-  positionSide: 'LONG' | 'SHORT' | 'BOTH';
-  stopPrice?: string;
-  symbol: string;
-  orderId?: number;
-  status?: string;
-  bookTime: number;
-  updateTime: number;
-  triggerTime?: number;
-  timeInForce: string;
-  type?: 'MARKET' | 'LIMIT';
-  activatePrice?: string;
-  priceRate?: string;
-  workingType: WorkingType;
-  priceProtect: boolean;
-  selfTradePreventionMode: SelfTradePreventionMode;
-  goodTillDate: number;
 }
 
 export interface QueryPortfolioCMOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface PortfolioCMOrderQueryResponse {
+export interface PortfolioCMOrder {
   avgPrice: string;
   clientOrderId: string;
   cumBase: string;
@@ -754,35 +687,12 @@ export interface QueryPortfolioAllCMOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface QueryPortfolioCMOpenOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-
-export interface PortfolioCMOpenConditionalOrderResponse {
-  newClientStrategyId: string;
-  strategyId: number;
-  strategyStatus: string;
-  strategyType: PortfolioStrategyType;
-  origQty: string;
-  price: string;
-  reduceOnly: boolean;
-  side: 'BUY' | 'SELL';
-  positionSide: 'BOTH' | 'LONG' | 'SHORT';
-  stopPrice?: string;
-  symbol: string;
-  bookTime: number;
-  updateTime: number;
-  timeInForce: string;
-  activatePrice?: string;
-  priceRate?: string;
 }
 
 export interface QueryPortfolioAllCMConditionalOrdersParams {
@@ -791,11 +701,9 @@ export interface QueryPortfolioAllCMConditionalOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface PortfolioCMConditionalOrderQueryResponse {
+export interface PortfolioCMConditionalOrder {
   newClientStrategyId: string;
   strategyId: number;
   strategyStatus: string;
@@ -824,33 +732,10 @@ export interface QueryPortfolioCMConditionalOrderHistoryParams {
   symbol: string;
   strategyId?: number;
   newClientStrategyId?: string;
-  recvWindow?: number;
-  timestamp: number;
 }
 
-export interface PortfolioCMConditionalOrderHistoryResponse {
-  newClientStrategyId: string;
-  strategyId: number;
-  strategyStatus: string;
-  strategyType: PortfolioStrategyType;
-  origQty: string;
-  price: string;
-  reduceOnly: boolean;
-  side: 'BUY' | 'SELL';
-  positionSide: 'BOTH' | 'LONG' | 'SHORT';
-  stopPrice?: string;
-  symbol: string;
-  orderId?: number;
-  status?: string;
-  bookTime: number;
-  updateTime: number;
-  triggerTime?: number;
-  timeInForce: string;
-  type?: 'MARKET' | 'LIMIT';
-  activatePrice?: string;
-  priceRate?: string;
-  workingType: WorkingType;
-  priceProtect: boolean;
+export interface PortfolioCMConditionalHistoryOrder
+  extends PortfolioCMConditionalOrder {
   priceMatch: PriceMatch;
 }
 
@@ -860,8 +745,6 @@ export interface QueryPortfolioUMForceOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioUMForceOrder {
@@ -890,8 +773,6 @@ export interface QueryPortfolioCMForceOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioCMForceOrder {
@@ -922,8 +803,6 @@ export interface QueryPortfolioUMOrderAmendmentParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioUMOrderAmendment {
@@ -956,8 +835,6 @@ export interface QueryPortfolioCMOrderAmendmentParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioCMOrderAmendment {
@@ -987,8 +864,6 @@ export interface QueryPortfolioMarginForceOrdersParams {
   endTime?: number;
   current?: number; // Currently querying page. Start from 1. Default: 1
   size?: number; // Default: 10, Max: 100
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioMarginForceOrder {
@@ -1009,8 +884,6 @@ export interface QueryPortfolioUMTradesParams {
   endTime?: number;
   fromId?: number; // Trade id to fetch from. Default gets most recent trades
   limit?: number; // Default 500; max 1000
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioUMTrade {
@@ -1037,8 +910,6 @@ export interface QueryPortfolioCMTradesParams {
   endTime?: number;
   fromId?: number; // Trade id to fetch from. Default gets most recent trades
   limit?: number; // Default 50; max 1000
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface PortfolioCMTrade {
@@ -1058,4 +929,502 @@ export interface PortfolioCMTrade {
   positionSide: 'BOTH' | 'LONG' | 'SHORT';
   buyer: boolean;
   maker: boolean;
+}
+
+export interface PortfolioADLQuantile {
+  LONG: number;
+  SHORT: number;
+  BOTH?: number; // For one-way mode or isolated margin in hedge mode
+  HEDGE?: number; // For cross margin in hedge mode (ignore value, just a sign)
+}
+
+export interface QueryPortfolioMarginOrderParams {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  recvWindow?: number; // Cannot be greater than 60000
+  timestamp: number;
+}
+
+export interface PortfolioMarginOrder {
+  clientOrderId: string;
+  cummulativeQuoteQty: string;
+  executedQty: string;
+  icebergQty: string;
+  isWorking: boolean;
+  orderId: number;
+  origQty: string;
+  price: string;
+  side: 'BUY' | 'SELL';
+  status: string;
+  stopPrice: string;
+  symbol: string;
+  time: number;
+  timeInForce: string;
+  type: MarginOrderType;
+  updateTime: number;
+  accountId: number;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  preventedMatchId: number | null;
+  preventedQuantity: string | null;
+}
+
+export interface QueryPortfolioMarginAllOrdersParams {
+  symbol: string;
+  orderId?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number; // Default 500; max 500
+  recvWindow?: number; // Cannot be greater than 60000
+  timestamp: number;
+}
+
+export interface QueryPortfolioMarginOCOParams {
+  orderListId?: number; // Either orderListId or origClientOrderId must be provided
+  origClientOrderId?: string; // Either orderListId or origClientOrderId must be provided
+  recvWindow?: number; // Cannot be greater than 60000
+  timestamp: number;
+}
+
+export interface PortfolioMarginOCOQueryOrder {
+  symbol: string;
+  orderId: number;
+  clientOrderId: string;
+}
+
+export interface PortfolioMarginOCO {
+  orderListId: number;
+  contingencyType: 'OCO';
+  listStatusType: string;
+  listOrderStatus: string;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: PortfolioMarginOCOQueryOrder[];
+}
+
+export interface QueryPortfolioMarginAllOCOParams {
+  fromId?: number; // If supplied, neither startTime or endTime can be provided
+  startTime?: number;
+  endTime?: number;
+  limit?: number; // Default 500; max 500
+}
+
+export interface QueryPortfolioMarginTradesParams {
+  symbol: string;
+  orderId?: number;
+  startTime?: number;
+  endTime?: number;
+  fromId?: number; // TradeId to fetch from. Default gets most recent trades
+  limit?: number; // Default 500; max 1000
+}
+
+export interface PortfolioMarginTrade {
+  commission: string;
+  commissionAsset: string;
+  id: number;
+  isBestMatch: boolean;
+  isBuyer: boolean;
+  isMaker: boolean;
+  orderId: number;
+  price: string;
+  qty: string;
+  symbol: string;
+  time: number;
+}
+
+export interface PortfolioMarginRepayDebtParams {
+  asset: string;
+  amount?: string;
+  specifyRepayAssets?: string; // Specific asset list to repay debt; Can be added in batch, separated by commas
+}
+
+export interface PortfolioMarginRepayDebtResponse {
+  amount: string;
+  asset: string;
+  specifyRepayAssets: string[];
+  updateTime: number;
+  success: boolean;
+}
+
+/**
+ *
+ * DERIVATIVES - ACCOUNT endpoints
+ *
+ **/
+
+export type PortfolioAccountStatus =
+  | 'NORMAL'
+  | 'MARGIN_CALL'
+  | 'SUPPLY_MARGIN'
+  | 'REDUCE_ONLY'
+  | 'ACTIVE_LIQUIDATION'
+  | 'FORCE_LIQUIDATION'
+  | 'BANKRUPTED';
+
+export type PortfolioIndicatorType = 'UFR' | 'IFER' | 'GCR' | 'DR' | 'TMV';
+export type MarginLoanStatus = 'PENDING' | 'CONFIRMED' | 'FAILED';
+
+export interface PortfolioTotalBalance {
+  asset: string;
+  totalWalletBalance: string; // wallet balance = cross margin free + cross margin locked + UM wallet balance + CM wallet balance
+  crossMarginAsset: string; // crossMarginAsset = crossMarginFree + crossMarginLocked
+  crossMarginBorrowed: string; // principal of cross margin
+  crossMarginFree: string; // free asset of cross margin
+  crossMarginInterest: string; // interest of cross margin
+  crossMarginLocked: string; // lock asset of cross margin
+  umWalletBalance: string; // wallet balance of um
+  umUnrealizedPNL: string; // unrealized profit of um
+  cmWalletBalance: string; // wallet balance of cm
+  cmUnrealizedPNL: string; // unrealized profit of cm
+  updateTime: number;
+  negativeBalance: string;
+}
+
+export interface PortfolioSingleBalance {
+  asset: string;
+  totalWalletBalance: string; // wallet balance = cross margin free + cross margin locked + UM wallet balance + CM wallet balance
+  crossMarginBorrowed: string; // principal of cross margin
+  crossMarginFree: string; // free asset of cross margin
+  crossMarginInterest: string; // interest of cross margin
+  crossMarginLocked: string; // lock asset of cross margin
+  umWalletBalance: string; // wallet balance of um
+  umUnrealizedPNL: string; // unrealized profit of um
+  cmWalletBalance: string; // wallet balance of cm
+  cmUnrealizedPNL: string; // unrealized profit of cm
+  updateTime: number;
+  negativeBalance: string;
+}
+
+export type PortfolioBalance = PortfolioBalance[] | PortfolioSingleBalance;
+
+export interface PortfolioAccountInformation {
+  uniMMR: string; // Portfolio margin account maintenance margin rate
+  accountEquity: string; // Account equity, in USD value
+  actualEquity: string; // Account equity without collateral rate, in USD value
+  accountInitialMargin: string;
+  accountMaintMargin: string; // Portfolio margin account maintenance margin, unit: USD
+  accountStatus: PortfolioAccountStatus;
+  virtualMaxWithdrawAmount: string; // Portfolio margin maximum amount for transfer out in USD
+  totalAvailableBalance: string;
+  totalMarginOpenLoss: string; // in USD margin open order
+  updateTime: number; // last update time
+}
+
+export interface PortfolioUMPosition {
+  symbol: string;
+  positionAmt: string;
+  entryPrice: string;
+  markPrice: string;
+  unRealizedProfit: string;
+  liquidationPrice: string;
+  leverage: string;
+  maxNotionalValue: string;
+  positionSide: 'BOTH' | 'LONG' | 'SHORT';
+  notional: string;
+  updateTime: number;
+}
+
+export interface PortfolioCMPosition {
+  symbol: string;
+  positionAmt: string;
+  entryPrice: string;
+  markPrice: string;
+  unRealizedProfit: string;
+  liquidationPrice: string;
+  leverage: string;
+  positionSide: 'BOTH' | 'LONG' | 'SHORT';
+  updateTime: number;
+  maxQty: string;
+  notionalValue: string;
+}
+
+export interface PortfolioUMLeverageBracket {
+  bracket: number; // Notional bracket
+  initialLeverage: number; // Max initial leverage for this bracket
+  notionalCap: number; // Cap notional of this bracket
+  notionalFloor: number; // Notional threshold of this bracket
+  maintMarginRatio: number; // Maintenance ratio for this bracket
+  cum: number; // Auxiliary number for quick calculation
+}
+
+export interface PortfolioCMLeverageBracket {
+  bracket: number; // bracket level
+  initialLeverage: number; // the maximum leverage
+  qtyCap: number; // upper edge of base asset quantity
+  qtyFloor: number; // lower edge of base asset quantity
+  maintMarginRatio: number; // maintenance margin rate
+  cum: number; // Auxiliary number for quick calculation
+}
+
+export interface PortfolioTradingIndicator {
+  isLocked: boolean;
+  plannedRecoverTime: number;
+  indicator: PortfolioIndicatorType;
+  value: number;
+  triggerValue: number;
+}
+
+export interface PortfolioTradingStatus {
+  indicators: {
+    [key: string]: PortfolioTradingIndicator[]; // key can be symbol or "ACCOUNT"
+  };
+  updateTime: number;
+}
+
+export interface PortfolioMarginLoanRecord {
+  txId: number;
+  asset: string;
+  principal: string;
+  timestamp: number;
+  status: MarginLoanStatus;
+}
+
+export interface GetMarginLoanRecordsParams {
+  asset: string;
+  txId?: number;
+  startTime?: number;
+  endTime?: number;
+  current?: number; // Currently querying page. Start from 1. Default: 1
+  size?: number; // Default: 10, Max: 100
+  archived?: boolean; // Default: false. Set to true for archived data from 6 months ago
+}
+
+export interface GetMarginRepayRecordsParams {
+  asset: string;
+  txId?: number;
+  startTime?: number;
+  endTime?: number;
+  current?: number; // Currently querying page. Start from 1. Default: 1
+  size?: number; // Default: 10, Max: 100
+  archived?: boolean; // Default: false. Set to true for archived data from 6 months ago
+}
+
+export interface PortfolioMarginRepayRecord {
+  amount: string; // Total amount repaid
+  asset: string;
+  interest: string; // Interest repaid
+  principal: string; // Principal repaid
+  status: MarginLoanStatus;
+  txId: number;
+}
+
+export interface GetMarginInterestHistoryParams {
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number; // Currently querying page. Start from 1. Default: 1
+  size?: number; // Default: 10, Max: 100
+  archived?: boolean; // Default: false. Set to true for archived data from 6 months ago
+}
+
+export type MarginInterestType =
+  | 'PERIODIC' // interest charged per hour
+  | 'ON_BORROW' // first interest charged on borrow
+  | 'PERIODIC_CONVERTED' // interest charged per hour converted into BNB
+  | 'ON_BORROW_CONVERTED' // first interest charged on borrow converted into BNB
+  | 'PORTFOLIO'; // Portfolio Margin negative balance daily interest
+
+export interface PortfolioMarginInterestRecord {
+  txId: number;
+  interestAccuredTime: number;
+  asset: string;
+  rawAsset: string;
+  principal: string;
+  interest: string;
+  interestRate: string;
+  type: MarginInterestType;
+}
+
+export interface GetPortfolioInterestHistoryParams {
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  size?: number; // Default: 10, Max: 100
+  recvWindow?: number;
+}
+
+export interface PortfolioNegativeBalanceInterestRecord {
+  asset: string;
+  interest: string; // interest amount
+  interestAccuredTime: number;
+  interestRate: string; // daily interest rate
+  principal: string;
+}
+
+export type UMIncomeType =
+  | 'TRANSFER'
+  | 'WELCOME_BONUS'
+  | 'REALIZED_PNL'
+  | 'FUNDING_FEE'
+  | 'COMMISSION'
+  | 'INSURANCE_CLEAR'
+  | 'REFERRAL_KICKBACK'
+  | 'COMMISSION_REBATE'
+  | 'API_REBATE'
+  | 'CONTEST_REWARD'
+  | 'CROSS_COLLATERAL_TRANSFER'
+  | 'OPTIONS_PREMIUM_FEE'
+  | 'OPTIONS_SETTLE_PROFIT'
+  | 'INTERNAL_TRANSFER'
+  | 'AUTO_EXCHANGE'
+  | 'DELIVERED_SETTELMENT'
+  | 'COIN_SWAP_DEPOSIT'
+  | 'COIN_SWAP_WITHDRAW'
+  | 'POSITION_LIMIT_INCREASE_FEE';
+
+export interface QueryPortfolioUMIncomeParams {
+  symbol?: string;
+  incomeType?: UMIncomeType;
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  limit?: number; // Default 100; max 1000
+  recvWindow?: number;
+}
+
+export interface PortfolioUMIncome {
+  symbol: string; // trade symbol, if existing
+  incomeType: UMIncomeType;
+  income: string; // income amount
+  asset: string; // income asset
+  info: string; // extra information
+  time: number;
+  tranId: string; // transaction id
+  tradeId: string; // trade id, if existing
+}
+
+export type CMIncomeType =
+  | 'TRANSFER'
+  | 'WELCOME_BONUS'
+  | 'FUNDING_FEE'
+  | 'REALIZED_PNL'
+  | 'COMMISSION'
+  | 'INSURANCE_CLEAR'
+  | 'DELIVERED_SETTELMENT';
+
+export interface QueryPortfolioCMIncomeParams {
+  symbol?: string;
+  incomeType?: CMIncomeType;
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  limit?: number; // Default 100; max 1000
+  recvWindow?: number;
+}
+
+export interface PortfolioCMIncome {
+  symbol: string; // trade symbol, if existing
+  incomeType: CMIncomeType;
+  income: string; // income amount
+  asset: string; // income asset
+  info: string; // extra information
+  time: number;
+  tranId: string; // transaction id
+  tradeId: string; // trade id, if existing
+}
+
+export interface PortfolioUMAccountAsset {
+  asset: string; // asset name
+  crossWalletBalance: string; // wallet balance
+  crossUnPnl: string; // unrealized profit
+  maintMargin: string; // maintenance margin required
+  initialMargin: string; // total initial margin required with current mark price
+  positionInitialMargin: string; // initial margin required for positions with current mark price
+  openOrderInitialMargin: string; // initial margin required for open orders with current mark price
+  updateTime: number; // last update time
+}
+
+export interface PortfolioUMAccountPosition {
+  symbol: string; // symbol name
+  initialMargin: string; // initial margin required with current mark price
+  maintMargin: string; // maintenance margin required
+  unrealizedProfit: string; // unrealized profit
+  positionInitialMargin: string; // initial margin required for positions with current mark price
+  openOrderInitialMargin: string; // initial margin required for open orders with current mark price
+  leverage: string; // current initial leverage
+  entryPrice: string; // average entry price
+  maxNotional: string; // maximum available notional with current leverage
+  bidNotional: string; // bids notional
+  askNotional: string; // ask notional
+  positionSide: 'BOTH' | 'LONG' | 'SHORT'; // position side
+  positionAmt: string; // position amount
+  updateTime: number; // last update time
+}
+
+export interface PortfolioCMAccountAsset {
+  asset: string; // asset name
+  crossWalletBalance: string; // total wallet balance
+  crossUnPnl: string; // unrealized profit or loss
+  maintMargin: string; // maintenance margin
+  initialMargin: string; // total initial margin required with the latest mark price
+  positionInitialMargin: string; // positions' margin required with the latest mark price
+  openOrderInitialMargin: string; // open orders' initial margin required with the latest mark price
+  updateTime: number; // last update time
+}
+
+export interface PortfolioCMAccountPosition {
+  symbol: string; // symbol name
+  positionAmt: string; // position amount
+  initialMargin: string;
+  maintMargin: string;
+  unrealizedProfit: string;
+  positionInitialMargin: string;
+  openOrderInitialMargin: string;
+  leverage: string;
+  positionSide: 'BOTH' | 'LONG' | 'SHORT'; // BOTH means that it is the position of One-way Mode
+  entryPrice: string;
+  maxQty: string; // maximum quantity of base asset
+  updateTime: number;
+}
+
+export interface PortfolioUMAccountConfig {
+  feeTier: number; // account commission tier
+  canTrade: boolean; // if can trade
+  canDeposit: boolean; // if can transfer in asset
+  canWithdraw: boolean; // if can transfer out asset
+  dualSidePosition: boolean;
+  updateTime: number; // reserved property
+  multiAssetsMargin: boolean;
+  tradeGroupId: number;
+}
+
+export interface PortfolioUMSymbolConfig {
+  symbol: string;
+  marginType: 'CROSSED' | 'ISOLATED';
+  isAutoAddMargin: string; // "true" or "false" as string
+  leverage: number;
+  maxNotionalValue: string;
+}
+
+export interface PortfolioUMAccountAssetV2 {
+  asset: string; // asset name
+  crossWalletBalance: string; // wallet balance
+  crossUnPnl: string; // unrealized profit
+  maintMargin: string; // maintenance margin required
+  initialMargin: string; // total initial margin required with current mark price
+  positionInitialMargin: string; // initial margin required for positions with current mark price
+  openOrderInitialMargin: string; // initial margin required for open orders with current mark price
+  updateTime: number; // last update time
+}
+
+export interface PortfolioUMAccountPositionV2 {
+  symbol: string; // symbol name
+  initialMargin: string; // initial margin required with current mark price
+  maintMargin: string; // maintenance margin required
+  unrealizedProfit: string; // unrealized profit
+  positionSide: 'BOTH' | 'LONG' | 'SHORT'; // position side
+  positionAmt: string; // position amount
+  updateTime: number; // last update time
+  notional: string; // position notional value
+}
+
+export interface DownloadLinkResponse {
+  downloadId: string;
+  status: 'completed' | 'processing'; // Enum: completed, processing
+  url: string; // The link is mapped to download id
+  s3Link: string | null;
+  notified: boolean; // ignore
+  expirationTimestamp: number; // The link would expire after this timestamp
+  isExpired: boolean | null;
 }
