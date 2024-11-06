@@ -45,6 +45,7 @@ export type OrderResponseType = 'ACK' | 'RESULT' | 'FULL';
 
 export type OrderIdProperty =
   | 'newClientOrderId'
+  | 'newClientStrategyId'
   | 'listClientOrderId'
   | 'limitClientOrderId'
   | 'stopClientOrderId'
