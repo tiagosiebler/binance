@@ -41,7 +41,7 @@ export type MarginSideEffectType =
 
 export type AutoCloseType = 'LIQUIDATION' | 'ADL';
 
-export interface NewPortfolioUMOrderParams {
+export interface NewPortfolioUMOrderReq {
   symbol: string;
   side: 'BUY' | 'SELL';
   positionSide?: 'BOTH' | 'LONG' | 'SHORT'; // Default BOTH for One-way Mode
@@ -79,7 +79,7 @@ export interface NewPortfolioUMOrderResponse {
   priceMatch: PriceMatch;
 }
 
-export interface NewPortfolioUMConditionalOrderParams {
+export interface NewPortfolioUMConditionalOrderReq {
   symbol: string;
   side: 'BUY' | 'SELL';
   positionSide?: 'BOTH' | 'LONG' | 'SHORT';
@@ -123,7 +123,7 @@ export interface NewPortfolioConditionalOrderResponse {
   priceMatch: PriceMatch;
 }
 
-export interface NewPortfolioCMOrderParams {
+export interface NewPortfolioCMOrderReq {
   symbol: string;
   side: 'BUY' | 'SELL';
   positionSide?: 'BOTH' | 'LONG' | 'SHORT';
@@ -156,7 +156,7 @@ export interface NewPortfolioCMOrderResponse {
   updateTime: number;
 }
 
-export interface NewPortfolioCMConditionalOrderParams {
+export interface NewPortfolioCMConditionalOrderReq {
   symbol: string;
   side: 'BUY' | 'SELL';
   positionSide?: 'BOTH' | 'LONG' | 'SHORT';
@@ -202,7 +202,7 @@ export interface MarginOrderFill {
   commissionAsset: string;
 }
 
-export interface NewPortfolioMarginOrderParams {
+export interface NewPortfolioMarginOrderReq {
   symbol: string;
   side: 'BUY' | 'SELL';
   type: MarginOrderType;
@@ -260,7 +260,7 @@ export interface PortfolioMarginOCOOrderReport {
   stopPrice?: string;
 }
 
-export interface NewPortfolioMarginOCOParams {
+export interface NewPortfolioMarginOCOReq {
   symbol: string;
   listClientOrderId?: string;
   side: 'BUY' | 'SELL';
@@ -292,7 +292,7 @@ export interface NewPortfolioMarginOCOResponse {
 }
 
 // Add new interfaces for canceling UM orders
-export interface CancelPortfolioUMOrderParams {
+export interface CancelPortfolioUMOrderReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -320,7 +320,7 @@ export interface PortfolioUMCancelOrderResponse {
   priceMatch: PriceMatch;
 }
 
-export interface CancelPortfolioUMConditionalOrderParams {
+export interface CancelPortfolioUMConditionalOrderReq {
   symbol: string;
   strategyId?: number;
   newClientStrategyId?: string;
@@ -350,7 +350,7 @@ export interface PortfolioUMCancelConditionalOrderResponse {
   priceMatch: PriceMatch;
 }
 
-export interface CancelPortfolioCMOrderParams {
+export interface CancelPortfolioCMOrderReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -376,7 +376,7 @@ export interface PortfolioCMCancelOrderResponse {
   updateTime: number;
 }
 
-export interface CancelPortfolioCMConditionalOrderParams {
+export interface CancelPortfolioCMConditionalOrderReq {
   symbol: string;
   strategyId?: number;
   newClientStrategyId?: string;
@@ -403,7 +403,7 @@ export interface PortfolioCMCancelConditionalOrderResponse {
   priceProtect: boolean;
 }
 
-export interface CancelPortfolioMarginOrderParams {
+export interface CancelPortfolioMarginOrderReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -425,7 +425,7 @@ export interface PortfolioMarginCancelOrderResponse {
   side: 'BUY' | 'SELL';
 }
 
-export interface CancelPortfolioMarginOCOParams {
+export interface CancelPortfolioMarginOCOReq {
   symbol: string;
   orderListId?: number;
   listClientOrderId?: string;
@@ -501,7 +501,7 @@ export type PortfolioMarginCancelAllOrdersResponse =
   | PortfolioMarginCancelAllOrdersOrderReport
   | PortfolioMarginCancelAllOrdersOCOReport;
 
-export interface ModifyPortfolioUMOrderParams {
+export interface ModifyPortfolioUMOrderReq {
   symbol: string;
   side: 'BUY' | 'SELL';
   quantity: string;
@@ -534,7 +534,7 @@ export interface PortfolioUMModifyOrderResponse {
   priceMatch: PriceMatch;
 }
 
-export interface ModifyPortfolioCMOrderParams {
+export interface ModifyPortfolioCMOrderReq {
   symbol: string;
   side: 'BUY' | 'SELL';
   quantity: string;
@@ -564,7 +564,7 @@ export interface PortfolioCMModifyOrderResponse {
   updateTime: number;
 }
 
-export interface QueryPortfolioUMOrderParams {
+export interface QueryPortfolioUMOrderReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -593,7 +593,7 @@ export interface PortfolioUMOrder {
   priceMatch: PriceMatch;
 }
 
-export interface QueryPortfolioAllUMOrdersParams {
+export interface QueryPortfolioAllUMOrdersReq {
   symbol: string;
   orderId?: number;
   startTime?: number;
@@ -601,13 +601,13 @@ export interface QueryPortfolioAllUMOrdersParams {
   limit?: number;
 }
 
-export interface QueryPortfolioUMOpenOrderParams {
+export interface QueryPortfolioUMOpenOrderReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
 }
 
-export interface QueryPortfolioAllUMConditionalOrdersParams {
+export interface QueryPortfolioAllUMConditionalOrdersReq {
   symbol?: string;
   strategyId?: number;
   startTime?: number;
@@ -641,19 +641,19 @@ export interface PortfolioUMConditionalOrder {
   priceMatch: PriceMatch;
 }
 
-export interface QueryPortfolioUMOpenConditionalOrderParams {
+export interface QueryPortfolioUMOpenConditionalOrderReq {
   symbol: string;
   strategyId?: number;
   newClientStrategyId?: string;
 }
 
-export interface QueryPortfolioUMConditionalOrderHistoryParams {
+export interface QueryPortfolioUMConditionalOrderHistoryReq {
   symbol: string;
   strategyId?: number;
   newClientStrategyId?: string;
 }
 
-export interface QueryPortfolioCMOrderParams {
+export interface QueryPortfolioCMOrderReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -680,7 +680,7 @@ export interface PortfolioCMOrder {
   updateTime: number;
 }
 
-export interface QueryPortfolioAllCMOrdersParams {
+export interface QueryPortfolioAllCMOrdersReq {
   symbol: string;
   pair?: string;
   orderId?: number;
@@ -689,13 +689,13 @@ export interface QueryPortfolioAllCMOrdersParams {
   limit?: number;
 }
 
-export interface QueryPortfolioCMOpenOrderParams {
+export interface QueryPortfolioCMOpenOrderReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
 }
 
-export interface QueryPortfolioAllCMConditionalOrdersParams {
+export interface QueryPortfolioAllCMConditionalOrdersReq {
   symbol?: string;
   strategyId?: number;
   startTime?: number;
@@ -728,7 +728,7 @@ export interface PortfolioCMConditionalOrder {
   priceProtect: boolean;
 }
 
-export interface QueryPortfolioCMConditionalOrderHistoryParams {
+export interface QueryPortfolioCMConditionalOrderHistoryReq {
   symbol: string;
   strategyId?: number;
   newClientStrategyId?: string;
@@ -739,7 +739,7 @@ export interface PortfolioCMConditionalHistoryOrder
   priceMatch: PriceMatch;
 }
 
-export interface QueryPortfolioUMForceOrdersParams {
+export interface QueryPortfolioUMForceOrdersReq {
   symbol?: string;
   autoCloseType?: AutoCloseType;
   startTime?: number;
@@ -767,7 +767,7 @@ export interface PortfolioUMForceOrder {
   updateTime: number;
 }
 
-export interface QueryPortfolioCMForceOrdersParams {
+export interface QueryPortfolioCMForceOrdersReq {
   symbol?: string;
   autoCloseType?: AutoCloseType;
   startTime?: number;
@@ -796,7 +796,7 @@ export interface PortfolioCMForceOrder {
   updateTime: number;
 }
 
-export interface QueryPortfolioUMOrderAmendmentParams {
+export interface QueryPortfolioUMOrderAmendmentReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -828,7 +828,7 @@ export interface PortfolioUMOrderModificationHistory {
   priceMatch: PriceMatch;
 }
 
-export interface QueryPortfolioCMOrderAmendmentParams {
+export interface QueryPortfolioCMOrderAmendmentReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -859,7 +859,7 @@ export interface PortfolioCMOrderModificationHistory {
   amendment: PortfolioCMOrderAmendment;
 }
 
-export interface QueryPortfolioMarginForceOrdersParams {
+export interface QueryPortfolioMarginForceOrdersReq {
   startTime?: number;
   endTime?: number;
   current?: number; // Currently querying page. Start from 1. Default: 1
@@ -878,7 +878,7 @@ export interface PortfolioMarginForceOrder {
   updatedTime: number;
 }
 
-export interface QueryPortfolioUMTradesParams {
+export interface QueryPortfolioUMTradesReq {
   symbol: string;
   startTime?: number;
   endTime?: number;
@@ -903,7 +903,7 @@ export interface PortfolioUMTrade {
   positionSide: 'BOTH' | 'LONG' | 'SHORT';
 }
 
-export interface QueryPortfolioCMTradesParams {
+export interface QueryPortfolioCMTradesReq {
   symbol?: string;
   pair?: string;
   startTime?: number;
@@ -938,7 +938,7 @@ export interface PortfolioADLQuantile {
   HEDGE?: number; // For cross margin in hedge mode (ignore value, just a sign)
 }
 
-export interface QueryPortfolioMarginOrderParams {
+export interface QueryPortfolioMarginOrderReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -969,7 +969,7 @@ export interface PortfolioMarginOrder {
   preventedQuantity: string | null;
 }
 
-export interface QueryPortfolioMarginAllOrdersParams {
+export interface QueryPortfolioMarginAllOrdersReq {
   symbol: string;
   orderId?: number;
   startTime?: number;
@@ -979,7 +979,7 @@ export interface QueryPortfolioMarginAllOrdersParams {
   timestamp: number;
 }
 
-export interface QueryPortfolioMarginOCOParams {
+export interface QueryPortfolioMarginOCOReq {
   orderListId?: number; // Either orderListId or origClientOrderId must be provided
   origClientOrderId?: string; // Either orderListId or origClientOrderId must be provided
   recvWindow?: number; // Cannot be greater than 60000
@@ -1003,14 +1003,14 @@ export interface PortfolioMarginOCO {
   orders: PortfolioMarginOCOQueryOrder[];
 }
 
-export interface QueryPortfolioMarginAllOCOParams {
+export interface QueryPortfolioMarginAllOCOReq {
   fromId?: number; // If supplied, neither startTime or endTime can be provided
   startTime?: number;
   endTime?: number;
   limit?: number; // Default 500; max 500
 }
 
-export interface QueryPortfolioMarginTradesParams {
+export interface QueryPortfolioMarginTradesReq {
   symbol: string;
   orderId?: number;
   startTime?: number;
@@ -1033,7 +1033,7 @@ export interface PortfolioMarginTrade {
   time: number;
 }
 
-export interface PortfolioMarginRepayDebtParams {
+export interface PortfolioMarginRepayDebtReq {
   asset: string;
   amount?: string;
   specifyRepayAssets?: string; // Specific asset list to repay debt; Can be added in batch, separated by commas
@@ -1180,7 +1180,7 @@ export interface PortfolioMarginLoanRecord {
   status: MarginLoanStatus;
 }
 
-export interface GetMarginLoanRecordsParams {
+export interface GetMarginLoanRecordsReq {
   asset: string;
   txId?: number;
   startTime?: number;
@@ -1190,7 +1190,7 @@ export interface GetMarginLoanRecordsParams {
   archived?: boolean; // Default: false. Set to true for archived data from 6 months ago
 }
 
-export interface GetMarginRepayRecordsParams {
+export interface GetMarginRepayRecordsReq {
   asset: string;
   txId?: number;
   startTime?: number;
@@ -1209,7 +1209,7 @@ export interface PortfolioMarginRepayRecord {
   txId: number;
 }
 
-export interface GetMarginInterestHistoryParams {
+export interface GetMarginInterestHistoryReq {
   asset?: string;
   startTime?: number;
   endTime?: number;
@@ -1236,7 +1236,7 @@ export interface PortfolioMarginInterestRecord {
   type: MarginInterestType;
 }
 
-export interface GetPortfolioInterestHistoryParams {
+export interface GetPortfolioInterestHistoryReq {
   asset?: string;
   startTime?: number;
   endTime?: number;
@@ -1273,7 +1273,7 @@ export type UMIncomeType =
   | 'COIN_SWAP_WITHDRAW'
   | 'POSITION_LIMIT_INCREASE_FEE';
 
-export interface QueryPortfolioUMIncomeParams {
+export interface QueryPortfolioUMIncomeReq {
   symbol?: string;
   incomeType?: UMIncomeType;
   startTime?: number;
@@ -1303,7 +1303,7 @@ export type CMIncomeType =
   | 'INSURANCE_CLEAR'
   | 'DELIVERED_SETTELMENT';
 
-export interface QueryPortfolioCMIncomeParams {
+export interface QueryPortfolioCMIncomeReq {
   symbol?: string;
   incomeType?: CMIncomeType;
   startTime?: number;

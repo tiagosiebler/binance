@@ -18,19 +18,19 @@ import {
 
 import BaseRestClient from './util/BaseRestClient';
 import {
-  CancelPortfolioCMConditionalOrderParams,
-  CancelPortfolioCMOrderParams,
-  CancelPortfolioMarginOCOParams,
-  CancelPortfolioMarginOrderParams,
-  CancelPortfolioUMConditionalOrderParams,
-  CancelPortfolioUMOrderParams,
-  ModifyPortfolioCMOrderParams,
-  ModifyPortfolioUMOrderParams,
-  NewPortfolioCMConditionalOrderParams,
-  NewPortfolioCMOrderParams,
-  NewPortfolioUMConditionalOrderParams,
-  NewPortfolioMarginOCOParams,
-  NewPortfolioMarginOrderParams,
+  CancelPortfolioCMConditionalOrderReq,
+  CancelPortfolioCMOrderReq,
+  CancelPortfolioMarginOCOReq,
+  CancelPortfolioMarginOrderReq,
+  CancelPortfolioUMConditionalOrderReq,
+  CancelPortfolioUMOrderReq,
+  ModifyPortfolioCMOrderReq,
+  ModifyPortfolioUMOrderReq,
+  NewPortfolioCMConditionalOrderReq,
+  NewPortfolioCMOrderReq,
+  NewPortfolioUMConditionalOrderReq,
+  NewPortfolioMarginOCOReq,
+  NewPortfolioMarginOrderReq,
   PortfolioADLQuantile,
   PortfolioCMCancelConditionalOrderResponse,
   PortfolioCMCancelOrderResponse,
@@ -52,7 +52,7 @@ import {
   NewPortfolioMarginOCOResponse,
   PortfolioMarginOrder,
   NewPortfolioMarginOrderResponse,
-  PortfolioMarginRepayDebtParams,
+  PortfolioMarginRepayDebtReq,
   PortfolioMarginRepayDebtResponse,
   PortfolioMarginTrade,
   PortfolioUMCancelConditionalOrderResponse,
@@ -63,29 +63,29 @@ import {
   PortfolioUMOrderModificationHistory,
   PortfolioUMOrder,
   PortfolioUMTrade,
-  QueryPortfolioAllCMConditionalOrdersParams,
-  QueryPortfolioAllCMOrdersParams,
-  QueryPortfolioAllUMConditionalOrdersParams,
-  QueryPortfolioAllUMOrdersParams,
-  QueryPortfolioCMConditionalOrderHistoryParams,
-  QueryPortfolioCMForceOrdersParams,
-  QueryPortfolioCMOpenOrderParams,
-  QueryPortfolioCMOrderAmendmentParams,
-  QueryPortfolioCMOrderParams,
-  QueryPortfolioCMTradesParams,
-  QueryPortfolioMarginAllOCOParams,
-  QueryPortfolioMarginAllOrdersParams,
-  QueryPortfolioMarginForceOrdersParams,
-  QueryPortfolioMarginOCOParams,
-  QueryPortfolioMarginOrderParams,
-  QueryPortfolioMarginTradesParams,
-  QueryPortfolioUMConditionalOrderHistoryParams,
-  QueryPortfolioUMForceOrdersParams,
-  QueryPortfolioUMOpenConditionalOrderParams,
-  QueryPortfolioUMOpenOrderParams,
-  QueryPortfolioUMOrderAmendmentParams,
-  QueryPortfolioUMOrderParams,
-  QueryPortfolioUMTradesParams,
+  QueryPortfolioAllCMConditionalOrdersReq,
+  QueryPortfolioAllCMOrdersReq,
+  QueryPortfolioAllUMConditionalOrdersReq,
+  QueryPortfolioAllUMOrdersReq,
+  QueryPortfolioCMConditionalOrderHistoryReq,
+  QueryPortfolioCMForceOrdersReq,
+  QueryPortfolioCMOpenOrderReq,
+  QueryPortfolioCMOrderAmendmentReq,
+  QueryPortfolioCMOrderReq,
+  QueryPortfolioCMTradesReq,
+  QueryPortfolioMarginAllOCOReq,
+  QueryPortfolioMarginAllOrdersReq,
+  QueryPortfolioMarginForceOrdersReq,
+  QueryPortfolioMarginOCOReq,
+  QueryPortfolioMarginOrderReq,
+  QueryPortfolioMarginTradesReq,
+  QueryPortfolioUMConditionalOrderHistoryReq,
+  QueryPortfolioUMForceOrdersReq,
+  QueryPortfolioUMOpenConditionalOrderReq,
+  QueryPortfolioUMOpenOrderReq,
+  QueryPortfolioUMOrderAmendmentReq,
+  QueryPortfolioUMOrderReq,
+  QueryPortfolioUMTradesReq,
   PortfolioBalance,
   PortfolioAccountInformation,
   PortfolioUMPosition,
@@ -94,16 +94,16 @@ import {
   PortfolioCMLeverageBracket,
   PortfolioTradingStatus,
   PortfolioMarginLoanRecord,
-  GetMarginLoanRecordsParams,
-  GetMarginRepayRecordsParams,
+  GetMarginLoanRecordsReq,
+  GetMarginRepayRecordsReq,
   PortfolioMarginRepayRecord,
   PortfolioMarginInterestRecord,
-  GetMarginInterestHistoryParams,
-  GetPortfolioInterestHistoryParams,
+  GetMarginInterestHistoryReq,
+  GetPortfolioInterestHistoryReq,
   PortfolioNegativeBalanceInterestRecord,
-  QueryPortfolioUMIncomeParams,
+  QueryPortfolioUMIncomeReq,
   PortfolioUMIncome,
-  QueryPortfolioCMIncomeParams,
+  QueryPortfolioCMIncomeReq,
   PortfolioCMIncome,
   PortfolioUMAccountAsset,
   PortfolioUMAccountPosition,
@@ -114,7 +114,7 @@ import {
   PortfolioUMAccountAssetV2,
   PortfolioUMAccountPositionV2,
   DownloadLinkResponse,
-  NewPortfolioUMOrderParams,
+  NewPortfolioUMOrderReq,
   NewPortfolioUMOrderResponse,
 } from './types/portfolio-margin';
 
@@ -169,35 +169,35 @@ export class PortfolioClient extends BaseRestClient {
    **/
 
   submitNewUMOrder(
-    params: NewPortfolioUMOrderParams,
+    params: NewPortfolioUMOrderReq,
   ): Promise<NewPortfolioUMOrderResponse> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('papi/v1/um/order', params);
   }
 
   submitNewUMConditionalOrder(
-    params: NewPortfolioUMConditionalOrderParams,
+    params: NewPortfolioUMConditionalOrderReq,
   ): Promise<NewPortfolioConditionalOrderResponse> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('papi/v1/um/conditional/order', params);
   }
 
   submitNewCMOrder(
-    params: NewPortfolioCMOrderParams,
+    params: NewPortfolioCMOrderReq,
   ): Promise<NewPortfolioCMOrderResponse> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('papi/v1/cm/order', params);
   }
 
   submitNewCMConditionalOrder(
-    params: NewPortfolioCMConditionalOrderParams,
+    params: NewPortfolioCMConditionalOrderReq,
   ): Promise<NewPortfolioCMConditionalOrderResponse> {
     this.validateOrderId(params, 'newClientStrategyId');
     return this.postPrivate('papi/v1/cm/conditional/order', params);
   }
 
   submitNewMarginOrder(
-    params: NewPortfolioMarginOrderParams,
+    params: NewPortfolioMarginOrderReq,
   ): Promise<NewPortfolioMarginOrderResponse> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('papi/v1/margin/order', params);
@@ -216,7 +216,7 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   submitNewMarginOCO(
-    params: NewPortfolioMarginOCOParams,
+    params: NewPortfolioMarginOCOReq,
   ): Promise<NewPortfolioMarginOCOResponse> {
     this.validateOrderId(params, 'limitClientOrderId');
     this.validateOrderId(params, 'stopClientOrderId');
@@ -225,7 +225,7 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   cancelUMOrder(
-    params: CancelPortfolioUMOrderParams,
+    params: CancelPortfolioUMOrderReq,
   ): Promise<PortfolioUMCancelOrderResponse> {
     return this.deletePrivate('papi/v1/um/order', params);
   }
@@ -238,7 +238,7 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   cancelUMConditionalOrder(
-    params: CancelPortfolioUMConditionalOrderParams,
+    params: CancelPortfolioUMConditionalOrderReq,
   ): Promise<PortfolioUMCancelConditionalOrderResponse> {
     return this.deletePrivate('papi/v1/um/conditional/order', params);
   }
@@ -251,7 +251,7 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   cancelCMOrder(
-    params: CancelPortfolioCMOrderParams,
+    params: CancelPortfolioCMOrderReq,
   ): Promise<PortfolioCMCancelOrderResponse> {
     return this.deletePrivate('papi/v1/cm/order', params);
   }
@@ -264,7 +264,7 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   cancelCMConditionalOrder(
-    params: CancelPortfolioCMConditionalOrderParams,
+    params: CancelPortfolioCMConditionalOrderReq,
   ): Promise<PortfolioCMCancelConditionalOrderResponse> {
     return this.deletePrivate('papi/v1/cm/conditional/order', params);
   }
@@ -277,13 +277,13 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   cancelMarginOrder(
-    params: CancelPortfolioMarginOrderParams,
+    params: CancelPortfolioMarginOrderReq,
   ): Promise<PortfolioMarginCancelOrderResponse> {
     return this.deletePrivate('papi/v1/margin/order', params);
   }
 
   cancelMarginOCO(
-    params: CancelPortfolioMarginOCOParams,
+    params: CancelPortfolioMarginOCOReq,
   ): Promise<PortfolioMarginOCOCancelResponse> {
     return this.deletePrivate('papi/v1/margin/orderList', params);
   }
@@ -295,29 +295,29 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   modifyUMOrder(
-    params: ModifyPortfolioUMOrderParams,
+    params: ModifyPortfolioUMOrderReq,
   ): Promise<PortfolioUMModifyOrderResponse> {
     return this.putPrivate('papi/v1/um/order', params);
   }
 
   modifyCMOrder(
-    params: ModifyPortfolioCMOrderParams,
+    params: ModifyPortfolioCMOrderReq,
   ): Promise<PortfolioCMModifyOrderResponse> {
     return this.putPrivate('papi/v1/cm/order', params);
   }
 
-  getUMOrder(params: QueryPortfolioUMOrderParams): Promise<PortfolioUMOrder> {
+  getUMOrder(params: QueryPortfolioUMOrderReq): Promise<PortfolioUMOrder> {
     return this.getPrivate('papi/v1/um/order', params);
   }
 
   getAllUMOrders(
-    params: QueryPortfolioAllUMOrdersParams,
+    params: QueryPortfolioAllUMOrdersReq,
   ): Promise<PortfolioUMOrder[]> {
     return this.getPrivate('papi/v1/um/allOrders', params);
   }
 
   getUMOpenOrder(
-    params: QueryPortfolioUMOpenOrderParams,
+    params: QueryPortfolioUMOpenOrderReq,
   ): Promise<PortfolioUMOrder> {
     return this.getPrivate('papi/v1/um/openOrder', params);
   }
@@ -327,7 +327,7 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   getAllUMConditionalOrders(
-    params: QueryPortfolioAllUMConditionalOrdersParams,
+    params: QueryPortfolioAllUMConditionalOrdersReq,
   ): Promise<PortfolioUMConditionalOrder[]> {
     return this.getPrivate('papi/v1/um/conditional/allOrders', params);
   }
@@ -339,29 +339,29 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   getUMOpenConditionalOrder(
-    params: QueryPortfolioUMOpenConditionalOrderParams,
+    params: QueryPortfolioUMOpenConditionalOrderReq,
   ): Promise<PortfolioUMConditionalOrder> {
     return this.getPrivate('papi/v1/um/conditional/openOrder', params);
   }
 
   getUMConditionalOrderHistory(
-    params: QueryPortfolioUMConditionalOrderHistoryParams,
+    params: QueryPortfolioUMConditionalOrderHistoryReq,
   ): Promise<PortfolioUMConditionalOrder> {
     return this.getPrivate('papi/v1/um/conditional/orderHistory', params);
   }
 
-  getCMOrder(params: QueryPortfolioCMOrderParams): Promise<PortfolioCMOrder> {
+  getCMOrder(params: QueryPortfolioCMOrderReq): Promise<PortfolioCMOrder> {
     return this.getPrivate('papi/v1/cm/order', params);
   }
 
   getAllCMOrders(
-    params: QueryPortfolioAllCMOrdersParams,
+    params: QueryPortfolioAllCMOrdersReq,
   ): Promise<PortfolioCMOrder[]> {
     return this.getPrivate('papi/v1/cm/allOrders', params);
   }
 
   getCMOpenOrder(
-    params: QueryPortfolioCMOpenOrderParams,
+    params: QueryPortfolioCMOpenOrderReq,
   ): Promise<PortfolioCMOrder> {
     return this.getPrivate('papi/v1/cm/openOrder', params);
   }
@@ -388,57 +388,53 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   getAllCMConditionalOrders(
-    params: QueryPortfolioAllCMConditionalOrdersParams,
+    params: QueryPortfolioAllCMConditionalOrdersReq,
   ): Promise<PortfolioCMConditionalOrder[]> {
     return this.getPrivate('papi/v1/cm/conditional/allOrders', params);
   }
 
   getCMConditionalOrderHistory(
-    params: QueryPortfolioCMConditionalOrderHistoryParams,
+    params: QueryPortfolioCMConditionalOrderHistoryReq,
   ): Promise<PortfolioCMConditionalHistoryOrder> {
     return this.getPrivate('papi/v1/cm/conditional/orderHistory', params);
   }
 
   getUMForceOrders(
-    params: QueryPortfolioUMForceOrdersParams,
+    params: QueryPortfolioUMForceOrdersReq,
   ): Promise<PortfolioUMForceOrder[]> {
     return this.getPrivate('papi/v1/um/forceOrders', params);
   }
 
   getCMForceOrders(
-    params: QueryPortfolioCMForceOrdersParams,
+    params: QueryPortfolioCMForceOrdersReq,
   ): Promise<PortfolioCMForceOrder[]> {
     return this.getPrivate('papi/v1/cm/forceOrders', params);
   }
 
   getUMOrderModificationHistory(
-    params: QueryPortfolioUMOrderAmendmentParams,
+    params: QueryPortfolioUMOrderAmendmentReq,
   ): Promise<PortfolioUMOrderModificationHistory[]> {
     return this.getPrivate('papi/v1/um/orderAmendment', params);
   }
 
   getCMOrderModificationHistory(
-    params: QueryPortfolioCMOrderAmendmentParams,
+    params: QueryPortfolioCMOrderAmendmentReq,
   ): Promise<PortfolioCMOrderModificationHistory[]> {
     return this.getPrivate('papi/v1/cm/orderAmendment', params);
   }
 
-  getMarginForceOrders(params: QueryPortfolioMarginForceOrdersParams): Promise<{
+  getMarginForceOrders(params: QueryPortfolioMarginForceOrdersReq): Promise<{
     rows: PortfolioMarginForceOrder[];
     total: number;
   }> {
     return this.getPrivate('papi/v1/margin/forceOrders', params);
   }
 
-  getUMTrades(
-    params: QueryPortfolioUMTradesParams,
-  ): Promise<PortfolioUMTrade[]> {
+  getUMTrades(params: QueryPortfolioUMTradesReq): Promise<PortfolioUMTrade[]> {
     return this.getPrivate('papi/v1/um/userTrades', params);
   }
 
-  getCMTrades(
-    params: QueryPortfolioCMTradesParams,
-  ): Promise<PortfolioCMTrade[]> {
+  getCMTrades(params: QueryPortfolioCMTradesReq): Promise<PortfolioCMTrade[]> {
     return this.getPrivate('papi/v1/cm/userTrades', params);
   }
 
@@ -471,7 +467,7 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   getMarginOrder(
-    params: QueryPortfolioMarginOrderParams,
+    params: QueryPortfolioMarginOrderReq,
   ): Promise<PortfolioMarginOrder> {
     return this.getPrivate('papi/v1/margin/order', params);
   }
@@ -483,19 +479,19 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   getAllMarginOrders(
-    params: QueryPortfolioMarginAllOrdersParams,
+    params: QueryPortfolioMarginAllOrdersReq,
   ): Promise<PortfolioMarginOrder[]> {
     return this.getPrivate('papi/v1/margin/allOrders', params);
   }
 
   getMarginOCO(
-    params: QueryPortfolioMarginOCOParams,
+    params: QueryPortfolioMarginOCOReq,
   ): Promise<PortfolioMarginOCO> {
     return this.getPrivate('papi/v1/margin/orderList', params);
   }
 
   getAllMarginOCO(
-    params: QueryPortfolioMarginAllOCOParams,
+    params: QueryPortfolioMarginAllOCOReq,
   ): Promise<PortfolioMarginOCO[]> {
     return this.getPrivate('papi/v1/margin/allOrderList', params);
   }
@@ -505,13 +501,13 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   getMarginTrades(
-    params: QueryPortfolioMarginTradesParams,
+    params: QueryPortfolioMarginTradesReq,
   ): Promise<PortfolioMarginTrade[]> {
     return this.getPrivate('papi/v1/margin/myTrades', params);
   }
 
   repayMarginDebt(
-    params: PortfolioMarginRepayDebtParams,
+    params: PortfolioMarginRepayDebtReq,
   ): Promise<PortfolioMarginRepayDebtResponse> {
     return this.postPrivate('papi/v1/margin/repay-debt', params);
   }
@@ -641,14 +637,14 @@ export class PortfolioClient extends BaseRestClient {
     return this.getPrivate('papi/v1/cm/commissionRate', params);
   }
 
-  getMarginLoanRecords(params: GetMarginLoanRecordsParams): Promise<{
+  getMarginLoanRecords(params: GetMarginLoanRecordsReq): Promise<{
     rows: PortfolioMarginLoanRecord[];
     total: number;
   }> {
     return this.getPrivate('papi/v1/margin/marginLoan', params);
   }
 
-  getMarginRepayRecords(params: GetMarginRepayRecordsParams): Promise<{
+  getMarginRepayRecords(params: GetMarginRepayRecordsReq): Promise<{
     rows: PortfolioMarginRepayRecord[];
     total: number;
   }> {
@@ -669,7 +665,7 @@ export class PortfolioClient extends BaseRestClient {
     return this.postPrivate('papi/v1/repay-futures-switch', params);
   }
 
-  getMarginInterestHistory(params?: GetMarginInterestHistoryParams): Promise<{
+  getMarginInterestHistory(params?: GetMarginInterestHistoryReq): Promise<{
     rows: PortfolioMarginInterestRecord[];
     total: number;
   }> {
@@ -683,7 +679,7 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   getPortfolioNegativeBalanceInterestHistory(
-    params?: GetPortfolioInterestHistoryParams,
+    params?: GetPortfolioInterestHistoryReq,
   ): Promise<PortfolioNegativeBalanceInterestRecord[]> {
     return this.getPrivate('papi/v1/portfolio/interest-history', params);
   }
@@ -710,13 +706,13 @@ export class PortfolioClient extends BaseRestClient {
   }
 
   getUMIncomeHistory(
-    params?: QueryPortfolioUMIncomeParams,
+    params?: QueryPortfolioUMIncomeReq,
   ): Promise<PortfolioUMIncome[]> {
     return this.getPrivate('papi/v1/um/income', params);
   }
 
   getCMIncomeHistory(
-    params?: QueryPortfolioCMIncomeParams,
+    params?: QueryPortfolioCMIncomeReq,
   ): Promise<PortfolioCMIncome[]> {
     return this.getPrivate('papi/v1/cm/income', params);
   }
@@ -804,7 +800,7 @@ export class PortfolioClient extends BaseRestClient {
    */
   private validateOrderId(
     params:
-      | NewPortfolioUMOrderParams
+      | NewPortfolioUMOrderReq
       | CancelOrderParams
       | NewOCOParams
       | CancelOCOParams,
