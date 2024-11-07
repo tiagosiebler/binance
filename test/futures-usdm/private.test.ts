@@ -95,8 +95,8 @@ describe('Private Futures USDM REST API Endpoints', () => {
       });
     });
 
-    it('getAccountComissionRate()', async () => {
-      expect(await api.getAccountComissionRate({ symbol })).toMatchObject({
+    it('getAccountCommissionRate()', async () => {
+      expect(await api.getAccountCommissionRate({ symbol })).toMatchObject({
         makerCommissionRate: expect.any(String),
         symbol: expect.any(String),
         takerCommissionRate: expect.any(String),

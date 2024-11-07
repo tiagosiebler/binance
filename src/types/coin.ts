@@ -111,3 +111,13 @@ export interface ClassicPortfolioMarginAccount {
   asset: string;
   maxWithdrawAmount: string;
 }
+
+export interface FuturesTransactionHistoryDownloadLink {
+  downloadId: string;
+  status: string;
+  url: string;
+  notified: boolean;
+  expirationTimestamp: number;
+  isExpired: boolean | null;
+}
+
