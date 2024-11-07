@@ -22,6 +22,7 @@ List of clients:
 - [main-client](#main-clientts)
 - [usdm-client](#usdm-clientts)
 - [coinm-client](#coinm-clientts)
+- [portfolio-client](#portfolio-clientts)
 
 
 If anything is missing or wrong, please open an issue or let us know in our [Node.js Traders](https://t.me/nodetraders) telegram group!
@@ -651,3 +652,110 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [getFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L681) |  | POST | `dapi/v1/listenKey` |
 | [keepAliveFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L685) |  | PUT | `dapi/v1/listenKey` |
 | [closeFuturesUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/coinm-client.ts#L689) |  | DELETE | `dapi/v1/listenKey` |
+
+# portfolio-client.ts
+
+This table includes all endpoints from the official Exchange API docs and corresponding SDK functions for each endpoint that are found in [portfolio-client.ts](/src/portfolio-client.ts). 
+
+| Function | AUTH | HTTP Method | Endpoint |
+| -------- | :------: | :------: | -------- |
+| [testConnectivity()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L161) |  | GET | `papi/v1/ping` |
+| [submitNewUMOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L171) | :closed_lock_with_key:  | POST | `papi/v1/um/order` |
+| [submitNewUMConditionalOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L178) | :closed_lock_with_key:  | POST | `papi/v1/um/conditional/order` |
+| [submitNewCMOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L185) | :closed_lock_with_key:  | POST | `papi/v1/cm/order` |
+| [submitNewCMConditionalOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L192) | :closed_lock_with_key:  | POST | `papi/v1/cm/conditional/order` |
+| [submitNewMarginOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L199) | :closed_lock_with_key:  | POST | `papi/v1/margin/order` |
+| [submitMarginLoan()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L206) | :closed_lock_with_key:  | POST | `papi/v1/marginLoan` |
+| [submitMarginRepay()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L212) | :closed_lock_with_key:  | POST | `papi/v1/repayLoan` |
+| [submitNewMarginOCO()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L218) | :closed_lock_with_key:  | POST | `papi/v1/margin/order/oco` |
+| [cancelUMOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L227) | :closed_lock_with_key:  | DELETE | `papi/v1/um/order` |
+| [cancelAllUMOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L233) | :closed_lock_with_key:  | DELETE | `papi/v1/um/allOpenOrders` |
+| [cancelUMConditionalOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L240) | :closed_lock_with_key:  | DELETE | `papi/v1/um/conditional/order` |
+| [cancelAllUMConditionalOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L246) | :closed_lock_with_key:  | DELETE | `papi/v1/um/conditional/allOpenOrders` |
+| [cancelCMOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L253) | :closed_lock_with_key:  | DELETE | `papi/v1/cm/order` |
+| [cancelAllCMOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L259) | :closed_lock_with_key:  | DELETE | `papi/v1/cm/allOpenOrders` |
+| [cancelCMConditionalOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L266) | :closed_lock_with_key:  | DELETE | `papi/v1/cm/conditional/order` |
+| [cancelAllCMConditionalOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L272) | :closed_lock_with_key:  | DELETE | `papi/v1/cm/conditional/allOpenOrders` |
+| [cancelMarginOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L279) | :closed_lock_with_key:  | DELETE | `papi/v1/margin/order` |
+| [cancelMarginOCO()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L285) | :closed_lock_with_key:  | DELETE | `papi/v1/margin/orderList` |
+| [cancelAllMarginOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L291) | :closed_lock_with_key:  | DELETE | `papi/v1/margin/allOpenOrders` |
+| [modifyUMOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L297) | :closed_lock_with_key:  | PUT | `papi/v1/um/order` |
+| [modifyCMOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L303) | :closed_lock_with_key:  | PUT | `papi/v1/cm/order` |
+| [getUMOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L309) | :closed_lock_with_key:  | GET | `papi/v1/um/order` |
+| [getAllUMOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L313) | :closed_lock_with_key:  | GET | `papi/v1/um/allOrders` |
+| [getUMOpenOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L319) | :closed_lock_with_key:  | GET | `papi/v1/um/openOrder` |
+| [getAllUMOpenOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L325) | :closed_lock_with_key:  | GET | `papi/v1/um/openOrders` |
+| [getAllUMConditionalOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L329) | :closed_lock_with_key:  | GET | `papi/v1/um/conditional/allOrders` |
+| [getUMOpenConditionalOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L335) | :closed_lock_with_key:  | GET | `papi/v1/um/conditional/openOrders` |
+| [getUMOpenConditionalOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L341) | :closed_lock_with_key:  | GET | `papi/v1/um/conditional/openOrder` |
+| [getUMConditionalOrderHistory()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L347) | :closed_lock_with_key:  | GET | `papi/v1/um/conditional/orderHistory` |
+| [getCMOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L353) | :closed_lock_with_key:  | GET | `papi/v1/cm/order` |
+| [getAllCMOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L357) | :closed_lock_with_key:  | GET | `papi/v1/cm/allOrders` |
+| [getCMOpenOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L363) | :closed_lock_with_key:  | GET | `papi/v1/cm/openOrder` |
+| [getAllCMOpenOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L369) | :closed_lock_with_key:  | GET | `papi/v1/cm/openOrders` |
+| [getCMOpenConditionalOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L376) | :closed_lock_with_key:  | GET | `papi/v1/cm/conditional/openOrders` |
+| [getCMOpenConditionalOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L382) | :closed_lock_with_key:  | GET | `papi/v1/cm/conditional/openOrder` |
+| [getAllCMConditionalOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L390) | :closed_lock_with_key:  | GET | `papi/v1/cm/conditional/allOrders` |
+| [getCMConditionalOrderHistory()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L396) | :closed_lock_with_key:  | GET | `papi/v1/cm/conditional/orderHistory` |
+| [getUMForceOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L402) | :closed_lock_with_key:  | GET | `papi/v1/um/forceOrders` |
+| [getCMForceOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L408) | :closed_lock_with_key:  | GET | `papi/v1/cm/forceOrders` |
+| [getUMOrderModificationHistory()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L414) | :closed_lock_with_key:  | GET | `papi/v1/um/orderAmendment` |
+| [getCMOrderModificationHistory()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L420) | :closed_lock_with_key:  | GET | `papi/v1/cm/orderAmendment` |
+| [getMarginForceOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L426) | :closed_lock_with_key:  | GET | `papi/v1/margin/forceOrders` |
+| [getUMTrades()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L433) | :closed_lock_with_key:  | GET | `papi/v1/um/userTrades` |
+| [getCMTrades()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L437) | :closed_lock_with_key:  | GET | `papi/v1/cm/userTrades` |
+| [getUMADLQuantile()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L441) | :closed_lock_with_key:  | GET | `papi/v1/um/adlQuantile` |
+| [getCMADLQuantile()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L450) | :closed_lock_with_key:  | GET | `papi/v1/cm/adlQuantile` |
+| [toggleUMFeeBurn()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L459) | :closed_lock_with_key:  | POST | `papi/v1/um/feeBurn` |
+| [getUMFeeBurnStatus()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L465) | :closed_lock_with_key:  | GET | `papi/v1/um/feeBurn` |
+| [getMarginOrder()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L469) | :closed_lock_with_key:  | GET | `papi/v1/margin/order` |
+| [getMarginOpenOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L475) | :closed_lock_with_key:  | GET | `papi/v1/margin/openOrders` |
+| [getAllMarginOrders()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L481) | :closed_lock_with_key:  | GET | `papi/v1/margin/allOrders` |
+| [getMarginOCO()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L487) | :closed_lock_with_key:  | GET | `papi/v1/margin/orderList` |
+| [getAllMarginOCO()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L493) | :closed_lock_with_key:  | GET | `papi/v1/margin/allOrderList` |
+| [getMarginOpenOCO()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L499) | :closed_lock_with_key:  | GET | `papi/v1/margin/openOrderList` |
+| [getMarginTrades()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L503) | :closed_lock_with_key:  | GET | `papi/v1/margin/myTrades` |
+| [repayMarginDebt()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L509) | :closed_lock_with_key:  | POST | `papi/v1/margin/repay-debt` |
+| [getBalance()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L521) | :closed_lock_with_key:  | GET | `papi/v1/balance` |
+| [getAccountInfo()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L525) | :closed_lock_with_key:  | GET | `papi/v1/account` |
+| [getMarginMaxBorrow()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L529) | :closed_lock_with_key:  | GET | `papi/v1/margin/maxBorrowable` |
+| [getMarginMaxWithdraw()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L536) | :closed_lock_with_key:  | GET | `papi/v1/margin/maxWithdraw` |
+| [getUMPosition()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L542) | :closed_lock_with_key:  | GET | `papi/v1/um/positionRisk` |
+| [getCMPosition()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L546) | :closed_lock_with_key:  | GET | `papi/v1/cm/positionRisk` |
+| [updateUMLeverage()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L553) | :closed_lock_with_key:  | POST | `papi/v1/um/leverage` |
+| [updateCMLeverage()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L561) | :closed_lock_with_key:  | POST | `papi/v1/cm/leverage` |
+| [updateUMPositionMode()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L569) | :closed_lock_with_key:  | POST | `papi/v1/um/positionSide/dual` |
+| [updateCMPositionMode()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L578) | :closed_lock_with_key:  | POST | `papi/v1/cm/positionSide/dual` |
+| [getUMPositionMode()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L587) | :closed_lock_with_key:  | GET | `papi/v1/um/positionSide/dual` |
+| [getCMPositionMode()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L593) | :closed_lock_with_key:  | GET | `papi/v1/cm/positionSide/dual` |
+| [getUMLeverageBrackets()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L599) | :closed_lock_with_key:  | GET | `papi/v1/um/leverageBracket` |
+| [getCMLeverageBrackets()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L609) | :closed_lock_with_key:  | GET | `papi/v1/cm/leverageBracket` |
+| [getUMTradingStatus()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L618) | :closed_lock_with_key:  | GET | `papi/v1/um/apiTradingStatus` |
+| [getUMCommissionRate()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L624) | :closed_lock_with_key:  | GET | `papi/v1/um/commissionRate` |
+| [getCMCommissionRate()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L632) | :closed_lock_with_key:  | GET | `papi/v1/cm/commissionRate` |
+| [getMarginLoanRecords()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L640) | :closed_lock_with_key:  | GET | `papi/v1/margin/marginLoan` |
+| [getMarginRepayRecords()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L647) | :closed_lock_with_key:  | GET | `papi/v1/margin/repayLoan` |
+| [getAutoRepayFuturesStatus()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L654) | :closed_lock_with_key:  | GET | `papi/v1/repay-futures-switch` |
+| [updateAutoRepayFuturesStatus()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L660) | :closed_lock_with_key:  | POST | `papi/v1/repay-futures-switch` |
+| [getMarginInterestHistory()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L668) | :closed_lock_with_key:  | GET | `papi/v1/margin/marginInterestHistory` |
+| [repayFuturesNegativeBalance()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L675) | :closed_lock_with_key:  | POST | `papi/v1/repay-futures-negative-balance` |
+| [getPortfolioNegativeBalanceInterestHistory()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L681) | :closed_lock_with_key:  | GET | `papi/v1/portfolio/interest-history` |
+| [autoCollectFunds()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L687) | :closed_lock_with_key:  | POST | `papi/v1/auto-collection` |
+| [transferAssetFuturesMargin()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L693) | :closed_lock_with_key:  | POST | `papi/v1/asset-collection` |
+| [transferBNB()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L699) | :closed_lock_with_key:  | POST | `papi/v1/bnb-transfer` |
+| [getUMIncomeHistory()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L708) | :closed_lock_with_key:  | GET | `papi/v1/um/income` |
+| [getCMIncomeHistory()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L714) | :closed_lock_with_key:  | GET | `papi/v1/cm/income` |
+| [getUMAccount()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L720) | :closed_lock_with_key:  | GET | `papi/v1/um/account` |
+| [getCMAccount()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L727) | :closed_lock_with_key:  | GET | `papi/v1/cm/account` |
+| [getUMAccountConfig()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L734) | :closed_lock_with_key:  | GET | `papi/v1/um/accountConfig` |
+| [getUMSymbolConfig()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L737) | :closed_lock_with_key:  | GET | `papi/v1/um/symbolConfig` |
+| [getUMAccountV2()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L743) | :closed_lock_with_key:  | GET | `papi/v2/um/account` |
+| [getUMTradeHistoryDownloadId()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L750) | :closed_lock_with_key:  | GET | `papi/v1/um/trade/asyn` |
+| [getUMTradeDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L760) | :closed_lock_with_key:  | GET | `papi/v1/um/trade/asyn/id` |
+| [getUMOrderHistoryDownloadId()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L766) | :closed_lock_with_key:  | GET | `papi/v1/um/order/asyn` |
+| [getUMOrderDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L776) | :closed_lock_with_key:  | GET | `papi/v1/um/order/asyn/id` |
+| [getUMTransactionHistoryDownloadId()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L782) | :closed_lock_with_key:  | GET | `papi/v1/um/income/asyn` |
+| [getUMTransactionDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L792) | :closed_lock_with_key:  | GET | `papi/v1/um/income/asyn/id` |
+| [getPMUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L827) |  | POST | `papi/v1/listenKey` |
+| [keepAlivePMUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L831) |  | PUT | `papi/v1/listenKey` |
+| [closePMUserDataListenKey()](https://github.com/tiagosiebler/binance/blob/master/src/portfolio-client.ts#L835) |  | DELETE | `papi/v1/listenKey` |
