@@ -7,8 +7,8 @@ const { CoinMClient } = require('binance');
   // PUBLIC: NO
 
 const client = new CoinMClient({
-  apiKey: 'insert_api_key_here',
-  apiSecret: 'insert_api_secret_here',
+  api_key: 'insert_api_key_here',
+  api_secret: 'insert_api_secret_here',
 });
 
 client.getAccountInformation(params)
