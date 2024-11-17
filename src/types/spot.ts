@@ -4888,6 +4888,14 @@ export interface SimpleEarnSubscribeLockedProductResponse {
   positionId: string;
   success: boolean;
 }
+
+export interface SimpleEarnRedeemFlexibleProductParams {
+  productId: string;
+  redeemAll?: boolean;
+  amount?: number;
+  destAccount?: 'SPOT' | 'FUND' ;
+}
+
 export interface SimpleEarnRedeemResponse {
   success: boolean;
   redeemId: string;

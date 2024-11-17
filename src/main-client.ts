@@ -532,6 +532,7 @@ import {
   GetBnsolRateHistoryReq,
   PortfolioMarginProSpanAccountInfo,
   PortfolioMarginProAccountBalance,
+  SimpleEarnRedeemFlexibleProductParams,
 } from './types/spot';
 
 import {
@@ -2894,9 +2895,7 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate(`sapi/v1/simple-earn/locked/subscribe`, params);
   }
 
-  redeemFlexibleProduct(params: {
-    positionId: string;
-  }): Promise<SimpleEarnRedeemResponse> {
+  redeemFlexibleProduct(params: SimpleEarnRedeemFlexibleProductParams): Promise<SimpleEarnRedeemResponse> {
     return this.postPrivate(`sapi/v1/simple-earn/flexible/redeem`, params);
   }
 
