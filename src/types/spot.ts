@@ -534,6 +534,8 @@ export interface SymbolExchangeInfo {
   quoteAsset: string;
   quotePrecision: number;
   quoteAssetPrecision: number;
+  baseCommissionPrecision: number;
+  quoteCommissionPrecision: number;
   orderTypes: OrderType[];
   icebergAllowed: boolean;
   ocoAllowed: boolean;
