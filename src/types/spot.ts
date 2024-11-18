@@ -129,6 +129,7 @@ export interface CoinNetwork {
   withdrawFee: numberInString;
   withdrawMin: numberInString;
   withdrawMax: numberInString;
+  withdrawInternalMin: numberInString;
   withdrawIntegerMultiple: numberInString;
   depositDust?: numberInString;
   sameAddress: boolean;
@@ -510,6 +511,8 @@ export interface APIPermissions {
   enableMargin: boolean; //  This option can be adjusted after the Cross Margin account transfer is completed
   enableSpotAndMarginTrading: boolean; // Spot and margin trading
   tradingAuthorityExpirationTime: number; // Expiration time for spot and margin trading permission
+  enableFixApiTrade: boolean; //  Authorizes this key to use FIX API trading
+  enableFixReadOnly: boolean; //  Authorizes this key to use FIX API reading
 }
 
 export interface AssetDetail {
@@ -2108,6 +2111,8 @@ export interface AccountInfo {
   vipLevel: number;
   isMarginEnabled: boolean;
   isFutureEnabled: boolean;
+  isOptionsEnabled: boolean;
+  isPortfolioMarginRetailEnabled: boolean;
 }
 
 export interface ManagedSubAccountSnapshotParams {
