@@ -1354,10 +1354,16 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/capital/deposit/credit-apply', params);
   }
 
+  /**
+   * @deprecated - deleted as of 2024-11-21
+   */
   getAutoConvertStablecoins(): Promise<ConvertibleCoinsResponse> {
     return this.getPrivate('sapi/v1/capital/contract/convertible-coins');
   }
 
+  /**
+   * @deprecated - deleted as of 2024-11-21
+   */
   setConvertibleCoins(params: ConvertibleCoinsParams): Promise<void> {
     return this.postPrivate(
       'sapi/v1/capital/contract/convertible-coins',
@@ -2720,6 +2726,9 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
+  /**
+   * @deprecated
+   */
   getCryptoLoanLoanableAssets(params: GetLoanableAssetsDataParams): Promise<{
     rows: LoanableAssetData[];
     total: number;
@@ -2733,6 +2742,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/loan/repay/collateral/rate', params);
   }
 
+  /**
+   * @deprecated
+   */
   getCryptoLoanCollateralAssetsData(
     params: GetCollateralAssetDataParams,
   ): Promise<{
@@ -2754,24 +2766,35 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
+  /**
+   * @deprecated
+   */
   borrowCryptoLoan(
     params: BorrowCryptoLoanParams,
   ): Promise<BorrowCryptoLoanResponse> {
     return this.postPrivate('sapi/v1/loan/borrow', params);
   }
 
+  /**
+   * @deprecated
+   */
   repayCryptoLoan(
     params: RepayCryptoLoanParams,
   ): Promise<RepayCryptoLoanResponse> {
     return this.postPrivate('sapi/v1/loan/repay', params);
   }
 
+  /**
+   * @deprecated
+   */
   adjustCryptoLoanLTV(
     params: AdjustCryptoLoanLTVParams,
   ): Promise<AdjustCryptoLoanLTVResponse> {
     return this.postPrivate('sapi/v1/loan/adjust/ltv', params);
   }
-
+  /**
+   * @deprecated
+   */
   customizeCryptoLoanMarginCall(params: CustomizeMarginCallParams): Promise<{
     rows: CustomizeMarginCall[];
     total: number;
@@ -2785,6 +2808,9 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
+  /**
+   * @deprecated
+   */
   getCryptoLoanOngoingOrders(params: GetLoanOngoingOrdersParams): Promise<{
     rows: LoanOngoingOrder[];
     total: number;
@@ -4057,7 +4083,8 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/broker/subAccount/convert', params);
   }
   /**
-   * @deprecated
+   * @deprecated - deleted as of 2024-11-21
+   *
    */
   convertBUSD(params: ConvertTransfer): Promise<ConvertTransferResponse> {
     return this.postPrivate('sapi/v1/asset/convert-transfer', params);
