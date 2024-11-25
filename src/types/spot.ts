@@ -3076,6 +3076,10 @@ export interface DualInvestmentPosition {
   purchaseEndTime: number;
   optionType: string;
   autoCompoundPlan: 'STANDARD' | 'ADVANCED' | 'NONE';
+  settlePrice?: string;
+  isExercised?: boolean;
+  settleAsset?: string;
+  settleAmount?: string;
 }
 
 export interface CheckDualInvestmentAccountsResponse {
