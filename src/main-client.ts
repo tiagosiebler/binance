@@ -533,10 +533,6 @@ import {
   PortfolioMarginProSpanAccountInfo,
   PortfolioMarginProAccountBalance,
   SimpleEarnRedeemFlexibleProductParams,
-  VipLoanInterestRateHistoryParams,
-  VipLoanInterestRateRecord,
-  VipLoanAccruedInterestParams,
-  VipLoanAccruedInterestRecord,
 } from './types/spot';
 
 import {
@@ -1945,14 +1941,12 @@ export class MainClient extends BaseRestClient {
 
   getManagedSubAccountMarginAssets(params: {
     email: string;
-    accountType?: string;
   }): Promise<ManagedSubAccountMarginAssetsResponse> {
     return this.getPrivate('sapi/v1/managed-subaccount/marginAsset', params);
   }
 
   getManagedSubAccountFuturesAssets(params: {
     email: string;
-    accountType?: string;
   }): Promise<ManagedSubAccountFuturesAssetsResponse> {
     return this.getPrivate(
       'sapi/v1/managed-subaccount/fetch-future-asset',
@@ -3091,27 +3085,11 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/loan/vip/request/interestRate', params);
   }
 
-  getVipLoanInterestRateHistory(
-    params: VipLoanInterestRateHistoryParams,
-  ): Promise<{
-    rows: VipLoanInterestRateRecord[];
-    total: number;
-  }> {
-    return this.getPrivate('sapi/v1/loan/vip/interestRateHistory', params);
-  }
-
   getVipLoanableAssets(params: GetLoanableAssetsDataParams): Promise<{
     rows: LoanableAssetData[];
     total: number;
   }> {
     return this.getPrivate('sapi/v1/loan/vip/loanable/data', params);
-  }
-
-  getVipLoanAccruedInterest(params?: VipLoanAccruedInterestParams): Promise<{
-    rows: VipLoanAccruedInterestRecord[];
-    total: number;
-  }> {
-    return this.getPrivate('sapi/v1/loan/vip/accruedInterest', params);
   }
 
   getVipCollateralAssets(params: { collateralCoin?: string }): Promise<{
