@@ -33,7 +33,10 @@ function generateConfig(name) {
 
         {
           test: /\.m?js$/,
-          exclude: /(node_modules|bower_components|samples|lib|test|coverage)/,
+          exclude: [
+            /(node_modules|bower_components|samples|lib|test|coverage)/,
+            '/lib/util/proxy.js'
+          ],
           use: {
             loader: 'babel-loader',
             options: {
@@ -46,13 +49,13 @@ function generateConfig(name) {
           }
         }
       ]
-    }
+    },
   };
 
   config.plugins = [
-    new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
-    }),
+    // new webpack.DefinePlugin({
+    //   'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+    // }),
     // new BundleAnalyzerPlugin({
     //   defaultSizes: 'stat',
     //   analyzerMode: 'static',
