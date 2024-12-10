@@ -3107,6 +3107,13 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/loan/vip/loanable/data', params);
   }
 
+  getVipLoanAccruedInterest(params?: VipLoanAccruedInterestParams): Promise<{
+    rows: VipLoanAccruedInterestRecord[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/vip/accruedInterest', params);
+  }
+
   getVipCollateralAssets(params: { collateralCoin?: string }): Promise<{
     rows: CollateralAssetData[];
     total: number;
@@ -3141,13 +3148,6 @@ export class MainClient extends BaseRestClient {
     total: number;
   }> {
     return this.getPrivate('sapi/v1/loan/vip/collateral/account', params);
-  }
-
-  getVipLoanAccruedInterest(params?: VipLoanAccruedInterestParams): Promise<{
-    rows: VipLoanAccruedInterestRecord[];
-    total: number;
-  }> {
-    return this.getPrivate('sapi/v1/loan/vip/accruedInterest', params);
   }
 
   getVipApplicationStatus(params: GetApplicationStatusParams): Promise<{
