@@ -321,8 +321,8 @@ export class USDMClient extends BaseRestClient {
    *
    * Known issue: `quantity` and `price` should be sent as strings
    */
-  submitMultipleOrders(
-    orders: NewFuturesOrderParams<string>[],
+  submitMultipleOrders<TNumberType = number>(
+    orders: NewFuturesOrderParams<TNumberType>[],
   ): Promise<(NewOrderResult | NewOrderError)[]> {
     const stringOrders = orders.map((order) => {
       const orderToStringify = { ...order };
