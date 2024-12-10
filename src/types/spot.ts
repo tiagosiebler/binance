@@ -4902,7 +4902,7 @@ export interface SimpleEarnRedeemFlexibleProductParams {
   productId: string;
   redeemAll?: boolean;
   amount?: number;
-  destAccount?: 'SPOT' | 'FUND' ;
+  destAccount?: 'SPOT' | 'FUND';
 }
 
 export interface SimpleEarnRedeemResponse {
@@ -5467,4 +5467,36 @@ export interface PortfolioMarginProAccountBalance {
   negativeBalance: string;
   optionWalletBalance: string; // only for PM PRO SPAN
   optionEquity: string; // only for PM PRO SPAN
+}
+
+export interface VipLoanInterestRateHistoryParams {
+  coin: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface VipLoanInterestRateRecord {
+  coin: string;
+  annualizedInterestRate: string;
+  time: number;
+}
+
+export interface VipLoanAccruedInterestParams {
+  orderId?: number;
+  loanCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface VipLoanAccruedInterestRecord {
+  loanCoin: string;
+  principalAmount: string;
+  interestAmount: string;
+  annualInterestRate: string;
+  accrualTime: number;
+  orderId: number;
 }
