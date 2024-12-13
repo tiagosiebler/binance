@@ -20,7 +20,7 @@ module.exports = {
     node: true,
     jest: true,
   },
-  ignorePatterns: ['.eslintrc.js', 'webpack.config.js'],
+  ignorePatterns: ['.eslintrc.js', 'webpack.config.js', 'examples/apidoc'],
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
