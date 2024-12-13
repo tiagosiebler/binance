@@ -56,6 +56,10 @@ export interface RestClientOptions {
 
 export type GenericAPIResponse<T = any> = Promise<T>;
 
+// function throwUnhandledSwitch(x: never, msg: string): never {
+//   throw new Error(msg);
+// }
+
 export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
   switch (network) {
     case 'spot':
@@ -63,18 +67,22 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
     case 'spot2':
     case 'spot3':
     case 'spot4':
-    default:
       return 'U5D79M5B';
 
     case 'usdm':
     case 'usdmtest':
     case 'coinm':
     case 'coinmtest':
+    case 'papi':
       return '15PC4ZJy';
 
     case 'voptions':
     case 'voptionstest':
       return '';
+
+    default:
+      // throwUnhandledSwitch(network, `"${network}" unhandled`);
+      return 'U5D79M5B';
   }
 }
 

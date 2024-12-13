@@ -168,7 +168,7 @@ export class PortfolioClient extends BaseRestClient {
    *
    **/
 
-  submitNewOrder(
+  submitNewUMOrder(
     params: NewPortfolioUMOrderReq,
   ): Promise<NewPortfolioUMOrderResponse> {
     this.validateOrderId(params, 'newClientOrderId');

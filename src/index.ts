@@ -9,7 +9,6 @@ export * from './types/spot';
 export * from './types/websockets';
 export * from './usdm-client';
 export * from './portfolio-client';
-export * from './util/proxy';
 export * from './util/requestUtils';
 export * from './util/typeGuards';
 export * from './util/WsStore';
