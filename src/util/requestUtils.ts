@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid';
+
 import { MainClient } from '../main-client';
 import { NewFuturesOrderParams } from '../types/futures';
 import {
@@ -11,7 +13,6 @@ import { WsMarket } from '../types/websockets';
 import { USDMClient } from '../usdm-client';
 import { WsKey } from '../websocket-client';
 import { signMessage } from './node-support';
-import { nanoid } from 'nanoid';
 
 export type RestClient = MainClient | USDMClient;
 

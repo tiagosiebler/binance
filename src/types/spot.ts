@@ -6,7 +6,6 @@ import {
   OCOOrderStatus,
   OCOStatus,
   OrderBookRow,
-  OrderListOrderType,
   OrderResponseType,
   OrderSide,
   OrderStatus,
@@ -52,6 +51,35 @@ export interface DailyAccountSnapshotParams {
   limit?: number;
 }
 
+export interface SpotBalance {
+  asset: string;
+  free: numberInString;
+  locked: numberInString;
+}
+
+export interface MarginBalance {
+  asset: string;
+  borrowed: numberInString;
+  free: numberInString;
+  interest: numberInString;
+  locked: numberInString;
+  netAsset: numberInString;
+}
+
+export interface DailyFuturesBalance {
+  asset: string;
+  marginBalance: numberInString;
+  walletBalance: numberInString;
+}
+
+export interface DailyFuturesPositionState {
+  entryPrice: numberInString;
+  markPrice: numberInString;
+  positionAmt: numberInString;
+  symbol: string;
+  unRealizedProfit: numberInString;
+}
+
 export interface DailySpotAccountSnapshot {
   data: {
     balances: SpotBalance[];
@@ -93,23 +121,6 @@ export interface DailyAccountSnapshot {
   snapshotVos: DailyAccountSnapshotElement[];
 }
 
-export interface AllCoinsInformationResponse {
-  coin: string;
-  depositAllEnable: boolean;
-  free: numberInString;
-  freeze: numberInString;
-  ipoable: numberInString;
-  ipoing: numberInString;
-  isLegalMoney: boolean;
-  locked: numberInString;
-  name: string;
-  networkList: CoinNetwork[];
-  storage: numberInString;
-  trading: boolean;
-  withdrawAllEnable: boolean;
-  withdrawing: numberInString;
-}
-
 export interface CoinNetwork {
   addressRegex: string;
   coin: string;
@@ -139,33 +150,21 @@ export interface CoinNetwork {
   contractAddress?: string;
 }
 
-export interface SpotBalance {
-  asset: string;
+export interface AllCoinsInformationResponse {
+  coin: string;
+  depositAllEnable: boolean;
   free: numberInString;
+  freeze: numberInString;
+  ipoable: numberInString;
+  ipoing: numberInString;
+  isLegalMoney: boolean;
   locked: numberInString;
-}
-
-export interface MarginBalance {
-  asset: string;
-  borrowed: numberInString;
-  free: numberInString;
-  interest: numberInString;
-  locked: numberInString;
-  netAsset: numberInString;
-}
-
-export interface DailyFuturesBalance {
-  asset: string;
-  marginBalance: numberInString;
-  walletBalance: numberInString;
-}
-
-export interface DailyFuturesPositionState {
-  entryPrice: numberInString;
-  markPrice: numberInString;
-  positionAmt: numberInString;
-  symbol: string;
-  unRealizedProfit: numberInString;
+  name: string;
+  networkList: CoinNetwork[];
+  storage: numberInString;
+  trading: boolean;
+  withdrawAllEnable: boolean;
+  withdrawing: numberInString;
 }
 
 export interface WithdrawParams {
@@ -641,24 +640,6 @@ export interface SymbolOrderBookTicker {
   askQty: numberInString;
 }
 
-export type OrderResponse =
-  | OrderResponseACK
-  | OrderResponseResult
-  | OrderResponseFull;
-
-export type OrderResponseTypeFor<
-  RT extends OrderResponseType | undefined = undefined,
-  T extends OrderType | undefined = undefined,
-> = RT extends 'ACK'
-  ? OrderResponseACK
-  : RT extends 'RESULT'
-  ? OrderResponseResult
-  : RT extends 'FULL'
-  ? OrderResponseFull
-  : T extends 'MARKET' | 'LIMIT'
-  ? OrderResponseFull
-  : OrderResponseACK;
-
 export interface OrderResponseACK {
   symbol: string;
   orderId: number;
@@ -714,6 +695,24 @@ export interface OrderResponseFull {
   fills: OrderFill[];
 }
 
+export type OrderResponse =
+  | OrderResponseACK
+  | OrderResponseResult
+  | OrderResponseFull;
+
+export type OrderResponseTypeFor<
+  RT extends OrderResponseType | undefined = undefined,
+  T extends OrderType | undefined = undefined,
+> = RT extends 'ACK'
+  ? OrderResponseACK
+  : RT extends 'RESULT'
+    ? OrderResponseResult
+    : RT extends 'FULL'
+      ? OrderResponseFull
+      : T extends 'MARKET' | 'LIMIT'
+        ? OrderResponseFull
+        : OrderResponseACK;
+
 export interface OrderListOrder {
   symbol: string;
   orderId: number;
@@ -742,11 +741,6 @@ export interface OrderList {
   symbol: string;
   orders: [OrderListOrder, OrderListOrder];
 }
-
-export interface CancelOrderListResult extends OrderList {
-  orderReports: [CancelSpotOrderResult, CancelSpotOrderResult];
-}
-
 export interface SOROrderFill {
   matchType: string;
   price: numberInString;
@@ -783,6 +777,29 @@ export interface SORTestOrderResponse {
     discountAsset: string;
     discount: numberInString; //Standard commission is reduced by this rate when paying commission in BNB.
   };
+}
+
+export interface CancelSpotOrderResult {
+  symbol: string;
+  origClientOrderId: string;
+  orderId: number;
+  orderListId: number;
+  clientOrderId: string;
+  transactTime: number;
+  price: numberInString;
+  origQty: numberInString;
+  executedQty: numberInString;
+  cummulativeQuoteQty: numberInString;
+  status: OrderStatus;
+  timeInForce: OrderTimeInForce;
+  type: OrderType;
+  side: OrderSide;
+  isIsolated?: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
+}
+
+export interface CancelOrderListResult extends OrderList {
+  orderReports: [CancelSpotOrderResult, CancelSpotOrderResult];
 }
 
 export interface GenericReplaceSpotOrderResult<C, N> {
@@ -839,25 +856,6 @@ export interface ReplaceSpotOrderResultSuccess<
   > {
   cancelResult: 'SUCCESS';
   newOrderResult: 'SUCCESS';
-}
-
-export interface CancelSpotOrderResult {
-  symbol: string;
-  origClientOrderId: string;
-  orderId: number;
-  orderListId: number;
-  clientOrderId: string;
-  transactTime: number;
-  price: numberInString;
-  origQty: numberInString;
-  executedQty: numberInString;
-  cummulativeQuoteQty: numberInString;
-  status: OrderStatus;
-  timeInForce: OrderTimeInForce;
-  type: OrderType;
-  side: OrderSide;
-  isIsolated?: boolean;
-  selfTradePreventionMode: SelfTradePreventionMode;
 }
 
 export interface SpotOrder {
@@ -1734,6 +1732,12 @@ export interface StakingProduct {
   quota: StakingProductQuota;
 }
 
+export type StakingTxnType = 'SUBSCRIPTION' | 'REDEMPTION' | 'INTEREST';
+export type StakingStatus = 'HOLDING' | 'REDEEMED';
+export type StakingProductType = 'STAKING' | 'F_DEFI' | 'L_DEFI';
+export type BSwapType = 'SINGLE' | 'COMBINATION';
+export type BSwapOperationType = 'ADD' | 'REMOVE';
+
 export interface StakingProductPosition {
   positionId: numberInString;
   projectId: string;
@@ -1897,13 +1901,6 @@ export interface StakingHistoryParams extends StakingBasicParams {
   startTime?: number;
   endTime?: number;
 }
-
-export type StakingTxnType = 'SUBSCRIPTION' | 'REDEMPTION' | 'INTEREST';
-export type StakingStatus = 'HOLDING' | 'REDEEMED';
-export type StakingProductType = 'STAKING' | 'F_DEFI' | 'L_DEFI';
-export type BSwapType = 'SINGLE' | 'COMBINATION';
-export type BSwapOperationType = 'ADD' | 'REMOVE';
-
 export interface BSwapOperationsParams {
   operationId?: number;
   poolId?: number;

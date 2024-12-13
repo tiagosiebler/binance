@@ -1,4 +1,4 @@
-name: 'Build & Test'
+name: "Build, Lint & Test"
 
 on:
   push:
@@ -23,8 +23,11 @@ jobs:
       - name: Install
         run: npm ci --ignore-scripts
 
-      - name: Build
+      - name: Check Build
         run: npm run build
+
+      - name: Check Lint
+        run: npm run lint
 
       - name: Test
         run: npm run test

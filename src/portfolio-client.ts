@@ -1,67 +1,78 @@
 import { AxiosRequestConfig } from 'axios';
 
 import {
-  BinanceBaseUrlKey,
-  CancelOrderParams,
-  CancelOCOParams,
-  NewOCOParams,
-  OrderIdProperty,
-} from './types/shared';
-
-import {
-  generateNewOrderId,
-  getOrderIdPrefix,
-  getServerTimeEndpoint,
-  logInvalidOrderId,
-  RestClientOptions,
-} from './util/requestUtils';
-
-import BaseRestClient from './util/BaseRestClient';
-import {
   CancelPortfolioCMConditionalOrderReq,
   CancelPortfolioCMOrderReq,
   CancelPortfolioMarginOCOReq,
   CancelPortfolioMarginOrderReq,
   CancelPortfolioUMConditionalOrderReq,
   CancelPortfolioUMOrderReq,
+  DownloadLinkResponse,
+  GetMarginInterestHistoryReq,
+  GetMarginLoanRecordsReq,
+  GetMarginRepayRecordsReq,
+  GetPortfolioInterestHistoryReq,
   ModifyPortfolioCMOrderReq,
   ModifyPortfolioUMOrderReq,
   NewPortfolioCMConditionalOrderReq,
+  NewPortfolioCMConditionalOrderResponse,
   NewPortfolioCMOrderReq,
-  NewPortfolioUMConditionalOrderReq,
+  NewPortfolioCMOrderResponse,
+  NewPortfolioConditionalOrderResponse,
   NewPortfolioMarginOCOReq,
+  NewPortfolioMarginOCOResponse,
   NewPortfolioMarginOrderReq,
+  NewPortfolioMarginOrderResponse,
+  NewPortfolioUMConditionalOrderReq,
+  NewPortfolioUMOrderReq,
+  NewPortfolioUMOrderResponse,
+  PortfolioAccountInformation,
   PortfolioADLQuantile,
+  PortfolioBalance,
+  PortfolioCMAccountAsset,
+  PortfolioCMAccountPosition,
   PortfolioCMCancelConditionalOrderResponse,
   PortfolioCMCancelOrderResponse,
   PortfolioCMConditionalHistoryOrder,
   PortfolioCMConditionalOrder,
-  NewPortfolioCMConditionalOrderResponse,
   PortfolioCMForceOrder,
+  PortfolioCMIncome,
+  PortfolioCMLeverageBracket,
   PortfolioCMModifyOrderResponse,
-  PortfolioCMOrderModificationHistory,
   PortfolioCMOrder,
-  NewPortfolioCMOrderResponse,
+  PortfolioCMOrderModificationHistory,
+  PortfolioCMPosition,
   PortfolioCMTrade,
-  NewPortfolioConditionalOrderResponse,
   PortfolioMarginCancelAllOrdersResponse,
   PortfolioMarginCancelOrderResponse,
   PortfolioMarginForceOrder,
+  PortfolioMarginInterestRecord,
+  PortfolioMarginLoanRecord,
   PortfolioMarginOCO,
   PortfolioMarginOCOCancelResponse,
-  NewPortfolioMarginOCOResponse,
   PortfolioMarginOrder,
-  NewPortfolioMarginOrderResponse,
   PortfolioMarginRepayDebtReq,
   PortfolioMarginRepayDebtResponse,
+  PortfolioMarginRepayRecord,
   PortfolioMarginTrade,
+  PortfolioNegativeBalanceInterestRecord,
+  PortfolioTradingStatus,
+  PortfolioUMAccountAsset,
+  PortfolioUMAccountAssetV2,
+  PortfolioUMAccountConfig,
+  PortfolioUMAccountPosition,
+  PortfolioUMAccountPositionV2,
   PortfolioUMCancelConditionalOrderResponse,
   PortfolioUMCancelOrderResponse,
   PortfolioUMConditionalOrder,
   PortfolioUMForceOrder,
+  PortfolioUMIncome,
+  PortfolioUMLeverageBracket,
   PortfolioUMModifyOrderResponse,
-  PortfolioUMOrderModificationHistory,
   PortfolioUMOrder,
+  PortfolioUMOrderModificationHistory,
+  PortfolioUMPosition,
+  PortfolioUMSymbolConfig,
   PortfolioUMTrade,
   QueryPortfolioAllCMConditionalOrdersReq,
   QueryPortfolioAllCMOrdersReq,
@@ -69,6 +80,7 @@ import {
   QueryPortfolioAllUMOrdersReq,
   QueryPortfolioCMConditionalOrderHistoryReq,
   QueryPortfolioCMForceOrdersReq,
+  QueryPortfolioCMIncomeReq,
   QueryPortfolioCMOpenOrderReq,
   QueryPortfolioCMOrderAmendmentReq,
   QueryPortfolioCMOrderReq,
@@ -81,42 +93,28 @@ import {
   QueryPortfolioMarginTradesReq,
   QueryPortfolioUMConditionalOrderHistoryReq,
   QueryPortfolioUMForceOrdersReq,
+  QueryPortfolioUMIncomeReq,
   QueryPortfolioUMOpenConditionalOrderReq,
   QueryPortfolioUMOpenOrderReq,
   QueryPortfolioUMOrderAmendmentReq,
   QueryPortfolioUMOrderReq,
   QueryPortfolioUMTradesReq,
-  PortfolioBalance,
-  PortfolioAccountInformation,
-  PortfolioUMPosition,
-  PortfolioCMPosition,
-  PortfolioUMLeverageBracket,
-  PortfolioCMLeverageBracket,
-  PortfolioTradingStatus,
-  PortfolioMarginLoanRecord,
-  GetMarginLoanRecordsReq,
-  GetMarginRepayRecordsReq,
-  PortfolioMarginRepayRecord,
-  PortfolioMarginInterestRecord,
-  GetMarginInterestHistoryReq,
-  GetPortfolioInterestHistoryReq,
-  PortfolioNegativeBalanceInterestRecord,
-  QueryPortfolioUMIncomeReq,
-  PortfolioUMIncome,
-  QueryPortfolioCMIncomeReq,
-  PortfolioCMIncome,
-  PortfolioUMAccountAsset,
-  PortfolioUMAccountPosition,
-  PortfolioCMAccountAsset,
-  PortfolioCMAccountPosition,
-  PortfolioUMAccountConfig,
-  PortfolioUMSymbolConfig,
-  PortfolioUMAccountAssetV2,
-  PortfolioUMAccountPositionV2,
-  DownloadLinkResponse,
-  NewPortfolioUMOrderReq,
-  NewPortfolioUMOrderResponse,
 } from './types/portfolio-margin';
+import {
+  BinanceBaseUrlKey,
+  CancelOCOParams,
+  CancelOrderParams,
+  NewOCOParams,
+  OrderIdProperty,
+} from './types/shared';
+import BaseRestClient from './util/BaseRestClient';
+import {
+  generateNewOrderId,
+  getOrderIdPrefix,
+  getServerTimeEndpoint,
+  logInvalidOrderId,
+  RestClientOptions,
+} from './util/requestUtils';
 
 const PORTFOLIO_MARGIN_BASE_URL_KEY = 'papi';
 
@@ -158,7 +156,7 @@ export class PortfolioClient extends BaseRestClient {
    *
    **/
 
-  testConnectivity(): Promise<{}> {
+  testConnectivity(): Promise<object> {
     return this.get('papi/v1/ping');
   }
 
@@ -734,6 +732,7 @@ export class PortfolioClient extends BaseRestClient {
   getUMAccountConfig(): Promise<PortfolioUMAccountConfig> {
     return this.getPrivate('papi/v1/um/accountConfig');
   }
+
   getUMSymbolConfig(params?: {
     symbol?: string;
   }): Promise<PortfolioUMSymbolConfig[]> {
@@ -828,11 +827,11 @@ export class PortfolioClient extends BaseRestClient {
     return this.post('papi/v1/listenKey');
   }
 
-  keepAlivePMUserDataListenKey(): Promise<{}> {
+  keepAlivePMUserDataListenKey(): Promise<object> {
     return this.put('papi/v1/listenKey');
   }
 
-  closePMUserDataListenKey(): Promise<{}> {
+  closePMUserDataListenKey(): Promise<object> {
     return this.delete('papi/v1/listenKey');
   }
 }

@@ -32,85 +32,6 @@ export type WsMarket =
   | 'options'
   | 'optionsTestnet';
 
-export type WsRawSpotUserDataEventRaw =
-  | WsMessageSpotUserDataExecutionReportEventRaw
-  | WsMessageSpotOutboundAccountPositionRaw
-  | WsMessageSpotBalanceUpdateRaw
-  | WsMessageSpotUserDataListStatusEventRaw;
-
-export type WsMessageSpotUserDataEventFormatted =
-  | WsMessageSpotUserDataExecutionReportEventFormatted
-  | WsMessageSpotOutboundAccountPositionFormatted
-  | WsMessageSpotBalanceUpdateFormatted
-  | WsMessageSpotUserDataListStatusEventFormatted;
-
-export type WsMessageFuturesUserDataEventRaw =
-  | WsMessageFuturesUserDataAccountUpdateRaw
-  | WsMessageFuturesUserDataListenKeyExpiredRaw
-  | WsMessageFuturesUserDataMarginCallRaw
-  | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
-  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw
-  | WsMessageFuturesUserDataTradeLiteEventRaw
-  | WsMessageFuturesUserDataStrategyUpdateRaw
-  | WsMessageFuturesUserDataGridUpdateRaw
-  | WsMessageFuturesUserDataContractInfoRaw;
-
-// TODO: consistent across USDM vs COINM?
-export type WsMessageFuturesUserDataEventFormatted =
-  | WsMessageFuturesUserDataAccountUpdateFormatted
-  | WsMessageFuturesUserDataListenKeyExpiredFormatted
-  | WsMessageFuturesUserDataMarginCallFormatted
-  | WsMessageFuturesUserDataTradeUpdateEventFormatted
-  | WsMessageFuturesUserDataAccountConfigUpdateEventFormatted
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted
-  | WsMessageFuturesUserDataTradeLiteEventFormatted
-  | WsMessageFuturesUserDataStrategyUpdateFormatted
-  | WsMessageFuturesUserDataGridUpdateFormatted
-  | WsMessageFuturesUserDataContractInfoFormatted;
-
-export type WsRawMessage =
-  | WsMessageKlineRaw
-  | WsMessageAggTradeRaw
-  | WsMessageTradeRaw
-  | WsMessage24hrMiniTickerRaw
-  | WsMessage24hrMiniTickerRaw[]
-  | WsMessage24hrTickerRaw
-  | WsMessage24hrTickerRaw[]
-  | WsMessageRollingWindowTickerRaw[]
-  | WsMessageBookTickerEventRaw
-  | WsMessagePartialBookDepthEventRaw
-  | WsMessageForceOrderRaw
-  | WsRawSpotUserDataEventRaw
-  | WsMessageIndexPriceUpdateEventRaw
-  | WsMessageFuturesUserDataAccountUpdateRaw
-  | WsMessageFuturesUserDataListenKeyExpiredRaw
-  | WsMessageFuturesUserDataMarginCallRaw
-  | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
-  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw;
-
-export type WsFormattedMessage =
-  | WsUserDataEvents
-  | WsMessageKlineFormatted
-  | WsMessageAggTradeFormatted
-  | WsMessageTradeFormatted
-  | WsMessage24hrMiniTickerFormatted
-  | WsMessage24hrTickerFormatted
-  | WsMessageBookTickerEventFormatted
-  | WsMessagePartialBookDepthEventFormatted
-  | WsMessageIndexPriceUpdateEventFormatted
-  | WsMessageMarkPriceUpdateEventFormatted
-  | WsMessageForceOrderFormatted
-  | WsMessage24hrMiniTickerFormatted[]
-  | WsMessage24hrTickerFormatted[]
-  | WsMessageRollingWindowTickerFormatted[]
-  | WsMessageMarkPriceUpdateEventFormatted[];
-
-export type WsUserDataEvents =
-  | WsMessageSpotUserDataEventFormatted
-  | WsMessageFuturesUserDataEventFormatted;
-
 interface WsSharedBase {
   wsMarket: WsMarket;
   wsKey: WsKey;
@@ -1041,3 +962,82 @@ export interface WsMessageFuturesUserDataContractInfoFormatted
     maxLeverage: number;
   }[];
 }
+
+export type WsRawSpotUserDataEventRaw =
+  | WsMessageSpotUserDataExecutionReportEventRaw
+  | WsMessageSpotOutboundAccountPositionRaw
+  | WsMessageSpotBalanceUpdateRaw
+  | WsMessageSpotUserDataListStatusEventRaw;
+
+export type WsMessageSpotUserDataEventFormatted =
+  | WsMessageSpotUserDataExecutionReportEventFormatted
+  | WsMessageSpotOutboundAccountPositionFormatted
+  | WsMessageSpotBalanceUpdateFormatted
+  | WsMessageSpotUserDataListStatusEventFormatted;
+
+export type WsMessageFuturesUserDataEventRaw =
+  | WsMessageFuturesUserDataAccountUpdateRaw
+  | WsMessageFuturesUserDataListenKeyExpiredRaw
+  | WsMessageFuturesUserDataMarginCallRaw
+  | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
+  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
+  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw
+  | WsMessageFuturesUserDataTradeLiteEventRaw
+  | WsMessageFuturesUserDataStrategyUpdateRaw
+  | WsMessageFuturesUserDataGridUpdateRaw
+  | WsMessageFuturesUserDataContractInfoRaw;
+
+// TODO: consistent across USDM vs COINM?
+export type WsMessageFuturesUserDataEventFormatted =
+  | WsMessageFuturesUserDataAccountUpdateFormatted
+  | WsMessageFuturesUserDataListenKeyExpiredFormatted
+  | WsMessageFuturesUserDataMarginCallFormatted
+  | WsMessageFuturesUserDataTradeUpdateEventFormatted
+  | WsMessageFuturesUserDataAccountConfigUpdateEventFormatted
+  | WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted
+  | WsMessageFuturesUserDataTradeLiteEventFormatted
+  | WsMessageFuturesUserDataStrategyUpdateFormatted
+  | WsMessageFuturesUserDataGridUpdateFormatted
+  | WsMessageFuturesUserDataContractInfoFormatted;
+
+export type WsRawMessage =
+  | WsMessageKlineRaw
+  | WsMessageAggTradeRaw
+  | WsMessageTradeRaw
+  | WsMessage24hrMiniTickerRaw
+  | WsMessage24hrMiniTickerRaw[]
+  | WsMessage24hrTickerRaw
+  | WsMessage24hrTickerRaw[]
+  | WsMessageRollingWindowTickerRaw[]
+  | WsMessageBookTickerEventRaw
+  | WsMessagePartialBookDepthEventRaw
+  | WsMessageForceOrderRaw
+  | WsRawSpotUserDataEventRaw
+  | WsMessageIndexPriceUpdateEventRaw
+  | WsMessageFuturesUserDataAccountUpdateRaw
+  | WsMessageFuturesUserDataListenKeyExpiredRaw
+  | WsMessageFuturesUserDataMarginCallRaw
+  | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
+  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
+  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw;
+
+export type WsUserDataEvents =
+  | WsMessageSpotUserDataEventFormatted
+  | WsMessageFuturesUserDataEventFormatted;
+
+export type WsFormattedMessage =
+  | WsUserDataEvents
+  | WsMessageKlineFormatted
+  | WsMessageAggTradeFormatted
+  | WsMessageTradeFormatted
+  | WsMessage24hrMiniTickerFormatted
+  | WsMessage24hrTickerFormatted
+  | WsMessageBookTickerEventFormatted
+  | WsMessagePartialBookDepthEventFormatted
+  | WsMessageIndexPriceUpdateEventFormatted
+  | WsMessageMarkPriceUpdateEventFormatted
+  | WsMessageForceOrderFormatted
+  | WsMessage24hrMiniTickerFormatted[]
+  | WsMessage24hrTickerFormatted[]
+  | WsMessageRollingWindowTickerFormatted[]
+  | WsMessageMarkPriceUpdateEventFormatted[];

@@ -1,4 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
+
 import {
   ClassicPortfolioMarginAccount,
   ClassicPortfolioMarginNotionalLimit,
@@ -13,74 +14,73 @@ import {
   SymbolOrPair,
 } from './types/coin';
 import {
+  AggregateFuturesTrade,
+  CancelAllOpenOrdersResult,
+  CancelFuturesOrderResult,
+  CancelMultipleOrdersParams,
+  CancelOrdersTimeoutParams,
+  ChangeStats24hr,
+  ContinuousContractKlinesParams,
+  ForceOrderResult,
+  FundingRateHistory,
+  FuturesCoinMAccountBalance,
+  FuturesCoinMAccountInformation,
+  FuturesCoinMBasisParams,
+  FuturesCoinMTakerBuySellVolumeParams,
+  FuturesDataPaginatedParams,
+  FuturesExchangeInfo,
+  FuturesOrderBook,
+  GetForceOrdersParams,
+  GetIncomeHistoryParams,
+  GetPositionMarginChangeHistoryParams,
+  IncomeHistory,
+  IndexPriceConstituents,
+  IndexPriceKlinesParams,
+  MarkPrice,
+  ModeChangeResult,
+  ModifyFuturesOrderParams,
+  ModifyFuturesOrderResult,
+  NewFuturesOrderParams,
+  NewOrderError,
+  NewOrderResult,
+  OrderAmendment,
+  OrderResult,
+  PositionModeParams,
+  PositionModeResponse,
+  QuarterlyContractSettlementPrice,
+  RawFuturesTrade,
+  RebateDataOverview,
+  SetCancelTimeoutResult,
+  SetIsolatedMarginParams,
+  SetIsolatedMarginResult,
+  SetLeverageParams,
+  SetLeverageResult,
+  SetMarginTypeParams,
+  SymbolKlinePaginatedParams,
+  SymbolLeverageBracketsResult,
+  UserCommissionRate,
+} from './types/futures';
+import {
   BasicSymbolPaginatedParams,
   BasicSymbolParam,
   BinanceBaseUrlKey,
-  GetOrderParams,
-  OrderBookParams,
-  HistoricalTradesParams,
-  KlinesParams,
-  Kline,
-  RecentTradesParams,
-  CancelOrderParams,
   CancelOCOParams,
-  NewOCOParams,
-  SymbolFromPaginatedRequestFromId,
-  OrderIdProperty,
-  GetAllOrdersParams,
+  CancelOrderParams,
   GenericCodeMsgError,
+  GetAllOrdersParams,
   GetOrderModifyHistoryParams,
+  GetOrderParams,
+  HistoricalTradesParams,
+  Kline,
+  KlinesParams,
+  NewOCOParams,
+  OrderBookParams,
+  OrderIdProperty,
+  RecentTradesParams,
+  SymbolFromPaginatedRequestFromId,
   SymbolPrice,
 } from './types/shared';
-
-import {
-  ContinuousContractKlinesParams,
-  IndexPriceKlinesParams,
-  SymbolKlinePaginatedParams,
-  FuturesDataPaginatedParams,
-  NewFuturesOrderParams,
-  CancelMultipleOrdersParams,
-  CancelOrdersTimeoutParams,
-  SetLeverageParams,
-  SetMarginTypeParams,
-  SetIsolatedMarginParams,
-  GetPositionMarginChangeHistoryParams,
-  GetIncomeHistoryParams,
-  GetForceOrdersParams,
-  FuturesExchangeInfo,
-  FuturesOrderBook,
-  RawFuturesTrade,
-  AggregateFuturesTrade,
-  FundingRateHistory,
-  ModeChangeResult,
-  PositionModeParams,
-  PositionModeResponse,
-  NewOrderResult,
-  NewOrderError,
-  OrderResult,
-  QuarterlyContractSettlementPrice,
-  CancelFuturesOrderResult,
-  CancelAllOpenOrdersResult,
-  SetLeverageResult,
-  SetIsolatedMarginResult,
-  ForceOrderResult,
-  SymbolLeverageBracketsResult,
-  IncomeHistory,
-  RebateDataOverview,
-  SetCancelTimeoutResult,
-  ChangeStats24hr,
-  MarkPrice,
-  FuturesCoinMTakerBuySellVolumeParams,
-  FuturesCoinMBasisParams,
-  ModifyFuturesOrderResult,
-  ModifyFuturesOrderParams,
-  OrderAmendment,
-  FuturesCoinMAccountBalance,
-  FuturesCoinMAccountInformation,
-  UserCommissionRate,
-  IndexPriceConstituents,
-} from './types/futures';
-
+import BaseRestClient from './util/BaseRestClient';
 import {
   asArray,
   generateNewOrderId,
@@ -89,8 +89,6 @@ import {
   logInvalidOrderId,
   RestClientOptions,
 } from './util/requestUtils';
-
-import BaseRestClient from './util/BaseRestClient';
 
 export class CoinMClient extends BaseRestClient {
   private clientId: BinanceBaseUrlKey;
@@ -123,7 +121,7 @@ export class CoinMClient extends BaseRestClient {
    *
    **/
 
-  testConnectivity(): Promise<{}> {
+  testConnectivity(): Promise<object> {
     return this.get('dapi/v1/ping');
   }
 
@@ -682,11 +680,11 @@ export class CoinMClient extends BaseRestClient {
     return this.post('dapi/v1/listenKey');
   }
 
-  keepAliveFuturesUserDataListenKey(): Promise<{}> {
+  keepAliveFuturesUserDataListenKey(): Promise<object> {
     return this.put('dapi/v1/listenKey');
   }
 
-  closeFuturesUserDataListenKey(): Promise<{}> {
+  closeFuturesUserDataListenKey(): Promise<object> {
     return this.delete('dapi/v1/listenKey');
   }
 

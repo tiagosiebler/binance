@@ -1,14 +1,14 @@
 import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
 
 import { BinanceBaseUrlKey } from '../types/shared';
-import {
-  serialiseParams,
-  RestClientOptions,
-  GenericAPIResponse,
-  getRestBaseUrl,
-  getRequestSignature,
-} from './requestUtils';
 import Beautifier from './beautifier';
+import {
+  GenericAPIResponse,
+  getRequestSignature,
+  getRestBaseUrl,
+  RestClientOptions,
+  serialiseParams,
+} from './requestUtils';
 
 type ApiLimitHeader =
   | 'x-mbx-used-weight'
@@ -21,16 +21,25 @@ type ApiLimitHeader =
 
 export default abstract class BaseRestClient {
   private timeOffset: number = 0;
+
   private syncTimePromise: null | Promise<void>;
+
   private options: RestClientOptions;
+
   private baseUrl: string;
+
   private globalRequestOptions: AxiosRequestConfig;
+
   private key: string | undefined;
+
   private secret: string | undefined;
+
   private baseUrlKey: BinanceBaseUrlKey;
+
   private beautifier: Beautifier | undefined;
 
   public apiLimitTrackers: Record<ApiLimitHeader, number>;
+
   public apiLimitLastUpdated: number;
 
   constructor(
@@ -236,7 +245,7 @@ export default abstract class BaseRestClient {
 
     return axios(options)
       .then((response) => {
-        this.updateApiLimitState(response.headers, options.url);
+        this.updateApiLimitState(response.headers);
         if (response.status == 200) {
           return response.data;
         }
@@ -272,7 +281,7 @@ export default abstract class BaseRestClient {
     const { response, request, message } = e;
 
     if (response && response.headers) {
-      this.updateApiLimitState(response.headers, url);
+      this.updateApiLimitState(response.headers);
     }
 
     if (this.options.parseExceptions === false) {
@@ -306,11 +315,7 @@ export default abstract class BaseRestClient {
     };
   }
 
-  // TODO: cleanup?
-  private updateApiLimitState(
-    responseHeaders: Record<string, any>,
-    requestedUrl: string,
-  ) {
+  private updateApiLimitState(responseHeaders: Record<string, any>) {
     const delta: Record<string, any> = {};
     for (const headerKey in this.apiLimitTrackers) {
       const headerValue = responseHeaders[headerKey];

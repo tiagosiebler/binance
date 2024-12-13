@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist/cjs",
+    "target": "esnext",
+    "rootDir": "../",
+    "allowJs": true
+  },
+  "include": [
+    "src/**/*.*",
+    "test/**/*.*",
+    "examples/**/*.*",
+    ".eslintrc.cjs",
+    "jest.config.ts",
+    "webpack/webpack.config.ts"
+  ]
+}

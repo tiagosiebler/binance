@@ -9,7 +9,7 @@ function str2ab(str) {
 
 export async function signMessage(
   message: string,
-  secret: string
+  secret: string,
 ): Promise<string> {
   const encoder = new TextEncoder();
 
@@ -18,7 +18,7 @@ export async function signMessage(
     const pemFooter = '-----END PRIVATE KEY-----';
     const pemContents = secret.substring(
       pemHeader.length,
-      secret.length - pemFooter.length
+      secret.length - pemFooter.length,
     );
     const binaryDerString = globalThis.atob(pemContents);
     const binaryDer = str2ab(binaryDerString);
@@ -28,13 +28,13 @@ export async function signMessage(
       binaryDer,
       { name: 'RSASSA-PKCS1-v1_5', hash: { name: 'SHA-256' } },
       false,
-      ['sign']
+      ['sign'],
     );
 
     const signature = await globalThis.crypto.subtle.sign(
       'RSASSA-PKCS1-v1_5',
       key,
-      encoder.encode(message)
+      encoder.encode(message),
     );
 
     return btoa(String.fromCharCode(...new Uint8Array(signature)));
@@ -45,18 +45,18 @@ export async function signMessage(
     encoder.encode(secret),
     { name: 'HMAC', hash: { name: 'SHA-256' } },
     false,
-    ['sign']
+    ['sign'],
   );
 
   const signature = await globalThis.crypto.subtle.sign(
     'HMAC',
     key,
-    encoder.encode(message)
+    encoder.encode(message),
   );
 
   return Array.prototype.map
     .call(new Uint8Array(signature), (x: any) =>
-      ('00' + x.toString(16)).slice(-2)
+      ('00' + x.toString(16)).slice(-2),
     )
     .join('');
 }
