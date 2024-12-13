@@ -1,91 +1,91 @@
 import { AxiosRequestConfig } from 'axios';
 
+import { FundingRate } from './types/coin';
+import {
+  AggregateFuturesTrade,
+  Basis,
+  BasisParams,
+  CancelAllOpenOrdersResult,
+  CancelFuturesOrderResult,
+  CancelMultipleOrdersParams,
+  CancelOrdersTimeoutParams,
+  ChangeStats24hr,
+  ContinuousContractKlinesParams,
+  ForceOrderResult,
+  FundingRateHistory,
+  FuturesAccountBalance,
+  FuturesAccountConfig,
+  FuturesAccountInformation,
+  FuturesConvertOrderStatus,
+  FuturesConvertPair,
+  FuturesConvertQuote,
+  FuturesConvertQuoteRequest,
+  FuturesDataPaginatedParams,
+  FuturesExchangeInfo,
+  FuturesOrderBook,
+  FuturesPosition,
+  FuturesPositionTrade,
+  FuturesSymbolOrderBookTicker,
+  FuturesTradeHistoryDownloadId,
+  FuturesTransactionDownloadLink,
+  GetForceOrdersParams,
+  GetFuturesOrderModifyHistoryParams,
+  GetIncomeHistoryParams,
+  GetPositionMarginChangeHistoryParams,
+  HistoricOpenInterest,
+  IncomeHistory,
+  IndexPriceConstituents,
+  IndexPriceKlinesParams,
+  MarkPrice,
+  ModeChangeResult,
+  ModifyFuturesOrderParams,
+  ModifyFuturesOrderResult,
+  ModifyOrderParams,
+  MultiAssetModeResponse,
+  MultiAssetsMode,
+  NewFuturesOrderParams,
+  NewOrderError,
+  NewOrderResult,
+  OpenInterest,
+  OrderResult,
+  PortfolioMarginProAccountInfo,
+  PositionModeParams,
+  PositionModeResponse,
+  QuarterlyContractSettlementPrice,
+  RawFuturesTrade,
+  RebateDataOverview,
+  SetCancelTimeoutResult,
+  SetIsolatedMarginParams,
+  SetIsolatedMarginResult,
+  SetLeverageParams,
+  SetLeverageResult,
+  SetMarginTypeParams,
+  SymbolConfig,
+  SymbolKlinePaginatedParams,
+  SymbolLeverageBracketsResult,
+  UserCommissionRate,
+  UserForceOrder,
+} from './types/futures';
 import {
   BasicSymbolPaginatedParams,
   BasicSymbolParam,
   BinanceBaseUrlKey,
-  GetOrderParams,
-  OrderBookParams,
-  HistoricalTradesParams,
-  KlinesParams,
-  Kline,
-  RecentTradesParams,
-  CancelOrderParams,
   CancelOCOParams,
-  NewOCOParams,
-  SymbolFromPaginatedRequestFromId,
-  OrderIdProperty,
-  GetAllOrdersParams,
+  CancelOrderParams,
   GenericCodeMsgError,
+  GetAllOrdersParams,
+  GetOrderParams,
+  HistoricalTradesParams,
+  Kline,
+  KlinesParams,
+  NewOCOParams,
+  OrderBookParams,
+  OrderIdProperty,
+  RecentTradesParams,
+  SymbolFromPaginatedRequestFromId,
   SymbolPrice,
 } from './types/shared';
-
-import {
-  ContinuousContractKlinesParams,
-  IndexPriceKlinesParams,
-  SymbolKlinePaginatedParams,
-  FuturesDataPaginatedParams,
-  MultiAssetsMode,
-  NewFuturesOrderParams,
-  CancelMultipleOrdersParams,
-  CancelOrdersTimeoutParams,
-  SetLeverageParams,
-  SetMarginTypeParams,
-  SetIsolatedMarginParams,
-  GetPositionMarginChangeHistoryParams,
-  GetIncomeHistoryParams,
-  GetForceOrdersParams,
-  FuturesExchangeInfo,
-  FuturesOrderBook,
-  RawFuturesTrade,
-  AggregateFuturesTrade,
-  FundingRateHistory,
-  FuturesSymbolOrderBookTicker,
-  OpenInterest,
-  ModeChangeResult,
-  PositionModeParams,
-  PositionModeResponse,
-  MultiAssetModeResponse,
-  NewOrderResult,
-  NewOrderError,
-  OrderResult,
-  CancelFuturesOrderResult,
-  CancelAllOpenOrdersResult,
-  FuturesAccountBalance,
-  FuturesAccountInformation,
-  SetLeverageResult,
-  SetIsolatedMarginResult,
-  FuturesPosition,
-  FuturesPositionTrade,
-  ForceOrderResult,
-  SymbolLeverageBracketsResult,
-  IncomeHistory,
-  RebateDataOverview,
-  SetCancelTimeoutResult,
-  ChangeStats24hr,
-  MarkPrice,
-  HistoricOpenInterest,
-  UserCommissionRate,
-  ModifyFuturesOrderParams,
-  ModifyFuturesOrderResult,
-  QuarterlyContractSettlementPrice,
-  BasisParams,
-  Basis,
-  IndexPriceConstituents,
-  ModifyOrderParams,
-  FuturesTransactionDownloadLink,
-  PortfolioMarginProAccountInfo,
-  GetFuturesOrderModifyHistoryParams,
-  FuturesTradeHistoryDownloadId,
-  FuturesAccountConfig,
-  SymbolConfig,
-  UserForceOrder,
-  FuturesConvertPair,
-  FuturesConvertQuote,
-  FuturesConvertOrderStatus,
-  FuturesConvertQuoteRequest,
-} from './types/futures';
-
+import BaseRestClient from './util/BaseRestClient';
 import {
   generateNewOrderId,
   getOrderIdPrefix,
@@ -93,9 +93,6 @@ import {
   logInvalidOrderId,
   RestClientOptions,
 } from './util/requestUtils';
-
-import BaseRestClient from './util/BaseRestClient';
-import { FundingRate } from './types/coin';
 
 export class USDMClient extends BaseRestClient {
   private clientId: BinanceBaseUrlKey;
@@ -178,6 +175,7 @@ export class USDMClient extends BaseRestClient {
   }
 
   getMarkPrice(params: BasicSymbolParam): Promise<MarkPrice>;
+
   getMarkPrice(): Promise<MarkPrice[]>;
 
   getMarkPrice(
@@ -208,9 +206,11 @@ export class USDMClient extends BaseRestClient {
   get24hrChangeStatistics(
     params: Partial<BasicSymbolParam>,
   ): Promise<ChangeStats24hr[]>;
+
   get24hrChangeStatistics(
     params?: Partial<BasicSymbolParam>,
   ): Promise<ChangeStats24hr | ChangeStats24hr[]>;
+
   get24hrChangeStatistics(
     params: Partial<BasicSymbolParam>,
   ): Promise<ChangeStats24hr>;
@@ -673,6 +673,7 @@ export class USDMClient extends BaseRestClient {
       type,
     });
   }
+
   /**
    * @deprecated
    **/
@@ -685,6 +686,7 @@ export class USDMClient extends BaseRestClient {
       email,
     });
   }
+
   /**
    * @deprecated
    **/
@@ -701,6 +703,7 @@ export class USDMClient extends BaseRestClient {
       limit,
     });
   }
+
   /**
    * @deprecated
    **/
@@ -709,6 +712,7 @@ export class USDMClient extends BaseRestClient {
       brokerId,
     });
   }
+
   /**
    * @deprecated
    **/
@@ -717,6 +721,7 @@ export class USDMClient extends BaseRestClient {
       type,
     });
   }
+
   /**
    * @deprecated
    **/
@@ -733,6 +738,7 @@ export class USDMClient extends BaseRestClient {
       limit,
     });
   }
+
   /**
    * @deprecated
    **/
@@ -749,6 +755,7 @@ export class USDMClient extends BaseRestClient {
       limit,
     });
   }
+
   /**
    * @deprecated
    **/

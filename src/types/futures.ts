@@ -11,13 +11,13 @@ import {
   OrderTimeInForce,
   OrderType,
   RateLimiter,
+  SelfTradePreventionMode,
   SymbolIcebergPartsFilter,
   SymbolLotSizeFilter,
   SymbolMarketLotSizeFilter,
   SymbolMaxIcebergOrdersFilter,
   SymbolMaxPositionFilter,
   SymbolPriceFilter,
-  SelfTradePreventionMode,
 } from './shared';
 
 export type FuturesContractType =

@@ -652,12 +652,12 @@ export type OrderResponseTypeFor<
 > = RT extends 'ACK'
   ? OrderResponseACK
   : RT extends 'RESULT'
-  ? OrderResponseResult
-  : RT extends 'FULL'
-  ? OrderResponseFull
-  : T extends 'MARKET' | 'LIMIT'
-  ? OrderResponseFull
-  : OrderResponseACK;
+    ? OrderResponseResult
+    : RT extends 'FULL'
+      ? OrderResponseFull
+      : T extends 'MARKET' | 'LIMIT'
+        ? OrderResponseFull
+        : OrderResponseACK;
 
 export interface OrderResponseACK {
   symbol: string;

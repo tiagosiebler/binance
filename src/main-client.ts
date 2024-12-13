@@ -1,4 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
+
 import {
   BasicAssetPaginatedParams,
   BasicAssetParam,
@@ -6,107 +7,420 @@ import {
   BinanceBaseUrlKey,
   CancelOCOParams,
   CancelOrderParams,
+  CoinStartEndLimit,
   ExchangeSymbol,
   GetAllOrdersParams,
   GetOrderParams,
   HistoricalTradesParams,
-  KlinesParams,
   Kline,
+  KlinesParams,
   NewOCOParams,
+  NewOrderListParams,
   OrderBookParams,
   OrderIdProperty,
-  RecentTradesParams,
-  SymbolFromPaginatedRequestFromId,
-  SymbolPrice,
-  RowsWithTotal,
-  CoinStartEndLimit,
-  SymbolArrayParam,
-  NewOrderListParams,
   OrderResponseType,
   OrderType,
+  RecentTradesParams,
+  RowsWithTotal,
+  SymbolArrayParam,
+  SymbolFromPaginatedRequestFromId,
+  SymbolPrice,
 } from './types/shared';
-
 import {
+  AcceptQuoteRequestParams,
+  AccountInfo,
   AccountInformation,
   AddBSwapLiquidityParams,
   AddIpRestriction,
+  AdjustCryptoLoanLTVParams,
+  AdjustCryptoLoanLTVResponse,
+  AdjustFlexibleCryptoLoanLTVParams,
+  AdjustFlexibleCryptoLoanLTVResponse,
   AggregateTrade,
+  AlgoOrder,
   AllCoinsInformationResponse,
+  AllocationsParams,
   ApiKeyBrokerSubAccount,
   APIPermissions,
   APITradingStatus,
+  ApplicationStatus,
   AssetDetail,
   BasicFromPaginatedParams,
   BasicFuturesSubAccountParams,
   BasicMarginAssetParams,
   BasicSubAccount,
   BasicTimeRangeParam,
+  BethRewardsHistory,
+  BlvtRedemptionRecord,
+  BlvtSubscriptionRecord,
+  BlvtUserLimitInfo,
+  BNBBurnResponse,
+  BnbTransferParams,
+  BnsolRateHistoryRecord,
+  BnsolRewardHistoryRecord,
+  BorrowCryptoLoanParams,
+  BorrowCryptoLoanResponse,
+  BorrowFlexibleLoanParams,
+  BorrowFlexibleLoanResponse,
+  BorrowInterestRate,
+  BrokerCommissionRebate,
   BrokerSubAccount,
+  BrokerSubAccountCoinFuturesCommission,
+  BrokerSubAccountFuturesCommission,
   BrokerSubAccountHistory,
+  BrokerUniversalTransfer,
   BSwapLiquidity,
   BSwapOperations,
   BSwapOperationsParams,
+  BUSDConversionRecord,
+  CancelAlgoOrderResponse,
+  CancelHashrateResaleConfigParams,
+  CancelOrderListResult,
+  CancelSpotAlgoOrderResponse,
   CancelSpotOrderResult,
+  ChangeAutoCompoundStatusParams,
+  ChangeAutoCompoundStatusResponse,
   ChangePermissionApiKeyBrokerSubAccountParams,
   ChangePermissionApiKeyBrokerSubAccountResponse,
+  ChangePlanStatusParams,
+  ChangePlanStatusResponse,
+  ChangeSubAccountCoinFuturesCommissionParams,
+  ChangeSubAccountCommissionParams,
+  ChangeSubAccountCommissionResponse,
+  ChangeSubAccountFuturesCommissionParams,
+  ChangeSubAccountFuturesCommissionResponse,
+  CheckCollateralRepayRateParams,
+  CheckCollateralRepayRateResponse,
+  CheckDualInvestmentAccountsResponse,
+  CheckVipCollateralAccountParams,
+  CloudMining,
+  CloudMiningHistoryParams,
+  CoinMarginedFuturesResponse,
+  Collateral,
+  CollateralAssetData,
+  CollateralRecord,
+  CommissionRates,
   ConvertDustParams,
+  ConvertibleCoinsParams,
+  ConvertibleCoinsResponse,
+  ConvertLimitOpenOrder,
+  ConvertQuoteRequestParams,
+  ConvertTransfer,
+  ConvertTransferResponse,
   CreateApiKeyBrokerSubAccountParams,
   CreateApiKeyBrokerSubAccountResponse,
   CreateBrokerSubAccountParams,
+  CreateDualTokenGiftCardParams,
+  CreateGiftCardParams,
+  CreateInvestmentPlanParams,
+  CreateInvestmentPlanResponse,
+  CreateSpecialLowLatencyKeyParams,
   CreateSubAccountParams,
+  CrossMarginFeeData,
+  CrossMarginTransferHistory,
   CurrentAvgPrice,
+  CustomizeMarginCall,
+  CustomizeMarginCallParams,
   DailyAccountSnapshot,
   DailyAccountSnapshotParams,
   DailyChangeStatistic,
+  DelegationHistory,
+  DelegationHistoryParams,
   DeleteApiKeyBrokerSubAccountParams,
+  DelistScheduleResponse,
+  DepositAddress,
+  DepositAddressListParams,
   DepositAddressParams,
   DepositAddressResponse,
   DepositHistory,
   DepositHistoryParams,
+  DualInvestmentPosition,
+  DualInvestmentProduct,
   DustConversion,
   DustInfo,
   DustLog,
+  EditInvestmentPlanParams,
+  EditInvestmentPlanResponse,
+  EnableConvertSubAccountParams,
   EnableFuturesBrokerSubAccountParams,
   EnableFuturesBrokerSubAccountResponse,
   EnableMarginApiKeyBrokerSubAccountParams,
   EnableMarginBrokerSubAccountParams,
   EnableMarginBrokerSubAccountResponse,
+  EnableOptionsForSubAccountResponse,
   EnableOrDisableIPRestrictionForSubAccountParams,
   EnableUniversalTransferApiKeyBrokerSubAccountParams,
   EnableUniversalTransferApiKeyBrokerSubAccountResponse,
+  ETHRateHistory,
+  EthRedemptionHistory,
+  EthStakingHistory,
   ExchangeInfo,
   ExchangeInfoParams,
   FixedAndActivityProjectParams,
   FixedAndActivityProjectPositionParams,
+  FlexibleCryptoLoanBorrowHistory,
+  FlexibleLoanAssetData,
+  FlexibleLoanCollateralAssetData,
+  FlexibleLoanLTVAdjustmentHistory,
+  FlexibleLoanOngoingOrder,
+  FlexibleRedemptionRecord,
+  FlexibleRewardsHistory,
+  FlexibleSubscriptionPreview,
+  ForceLiquidationRecord,
+  FundingAsset,
+  FutureAccountTransfer,
   FuturesPositionRisk,
+  GetAlgoHistoricalOrdersParams,
+  GetAlgoSubOrdersParams,
+  GetAlgoSubOrdersResponse,
+  GetAllConvertPairsParams,
   GetApiKeyBrokerSubAccountParams,
+  GetApplicationStatusParams,
+  GetAssetParams,
+  GetBethRewardsHistoryParams,
+  GetBlvtRedemptionRecordParams,
+  GetBlvtSubscriptionRecordParams,
+  GetBnsolRateHistoryReq,
+  GetBnsolRewardsHistoryReq,
   GetBrokerInfoResponse,
-  GetBrokerSubAccountParams,
-  GetBrokerSubAccountHistoryParams,
   GetBrokerSubAccountDepositHistoryParams,
+  GetBrokerSubAccountHistoryParams,
+  GetBrokerSubAccountParams,
+  GetC2CTradeHistoryParams,
+  GetC2CTradeHistoryResponse,
+  GetCollateralAssetDataParams,
+  GetCollateralRecordParams,
+  GetConvertBUSDHistoryParams,
+  GetConvertTradeHistoryParams,
+  GetCrossMarginTransferHistoryParams,
+  GetCryptoLoansIncomeHistoryParams,
+  GetCryptoLoansIncomeHistoryResponse,
+  GetDualInvestmentPositionsParams,
+  GetDualInvestmentProductListParams,
+  GetEarningsListParams,
+  GetEarningsListResponse,
+  GetETHRateHistoryParams,
+  GetEthRedemptionHistoryParams,
+  GetEthStakingAccountResponse,
+  GetEthStakingAccountV2Response,
+  GetEthStakingHistoryParams,
+  GetEthStakingQuotaResponse,
+  GetExtraBonusListParams,
+  GetExtraBonusListResponse,
+  GetFiatOrderHistoryParams,
+  GetFiatOrderHistoryResponse,
+  GetFiatPaymentsHistoryResponse,
+  GetFlexibleCryptoLoanBorrowHistoryParams,
+  GetFlexibleLoanLTVAdjustmentHistoryParams,
+  GetFlexibleLoanOngoingOrdersParams,
+  GetFlexibleRedemptionRecordParams,
+  GetFlexibleRewardsHistoryParams,
+  GetFlexibleSubscriptionPreviewParams,
+  GetFlexibleSubscriptionRecordParams,
+  GetFlexibleSubscriptionRecordResponse,
+  GetForceLiquidationRecordParams,
+  GetFutureAccountTransferHistoryParams,
+  GetFuturesLeadTraderStatusResponse,
+  GetFuturesLeadTradingSymbolWhitelistResponse,
+  GetFutureTickLevelOrderbookDataLinkParams,
+  GetHashrateResaleDetailParams,
+  GetHashrateResaleDetailResponse,
+  GetHashrateResaleListParams,
+  GetHashrateResaleListResponse,
+  GetIndexDetailsResponse,
+  GetIndexLinkedPlanPositionDetailsResponse,
+  GetIndexLinkedPlanRebalanceHistoryParams,
+  GetIndexLinkedPlanRedemptionHistoryParams,
+  GetLoanableAssetsDataParams,
+  GetLoanBorrowHistoryParams,
+  GetLoanCoinPaginatedHistoryParams,
+  GetLoanLTVAdjustmentHistoryParams,
+  GetLoanOngoingOrdersParams,
+  GetLoanRepaymentHistoryParams,
+  GetLockedRedemptionRecordParams,
+  GetLockedRewardsHistory,
+  GetLockedRewardsHistoryParams,
+  GetLockedSubscriptionPreviewParams,
+  GetLockedSubscriptionRecordParams,
+  GetMarginAccountBorrowRepayRecordsParams,
+  GetMarginCapitalFlowParams,
+  GetMarginInterestHistoryParams,
+  GetMarginOrderCountUsageParams,
+  GetMinerDetailsParams,
+  GetMinerDetailsResponse,
+  GetMinerListParams,
+  GetMinerListResponse,
+  GetMiningAccountEarningParams,
+  GetMiningAccountEarningResponse,
+  getMiningAccountsListParams,
+  getMiningAccountsListResponse,
+  GetMiningAlgoListResponse,
+  GetMiningCoinListResponse,
+  GetNextHourlyInterestRateParams,
+  GetNftAssetParams,
+  GetNftDepositHistoryParams,
+  GetNftTransactionHistoryParams,
+  GetNftWithdrawHistoryParams,
   GetOCOParams,
+  GetOneTimeTransactionStatusParams,
+  GetOneTimeTransactionStatusResponse,
+  GetOrderStatusParams,
+  GetPayTradeHistoryParams,
+  GetPlanDetailsParams,
+  GetPortfolioMarginAssetIndexPriceResponse,
+  GetPortfolioMarginAssetLeverageResponse,
+  GetPortfolioMarginProAccountInfoResponse,
+  GetPortfolioMarginProBankruptcyLoanAmountResponse,
+  GetPortfolioMarginProCollateralRateResponse,
+  GetPortfolioMarginProInterestHistoryParams,
+  GetPortfolioMarginProInterestHistoryResponse,
+  GetRateHistory,
+  GetRateHistoryParams,
+  GetSmallLiabilityExchangeHistoryParams,
+  GetSolStakingHistoryReq,
+  GetSourceAssetListParams,
+  GetSourceAssetListResponse,
+  GetSpotAlgoHistoricalOrdersParams,
+  GetSpotAlgoSubOrdersParams,
+  GetSpotAlgoSubOrdersResponse,
+  GetSpotRebateHistoryRecordsParams,
+  GetSpotRebateHistoryRecordsResponse,
+  GetStatisticListParams,
+  GetStatisticListResponse,
+  GetSubAccountDepositHistoryParams,
+  GetSubscriptionTransactionHistoryParams,
+  GetTargetAssetListParams,
+  GetTargetAssetListResponse,
+  GetTargetAssetROIParams,
   GetUniversalTransferBrokerParams,
+  GetVipLoanOngoingOrdersParams,
+  GetVipLoanRepaymentHistoryParams,
+  GetWbethRewardsHistoryResponse,
+  GetWrapHistoryParams,
+  HistoricalAlgoOrder,
+  HistoricalDataLink,
+  HistoricalSpotAlgoOrder,
+  IndexLinkedPlanRedemptionRecord,
   IsolatedMarginAccountInfo,
   IsolatedMarginAccountTransferParams,
+  IsolatedMarginFeeData,
+  IsolatedMarginSymbol,
+  IsolatedMarginTierData,
   LeftDailyPurchaseQuotaFlexibleProductResponse,
+  LiabilityCoinLeverageBracket,
+  LoanableAssetData,
+  LoanBorrowHistory,
+  LoanLTVAdjustmentHistory,
+  LoanOngoingOrder,
+  LoanRepaymentHistory,
+  LockedRedemptionRecord,
+  LockedSubscriptionPreview,
+  LockedSubscriptionRecord,
+  ManagedSubAccountDepositAddress,
+  ManagedSubAccountDepositAddressParams,
+  ManagedSubAccountFuturesAssetsResponse,
+  ManagedSubAccountListParams,
+  ManagedSubAccountMarginAssetsResponse,
+  ManagedSubAccountSnapshot,
+  ManagedSubAccountSnapshotParams,
+  ManagedSubAccountTransferLogParams,
+  ManagedSubAccountTransferTTLogParams,
+  ManagerSubTransferHistoryVos,
+  ManagerSubUserInfoVo,
+  ManualLiquidationParams,
+  ManualLiquidationResponse,
   MarginAccountLoanParams,
+  MarginAccountRecord,
+  MarginAvailableInventoryResponse,
+  MarginCapitalFlow,
+  MarginDelistSchedule,
+  MarginInterestHistory,
+  MarginInterestRateHistory,
+  MarginOrderCountUsageResponse,
+  MarginOTOCOOrder,
+  MarginOTOOrder,
   MarginTransactionResponse,
+  NewFutureAccountTransferParams,
+  NewOrderListOTOCOParams,
+  NewOrderListOTOCOResponse,
+  NewOrderListOTOParams,
+  NewOrderListOTOResponse,
   NewSpotOrderParams,
+  NewSpotSOROrderParams,
+  NextHourlyInterestRate,
+  NftAsset,
+  NftDeposit,
+  NftTransaction,
+  NftWithdraw,
   OrderBookResponse,
-  TransferBrokerSubAccountParams,
-  TransferBrokerSubAccount,
+  OrderList,
+  OrderListResponse,
+  OrderRateLimitUsage,
+  OrderResponseTypeFor,
+  PortfolioMarginProAccountBalance,
+  PortfolioMarginProSpanAccountInfo,
+  PreventedMatch,
+  PreventedMatchesParams,
   PurchaseFlexibleProductResponse,
   PurchaseRecordParams,
+  QueryBrokerFuturesCommissionRebateParams,
+  QueryBrokerSpotCommissionRebateParams,
   QueryCrossMarginAccountDetailsParams,
+  QueryCrossMarginFeeDataParams,
   QueryCrossMarginPairResponse,
+  QueryIsolatedMarginTierDataParams,
+  QueryMarginAccountAllOCOParams,
+  QueryMarginAccountTradeListParams,
   QueryMarginAssetResponse,
+  QueryMarginInterestRateHistoryParams,
   QueryMarginPriceIndexResponse,
   QueryMarginRecordParams,
   QueryMaxBorrowResponse,
   QueryMaxTransferOutAmountResponse,
+  QuerySubAccountCoinFuturesCommissionParams,
+  QuerySubAccountFuturesAssetInfoParams,
+  QuerySubAccountFuturesCommissionParams,
+  QuerySubAccountSpotMarginAssetInfoParams,
   RawAccountTrade,
   RawTrade,
+  RedeemBlvtParams,
+  RedeemBlvtResponse,
+  RedeemEthParams,
+  RedeemEthResponse,
+  RedeemGiftCardParams,
+  RedeemSolResponse,
   RemoveBSwapLiquidityParams,
+  RepayCryptoFlexibleLoanParams,
+  RepayCryptoFlexibleLoanResponse,
+  RepayCryptoLoanParams,
+  RepayCryptoLoanResponse,
+  ReplaceSpotOrderParams,
+  ReplaceSpotOrderResultSuccess,
+  RollingWindowTickerParams,
+  SetAutoSubscribeParams,
+  SimpleEarnAccountResponse,
+  SimpleEarnFlexibleProduct,
+  SimpleEarnFlexibleProductPositionParams,
+  SimpleEarnLockedProduct,
+  SimpleEarnLockedProductPosition,
+  SimpleEarnLockedProductPositionParams,
+  SimpleEarnProductListParams,
+  SimpleEarnRedeemFlexibleProductParams,
+  SimpleEarnRedeemResponse,
+  SimpleEarnSubscribeFlexibleProductResponse,
+  SimpleEarnSubscribeLockedProductResponse,
+  SimpleEarnSubscribeProductParams,
+  SmallLiabilityExchangeCoin,
+  SmallLiabilityExchangeHistory,
+  SolRedemptionHistoryRecord,
+  SolStakingAccount,
+  SolStakingHistoryRecord,
+  SolStakingQuota,
+  SOROrderResponseFull,
+  SORTestOrderResponse,
+  SpecialLowLatencyKeyInfo,
+  SpecialLowLatencyKeyResponse,
+  SpotAlgoOrder,
   SpotOrder,
   StakingBasicParams,
   StakingHistory,
@@ -119,15 +433,21 @@ import {
   SubAccountAssetDetails,
   SubAccountAssets,
   SubAccountAssetsParams,
+  SubaccountBalances,
+  SubAccountBrokerMarginAsset,
+  SubaccountBrokerSpotAsset,
   SubAccountCOINMDetail,
   SubAccountCOINMPositionRisk,
   SubAccountCOINMSummary,
+  SubAccountDeposit,
   SubAccountDepositAddress,
   SubAccountDepositAddressParams,
+  SubAccountDepositHistoryList,
   SubAccountDepositHistoryParams,
   SubAccountEnableFutures,
   SubAccountEnableLeverageToken,
   SubAccountEnableMargin,
+  SubAccountEnableOrDisableIPRestriction,
   SubAccountFuturesAccountDetail,
   SubAccountFuturesAccountSummary,
   SubAccountFuturesAssetTransfer,
@@ -137,7 +457,6 @@ import {
   SubAccountListParams,
   SubAccountListResponse,
   SubAccountMarginAccountDetail,
-  SubAccountEnableOrDisableIPRestriction,
   SubAccountsMarginAccountSummary,
   SubAccountSpotAssetsSummary,
   SubAccountSpotAssetsSummaryParams,
@@ -145,6 +464,7 @@ import {
   SubAccountSpotAssetTransferHistoryParams,
   SubAccountStatus,
   SubAccountSummaryOnFuturesAccountV2Params,
+  SubAccountTransactionStatistics,
   SubAccountTransfer,
   SubAccountTransferHistory,
   SubAccountTransferHistoryParams,
@@ -158,387 +478,67 @@ import {
   SubAccountUSDMDetail,
   SubAccountUSDMPositionRisk,
   SubAccountUSDMSummary,
+  SubmitConvertLimitOrderParams,
+  SubmitDepositCreditParams,
+  SubmitDepositCreditResponse,
+  SubmitHashrateResaleParams,
+  SubmitIndexLinkedPlanRedemptionParams,
+  SubmitMarginOTOCOOrderParams,
+  SubmitMarginOTOOrderParams,
+  SubmitOneTimeTransactionParams,
+  SubmitOneTimeTransactionResponse,
+  SubmitSpotTwapNewOrderParams,
+  SubmitSpotTwapNewOrderResponse,
+  SubmitTwapNewOrderParams,
+  SubmitTwapNewOrderResponse,
+  SubmitVpNewOrderParams,
+  SubmitVpNewOrderResponse,
+  SubscribeBlvtParams,
+  SubscribeBlvtResponse,
+  SubscribeDualInvestmentProductParams,
+  SubscribeDualInvestmentProductResponse,
+  SubscribeEthStakingV2Response,
+  SubscribeSolStakingResponse,
   SymbolOrderBookTicker,
   SymbolTradeFee,
   SystemStatusResponse,
+  TargetAssetROI,
+  ToggleBNBBurnParams,
+  TradingDayTickerFull,
+  TradingDayTickerMini,
+  TradingDayTickerParams,
+  TransferBrokerSubAccount,
+  TransferBrokerSubAccountParams,
   UniversalTransferBrokerParams,
   UniversalTransferHistoryParams,
   UniversalTransferParams,
+  UpdateIpRestrictionForSubApiKey,
+  UsdtMarginedFuturesResponse,
+  UserAsset,
+  VipCollateralAccount,
+  VipLoanAccruedInterestParams,
+  VipLoanAccruedInterestRecord,
+  VipLoanBorrowParams,
+  VipLoanBorrowResponse,
+  VipLoanInterestRateHistoryParams,
+  VipLoanInterestRateRecord,
+  VipLoanRenewParams,
+  VipLoanRenewResponse,
+  VipLoanRepaymentHistory,
+  VipLoanRepayParams,
+  VipLoanRepayResponse,
+  VipOngoingOrder,
   VirtualSubAccount,
+  WalletBalance,
+  WithdrawAddress,
   WithdrawAssetsFromManagedSubAccountParams,
   WithdrawHistory,
   WithdrawHistoryParams,
   WithdrawParams,
-  NewFutureAccountTransferParams,
-  GetFutureAccountTransferHistoryParams,
-  FutureAccountTransfer,
-  GetLoanCoinPaginatedHistoryParams,
-  SubAccountDepositHistoryList,
-  ConvertQuoteRequestParams,
-  GetConvertTradeHistoryParams,
-  GetOrderStatusParams,
-  EnableConvertSubAccountParams,
-  AcceptQuoteRequestParams,
-  ReplaceSpotOrderParams,
-  ReplaceSpotOrderResultSuccess,
-  NewSpotSOROrderParams,
-  SOROrderResponseFull,
-  SORTestOrderResponse,
-  OrderListResponse,
-  OrderResponseTypeFor,
-  OrderList,
-  CancelOrderListResult,
-  GetMarginAccountBorrowRepayRecordsParams,
-  MarginAccountRecord,
-  FundingAsset,
-  UserAsset,
-  ConvertTransferResponse,
-  CloudMiningHistoryParams,
-  ConvertibleCoinsResponse,
-  ConvertibleCoinsParams,
-  GetConvertBUSDHistoryParams,
-  SubmitDepositCreditParams,
-  SubmitDepositCreditResponse,
-  DepositAddressListParams,
-  DepositAddress,
-  WalletBalance,
-  DelegationHistoryParams,
-  DelistScheduleResponse,
-  WithdrawAddress,
-  AccountInfo,
-  ManagedSubAccountSnapshotParams,
-  ManagedSubAccountSnapshot,
-  ManagedSubAccountTransferLogParams,
-  ManagedSubAccountFuturesAssetsResponse,
-  ManagedSubAccountMarginAssetsResponse,
-  ManagedSubAccountListParams,
-  SubAccountTransactionStatistics,
-  ManagedSubAccountDepositAddressParams,
-  ManagedSubAccountDepositAddress,
-  EnableOptionsForSubAccountResponse,
-  ManagedSubAccountTransferTTLogParams,
-  TradingDayTickerParams,
-  RollingWindowTickerParams,
-  NewOrderListOTOParams,
-  NewOrderListOTOCOParams,
-  NewOrderListOTOCOResponse,
-  PreventedMatchesParams,
-  PreventedMatch,
-  AllocationsParams,
-  CommissionRates,
-  GetCrossMarginTransferHistoryParams,
-  GetMarginInterestHistoryParams,
-  GetForceLiquidationRecordParams,
-  QueryMarginAccountAllOCOParams,
-  QueryMarginAccountTradeListParams,
-  IsolatedMarginSymbol,
-  ToggleBNBBurnParams,
-  BNBBurnResponse,
-  QueryMarginInterestRateHistoryParams,
-  MarginInterestRateHistory,
-  QueryCrossMarginFeeDataParams,
-  CrossMarginFeeData,
-  IsolatedMarginFeeData,
-  QueryIsolatedMarginTierDataParams,
-  IsolatedMarginTierData,
-  GetMarginOrderCountUsageParams,
-  MarginOrderCountUsageResponse,
-  SmallLiabilityExchangeCoin,
-  GetSmallLiabilityExchangeHistoryParams,
-  GetNextHourlyInterestRateParams,
-  NextHourlyInterestRate,
-  GetMarginCapitalFlowParams,
-  MarginCapitalFlow,
-  MarginDelistSchedule,
-  MarginAvailableInventoryResponse,
-  ManualLiquidationResponse,
-  ManualLiquidationParams,
-  LiabilityCoinLeverageBracket,
-  GetFlexibleSubscriptionRecordParams,
-  GetLockedSubscriptionRecordParams,
-  GetFlexibleRedemptionRecordParams,
-  GetLockedRedemptionRecordParams,
-  GetFlexibleRewardsHistoryParams,
-  GetLockedRewardsHistoryParams,
-  GetFlexibleSubscriptionPreviewParams,
-  GetLockedSubscriptionPreviewParams,
-  GetRateHistoryParams,
-  GetCollateralRecordParams,
-  GetDualInvestmentProductListParams,
-  SubscribeDualInvestmentProductParams,
-  SubscribeDualInvestmentProductResponse,
-  GetDualInvestmentPositionsParams,
-  CheckDualInvestmentAccountsResponse,
-  ChangeAutoCompoundStatusParams,
-  ChangeAutoCompoundStatusResponse,
-  GetTargetAssetListParams,
-  GetTargetAssetListResponse,
-  TargetAssetROI,
-  GetTargetAssetROIParams,
-  GetSourceAssetListParams,
-  GetSourceAssetListResponse,
-  CreateInvestmentPlanParams,
-  CreateInvestmentPlanResponse,
-  EditInvestmentPlanParams,
-  EditInvestmentPlanResponse,
-  ChangePlanStatusParams,
-  ChangePlanStatusResponse,
-  GetPlanDetailsParams,
-  GetSubscriptionTransactionHistoryParams,
-  GetIndexDetailsResponse,
-  GetIndexLinkedPlanPositionDetailsResponse,
-  SubmitOneTimeTransactionParams,
-  SubmitOneTimeTransactionResponse,
-  GetOneTimeTransactionStatusParams,
-  GetOneTimeTransactionStatusResponse,
-  SubmitIndexLinkedPlanRedemptionParams,
-  GetIndexLinkedPlanRedemptionHistoryParams,
-  IndexLinkedPlanRedemptionRecord,
-  GetIndexLinkedPlanRebalanceHistoryParams,
-  SubscribeEthStakingV2Response,
-  RedeemEthParams,
-  RedeemEthResponse,
-  GetEthStakingHistoryParams,
-  GetEthRedemptionHistoryParams,
-  GetBethRewardsHistoryParams,
-  GetEthStakingQuotaResponse,
-  GetETHRateHistoryParams,
-  GetEthStakingAccountResponse,
-  GetEthStakingAccountV2Response,
   WrapBethResponse,
-  GetWrapHistoryParams,
-  GetWbethRewardsHistoryResponse,
-  GetMiningAlgoListResponse,
-  GetMiningCoinListResponse,
-  GetMinerDetailsParams,
-  GetMinerDetailsResponse,
-  GetMinerListParams,
-  GetMinerListResponse,
-  GetEarningsListParams,
-  GetEarningsListResponse,
-  GetExtraBonusListParams,
-  GetExtraBonusListResponse,
-  GetHashrateResaleListParams,
-  GetHashrateResaleListResponse,
-  GetHashrateResaleDetailParams,
-  GetHashrateResaleDetailResponse,
-  SubmitHashrateResaleParams,
-  CancelHashrateResaleConfigParams,
-  GetStatisticListParams,
-  GetStatisticListResponse,
-  getMiningAccountsListParams,
-  getMiningAccountsListResponse,
-  GetMiningAccountEarningParams,
-  GetMiningAccountEarningResponse,
-  GetFutureTickLevelOrderbookDataLinkParams,
-  SubmitVpNewOrderParams,
-  SubmitVpNewOrderResponse,
-  SubmitTwapNewOrderParams,
-  SubmitTwapNewOrderResponse,
-  CancelAlgoOrderResponse,
-  GetAlgoHistoricalOrdersParams,
-  GetAlgoSubOrdersParams,
-  GetAlgoSubOrdersResponse,
-  SubmitSpotTwapNewOrderParams,
-  SubmitSpotTwapNewOrderResponse,
-  CancelSpotAlgoOrderResponse,
-  GetSpotAlgoHistoricalOrdersParams,
-  GetSpotAlgoSubOrdersParams,
-  GetSpotAlgoSubOrdersResponse,
-  GetPortfolioMarginAssetIndexPriceResponse,
-  GetPortfolioMarginProAccountInfoResponse,
-  GetPortfolioMarginProBankruptcyLoanAmountResponse,
-  GetPortfolioMarginProCollateralRateResponse,
-  GetPortfolioMarginProInterestHistoryParams,
-  GetPortfolioMarginProInterestHistoryResponse,
-  BnbTransferParams,
-  GetPortfolioMarginAssetLeverageResponse,
-  SubscribeBlvtParams,
-  SubscribeBlvtResponse,
-  GetBlvtSubscriptionRecordParams,
-  BlvtSubscriptionRecord,
-  RedeemBlvtParams,
-  RedeemBlvtResponse,
-  GetBlvtRedemptionRecordParams,
-  BlvtRedemptionRecord,
-  BlvtUserLimitInfo,
-  GetFiatOrderHistoryParams,
-  GetFiatOrderHistoryResponse,
-  GetFiatPaymentsHistoryResponse,
-  GetC2CTradeHistoryParams,
-  GetC2CTradeHistoryResponse,
-  GetVipLoanOngoingOrdersParams,
-  VipLoanRepayParams,
-  VipLoanRepayResponse,
-  GetVipLoanRepaymentHistoryParams,
-  VipLoanRenewParams,
-  VipLoanRenewResponse,
-  CheckVipCollateralAccountParams,
-  VipLoanBorrowParams,
-  VipLoanBorrowResponse,
-  GetLoanableAssetsDataParams,
-  GetCollateralAssetDataParams,
-  GetApplicationStatusParams,
-  BorrowInterestRate,
-  GetCryptoLoansIncomeHistoryParams,
-  GetCryptoLoansIncomeHistoryResponse,
-  BorrowCryptoLoanParams,
-  BorrowCryptoLoanResponse,
-  GetLoanBorrowHistoryParams,
-  GetLoanOngoingOrdersParams,
-  RepayCryptoLoanResponse,
-  RepayCryptoLoanParams,
-  GetLoanRepaymentHistoryParams,
-  AdjustCryptoLoanLTVParams,
-  AdjustCryptoLoanLTVResponse,
-  GetLoanLTVAdjustmentHistoryParams,
-  CheckCollateralRepayRateParams,
-  CheckCollateralRepayRateResponse,
-  CustomizeMarginCallParams,
-  BorrowFlexibleLoanParams,
-  BorrowFlexibleLoanResponse,
-  GetFlexibleLoanOngoingOrdersParams,
-  GetFlexibleCryptoLoanBorrowHistoryParams,
-  RepayCryptoFlexibleLoanParams,
-  RepayCryptoFlexibleLoanResponse,
-  AdjustFlexibleCryptoLoanLTVResponse,
-  AdjustFlexibleCryptoLoanLTVParams,
-  GetFlexibleLoanLTVAdjustmentHistoryParams,
-  GetFuturesLeadTraderStatusResponse,
-  GetFuturesLeadTradingSymbolWhitelistResponse,
-  GetPayTradeHistoryParams,
-  GetAllConvertPairsParams,
-  SubmitConvertLimitOrderParams,
-  GetSpotRebateHistoryRecordsParams,
-  GetSpotRebateHistoryRecordsResponse,
-  GetNftDepositHistoryParams,
-  GetNftWithdrawHistoryParams,
-  GetNftAssetParams,
-  CreateGiftCardParams,
-  CreateDualTokenGiftCardParams,
-  RedeemGiftCardParams,
-  ConvertLimitOpenOrder,
-  HistoricalDataLink,
-  SetAutoSubscribeParams,
-  GetAssetParams,
-  SimpleEarnAccountResponse,
-  SimpleEarnFlexibleProductPositionParams,
-  SimpleEarnLockedProductPositionParams,
-  SimpleEarnProductListParams,
-  SimpleEarnRedeemResponse,
-  SimpleEarnSubscribeFlexibleProductResponse,
-  SimpleEarnSubscribeLockedProductResponse,
-  SimpleEarnSubscribeProductParams,
-  ConvertTransfer,
-  BUSDConversionRecord,
-  CloudMining,
-  DelegationHistory,
-  CrossMarginTransferHistory,
-  MarginInterestHistory,
-  ForceLiquidationRecord,
-  SmallLiabilityExchangeHistory,
-  GetFlexibleSubscriptionRecordResponse,
-  SimpleEarnLockedProduct,
-  SimpleEarnLockedProductPosition,
-  SimpleEarnFlexibleProduct,
-  FlexibleLoanCollateralAssetData,
-  FlexibleLoanAssetData,
-  FlexibleLoanLTVAdjustmentHistory,
-  FlexibleLoanOngoingOrder,
-  FlexibleCryptoLoanBorrowHistory,
-  CustomizeMarginCall,
-  LoanableAssetData,
-  CollateralAssetData,
-  LoanLTVAdjustmentHistory,
-  LoanRepaymentHistory,
-  LoanOngoingOrder,
-  ApplicationStatus,
-  VipCollateralAccount,
-  VipLoanRepaymentHistory,
-  VipOngoingOrder,
   WrapHistory,
-  ETHRateHistory,
-  BethRewardsHistory,
-  EthRedemptionHistory,
-  EthStakingHistory,
-  GetRateHistory,
-  GetLockedRewardsHistory,
-  FlexibleRewardsHistory,
-  LockedSubscriptionRecord,
-  FlexibleRedemptionRecord,
-  LockedRedemptionRecord,
-  LoanBorrowHistory,
-  OrderRateLimitUsage,
-  SubaccountBalances,
-  ManagerSubTransferHistoryVos,
-  ManagerSubUserInfoVo,
-  TradingDayTickerMini,
-  TradingDayTickerFull,
-  Collateral,
-  FlexibleSubscriptionPreview,
-  LockedSubscriptionPreview,
-  DualInvestmentPosition,
-  NftWithdraw,
-  NftAsset,
-  NftTransaction,
-  NftDeposit,
-  HistoricalSpotAlgoOrder,
-  SpotAlgoOrder,
-  HistoricalAlgoOrder,
-  AlgoOrder,
-  GetNftTransactionHistoryParams,
-  CollateralRecord,
-  DualInvestmentProduct,
-  UpdateIpRestrictionForSubApiKey,
-  GetSubAccountDepositHistoryParams,
-  QuerySubAccountSpotMarginAssetInfoParams,
-  QuerySubAccountFuturesAssetInfoParams,
-  BrokerUniversalTransfer,
-  ChangeSubAccountCommissionParams,
-  ChangeSubAccountCommissionResponse,
-  ChangeSubAccountFuturesCommissionParams,
-  ChangeSubAccountFuturesCommissionResponse,
-  QuerySubAccountFuturesCommissionParams,
-  BrokerSubAccountFuturesCommission,
-  ChangeSubAccountCoinFuturesCommissionParams,
-  BrokerSubAccountCoinFuturesCommission,
-  QuerySubAccountCoinFuturesCommissionParams,
-  BrokerCommissionRebate,
-  QueryBrokerSpotCommissionRebateParams,
-  QueryBrokerFuturesCommissionRebateParams,
-  UsdtMarginedFuturesResponse,
-  CoinMarginedFuturesResponse,
-  SubAccountDeposit,
-  SubaccountBrokerSpotAsset,
-  SubAccountBrokerMarginAsset,
-  SubmitMarginOTOOrderParams,
-  MarginOTOOrder,
-  MarginOTOCOOrder,
-  SubmitMarginOTOCOOrderParams,
-  NewOrderListOTOResponse,
-  CreateSpecialLowLatencyKeyParams,
-  SpecialLowLatencyKeyResponse,
-  SpecialLowLatencyKeyInfo,
-  SolStakingAccount,
-  SolStakingQuota,
-  SubscribeSolStakingResponse,
-  RedeemSolResponse,
-  GetSolStakingHistoryReq,
-  SolStakingHistoryRecord,
-  SolRedemptionHistoryRecord,
-  GetBnsolRewardsHistoryReq,
-  BnsolRewardHistoryRecord,
-  BnsolRateHistoryRecord,
-  GetBnsolRateHistoryReq,
-  PortfolioMarginProSpanAccountInfo,
-  PortfolioMarginProAccountBalance,
-  SimpleEarnRedeemFlexibleProductParams,
-  VipLoanInterestRateHistoryParams,
-  VipLoanInterestRateRecord,
-  VipLoanAccruedInterestParams,
-  VipLoanAccruedInterestRecord,
 } from './types/spot';
-
+import BaseRestClient from './util/BaseRestClient';
 import {
   generateNewOrderId,
   getOrderIdPrefix,
@@ -547,8 +547,6 @@ import {
   RestClientOptions,
   serialiseParams,
 } from './util/requestUtils';
-
-import BaseRestClient from './util/BaseRestClient';
 
 export class MainClient extends BaseRestClient {
   constructor(
@@ -1323,6 +1321,7 @@ export class MainClient extends BaseRestClient {
   getBalances(): Promise<AllCoinsInformationResponse[]> {
     return this.getPrivate('sapi/v1/capital/config/getall');
   }
+
   withdraw(params: WithdrawParams): Promise<{ id: string }> {
     return this.postPrivate('sapi/v1/capital/withdraw/apply', params);
   }
@@ -1475,7 +1474,7 @@ export class MainClient extends BaseRestClient {
   submitNewFutureAccountTransfer(
     params: NewFutureAccountTransferParams,
   ): Promise<{ tranId: number }> {
-    return this.postPrivate(`sapi/v1/futures/transfer`, params);
+    return this.postPrivate('sapi/v1/futures/transfer', params);
   }
 
   /**
@@ -1485,27 +1484,30 @@ export class MainClient extends BaseRestClient {
   getFutureAccountTransferHistory(
     params: GetFutureAccountTransferHistoryParams,
   ): Promise<RowsWithTotal<FutureAccountTransfer>> {
-    return this.getPrivate(`sapi/v1/futures/transfer`, params);
+    return this.getPrivate('sapi/v1/futures/transfer', params);
   }
 
   /**
    * @deprecated as of 2023-09-25
    */
   getCrossCollateralBorrowHistory(params?: CoinStartEndLimit): Promise<any> {
-    return this.getPrivate(`sapi/v1/futures/loan/borrow/history`, params);
+    return this.getPrivate('sapi/v1/futures/loan/borrow/history', params);
   }
+
   /**
    * @deprecated as of 2023-09-25
    */
   getCrossCollateralRepaymentHistory(params?: CoinStartEndLimit): Promise<any> {
-    return this.getPrivate(`sapi/v1/futures/loan/repay/history`, params);
+    return this.getPrivate('sapi/v1/futures/loan/repay/history', params);
   }
+
   /**
    * @deprecated as of 2023-09-25
    */
   getCrossCollateralWalletV2(): Promise<any> {
-    return this.getPrivate(`sapi/v2/futures/loan/wallet`);
+    return this.getPrivate('sapi/v2/futures/loan/wallet');
   }
+
   /**
    * @deprecated as of 2023-09-25
    */
@@ -1513,25 +1515,27 @@ export class MainClient extends BaseRestClient {
     params?: GetLoanCoinPaginatedHistoryParams,
   ): Promise<any> {
     return this.getPrivate(
-      `sapi/v1/futures/loan/adjustCollateral/history`,
+      'sapi/v1/futures/loan/adjustCollateral/history',
       params,
     );
   }
+
   /**
    * @deprecated as of 2023-09-25
    */
   getCrossCollateralLiquidationHistory(
     params?: GetLoanCoinPaginatedHistoryParams,
   ): Promise<any> {
-    return this.getPrivate(`sapi/v1/futures/loan/liquidationHistory`, params);
+    return this.getPrivate('sapi/v1/futures/loan/liquidationHistory', params);
   }
+
   /**
    * @deprecated as of 2023-09-25
    */
   getCrossCollateralInterestHistory(
     params?: GetLoanCoinPaginatedHistoryParams,
   ): Promise<any> {
-    return this.getPrivate(`sapi/v1/futures/loan/interestHistory`, params);
+    return this.getPrivate('sapi/v1/futures/loan/interestHistory', params);
   }
 
   /**
@@ -2339,7 +2343,7 @@ export class MainClient extends BaseRestClient {
       asset?: string;
     },
   ): Promise<StakingProduct[]> {
-    return this.getPrivate(`sapi/v1/staking/productList`, params);
+    return this.getPrivate('sapi/v1/staking/productList', params);
   }
 
   /**
@@ -2799,6 +2803,7 @@ export class MainClient extends BaseRestClient {
   ): Promise<AdjustCryptoLoanLTVResponse> {
     return this.postPrivate('sapi/v1/loan/adjust/ltv', params);
   }
+
   /**
    * @deprecated
    */
@@ -2854,14 +2859,14 @@ export class MainClient extends BaseRestClient {
    **/
 
   getSimpleEarnAccount(): Promise<SimpleEarnAccountResponse> {
-    return this.getPrivate(`sapi/v1/simple-earn/account`);
+    return this.getPrivate('sapi/v1/simple-earn/account');
   }
 
   getFlexibleSavingProducts(params?: SimpleEarnProductListParams): Promise<{
     rows: SimpleEarnFlexibleProduct[];
     total: number;
   }> {
-    return this.getPrivate(`sapi/v1/simple-earn/flexible/list`, params);
+    return this.getPrivate('sapi/v1/simple-earn/flexible/list', params);
   }
 
   getSimpleEarnLockedProductList(
@@ -2870,7 +2875,7 @@ export class MainClient extends BaseRestClient {
     rows: SimpleEarnLockedProduct[];
     total: number;
   }> {
-    return this.getPrivate(`sapi/v1/simple-earn/locked/list`, params);
+    return this.getPrivate('sapi/v1/simple-earn/locked/list', params);
   }
 
   getFlexibleProductPosition(
@@ -2879,7 +2884,7 @@ export class MainClient extends BaseRestClient {
     rows: any[];
     total: number;
   }> {
-    return this.getPrivate(`sapi/v1/simple-earn/flexible/position`, params);
+    return this.getPrivate('sapi/v1/simple-earn/flexible/position', params);
   }
 
   getLockedProductPosition(
@@ -2888,7 +2893,7 @@ export class MainClient extends BaseRestClient {
     rows: SimpleEarnLockedProductPosition[];
     total: number;
   }> {
-    return this.getPrivate(`sapi/v1/simple-earn/locked/position`, params);
+    return this.getPrivate('sapi/v1/simple-earn/locked/position', params);
   }
 
   getFlexiblePersonalLeftQuota(params: { productId: string }): Promise<{
@@ -2918,25 +2923,25 @@ export class MainClient extends BaseRestClient {
   purchaseFlexibleProduct(
     params: SimpleEarnSubscribeProductParams,
   ): Promise<SimpleEarnSubscribeFlexibleProductResponse> {
-    return this.postPrivate(`sapi/v1/simple-earn/flexible/subscribe`, params);
+    return this.postPrivate('sapi/v1/simple-earn/flexible/subscribe', params);
   }
 
   subscribeSimpleEarnLockedProduct(
     params: SimpleEarnSubscribeProductParams,
   ): Promise<SimpleEarnSubscribeLockedProductResponse> {
-    return this.postPrivate(`sapi/v1/simple-earn/locked/subscribe`, params);
+    return this.postPrivate('sapi/v1/simple-earn/locked/subscribe', params);
   }
 
   redeemFlexibleProduct(
     params: SimpleEarnRedeemFlexibleProductParams,
   ): Promise<SimpleEarnRedeemResponse> {
-    return this.postPrivate(`sapi/v1/simple-earn/flexible/redeem`, params);
+    return this.postPrivate('sapi/v1/simple-earn/flexible/redeem', params);
   }
 
   redeemLockedProduct(params: {
     positionId: string;
   }): Promise<SimpleEarnRedeemResponse> {
-    return this.postPrivate(`sapi/v1/simple-earn/locked/redeem`, params);
+    return this.postPrivate('sapi/v1/simple-earn/locked/redeem', params);
   }
 
   setFlexibleAutoSubscribe(params: SetAutoSubscribeParams): Promise<{
@@ -4009,7 +4014,7 @@ export class MainClient extends BaseRestClient {
   getLeftDailyPurchaseQuotaFlexibleProduct(params: {
     productId: string;
   }): Promise<LeftDailyPurchaseQuotaFlexibleProductResponse> {
-    return this.getPrivate(`sapi/v1/lending/daily/userLeftQuota`, params);
+    return this.getPrivate('sapi/v1/lending/daily/userLeftQuota', params);
   }
 
   /**
@@ -4023,7 +4028,7 @@ export class MainClient extends BaseRestClient {
       minRedemptionAmount: string;
     }
   > {
-    return this.getPrivate(`sapi/v1/lending/daily/userRedemptionQuota`, params);
+    return this.getPrivate('sapi/v1/lending/daily/userRedemptionQuota', params);
   }
 
   /**
@@ -4033,7 +4038,7 @@ export class MainClient extends BaseRestClient {
     projectId: string;
     lot: number;
   }): Promise<PurchaseFlexibleProductResponse> {
-    return this.postPrivate(`sapi/v1/lending/customizedFixed/purchase`, params);
+    return this.postPrivate('sapi/v1/lending/customizedFixed/purchase', params);
   }
 
   /**
@@ -4042,7 +4047,7 @@ export class MainClient extends BaseRestClient {
   getFixedAndActivityProjects(
     params: FixedAndActivityProjectParams,
   ): Promise<any[]> {
-    return this.getPrivate(`sapi/v1/lending/project/list`, params);
+    return this.getPrivate('sapi/v1/lending/project/list', params);
   }
 
   /**
@@ -4051,35 +4056,35 @@ export class MainClient extends BaseRestClient {
   getFixedAndActivityProductPosition(
     params: FixedAndActivityProjectPositionParams,
   ): Promise<any[]> {
-    return this.getPrivate(`sapi/v1/lending/project/position/list`, params);
+    return this.getPrivate('sapi/v1/lending/project/position/list', params);
   }
 
   /**
    * @deprecated as of 2023-06-22, now Simple Earn
    */
   getLendingAccount(): Promise<StakingProduct[]> {
-    return this.getPrivate(`sapi/v1/lending/union/account`);
+    return this.getPrivate('sapi/v1/lending/union/account');
   }
 
   /**
    * @deprecated as of 2023-06-22, now Simple Earn
    */
   getPurchaseRecord(params: PurchaseRecordParams): Promise<any[]> {
-    return this.getPrivate(`sapi/v1/lending/union/purchaseRecord`, params);
+    return this.getPrivate('sapi/v1/lending/union/purchaseRecord', params);
   }
 
   /**
    * @deprecated as of 2023-06-22, now Simple Earn
    */
   getRedemptionRecord(params: PurchaseRecordParams): Promise<any[]> {
-    return this.getPrivate(`sapi/v1/lending/union/redemptionRecord`, params);
+    return this.getPrivate('sapi/v1/lending/union/redemptionRecord', params);
   }
 
   /**
    * @deprecated as of 2023-06-22, now Simple Earn
    */
   getInterestHistory(params: PurchaseRecordParams): Promise<any[]> {
-    return this.getPrivate(`sapi/v1/lending/union/interestHistory`, params);
+    return this.getPrivate('sapi/v1/lending/union/interestHistory', params);
   }
 
   /**
@@ -4090,7 +4095,7 @@ export class MainClient extends BaseRestClient {
     lot: number;
     positionId?: number;
   }): Promise<PurchaseFlexibleProductResponse> {
-    return this.postPrivate(`sapi/v1/lending/positionChanged`, params);
+    return this.postPrivate('sapi/v1/lending/positionChanged', params);
   }
 
   /**
@@ -4105,6 +4110,7 @@ export class MainClient extends BaseRestClient {
   enableConvertSubAccount(params: EnableConvertSubAccountParams): Promise<any> {
     return this.postPrivate('sapi/v1/broker/subAccount/convert', params);
   }
+
   /**
    * @deprecated - deleted as of 2024-11-21
    *

@@ -3,7 +3,9 @@ import { BEAUTIFIER_EVENT_MAP } from './beautifier-maps';
 
 export default class Beautifier {
   private beautificationMap: Record<string, Record<string, any>>;
+
   private floatKeys: string[];
+
   private floatKeysHashMap: Record<string, boolean>;
 
   constructor() {

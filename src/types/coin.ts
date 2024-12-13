@@ -120,4 +120,3 @@ export interface FuturesTransactionHistoryDownloadLink {
   expirationTimestamp: number;
   isExpired: boolean | null;
 }
-
