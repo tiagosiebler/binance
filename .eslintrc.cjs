@@ -1,0 +1,53 @@
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: 'tsconfig.linting.json',
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
+  },
+  plugins: [
+    '@typescript-eslint/eslint-plugin',
+    'simple-import-sort',
+    // 'require-extensions', // only once moved to ESM
+  ],
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+    // 'plugin:require-extensions/recommended', // only once moved to ESM
+  ],
+  root: true,
+  env: {
+    node: true,
+    jest: true,
+  },
+  ignorePatterns: ['.eslintrc.js', 'webpack.config.js'],
+  rules: {
+    '@typescript-eslint/interface-name-prefix': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/ban-types': 'off',
+    'simple-import-sort/imports': 'error',
+    'simple-import-sort/exports': 'error',
+    'array-bracket-spacing': ['error', 'never'],
+    'linebreak-style': ['error', 'unix'],
+    'lines-between-class-members': ['warn', 'always'],
+    semi: ['error', 'always'],
+    'new-cap': 'off',
+    'no-console': 'off',
+    'no-debugger': 'off',
+    'no-mixed-spaces-and-tabs': 2,
+    'no-use-before-define': [2, 'nofunc'],
+    'no-unreachable': ['warn'],
+    // 'no-unused-vars': ['warn'],
+    'no-extra-parens': ['off'],
+    'no-mixed-operators': ['off'],
+    quotes: [2, 'single', 'avoid-escape'],
+    'block-scoped-var': 2,
+    'brace-style': [2, '1tbs', { allowSingleLine: true }],
+    'computed-property-spacing': [2, 'never'],
+    'keyword-spacing': 2,
+    'space-unary-ops': 2,
+  },
+};
