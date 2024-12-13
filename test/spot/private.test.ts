@@ -1,8 +1,4 @@
-import {
-  MainClient,
-  NewSpotOrderParams,
-  getHttpsProxyAgent,
-} from '../../src/index';
+import { MainClient, NewSpotOrderParams } from '../../src/index';
 import { getTestProxy } from '../proxy.util';
 
 describe('Private Spot REST API Endpoints', () => {

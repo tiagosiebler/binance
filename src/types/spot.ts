@@ -129,6 +129,7 @@ export interface CoinNetwork {
   withdrawFee: numberInString;
   withdrawMin: numberInString;
   withdrawMax: numberInString;
+  withdrawInternalMin: numberInString;
   withdrawIntegerMultiple: numberInString;
   depositDust?: numberInString;
   sameAddress: boolean;
@@ -510,6 +511,8 @@ export interface APIPermissions {
   enableMargin: boolean; //  This option can be adjusted after the Cross Margin account transfer is completed
   enableSpotAndMarginTrading: boolean; // Spot and margin trading
   tradingAuthorityExpirationTime: number; // Expiration time for spot and margin trading permission
+  enableFixApiTrade: boolean; //  Authorizes this key to use FIX API trading
+  enableFixReadOnly: boolean; //  Authorizes this key to use FIX API reading
 }
 
 export interface AssetDetail {
@@ -534,6 +537,8 @@ export interface SymbolExchangeInfo {
   quoteAsset: string;
   quotePrecision: number;
   quoteAssetPrecision: number;
+  baseCommissionPrecision: number;
+  quoteCommissionPrecision: number;
   orderTypes: OrderType[];
   icebergAllowed: boolean;
   ocoAllowed: boolean;
@@ -2106,6 +2111,8 @@ export interface AccountInfo {
   vipLevel: number;
   isMarginEnabled: boolean;
   isFutureEnabled: boolean;
+  isOptionsEnabled: boolean;
+  isPortfolioMarginRetailEnabled: boolean;
 }
 
 export interface ManagedSubAccountSnapshotParams {
@@ -3069,6 +3076,10 @@ export interface DualInvestmentPosition {
   purchaseEndTime: number;
   optionType: string;
   autoCompoundPlan: 'STANDARD' | 'ADVANCED' | 'NONE';
+  settlePrice?: string;
+  isExercised?: boolean;
+  settleAsset?: string;
+  settleAmount?: string;
 }
 
 export interface CheckDualInvestmentAccountsResponse {
@@ -4886,6 +4897,14 @@ export interface SimpleEarnSubscribeLockedProductResponse {
   positionId: string;
   success: boolean;
 }
+
+export interface SimpleEarnRedeemFlexibleProductParams {
+  productId: string;
+  redeemAll?: boolean;
+  amount?: number;
+  destAccount?: 'SPOT' | 'FUND';
+}
+
 export interface SimpleEarnRedeemResponse {
   success: boolean;
   redeemId: string;
@@ -5448,4 +5467,36 @@ export interface PortfolioMarginProAccountBalance {
   negativeBalance: string;
   optionWalletBalance: string; // only for PM PRO SPAN
   optionEquity: string; // only for PM PRO SPAN
+}
+
+export interface VipLoanInterestRateHistoryParams {
+  coin: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface VipLoanInterestRateRecord {
+  coin: string;
+  annualizedInterestRate: string;
+  time: number;
+}
+
+export interface VipLoanAccruedInterestParams {
+  orderId?: number;
+  loanCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  limit?: number;
+}
+
+export interface VipLoanAccruedInterestRecord {
+  loanCoin: string;
+  principalAmount: string;
+  interestAmount: string;
+  annualInterestRate: string;
+  accrualTime: number;
+  orderId: number;
 }

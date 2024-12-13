@@ -9,3 +9,5 @@ lib/*
 testfile.ts
 privaterepotracker
 restClientRegex.ts
+.DS_Store
+dist

@@ -532,6 +532,11 @@ import {
   GetBnsolRateHistoryReq,
   PortfolioMarginProSpanAccountInfo,
   PortfolioMarginProAccountBalance,
+  SimpleEarnRedeemFlexibleProductParams,
+  VipLoanInterestRateHistoryParams,
+  VipLoanInterestRateRecord,
+  VipLoanAccruedInterestParams,
+  VipLoanAccruedInterestRecord,
 } from './types/spot';
 
 import {
@@ -1354,10 +1359,16 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/capital/deposit/credit-apply', params);
   }
 
+  /**
+   * @deprecated - deleted as of 2024-11-21
+   */
   getAutoConvertStablecoins(): Promise<ConvertibleCoinsResponse> {
     return this.getPrivate('sapi/v1/capital/contract/convertible-coins');
   }
 
+  /**
+   * @deprecated - deleted as of 2024-11-21
+   */
   setConvertibleCoins(params: ConvertibleCoinsParams): Promise<void> {
     return this.postPrivate(
       'sapi/v1/capital/contract/convertible-coins',
@@ -1934,12 +1945,14 @@ export class MainClient extends BaseRestClient {
 
   getManagedSubAccountMarginAssets(params: {
     email: string;
+    accountType?: string;
   }): Promise<ManagedSubAccountMarginAssetsResponse> {
     return this.getPrivate('sapi/v1/managed-subaccount/marginAsset', params);
   }
 
   getManagedSubAccountFuturesAssets(params: {
     email: string;
+    accountType?: string;
   }): Promise<ManagedSubAccountFuturesAssetsResponse> {
     return this.getPrivate(
       'sapi/v1/managed-subaccount/fetch-future-asset',
@@ -2720,6 +2733,9 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
+  /**
+   * @deprecated
+   */
   getCryptoLoanLoanableAssets(params: GetLoanableAssetsDataParams): Promise<{
     rows: LoanableAssetData[];
     total: number;
@@ -2733,6 +2749,9 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/loan/repay/collateral/rate', params);
   }
 
+  /**
+   * @deprecated
+   */
   getCryptoLoanCollateralAssetsData(
     params: GetCollateralAssetDataParams,
   ): Promise<{
@@ -2754,24 +2773,35 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
+  /**
+   * @deprecated
+   */
   borrowCryptoLoan(
     params: BorrowCryptoLoanParams,
   ): Promise<BorrowCryptoLoanResponse> {
     return this.postPrivate('sapi/v1/loan/borrow', params);
   }
 
+  /**
+   * @deprecated
+   */
   repayCryptoLoan(
     params: RepayCryptoLoanParams,
   ): Promise<RepayCryptoLoanResponse> {
     return this.postPrivate('sapi/v1/loan/repay', params);
   }
 
+  /**
+   * @deprecated
+   */
   adjustCryptoLoanLTV(
     params: AdjustCryptoLoanLTVParams,
   ): Promise<AdjustCryptoLoanLTVResponse> {
     return this.postPrivate('sapi/v1/loan/adjust/ltv', params);
   }
-
+  /**
+   * @deprecated
+   */
   customizeCryptoLoanMarginCall(params: CustomizeMarginCallParams): Promise<{
     rows: CustomizeMarginCall[];
     total: number;
@@ -2785,6 +2815,9 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
+  /**
+   * @deprecated
+   */
   getCryptoLoanOngoingOrders(params: GetLoanOngoingOrdersParams): Promise<{
     rows: LoanOngoingOrder[];
     total: number;
@@ -2894,9 +2927,9 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate(`sapi/v1/simple-earn/locked/subscribe`, params);
   }
 
-  redeemFlexibleProduct(params: {
-    positionId: string;
-  }): Promise<SimpleEarnRedeemResponse> {
+  redeemFlexibleProduct(
+    params: SimpleEarnRedeemFlexibleProductParams,
+  ): Promise<SimpleEarnRedeemResponse> {
     return this.postPrivate(`sapi/v1/simple-earn/flexible/redeem`, params);
   }
 
@@ -3058,6 +3091,15 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/loan/vip/request/interestRate', params);
   }
 
+  getVipLoanInterestRateHistory(
+    params: VipLoanInterestRateHistoryParams,
+  ): Promise<{
+    rows: VipLoanInterestRateRecord[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/vip/interestRateHistory', params);
+  }
+
   getVipLoanableAssets(params: GetLoanableAssetsDataParams): Promise<{
     rows: LoanableAssetData[];
     total: number;
@@ -3164,6 +3206,13 @@ export class MainClient extends BaseRestClient {
 
   getDualInvestmentAccounts(): Promise<CheckDualInvestmentAccountsResponse> {
     return this.getPrivate('sapi/v1/dci/product/accounts');
+  }
+
+  getVipLoanAccruedInterest(params?: VipLoanAccruedInterestParams): Promise<{
+    rows: VipLoanAccruedInterestRecord[];
+    total: number;
+  }> {
+    return this.getPrivate('sapi/v1/loan/vip/accruedInterest', params);
   }
 
   updateAutoCompoundStatus(
@@ -4057,7 +4106,8 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/broker/subAccount/convert', params);
   }
   /**
-   * @deprecated
+   * @deprecated - deleted as of 2024-11-21
+   *
    */
   convertBUSD(params: ConvertTransfer): Promise<ConvertTransferResponse> {
     return this.postPrivate('sapi/v1/asset/convert-transfer', params);
