@@ -45,11 +45,20 @@ export interface RestClientOptions {
   // Default: false, if true will try to resolve known strings containing numbers to "number" type
   beautifyResponses?: boolean;
 
-  //Defailt: false, if true will try to filter off undefined values from request params
+  // Default: false, if true will try to filter off undefined values from request params
   filterUndefinedParams?: boolean;
+
+  /**
+   * Default: false. If true, use testnet when available
+   */
+  useTestnet?: boolean;
 }
 
 export type GenericAPIResponse<T = any> = Promise<T>;
+
+// function throwUnhandledSwitch(x: never, msg: string): never {
+//   throw new Error(msg);
+// }
 
 export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
   switch (network) {
@@ -58,18 +67,22 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
     case 'spot2':
     case 'spot3':
     case 'spot4':
-    default:
       return 'U5D79M5B';
 
     case 'usdm':
     case 'usdmtest':
     case 'coinm':
     case 'coinmtest':
+    case 'papi':
       return '15PC4ZJy';
 
     case 'voptions':
     case 'voptionstest':
       return '';
+
+    default:
+      // throwUnhandledSwitch(network, `"${network}" unhandled`);
+      return 'U5D79M5B';
   }
 }
 
@@ -172,6 +185,9 @@ const BINANCE_BASE_URLS: Record<BinanceBaseUrlKey, string> = {
   // Vanilla Options
   voptions: 'https://vapi.binance.com',
   voptionstest: 'https://testnet.binanceops.com',
+
+  // Portfolio Margin
+  papi: 'https://papi.binance.com',
 };
 
 export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
@@ -200,14 +216,14 @@ export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
 
 export function getRestBaseUrl(
   clientType: BinanceBaseUrlKey,
-  restInverseOptions: RestClientOptions,
+  restClientOptions: RestClientOptions,
 ): string {
-  if (restInverseOptions.baseUrl) {
-    return restInverseOptions.baseUrl;
+  if (restClientOptions.baseUrl) {
+    return restClientOptions.baseUrl;
   }
 
-  if (restInverseOptions.baseUrlKey) {
-    return BINANCE_BASE_URLS[restInverseOptions.baseUrlKey];
+  if (restClientOptions.baseUrlKey) {
+    return BINANCE_BASE_URLS[restClientOptions.baseUrlKey];
   }
 
   return BINANCE_BASE_URLS[clientType];

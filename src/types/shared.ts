@@ -18,7 +18,8 @@ export type BinanceBaseUrlKey =
   | 'coinm'
   | 'coinmtest'
   | 'voptions'
-  | 'voptionstest';
+  | 'voptionstest'
+  | 'papi';
 
 /**
  * Time in force. Note: `GTE_GTC` is not officially documented, use at your own risk.
@@ -44,6 +45,7 @@ export type OrderResponseType = 'ACK' | 'RESULT' | 'FULL';
 
 export type OrderIdProperty =
   | 'newClientOrderId'
+  | 'newClientStrategyId'
   | 'listClientOrderId'
   | 'limitClientOrderId'
   | 'stopClientOrderId'

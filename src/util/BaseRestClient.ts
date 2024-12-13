@@ -223,12 +223,15 @@ export default abstract class BaseRestClient {
     //   'sending request: ',
     //   JSON.stringify(
     //     {
+    //       serialisedParams,
+    //       requestBody,
+    //       signature,
     //       reqOptions: options,
     //       reqParams: params,
     //     },
     //     null,
-    //     2
-    //   )
+    //     2,
+    //   ),
     // );
 
     return axios(options)
