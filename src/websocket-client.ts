@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { AxiosRequestConfig } from 'axios';
 import { EventEmitter } from 'events';
 import WebSocket from 'isomorphic-ws';
@@ -704,7 +705,6 @@ export class WebsocketClient extends EventEmitter {
   private clearPongTimer(wsKey: WsKey) {
     const wsState = this.wsStore.get(wsKey);
     if (wsState?.activePongTimer) {
-      // @ts-ignore
       clearTimeout(wsState.activePongTimer);
       wsState.activePongTimer = undefined;
     }
@@ -740,6 +740,7 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private getWsBaseUrl(market: WsMarket, wsKey?: WsKey): string {
     if (this.options.wsUrl) {
       return this.options.wsUrl;

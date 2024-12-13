@@ -124,7 +124,7 @@ export class USDMClient extends BaseRestClient {
    *
    **/
 
-  testConnectivity(): Promise<{}> {
+  testConnectivity(): Promise<object> {
     return this.get('fapi/v1/ping');
   }
 
@@ -785,11 +785,11 @@ export class USDMClient extends BaseRestClient {
     return this.post('fapi/v1/listenKey');
   }
 
-  keepAliveFuturesUserDataListenKey(): Promise<{}> {
+  keepAliveFuturesUserDataListenKey(): Promise<object> {
     return this.put('fapi/v1/listenKey');
   }
 
-  closeFuturesUserDataListenKey(): Promise<{}> {
+  closeFuturesUserDataListenKey(): Promise<object> {
     return this.delete('fapi/v1/listenKey');
   }
 

@@ -156,7 +156,7 @@ export class PortfolioClient extends BaseRestClient {
    *
    **/
 
-  testConnectivity(): Promise<{}> {
+  testConnectivity(): Promise<object> {
     return this.get('papi/v1/ping');
   }
 
@@ -827,11 +827,11 @@ export class PortfolioClient extends BaseRestClient {
     return this.post('papi/v1/listenKey');
   }
 
-  keepAlivePMUserDataListenKey(): Promise<{}> {
+  keepAlivePMUserDataListenKey(): Promise<object> {
     return this.put('papi/v1/listenKey');
   }
 
-  closePMUserDataListenKey(): Promise<{}> {
+  closePMUserDataListenKey(): Promise<object> {
     return this.delete('papi/v1/listenKey');
   }
 }

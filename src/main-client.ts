@@ -593,7 +593,7 @@ export class MainClient extends BaseRestClient {
     console.log(result);
 
     console.log(
-      `Your approximate latency to exchange server: 
+      `Your approximate latency to exchange server:
     One way: ${estimatedOneWayLatency}ms.
     Round trip: ${roundTripTime}ms.
     `,
@@ -630,7 +630,7 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  testConnectivity(): Promise<{}> {
+  testConnectivity(): Promise<object> {
     return this.get('api/v3/ping');
   }
 
@@ -750,7 +750,7 @@ export class MainClient extends BaseRestClient {
   testNewOrder<
     T extends OrderType,
     RT extends OrderResponseType | undefined = undefined,
-  >(params: NewSpotOrderParams<T, RT>): Promise<{}> {
+  >(params: NewSpotOrderParams<T, RT>): Promise<object> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('api/v3/order/test', params);
   }
@@ -862,7 +862,7 @@ export class MainClient extends BaseRestClient {
    */
   testNewSOROrder(
     params: NewSpotSOROrderParams & { computeCommissionRates?: boolean },
-  ): Promise<{} | SORTestOrderResponse> {
+  ): Promise<object | SORTestOrderResponse> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('api/v3/sor/order/test', params);
   }
@@ -1167,7 +1167,7 @@ export class MainClient extends BaseRestClient {
     apiKey: string;
     symbol?: string;
     ip: string;
-  }): Promise<{}> {
+  }): Promise<object> {
     return this.putPrivate('sapi/v1/margin/apiKey/ip', params);
   }
 
@@ -1554,11 +1554,11 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/accountSnapshot', params);
   }
 
-  disableFastWithdrawSwitch(): Promise<{}> {
+  disableFastWithdrawSwitch(): Promise<object> {
     return this.postPrivate('sapi/v1/account/disableFastWithdrawSwitch');
   }
 
-  enableFastWithdrawSwitch(): Promise<{}> {
+  enableFastWithdrawSwitch(): Promise<object> {
     return this.postPrivate('sapi/v1/account/enableFastWithdrawSwitch');
   }
 
@@ -3585,7 +3585,7 @@ export class MainClient extends BaseRestClient {
 
   deleteApiKeyBrokerSubAccount(
     params: DeleteApiKeyBrokerSubAccountParams,
-  ): Promise<{}> {
+  ): Promise<object> {
     return this.deletePrivate('sapi/v1/broker/subAccountApi', params);
   }
 
@@ -3909,11 +3909,11 @@ export class MainClient extends BaseRestClient {
     return this.post('api/v3/userDataStream');
   }
 
-  keepAliveSpotUserDataListenKey(listenKey: string): Promise<{}> {
+  keepAliveSpotUserDataListenKey(listenKey: string): Promise<object> {
     return this.put(`api/v3/userDataStream?listenKey=${listenKey}`);
   }
 
-  closeSpotUserDataListenKey(listenKey: string): Promise<{}> {
+  closeSpotUserDataListenKey(listenKey: string): Promise<object> {
     return this.delete(`api/v3/userDataStream?listenKey=${listenKey}`);
   }
 
@@ -3922,11 +3922,11 @@ export class MainClient extends BaseRestClient {
     return this.post('sapi/v1/userDataStream');
   }
 
-  keepAliveMarginUserDataListenKey(listenKey: string): Promise<{}> {
+  keepAliveMarginUserDataListenKey(listenKey: string): Promise<object> {
     return this.put(`sapi/v1/userDataStream?listenKey=${listenKey}`);
   }
 
-  closeMarginUserDataListenKey(listenKey: string): Promise<{}> {
+  closeMarginUserDataListenKey(listenKey: string): Promise<object> {
     return this.delete(`sapi/v1/userDataStream?listenKey=${listenKey}`);
   }
 
@@ -3942,7 +3942,7 @@ export class MainClient extends BaseRestClient {
   keepAliveIsolatedMarginUserDataListenKey(params: {
     symbol: string;
     listenKey: string;
-  }): Promise<{}> {
+  }): Promise<object> {
     return this.put(
       `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`,
     );
@@ -3951,7 +3951,7 @@ export class MainClient extends BaseRestClient {
   closeIsolatedMarginUserDataListenKey(params: {
     symbol: string;
     listenKey: string;
-  }): Promise<{}> {
+  }): Promise<object> {
     return this.delete(
       `sapi/v1/userDataStream/isolated?${serialiseParams(params)}`,
     );

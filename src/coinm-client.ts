@@ -121,7 +121,7 @@ export class CoinMClient extends BaseRestClient {
    *
    **/
 
-  testConnectivity(): Promise<{}> {
+  testConnectivity(): Promise<object> {
     return this.get('dapi/v1/ping');
   }
 
@@ -680,11 +680,11 @@ export class CoinMClient extends BaseRestClient {
     return this.post('dapi/v1/listenKey');
   }
 
-  keepAliveFuturesUserDataListenKey(): Promise<{}> {
+  keepAliveFuturesUserDataListenKey(): Promise<object> {
     return this.put('dapi/v1/listenKey');
   }
 
-  closeFuturesUserDataListenKey(): Promise<{}> {
+  closeFuturesUserDataListenKey(): Promise<object> {
     return this.delete('dapi/v1/listenKey');
   }
 

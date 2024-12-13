@@ -245,7 +245,7 @@ export default abstract class BaseRestClient {
 
     return axios(options)
       .then((response) => {
-        this.updateApiLimitState(response.headers, options.url);
+        this.updateApiLimitState(response.headers);
         if (response.status == 200) {
           return response.data;
         }
@@ -281,7 +281,7 @@ export default abstract class BaseRestClient {
     const { response, request, message } = e;
 
     if (response && response.headers) {
-      this.updateApiLimitState(response.headers, url);
+      this.updateApiLimitState(response.headers);
     }
 
     if (this.options.parseExceptions === false) {
@@ -315,11 +315,7 @@ export default abstract class BaseRestClient {
     };
   }
 
-  // TODO: cleanup?
-  private updateApiLimitState(
-    responseHeaders: Record<string, any>,
-    requestedUrl: string,
-  ) {
+  private updateApiLimitState(responseHeaders: Record<string, any>) {
     const delta: Record<string, any> = {};
     for (const headerKey in this.apiLimitTrackers) {
       const headerValue = responseHeaders[headerKey];
