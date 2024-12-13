@@ -1,7 +1,7 @@
 import { PortfolioClient } from '../src/index';
 
 // or
-// import { USDMClient } from 'binance';
+// import { PortfolioClient } from 'binance';
 
 const client = new PortfolioClient({
   beautifyResponses: true,

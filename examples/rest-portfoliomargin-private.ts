@@ -28,8 +28,6 @@ const client = new PortfolioClient({
     // });
 
     // console.log('new order res: ', newOrderRes);
-
-    // console.log('merged: ', arrayData);
   } catch (e) {
     console.error('request failed: ', e);
   }
