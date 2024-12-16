@@ -2894,7 +2894,7 @@ export interface GetFlexibleRewardsHistoryParams {
   asset?: string;
   startTime?: number;
   endTime?: number;
-  type: 'BONUS' | 'REALTIME' | 'REWARDS';
+  type: 'BONUS' | 'REALTIME' | 'REWARDS' | 'ALL';
   current?: number;
   size?: number;
 }
