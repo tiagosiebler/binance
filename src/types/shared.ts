@@ -9,6 +9,7 @@ export type BooleanStringCapitalised = 'TRUE' | 'FALSE';
 
 export type BinanceBaseUrlKey =
   | 'spot'
+  | 'spottest'
   | 'spot1'
   | 'spot2'
   | 'spot3'
@@ -329,9 +330,11 @@ export interface SymbolLotSizeFilter {
 }
 
 export interface SymbolMinNotionalFilter {
-  filterType: 'MIN_NOTIONAL';
+  filterType: 'NOTIONAL';
   minNotional: numberInString;
-  applyToMarket: boolean;
+  maxNotional: numberInString;
+  applyMinToMarket: boolean;
+  applyMaxToMarket: boolean;
   avgPriceMins: number;
 }
 
