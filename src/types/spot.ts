@@ -223,7 +223,10 @@ export interface TransferBrokerSubAccount {
 export enum EnumDepositStatus {
   Pending = 0,
   CreditedButCannotWithdraw = 6,
+  WrongDeposit = 7,
+  WaitingUserConfirm = 8,
   Success = 1,
+  Rejected = 2,
 }
 
 export type DepositStatusCode = `${EnumDepositStatus}`;
