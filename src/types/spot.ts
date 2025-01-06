@@ -709,12 +709,12 @@ export type OrderResponseTypeFor<
 > = RT extends 'ACK'
   ? OrderResponseACK
   : RT extends 'RESULT'
-    ? OrderResponseResult
-    : RT extends 'FULL'
-      ? OrderResponseFull
-      : T extends 'MARKET' | 'LIMIT'
-        ? OrderResponseFull
-        : OrderResponseACK;
+  ? OrderResponseResult
+  : RT extends 'FULL'
+  ? OrderResponseFull
+  : T extends 'MARKET' | 'LIMIT'
+  ? OrderResponseFull
+  : OrderResponseACK;
 
 export interface OrderListOrder {
   symbol: string;
@@ -844,19 +844,19 @@ export interface ReplaceSpotOrderCancelAllFailure
 
 export interface ReplaceSpotOrderResultError {
   data:
-    | ReplaceSpotOrderCancelStopFailure
-    | ReplaceSpotOrderNewFailure
-    | ReplaceSpotOrderCancelAllowFailure
-    | ReplaceSpotOrderCancelAllFailure;
+  | ReplaceSpotOrderCancelStopFailure
+  | ReplaceSpotOrderNewFailure
+  | ReplaceSpotOrderCancelAllowFailure
+  | ReplaceSpotOrderCancelAllFailure;
 }
 
 export interface ReplaceSpotOrderResultSuccess<
   T extends OrderType = OrderType,
   RT extends OrderResponseType | undefined = OrderResponseType,
 > extends GenericReplaceSpotOrderResult<
-    CancelSpotOrderResult,
-    OrderResponseTypeFor<RT, T>
-  > {
+  CancelSpotOrderResult,
+  OrderResponseTypeFor<RT, T>
+> {
   cancelResult: 'SUCCESS';
   newOrderResult: 'SUCCESS';
 }
@@ -2179,11 +2179,11 @@ export interface ManagedSubAccountTransferLogParams {
   limit: number;
   transfers?: 'from' | 'to';
   transferFunctionAccountType?:
-    | 'SPOT'
-    | 'MARGIN'
-    | 'ISOLATED_MARGIN'
-    | 'USDT_FUTURE'
-    | 'COIN_FUTURE';
+  | 'SPOT'
+  | 'MARGIN'
+  | 'ISOLATED_MARGIN'
+  | 'USDT_FUTURE'
+  | 'COIN_FUTURE';
 }
 
 export interface ManagerSubTransferHistoryVos {
@@ -2571,11 +2571,11 @@ export interface MarginInterestHistory {
   interest: string;
   interestRate: string;
   type:
-    | 'PERIODIC'
-    | 'ON_BORROW'
-    | 'PERIODIC_CONVERTED'
-    | 'ON_BORROW_CONVERTED'
-    | 'PORTFOLIO';
+  | 'PERIODIC'
+  | 'ON_BORROW'
+  | 'PERIODIC_CONVERTED'
+  | 'ON_BORROW_CONVERTED'
+  | 'PORTFOLIO';
   isolatedSymbol?: string;
 }
 
@@ -3051,13 +3051,13 @@ export interface SubscribeDualInvestmentProductResponse {
 
 export interface GetDualInvestmentPositionsParams {
   status?:
-    | 'PENDING'
-    | 'PURCHASE_SUCCESS'
-    | 'SETTLED'
-    | 'PURCHASE_FAIL'
-    | 'REFUNDING'
-    | 'REFUND_SUCCESS'
-    | 'SETTLING';
+  | 'PENDING'
+  | 'PURCHASE_SUCCESS'
+  | 'SETTLED'
+  | 'PURCHASE_FAIL'
+  | 'REFUNDING'
+  | 'REFUND_SUCCESS'
+  | 'SETTLING';
   pageSize?: number;
   pageIndex?: number;
 }
@@ -3122,12 +3122,12 @@ export interface GetTargetAssetListResponse {
 export interface GetTargetAssetROIParams {
   targetAsset: string;
   hisRoiType:
-    | 'FIVE_YEAR'
-    | 'THREE_YEAR'
-    | 'ONE_YEAR'
-    | 'SIX_MONTH'
-    | 'THREE_MONTH'
-    | 'SEVEN_DAY';
+  | 'FIVE_YEAR'
+  | 'THREE_YEAR'
+  | 'ONE_YEAR'
+  | 'SIX_MONTH'
+  | 'THREE_MONTH'
+  | 'SEVEN_DAY';
 }
 
 export interface TargetAssetROI {
@@ -3170,23 +3170,23 @@ export interface CreateInvestmentPlanParams {
   indexId?: number;
   subscriptionAmount: number;
   subscriptionCycle:
-    | 'H1'
-    | 'H4'
-    | 'H8'
-    | 'H12'
-    | 'WEEKLY'
-    | 'DAILY'
-    | 'MONTHLY'
-    | 'BI_WEEKLY';
+  | 'H1'
+  | 'H4'
+  | 'H8'
+  | 'H12'
+  | 'WEEKLY'
+  | 'DAILY'
+  | 'MONTHLY'
+  | 'BI_WEEKLY';
   subscriptionStartDay?: number;
   subscriptionStartWeekday?:
-    | 'MON'
-    | 'TUE'
-    | 'WED'
-    | 'THU'
-    | 'FRI'
-    | 'SAT'
-    | 'SUN';
+  | 'MON'
+  | 'TUE'
+  | 'WED'
+  | 'THU'
+  | 'FRI'
+  | 'SAT'
+  | 'SUN';
   subscriptionStartTime: number;
   sourceAsset: string;
   flexibleAllowedToUse: boolean;
@@ -3202,23 +3202,23 @@ export interface EditInvestmentPlanParams {
   planId: number;
   subscriptionAmount: number;
   subscriptionCycle:
-    | 'H1'
-    | 'H4'
-    | 'H8'
-    | 'H12'
-    | 'WEEKLY'
-    | 'DAILY'
-    | 'MONTHLY'
-    | 'BI_WEEKLY';
+  | 'H1'
+  | 'H4'
+  | 'H8'
+  | 'H12'
+  | 'WEEKLY'
+  | 'DAILY'
+  | 'MONTHLY'
+  | 'BI_WEEKLY';
   subscriptionStartDay?: number;
   subscriptionStartWeekday?:
-    | 'MON'
-    | 'TUE'
-    | 'WED'
-    | 'THU'
-    | 'FRI'
-    | 'SAT'
-    | 'SUN';
+  | 'MON'
+  | 'TUE'
+  | 'WED'
+  | 'THU'
+  | 'FRI'
+  | 'SAT'
+  | 'SUN';
   subscriptionStartTime: number;
   sourceAsset: string;
   flexibleAllowedToUse?: boolean;
@@ -4573,6 +4573,28 @@ export interface FlexibleLoanOngoingOrder {
   currentLTV: string;
 }
 
+export interface GetFlexibleLoanLiquidationHistoryParams {
+  loanCoin?: string;
+  collateralCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;    // Default: 1, max: 1000
+  limit?: number;      // Default: 10, max: 100
+  recvWindow?: number;
+}
+
+export interface FlexibleLoanLiquidationHistoryRecord {
+  loanCoin: string;
+  liquidationDebt: string;
+  collateralCoin: string;
+  liquidationCollateralAmount: string;
+  returnCollateralAmount: string;
+  liquidationFee: string;
+  liquidationStartingPrice: string;
+  liquidationStartingTime: number;
+  status: 'Liquidated' | 'Liquidating';
+}
+
 export interface GetFlexibleCryptoLoanBorrowHistoryParams {
   loanCoin?: string;
   collateralCoin?: string;
@@ -4609,6 +4631,23 @@ export interface RepayCryptoFlexibleLoanResponse {
   repayStatus: 'Repaid' | 'Repaying' | 'Failed';
 }
 
+
+export interface RepayCryptoLoanFlexibleWithCollateralParams {
+  loanCoin: string;
+  collateralCoin: string;
+  repayAmount: number;         // Amount of loan to repay
+  fullRepayment?: boolean;     // Default: FALSE
+}
+
+export interface RepayCryptoLoanFlexibleWithCollateralResponse {
+  loanCoin: string;
+  collateralCoin: string;
+  remainingDebt: string;
+  remainingCollateral: string;
+  fullRepayment: boolean;
+  currentLTV: string;
+  repayStatus: 'Repaid' | 'Repaying' | 'Failed';
+}
 export interface GetFlexibleCryptoLoanRepaymentHistoryParams {
   loanCoin?: string;
   collateralCoin?: string;
@@ -5159,10 +5198,10 @@ export interface SubmitMarginOTOOrderParams {
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
   sideEffectType?: 'NO_SIDE_EFFECT' | 'MARGIN_BUY';
   selfTradePreventionMode?:
-    | 'EXPIRE_TAKER'
-    | 'EXPIRE_MAKER'
-    | 'EXPIRE_BOTH'
-    | 'NONE';
+  | 'EXPIRE_TAKER'
+  | 'EXPIRE_MAKER'
+  | 'EXPIRE_BOTH'
+  | 'NONE';
   autoRepayAtCancel?: boolean;
   workingType: 'LIMIT' | 'LIMIT_MAKER';
   workingSide: 'BUY' | 'SELL';
@@ -5222,10 +5261,10 @@ export interface SubmitMarginOTOCOOrderParams {
   listClientOrderId?: string;
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
   selfTradePreventionMode?:
-    | 'EXPIRE_TAKER'
-    | 'EXPIRE_MAKER'
-    | 'EXPIRE_BOTH'
-    | 'NONE';
+  | 'EXPIRE_TAKER'
+  | 'EXPIRE_MAKER'
+  | 'EXPIRE_BOTH'
+  | 'NONE';
   workingType: 'LIMIT' | 'LIMIT_MAKER';
   workingSide: 'BUY' | 'SELL';
   workingClientOrderId?: string;
@@ -5276,30 +5315,30 @@ export interface MarginOTOCOOrder {
     executedQty: string;
     cummulativeQuoteQty: string;
     status:
-      | 'NEW'
-      | 'PARTIALLY_FILLED'
-      | 'FILLED'
-      | 'CANCELED'
-      | 'PENDING_CANCEL'
-      | 'REJECTED'
-      | 'EXPIRED'
-      | 'PENDING_NEW';
+    | 'NEW'
+    | 'PARTIALLY_FILLED'
+    | 'FILLED'
+    | 'CANCELED'
+    | 'PENDING_CANCEL'
+    | 'REJECTED'
+    | 'EXPIRED'
+    | 'PENDING_NEW';
     timeInForce: 'GTC' | 'IOC' | 'FOK';
     type:
-      | 'LIMIT'
-      | 'MARKET'
-      | 'STOP_LOSS'
-      | 'STOP_LOSS_LIMIT'
-      | 'TAKE_PROFIT'
-      | 'TAKE_PROFIT_LIMIT'
-      | 'LIMIT_MAKER';
+    | 'LIMIT'
+    | 'MARKET'
+    | 'STOP_LOSS'
+    | 'STOP_LOSS_LIMIT'
+    | 'TAKE_PROFIT'
+    | 'TAKE_PROFIT_LIMIT'
+    | 'LIMIT_MAKER';
     side: 'BUY' | 'SELL';
     stopPrice?: string;
     selfTradePreventionMode:
-      | 'EXPIRE_TAKER'
-      | 'EXPIRE_MAKER'
-      | 'EXPIRE_BOTH'
-      | 'NONE';
+    | 'EXPIRE_TAKER'
+    | 'EXPIRE_MAKER'
+    | 'EXPIRE_BOTH'
+    | 'NONE';
   }[];
 }
 
@@ -5421,6 +5460,22 @@ export interface GetBnsolRateHistoryReq {
   timestamp: number; // Mandatory
 }
 
+export interface SolBoostRewardsHistoryReq {
+  type: 'CLAIM' | 'DISTRIBUTE';
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface SolBoostRewardsHistoryRecord {
+  time: number;
+  token: string;
+  amount: string;
+  bnsolHolding?: string; // Only present if type is "DISTRIBUTE"
+  status?: string; // Only present if type is "CLAIM" 
+}
+
 export interface BnsolRateHistoryRecord {
   annualPercentageRate: string; // BNSOL APR
   exchangeRate: string; // SOL amount per 1 BNSOL
@@ -5441,13 +5496,13 @@ export interface PortfolioMarginProSpanAccountInfo {
   marginMM: string;
   otherMM: string;
   accountStatus:
-    | 'NORMAL'
-    | 'MARGIN_CALL'
-    | 'SUPPLY_MARGIN'
-    | 'REDUCE_ONLY'
-    | 'ACTIVE_LIQUIDATION'
-    | 'FORCE_LIQUIDATION'
-    | 'BANKRUPTED';
+  | 'NORMAL'
+  | 'MARGIN_CALL'
+  | 'SUPPLY_MARGIN'
+  | 'REDUCE_ONLY'
+  | 'ACTIVE_LIQUIDATION'
+  | 'FORCE_LIQUIDATION'
+  | 'BANKRUPTED';
   accountType: 'PM_1' | 'PM_2' | 'PM_3'; // PM_1 for classic PM, PM_2 for PM, PM_3 for PM Pro(SPAN)
 }
 
@@ -5467,6 +5522,28 @@ export interface PortfolioMarginProAccountBalance {
   negativeBalance: string;
   optionWalletBalance: string; // only for PM PRO SPAN
   optionEquity: string; // only for PM PRO SPAN
+}
+
+export interface PMProMintBFUSDParams {
+  fromAsset: string;   // USDT only
+  targetAsset: string; // BFUSD only
+  amount: number;
+}
+
+export interface PMProMintBFUSDResponse {
+  fromAsset: string;
+  targetAsset: string;
+  fromAssetQty: number;
+  targetAssetQty: number;
+  rate: number;
+}
+
+export interface PMProRedeemBFUSDResponse {
+  fromAsset: string;
+  targetAsset: string;
+  fromAssetQty: number;
+  targetAssetQty: number;
+  rate: number;
 }
 
 export interface VipLoanInterestRateHistoryParams {
