@@ -2420,8 +2420,6 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/sol-staking/sol/claim');
   }
 
-
-
   /**
    *
    * STAKING Endpoints - SOL Staking- History
@@ -2473,13 +2471,18 @@ export class MainClient extends BaseRestClient {
     rows: SolBoostRewardsHistoryRecord[];
     total: number;
   }> {
-    return this.getPrivate('sapi/v1/sol-staking/sol/history/boostRewardsHistory', params);
+    return this.getPrivate(
+      'sapi/v1/sol-staking/sol/history/boostRewardsHistory',
+      params,
+    );
   }
 
-  getSolUnclaimedRewards(): Promise<{
-    amount: string;
-    rewardsAsset: string;
-  }[]> {
+  getSolUnclaimedRewards(): Promise<
+    {
+      amount: string;
+      rewardsAsset: string;
+    }[]
+  > {
     return this.getPrivate('sapi/v1/sol-staking/sol/history/unclaimedRewards');
   }
 
@@ -2712,7 +2715,7 @@ export class MainClient extends BaseRestClient {
   }
 
   repayCryptoLoanFlexibleWithCollateral(
-    params: RepayCryptoLoanFlexibleWithCollateralParams
+    params: RepayCryptoLoanFlexibleWithCollateralParams,
   ): Promise<RepayCryptoLoanFlexibleWithCollateralResponse> {
     return this.postPrivate('sapi/v2/loan/flexible/repay/collateral', params);
   }
@@ -2741,19 +2744,16 @@ export class MainClient extends BaseRestClient {
     );
   }
 
-  getFlexibleLoanCollateralRepayRate(
-    params: {
-      loanCoin: string;
-      collateralCoin: string;
-    }
-  ): Promise<{
+  getFlexibleLoanCollateralRepayRate(params: {
+    loanCoin: string;
+    collateralCoin: string;
+  }): Promise<{
     loanCoin: string;
     collateralCoin: string;
     rate: string;
   }> {
     return this.getPrivate('sapi/v2/loan/flexible/repay/rate', params);
   }
-
 
   getLoanFlexibleBorrowHistory(
     params: GetFlexibleCryptoLoanBorrowHistoryParams,
@@ -2774,7 +2774,7 @@ export class MainClient extends BaseRestClient {
   }
 
   getFlexibleLoanLiquidationHistory(
-    params?: GetFlexibleLoanLiquidationHistoryParams
+    params?: GetFlexibleLoanLiquidationHistoryParams,
   ): Promise<{
     rows: FlexibleLoanLiquidationHistoryRecord[];
     total: number;
@@ -2790,8 +2790,6 @@ export class MainClient extends BaseRestClient {
   }> {
     return this.getPrivate('sapi/v2/loan/flexible/repay/history', params);
   }
-
-
 
   /**
    *
@@ -3504,12 +3502,14 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/portfolio/balance', params);
   }
 
-  mintPortfolioMarginBFUSD(params: PMProMintBFUSDParams): Promise<PMProMintBFUSDResponse> {
+  mintPortfolioMarginBFUSD(
+    params: PMProMintBFUSDParams,
+  ): Promise<PMProMintBFUSDResponse> {
     return this.postPrivate('sapi/v1/portfolio/mint', params);
   }
 
   redeemPortfolioMarginBFUSD(params: {
-    fromAsset: string;   // BFUSD only
+    fromAsset: string; // BFUSD only
     targetAsset: string; // USDT only
     amount: number;
   }): Promise<PMProRedeemBFUSDResponse> {
