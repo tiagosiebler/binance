@@ -4573,6 +4573,28 @@ export interface FlexibleLoanOngoingOrder {
   currentLTV: string;
 }
 
+export interface GetFlexibleLoanLiquidationHistoryParams {
+  loanCoin?: string;
+  collateralCoin?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number; // Default: 1, max: 1000
+  limit?: number; // Default: 10, max: 100
+  recvWindow?: number;
+}
+
+export interface FlexibleLoanLiquidationHistoryRecord {
+  loanCoin: string;
+  liquidationDebt: string;
+  collateralCoin: string;
+  liquidationCollateralAmount: string;
+  returnCollateralAmount: string;
+  liquidationFee: string;
+  liquidationStartingPrice: string;
+  liquidationStartingTime: number;
+  status: 'Liquidated' | 'Liquidating';
+}
+
 export interface GetFlexibleCryptoLoanBorrowHistoryParams {
   loanCoin?: string;
   collateralCoin?: string;
@@ -4609,6 +4631,22 @@ export interface RepayCryptoFlexibleLoanResponse {
   repayStatus: 'Repaid' | 'Repaying' | 'Failed';
 }
 
+export interface RepayCryptoLoanFlexibleWithCollateralParams {
+  loanCoin: string;
+  collateralCoin: string;
+  repayAmount: number; // Amount of loan to repay
+  fullRepayment?: boolean; // Default: FALSE
+}
+
+export interface RepayCryptoLoanFlexibleWithCollateralResponse {
+  loanCoin: string;
+  collateralCoin: string;
+  remainingDebt: string;
+  remainingCollateral: string;
+  fullRepayment: boolean;
+  currentLTV: string;
+  repayStatus: 'Repaid' | 'Repaying' | 'Failed';
+}
 export interface GetFlexibleCryptoLoanRepaymentHistoryParams {
   loanCoin?: string;
   collateralCoin?: string;
@@ -5421,6 +5459,22 @@ export interface GetBnsolRateHistoryReq {
   timestamp: number; // Mandatory
 }
 
+export interface SolBoostRewardsHistoryReq {
+  type: 'CLAIM' | 'DISTRIBUTE';
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface SolBoostRewardsHistoryRecord {
+  time: number;
+  token: string;
+  amount: string;
+  bnsolHolding?: string; // Only present if type is "DISTRIBUTE"
+  status?: string; // Only present if type is "CLAIM"
+}
+
 export interface BnsolRateHistoryRecord {
   annualPercentageRate: string; // BNSOL APR
   exchangeRate: string; // SOL amount per 1 BNSOL
@@ -5467,6 +5521,28 @@ export interface PortfolioMarginProAccountBalance {
   negativeBalance: string;
   optionWalletBalance: string; // only for PM PRO SPAN
   optionEquity: string; // only for PM PRO SPAN
+}
+
+export interface PMProMintBFUSDParams {
+  fromAsset: string; // USDT only
+  targetAsset: string; // BFUSD only
+  amount: number;
+}
+
+export interface PMProMintBFUSDResponse {
+  fromAsset: string;
+  targetAsset: string;
+  fromAssetQty: number;
+  targetAssetQty: number;
+  rate: number;
+}
+
+export interface PMProRedeemBFUSDResponse {
+  fromAsset: string;
+  targetAsset: string;
+  fromAssetQty: number;
+  targetAssetQty: number;
+  rate: number;
 }
 
 export interface VipLoanInterestRateHistoryParams {
