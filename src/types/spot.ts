@@ -901,6 +901,7 @@ export interface AccountInformation {
   accoountType: string;
   balances: SpotAssetBalance[];
   permissions: any[];
+  uid: number;
 }
 
 export interface CrossMarginAccountTransferParams {
