@@ -138,6 +138,7 @@ export interface NewFuturesOrderParams<numberType = number> {
   newOrderRespType?: OrderResponseType;
   selfTradePreventionMode?: SelfTradePreventionMode;
   priceMatch?: PriceMatchMode;
+  goodTillDate?: number; // Mandatory when timeInForce is GTD
 }
 
 export interface ModifyFuturesOrderParams<numberType = number> {
@@ -851,14 +852,14 @@ export interface ModifyOrderParams {
   quantity: string;
   price: string;
   priceMatch?:
-    | 'OPPONENT'
-    | 'OPPONENT_5'
-    | 'OPPONENT_10'
-    | 'OPPONENT_20'
-    | 'QUEUE'
-    | 'QUEUE_5'
-    | 'QUEUE_10'
-    | 'QUEUE_20';
+  | 'OPPONENT'
+  | 'OPPONENT_5'
+  | 'OPPONENT_10'
+  | 'OPPONENT_20'
+  | 'QUEUE'
+  | 'QUEUE_5'
+  | 'QUEUE_10'
+  | 'QUEUE_20';
   recvWindow?: number;
   timestamp: number;
 }
