@@ -138,6 +138,7 @@ export interface NewFuturesOrderParams<numberType = number> {
   newOrderRespType?: OrderResponseType;
   selfTradePreventionMode?: SelfTradePreventionMode;
   priceMatch?: PriceMatchMode;
+  goodTillDate?: number; // Mandatory when timeInForce is GTD
 }
 
 export interface ModifyFuturesOrderParams<numberType = number> {
