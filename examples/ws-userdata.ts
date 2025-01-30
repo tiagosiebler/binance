@@ -2,8 +2,8 @@ import {
   DefaultLogger,
   isWsFormattedFuturesUserDataEvent,
   isWsFormattedSpotUserDataEvent,
-  isWsFormattedUserDataEvent,
   isWsFormattedSpotUserDataExecutionReport,
+  isWsFormattedUserDataEvent,
   WsUserDataEvents,
 } from '../src';
 import { WebsocketClient } from '../src/websocket-client';
@@ -12,8 +12,10 @@ import { WebsocketClient } from '../src/websocket-client';
 // import { DefaultLogger, WebsocketClient } from 'binance';
 
 (async () => {
-  const key = process.env.APIKEY || 'APIKEY';
-  const secret = process.env.APISECRET || 'APISECRET';
+  const key = process.env.API_KEY_COM || 'APIKEY';
+  const secret = process.env.API_SECRET_COM || 'APISECRET';
+
+  console.log({ key, secret });
 
   const ignoredSillyLogMsgs = [
     'Sending ping',
@@ -38,7 +40,7 @@ import { WebsocketClient } from '../src/websocket-client';
       api_secret: secret,
       beautify: true,
     },
-    logger
+    logger,
   );
 
   wsClient.on('message', (data) => {
