@@ -739,6 +739,13 @@ export class MainClient extends BaseRestClient {
   getRollingWindowTicker(
     params: RollingWindowTickerParams,
   ): Promise<TradingDayTickerFull[] | TradingDayTickerMini[]> {
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const symbols = (params as SymbolArrayParam).symbols;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get('api/v3/ticker?symbols=' + symbolsQueryParam);
+    }
+
     return this.get('api/v3/ticker', params);
   }
 
