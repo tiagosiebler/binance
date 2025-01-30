@@ -4,7 +4,6 @@ import { EventEmitter } from 'events';
 import WebSocket from 'isomorphic-ws';
 
 import { CoinMClient } from './coinm-client';
-import { DefaultLogger } from './logger';
 import { MainClient } from './main-client';
 import { KlineInterval } from './types/shared';
 import {
@@ -16,6 +15,7 @@ import {
 } from './types/websockets';
 import { USDMClient } from './usdm-client';
 import Beautifier from './util/beautifier';
+import { DefaultLogger } from './util/logger';
 import {
   appendEventIfMissing,
   appendEventMarket,
@@ -23,8 +23,9 @@ import {
   getWsKeyWithContext,
   RestClientOptions,
 } from './util/requestUtils';
-import { safeTerminateWs } from './util/ws-utils';
-import WsStore, { WsConnectionStateEnum } from './util/WsStore';
+import { safeTerminateWs } from './util/websockets/ws-utils';
+import { WsStore } from './util/websockets/WsStore';
+import { WsConnectionStateEnum } from './util/websockets/WsStore.types';
 
 const wsBaseEndpoints: Record<WsMarket, string> = {
   spot: 'wss://stream.binance.com:9443',
@@ -163,7 +164,7 @@ export class WebsocketClient extends EventEmitter {
 
   private options: WebsocketClientOptions;
 
-  private wsStore: WsStore;
+  private wsStore: WsStore<WsKey, string>;
 
   private beautifier: Beautifier;
 
@@ -217,14 +218,14 @@ export class WebsocketClient extends EventEmitter {
 
     const oldWs = this.wsStore.getWs(wsRefKey);
     if (oldWs && this.wsStore.isWsOpen(wsRefKey) && !forceNewConnection) {
-      this.logger.silly(
+      this.logger.trace(
         'connectToWsUrl(): Returning existing open WS connection',
         { ...loggerCategory, wsRefKey },
       );
       return oldWs;
     }
 
-    this.logger.silly(
+    this.logger.trace(
       `connectToWsUrl(): Opening WS connection to URL: ${url}`,
       { ...loggerCategory, wsRefKey },
     );
@@ -259,7 +260,7 @@ export class WebsocketClient extends EventEmitter {
 
   public tryWsSend(wsKey: WsKey, wsMessage: string) {
     try {
-      this.logger.silly('Sending upstream ws message: ', {
+      this.logger.trace('Sending upstream ws message: ', {
         ...loggerCategory,
         wsMessage,
         wsKey,
@@ -287,7 +288,7 @@ export class WebsocketClient extends EventEmitter {
 
   public tryWsPing(wsKey: WsKey) {
     try {
-      // this.logger.silly(`Sending upstream ping: `, { ...loggerCategory, wsKey });
+      // this.logger.trace(`Sending upstream ping: `, { ...loggerCategory, wsKey });
       if (!wsKey) {
         throw new Error('No wsKey provided');
       }
@@ -304,7 +305,7 @@ export class WebsocketClient extends EventEmitter {
         ws.ping();
         ws.pong();
       } else {
-        this.logger.silly(
+        this.logger.trace(
           'WS ready state not open - refusing to send WS ping',
           { ...loggerCategory, wsKey, readyState: ws?.readyState },
         );
@@ -319,7 +320,7 @@ export class WebsocketClient extends EventEmitter {
   }
 
   private onWsOpen(ws: WebSocket, wsKey: WsKey, wsUrl: string) {
-    this.logger.silly(`onWsOpen(): ${wsUrl} : ${wsKey}`);
+    this.logger.trace(`onWsOpen(): ${wsUrl} : ${wsKey}`);
     if (
       this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.RECONNECTING)
     ) {
@@ -455,7 +456,7 @@ export class WebsocketClient extends EventEmitter {
         return;
       }
 
-      this.logger.warning(
+      this.logger.error(
         'Bug? Unhandled ws message event type. Check if appendEventIfMissing needs to parse wsKey.',
         {
           ...loggerCategory,
@@ -480,7 +481,7 @@ export class WebsocketClient extends EventEmitter {
   private sendPing(wsKey: WsKey, wsUrl: string) {
     this.clearPongTimer(wsKey);
 
-    this.logger.silly('Sending ping', { ...loggerCategory, wsKey });
+    this.logger.trace('Sending ping', { ...loggerCategory, wsKey });
     this.tryWsPing(wsKey);
 
     this.wsStore.get(wsKey, true).activePongTimer = setTimeout(
@@ -495,7 +496,7 @@ export class WebsocketClient extends EventEmitter {
     ws: WebSocket,
     source: WsEventInternalSrc,
   ) {
-    this.logger.silly('Received ping, sending pong frame', {
+    this.logger.trace('Received ping, sending pong frame', {
       ...loggerCategory,
       wsKey,
       source,
@@ -504,7 +505,7 @@ export class WebsocketClient extends EventEmitter {
   }
 
   private onWsPong(event: any, wsKey: WsKey, source: WsEventInternalSrc) {
-    this.logger.silly('Received pong, clearing pong timer', {
+    this.logger.trace('Received pong, clearing pong timer', {
       ...loggerCategory,
       wsKey,
       source,
@@ -726,14 +727,14 @@ export class WebsocketClient extends EventEmitter {
     }
 
     if (state.keepAliveTimer) {
-      this.logger.silly(
+      this.logger.trace(
         `Clearing old listen key interval timer for ${listenKey}`,
       );
       clearInterval(state.keepAliveTimer);
     }
 
     if (state.keepAliveRetryTimer) {
-      this.logger.silly(
+      this.logger.trace(
         `Clearing old listen key keepAliveRetry timer for ${listenKey}`,
       );
       clearTimeout(state.keepAliveRetryTimer);
@@ -916,7 +917,7 @@ export class WebsocketClient extends EventEmitter {
 
     this.clearUserDataKeepAliveTimer(listenKey);
 
-    this.logger.silly(`Created new listen key interval timer for ${listenKey}`);
+    this.logger.trace(`Created new listen key interval timer for ${listenKey}`);
 
     // Set timer to keep WS alive every 50 minutes
     const minutes50 = 1000 * 60 * 50;
@@ -1055,7 +1056,7 @@ export class WebsocketClient extends EventEmitter {
       }
 
       const reconnectDelaySeconds = 1000 * 15;
-      this.logger.warning(
+      this.logger.info(
         `Userdata keep alive request failed due to error, trying again with short delay (${reconnectDelaySeconds} seconds)`,
         {
           ...loggerCategory,
@@ -1789,8 +1790,11 @@ export class WebsocketClient extends EventEmitter {
     const market: WsMarket = 'spot';
     const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
 
-    if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
-      this.logger.silly(
+    if (
+      !forceNewConnection &&
+      this.wsStore.isConnectionAttemptInProgress(wsKey)
+    ) {
+      this.logger.trace(
         'Existing spot user data connection in progress for listen key. Avoiding duplicate',
       );
       return this.getWs(wsKey);
@@ -1857,8 +1861,11 @@ export class WebsocketClient extends EventEmitter {
         listenKey,
       );
 
-      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
-        this.logger.silly(
+      if (
+        !forceNewConnection &&
+        this.wsStore.isConnectionAttemptInProgress(wsKey)
+      ) {
+        this.logger.trace(
           'Existing margin user data connection in progress for listen key. Avoiding duplicate',
         );
         return this.getWs(wsKey);
@@ -1912,8 +1919,11 @@ export class WebsocketClient extends EventEmitter {
         listenKey,
       );
 
-      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
-        this.logger.silly(
+      if (
+        !forceNewConnection &&
+        this.wsStore.isConnectionAttemptInProgress(wsKey)
+      ) {
+        this.logger.trace(
           'Existing isolated margin user data connection in progress for listen key. Avoiding duplicate',
         );
         return this.getWs(wsKey);
@@ -1974,8 +1984,11 @@ export class WebsocketClient extends EventEmitter {
         listenKey,
       );
 
-      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
-        this.logger.silly(
+      if (
+        !forceNewConnection &&
+        this.wsStore.isConnectionAttemptInProgress(wsKey)
+      ) {
+        this.logger.trace(
           'Existing usd futures user data connection in progress for listen key. Avoiding duplicate',
         );
         return this.getWs(wsKey);
@@ -2034,8 +2047,11 @@ export class WebsocketClient extends EventEmitter {
         listenKey,
       );
 
-      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
-        this.logger.silly(
+      if (
+        !forceNewConnection &&
+        this.wsStore.isConnectionAttemptInProgress(wsKey)
+      ) {
+        this.logger.trace(
           'Existing usd futures user data connection in progress for listen key. Avoiding duplicate',
         );
         return this.getWs(wsKey);

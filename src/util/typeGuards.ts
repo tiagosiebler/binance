@@ -30,6 +30,10 @@ import {
   WsUserDataEvents,
 } from '../types/websockets';
 
+export function neverGuard(x: never, msg: string): Error {
+  return new Error(`Unhandled value exception "${x}", ${msg}`);
+}
+
 /**
  * Use type guards to narrow down types with minimal efforts.
  *
