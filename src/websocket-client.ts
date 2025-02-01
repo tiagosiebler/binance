@@ -23,7 +23,7 @@ import {
   getWsKeyWithContext,
   RestClientOptions,
 } from './util/requestUtils';
-import { safeTerminateWs } from './util/websockets/ws-utils';
+import { safeTerminateWs } from './util/websockets/websocket-util';
 import { WsStore } from './util/websockets/WsStore';
 import { WsConnectionStateEnum } from './util/websockets/WsStore.types';
 

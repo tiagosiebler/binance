@@ -9,16 +9,103 @@ import { neverGuard } from '../typeGuards';
 export const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
 export const WS_KEY_MAP = {
-  v5SpotPublic: 'v5SpotPublic',
-  v5LinearPublic: 'v5LinearPublic',
-  v5InversePublic: 'v5InversePublic',
-  v5OptionPublic: 'v5OptionPublic',
-  v5Private: 'v5Private',
-  /**
-   * The V5 Websocket API (for sending orders over WS)
-   */
-  v5PrivateTrade: 'v5PrivateTrade',
+  // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
+  main: 'main', // spot, margin, isolated margin, user data
+  main2: 'main2', // spot, margin, isolated margin, user data | alternative
+  main3: 'main3', // spot, margin, isolated margin | alternative | MARKET DATA ONLY | NO USER DATA
+
+  // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
+  mainWSAPI: 'mainWSAPI', // trading over WS in spot, margin, isolated margin. User data supported too.
+  mainWSAPI2: 'mainWSAPI2', // trading over WS in spot, margin, isolated margin. User data supported too.
+  mainWSAPITestnet: 'mainWSAPITestnet', // trading over WS in spot, margin, isolated margin | TESTNET
+
+  // https://developers.binance.com/docs/margin_trading/risk-data-stream
+  riskUserData: 'riskUserData',
+
+  // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
+  // market data, user data
+  usdm: 'usdm',
+  // https://developers.binance.com/docs/derivatives/usds-margined-futures/general-info
+  usdmTestnet: 'usdmTestnet',
+
+  // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
+  // ONLY WS API | NO USER DATA
+  usdmWSAPI: 'usdmWSAPI',
+  usdmWSAPITestnet: 'usdmWSAPITestnet',
+
+  coinm: 'coinm',
+  coinm2: 'coinm2',
+  coinmTestnet: 'coinmTestnet',
+
+  options: 'options',
+  optionsTestnet: 'optionsTestnet',
+
+  portfolioMargin: 'portfolioMargin',
+  portfolioMarginPro: 'portfolioMarginPro',
 } as const;
+
+/**
+   *
+   * Listen key sub on an active connection
+{
+  "method": "SUBSCRIBE",
+  "params": [
+    "listenkey"
+  ],
+  "id": 1
+}
+
+   *
+   *
+   */
+
+const allWsURLs: Record<string, string> = {
+  // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
+  main: 'wss://stream.binance.com:9443', // spot, margin, isolated margin, user data
+  main2: 'wss://stream.binance.com:443', // spot, margin, isolated margin, user data | alternative
+  main3: 'wss://data-stream.binance.vision', // spot, margin, isolated margin | alternative | MARKET DATA ONLY | NO USER DATA
+
+  // https://developers.binance.com/docs/binance-spot-api-docs/testnet/web-socket-streams#general-wss-information
+  mainTestnetPublic: 'wss://testnet.binance.vision/ws',
+  mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443',
+
+  // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
+  mainWSAPI: 'wss://ws-api.binance.com:443/ws-api/v3',
+  mainWSAPI2: 'wss://ws-api.binance.com:9443/ws-api/v3',
+  mainWSAPITestnet: 'wss://testnet.binance.vision/ws-api/v3',
+
+  // https://developers.binance.com/docs/margin_trading/risk-data-stream
+  marginRiskUserData: 'wss://margin-stream.binance.com',
+
+  // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
+  // market data, user data
+  usdm: 'wss://fstream.binance.com',
+
+  // https://developers.binance.com/docs/derivatives/usds-margined-futures/general-info
+  usdmTestnet: 'wss://stream.binancefuture.com',
+
+  // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
+  // ONLY WS API
+  usdmWSAPI: 'wss://ws-fapi.binance.com/ws-fapi/v1',
+  usdmWSAPITestnet: 'wss://testnet.binancefuture.com/ws-fapi/v1',
+
+  // https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-market-streams
+  // market data, user data
+  coinm: 'wss://dstream.binance.com',
+  coinm2: 'wss://dstream-auth.binance.com',
+  // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
+  coinmTestnet: 'wss://dstream.binancefuture.com',
+
+  // https://developers.binance.com/docs/derivatives/option/user-data-streams
+  options: 'wss://nbstream.binance.com/eoptions',
+  // optionsTestnet: 'wss://testnetws.binanceops.com',
+
+  // https://developers.binance.com/docs/derivatives/portfolio-margin/user-data-streams
+  portfolioMargin: 'wss://fstream.binance.com/pm', // /ws/listekeyhere
+
+  // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
+  portfolioMarginPro: 'wss://fstream.binance.com/pm-classic', // /ws/listenkeyhere
+};
 
 export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [
   WS_KEY_MAP.v5Private,
