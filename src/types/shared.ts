@@ -93,7 +93,9 @@ export type OrderType =
 export type OrderListOrderType =
   | 'STOP_LOSS_LIMIT'
   | 'STOP_LOSS'
-  | 'LIMIT_MAKER';
+  | 'LIMIT_MAKER'
+  | 'TAKE_PROFIT'
+  | 'TAKE_PROFIT_LIMIT';
 
 export type SelfTradePreventionMode =
   | 'EXPIRE_TAKER'
