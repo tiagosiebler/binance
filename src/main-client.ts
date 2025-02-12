@@ -1281,7 +1281,7 @@ export class MainClient extends BaseRestClient {
   getIsolatedMarginAccountInfo(params?: {
     symbols?: string;
   }): Promise<IsolatedMarginAccountInfo> {
-    return this.getPrivate('sapi/v1/margin/isolated/account', { params });
+    return this.getPrivate('sapi/v1/margin/isolated/account', params);
   }
 
   getIsolatedMarginFeeData(
