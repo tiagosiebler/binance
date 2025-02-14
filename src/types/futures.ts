@@ -375,6 +375,7 @@ export interface FundingRateHistory {
   symbol: string;
   fundingRate: numberInString;
   fundingTime: number;
+  markPrice: numberInString;
 }
 
 export interface FuturesSymbolOrderBookTicker {
