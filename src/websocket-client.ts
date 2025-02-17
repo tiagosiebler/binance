@@ -137,7 +137,9 @@ export class WebsocketClient extends EventEmitter {
 
   private wsStore: WsStore<WsKey | string, string>;
 
-  private beautifier: Beautifier;
+  private beautifier: Beautifier = new Beautifier({
+    warnKeyMissingInMap: false,
+  });
 
   private restClients: Partial<RestClientStore>;
 
@@ -153,7 +155,6 @@ export class WebsocketClient extends EventEmitter {
 
     this.logger = logger || DefaultLogger;
     this.wsStore = new WsStore(this.logger);
-    this.beautifier = new Beautifier();
 
     this.restClients = {};
 
@@ -383,8 +384,8 @@ export class WebsocketClient extends EventEmitter {
       const msg = parseRawWsMessage(event);
 
       // Edge case where raw event does not include event type, detect using wsKey and mutate msg.e
-      appendEventIfMissing(msg, wsKey);
-      appendEventMarket(msg, wsKey);
+      appendEventIfMissing(msg, wsKey as any);
+      appendEventMarket(msg, wsKey as any);
 
       const eventType = parseEventTypeFromMessage(msg);
       if (eventType) {
@@ -1607,7 +1608,7 @@ export class WebsocketClient extends EventEmitter {
     forceNewConnection?: boolean,
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
-    const streamName = 'depth';
+    const streamName = 'diffBookDepth';
     const wsKey = getWsKeyWithContext(
       market,
       'diffBookDepth',

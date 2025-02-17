@@ -85,7 +85,9 @@ export class WebsocketClientNew extends BaseWebsocketClient<
   WsKey,
   WsRequestOperationBinance<WsTopic>
 > {
-  private beautifier: Beautifier = new Beautifier();
+  private beautifier: Beautifier = new Beautifier({
+    warnKeyMissingInMap: true,
+  });
 
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting
@@ -602,14 +604,16 @@ export class WebsocketClientNew extends BaseWebsocketClient<
       // const eventType = eventType; //parsed?.stream;
       // const eventOperation = parsed?.op;
 
-      // this.logger.trace('resolveEmittableEvents', {
-      //   ...WS_LOGGER_CATEGORY,
-      //   wsKey,
-      //   eventType,
-      //   parsed: JSON.stringify(parsed),
-      //   // parsed: JSON.stringify(parsed, null, 2),
-      // });
-
+      const traceEmittable = false;
+      if (traceEmittable) {
+        this.logger.trace('resolveEmittableEvents', {
+          ...WS_LOGGER_CATEGORY,
+          wsKey,
+          eventType,
+          parsed: JSON.stringify(parsed),
+          // parsed: JSON.stringify(parsed, null, 2),
+        });
+      }
       const reqId = parsed.id;
       const isWSAPIResponse = typeof parsed.id === 'number';
 
@@ -626,11 +630,6 @@ export class WebsocketClientNew extends BaseWebsocketClient<
       // TODO: after
       if (isWSAPIResponse) {
         const retCode = parsed.retCode;
-
-        this.logger.trace(
-          'resolveEmittableEvents(): parse response: ',
-          JSON.stringify(parsed, null, 2),
-        );
 
         /**
          * Responses to "subscribe" are quite basic, with no indication of errors (e.g. bad topic):
@@ -760,6 +759,7 @@ export class WebsocketClientNew extends BaseWebsocketClient<
           eventType: 'message',
           event: parsed?.data ? parsed.data : parsed,
         });
+
         return results;
       }
 
@@ -951,7 +951,7 @@ export class WebsocketClientNew extends BaseWebsocketClient<
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
 
     const wsKey = resolveWsKeyForMarket(market);
-    return this.subscribe(`${streamName}@${speedSuffix}`, wsKey);
+    return this.subscribe(`${streamName}${speedSuffix}`, wsKey);
   }
 
   /**
@@ -1017,7 +1017,7 @@ export class WebsocketClientNew extends BaseWebsocketClient<
     interval: KlineInterval,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
-    const streamName = 'markPrice_kline';
+    const streamName = 'markPriceKline';
     const market: WsMarket = 'coinm';
 
     const wsKey = resolveWsKeyForMarket(market);
@@ -1115,9 +1115,7 @@ export class WebsocketClientNew extends BaseWebsocketClient<
   /**
    * Subscribe to best bid/ask for all symbols in spot markets.
    */
-  public subscribeAllBookTickers(
-    market: 'spot' | 'usdm' | 'coinm',
-  ): Promise<unknown> {
+  public subscribeAllBookTickers(market: 'usdm' | 'coinm'): Promise<unknown> {
     const streamName = 'bookTicker';
 
     const wsKey = resolveWsKeyForMarket(market);
@@ -1192,7 +1190,7 @@ export class WebsocketClientNew extends BaseWebsocketClient<
     market: 'spot' | 'usdm' | 'coinm',
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
-    const streamName = 'diffBookDepth';
+    const streamName = market === 'spot' ? 'depth' : 'diffBookDepth';
 
     const wsKey = resolveWsKeyForMarket(market);
     const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
@@ -1277,13 +1275,6 @@ export class WebsocketClientNew extends BaseWebsocketClient<
    */
   public subscribeSpotSymbolBookTicker(symbol: string): Promise<unknown> {
     return this.subscribeSymbolBookTicker(symbol, 'spot');
-  }
-
-  /**
-   * Subscribe to best bid/ask for all symbols in spot markets.
-   */
-  public subscribeSpotAllBookTickers(): Promise<unknown> {
-    return this.subscribeAllBookTickers('spot');
   }
 
   /**

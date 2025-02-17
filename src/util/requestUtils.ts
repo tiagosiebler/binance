@@ -11,9 +11,8 @@ import {
 } from '../types/shared';
 import { WsMarket } from '../types/websockets';
 import { USDMClient } from '../usdm-client';
-import { WsKey } from '../websocket-client';
 import { signMessage } from './node-support';
-import { parseEventTypeFromMessage } from './websockets/websocket-util';
+import { parseEventTypeFromMessage, WsKey } from './websockets/websocket-util';
 
 export type RestClient = MainClient | USDMClient;
 
@@ -330,7 +329,7 @@ interface WsContext {
   otherParams: undefined | string[];
 }
 
-export function getContextFromWsKey(wsKey: WsKey): WsContext {
+export function getContextFromWsKey(wsKey: any): WsContext {
   const [market, streamName, symbol, listenKey, ...otherParams] =
     wsKey.split('_');
   return {
@@ -350,7 +349,7 @@ export function getWsKeyWithContext(
   symbol: string | undefined = undefined,
   listenKey: string | undefined = undefined,
   ...otherParams: (string | boolean)[]
-): WsKey {
+): any {
   return [market, streamName, symbol, listenKey, ...otherParams].join('_');
 }
 

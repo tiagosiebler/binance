@@ -351,14 +351,16 @@ export function parseEventTypeFromMessage(parsedMsg?: any): string | undefined {
   if (parsedMsg?.stream && typeof parsedMsg?.stream === 'string') {
     const streamName = parsedMsg.stream;
 
-    // All symbol streams can be returned as is
+    const eventType = streamName.split('@');
+
+    // All symbol streams can be returned as is, just need to extract the left-most text before any @ or _
     if (streamName.startsWith('!')) {
-      return streamName;
+      const subEventType = eventType[0].split('_');
+      return subEventType[0].replace('!', '');
     }
 
     // Per symbol streams can have the symbol trimmed off (string before first "@")
     // E.g. btcusdt@kline_5m@+08:00 -> kline_5m@+08:00
-    const eventType = streamName.split('@');
     if (eventType.length) {
       // remove first, keep the rest rejoined
       eventType.shift();

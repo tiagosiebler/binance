@@ -124,6 +124,45 @@ interface WsKeyPendingTopicSubscriptions<TWSRequestEvent extends object> {
 }
 
 /**
+ * Appends wsKey and isWSAPIResponse to all events.
+ * Some events are arrays, this handles that nested scenario too.
+ */
+function getFinalEmittable(
+  emittable: EmittableEvent | EmittableEvent[],
+  wsKey: any,
+  isWSAPIResponse?: boolean,
+): any {
+  if (Array.isArray(emittable)) {
+    return emittable.map((subEvent) =>
+      getFinalEmittable(subEvent, wsKey, isWSAPIResponse),
+    );
+  }
+
+  if (Array.isArray(emittable.event)) {
+    return {
+      ...emittable.event,
+      event: emittable.event.map((subEvent) =>
+        getFinalEmittable(subEvent, wsKey, isWSAPIResponse),
+      ),
+    };
+  }
+
+  if (emittable.event) {
+    return {
+      ...emittable.event,
+      wsKey: wsKey,
+      isWSAPIResponse: !!isWSAPIResponse,
+    };
+  }
+
+  return {
+    ...emittable,
+    wsKey: wsKey,
+    isWSAPIResponse: !!isWSAPIResponse,
+  };
+}
+
+/**
  * Base WebSocket abstraction layer. Handles connections, tracking each connection as a unique "WS Key"
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -1060,11 +1099,20 @@ export abstract class BaseWebsocketClient<
             });
             continue;
           }
-          const emittableFinalEvent = {
-            ...emittable.event,
+
+          // this.logger.trace(
+          //   'getFinalEmittable()->pre(): ',
+          //   JSON.stringify(emittable),
+          // );
+          const emittableFinalEvent = getFinalEmittable(
+            emittable,
             wsKey,
-            isWSAPIResponse: emittable.isWSAPIResponse,
-          };
+            emittable.isWSAPIResponse,
+          );
+          // this.logger.trace(
+          //   'getFinalEmittable()->post(): ',
+          //   JSON.stringify(emittable),
+          // );
 
           if (emittable.eventType === 'authenticated') {
             this.logger.trace('Successfully authenticated', {

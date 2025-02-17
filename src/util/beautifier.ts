@@ -1,6 +1,10 @@
 import { WsFormattedMessage } from '../types/websockets';
 import { BEAUTIFIER_EVENT_MAP } from './beautifier-maps';
 
+export interface BeautifierConfig {
+  warnKeyMissingInMap: boolean;
+}
+
 export default class Beautifier {
   private beautificationMap: Record<string, Record<string, any>>;
 
@@ -8,7 +12,10 @@ export default class Beautifier {
 
   private floatKeysHashMap: Record<string, boolean>;
 
-  constructor() {
+  private config: BeautifierConfig | undefined;
+
+  constructor(config: BeautifierConfig) {
+    this.config = config;
     this.floatKeys = [
       'accumulatedQuantity',
       'accumulatedRealisedPreFee',
@@ -203,9 +210,22 @@ export default class Beautifier {
       );
       return data;
     }
+
     const knownBeautification = this.beautificationMap[key];
     if (!knownBeautification) {
-      // console.log(`beautify unknown key(..., "${key}")`);
+      const valueType = typeof data;
+      const isPrimitive =
+        valueType === 'string' ||
+        valueType === 'number' ||
+        valueType === 'boolean';
+
+      // Nothing to warn for primitives
+      if (this.config?.warnKeyMissingInMap && !isPrimitive) {
+        console.log(`Beautifier(): key not found in map: key(..., "${key}")`, {
+          valueType,
+          data,
+        });
+      }
       if (Array.isArray(data)) {
         return this.beautifyArrayValues(data);
       }
