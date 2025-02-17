@@ -430,7 +430,10 @@ export abstract class BaseWebsocketClient<
   /**
    * Request connection to a specific websocket, instead of waiting for automatic connection.
    */
-  public async connect(wsKey: TWSKey): Promise<WSConnectedResult | undefined> {
+  public async connect(
+    wsKey: TWSKey,
+    customUrl?: string,
+  ): Promise<WSConnectedResult | undefined> {
     try {
       if (this.wsStore.isWsOpen(wsKey)) {
         this.logger.error(
@@ -461,7 +464,7 @@ export abstract class BaseWebsocketClient<
         this.wsStore.createConnectionInProgressPromise(wsKey, false);
       }
 
-      const url = await this.getWsUrl(wsKey);
+      const url = customUrl || (await this.getWsUrl(wsKey));
       const ws = this.connectToWsUrl(url, wsKey);
 
       this.wsStore.setWs(wsKey, ws);

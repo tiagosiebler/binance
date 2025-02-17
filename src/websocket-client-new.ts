@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-constraint */
 import WebSocket from 'isomorphic-ws';
 
-import { parseRawWsMessage } from '.';
+import { getWsKeyWithContext, KlineInterval, parseRawWsMessage } from '.';
 import { WsMarket } from './types/websockets';
 import {
   Exact,
@@ -43,10 +43,24 @@ import { WSConnectedResult } from './util/websockets/WsStore.types';
 
 const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
+function resolveWsKeyForMarket(market: 'spot' | 'usdm' | 'coinm'): WsKey {
+  switch (market) {
+    case 'spot': {
+      return 'main';
+    }
+    case 'coinm': {
+      return 'coinm';
+    }
+    case 'usdm': {
+      return 'usdm';
+    }
+  }
+}
+
 /**
  *
  * Different steps:
- * - Public WS subscription on multiplex connection.
+ * - [x] Public WS subscription on multiplex connection.
  * - Listenkey subscription on multiplex connection.
  * - Listenkey subscription on DEDICATED connection.
  * - WS API commands
@@ -581,6 +595,8 @@ export class WebsocketClientNew extends BaseWebsocketClient<
       const parsed = parseRawWsMessage(event);
       const eventType = parseEventTypeFromMessage(parsed);
 
+      // Some events don't include the topic (event name)
+      // This tries to extract and append it, using available context
       appendEventIfMissing(parsed, wsKey);
 
       // const eventType = eventType; //parsed?.stream;
@@ -711,7 +727,7 @@ export class WebsocketClientNew extends BaseWebsocketClient<
           isWSAPIResponse,
         });
 
-        // emit a separate event for user data messages
+        // emit an additional event for user data messages
         // TODO: this still works?
         if (!Array.isArray(beautifiedMessage) && eventType) {
           if (
@@ -812,5 +828,482 @@ export class WebsocketClientNew extends BaseWebsocketClient<
     }
 
     return results;
+  }
+
+  /**
+   *
+   *
+   *
+   *
+   * Convenient subscribe methods, similar to the original WebsocketClient for binance
+   *
+   *
+   *
+   *
+   */
+
+  /**
+   * --------------------------
+   * Universal market websocket streams (may apply to one or more API markets)
+   * --------------------------
+   **/
+
+  /**
+   * Advanced: Subscribe to a universal market websocket stream
+   *
+   * This is NOT recommended unless you're very confident with what you're doing.
+   */
+  public subscribeEndpoint(
+    endpoint: string,
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const wsBaseEndpoints: Record<WsMarket, string> = {
+      spot: 'wss://stream.binance.com:9443',
+      margin: 'wss://stream.binance.com:9443',
+      isolatedMargin: 'wss://stream.binance.com:9443',
+      usdm: 'wss://fstream.binance.com',
+      usdmTestnet: 'wss://stream.binancefuture.com',
+      coinm: 'wss://dstream.binance.com',
+      coinmTestnet: 'wss://dstream.binancefuture.com',
+      options: 'wss://vstream.binance.com',
+      optionsTestnet: 'wss://testnetws.binanceops.com',
+    };
+
+    const wsKey = getWsKeyWithContext(market, endpoint);
+    return this.connect(wsKey, wsBaseEndpoints[market] + `/ws/${endpoint}`);
+  }
+
+  /**
+   * Subscribe to aggregate trades for a symbol in a market category
+   */
+  public subscribeAggregateTrades(
+    symbol: string,
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'aggTrade';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
+  }
+
+  /**
+   * Subscribe to trades for a symbol in a market category
+   * IMPORTANT: This topic for usdm and coinm is not listed in the api docs and might stop working without warning
+   */
+  public subscribeTrades(
+    symbol: string,
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'trade';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
+  }
+
+  /**
+   * Subscribe to coin index for a symbol in COINM Futures markets
+   */
+  public subscribeCoinIndexPrice(
+    symbol: string,
+    updateSpeedMs: 1000 | 3000 = 3000,
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'indexPrice';
+    const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
+    const market: WsMarket = 'coinm';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}${speedSuffix}`,
+      wsKey,
+    );
+  }
+
+  /**
+   * Subscribe to mark price for a symbol in a market category
+   */
+  public subscribeMarkPrice(
+    symbol: string,
+    market: 'usdm' | 'coinm',
+    updateSpeedMs: 1000 | 3000 = 3000,
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'markPrice';
+    const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}${speedSuffix}`,
+      wsKey,
+    );
+  }
+
+  /**
+   * Subscribe to mark price for all symbols in a market category
+   */
+  public subscribeAllMarketMarkPrice(
+    market: 'usdm' | 'coinm',
+    updateSpeedMs: 1000 | 3000 = 3000,
+  ): Promise<unknown> {
+    const streamName = '!markPrice@arr';
+    const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`${streamName}@${speedSuffix}`, wsKey);
+  }
+
+  /**
+   * Subscribe to klines(candles) for a symbol in a market category
+   */
+  public subscribeKlines(
+    symbol: string,
+    interval: KlineInterval,
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'kline';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}_${interval}`,
+      wsKey,
+    );
+  }
+
+  /**
+   * Subscribe to continuous contract klines(candles) for a symbol futures
+   */
+  public subscribeContinuousContractKlines(
+    symbol: string,
+    contractType: 'perpetual' | 'current_quarter' | 'next_quarter',
+    interval: KlineInterval,
+    market: 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'continuousKline';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}_${contractType}@${streamName}_${interval}`,
+      wsKey,
+    );
+  }
+
+  /**
+   * Subscribe to index klines(candles) for a symbol in a coinm futures
+   */
+  public subscribeIndexKlines(
+    symbol: string,
+    interval: KlineInterval,
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'indexPriceKline';
+    const market: WsMarket = 'coinm';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}_${interval}`,
+      wsKey,
+    );
+  }
+
+  /**
+   * Subscribe to index klines(candles) for a symbol in a coinm futures
+   */
+  public subscribeMarkPriceKlines(
+    symbol: string,
+    interval: KlineInterval,
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'markPrice_kline';
+    const market: WsMarket = 'coinm';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}_${interval}`,
+      wsKey,
+    );
+  }
+
+  /**
+   * Subscribe to mini 24hr ticker for a symbol in market category.
+   */
+  public subscribeSymbolMini24hrTicker(
+    symbol: string,
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'miniTicker';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
+  }
+
+  /**
+   * Subscribe to mini 24hr mini ticker in market category.
+   */
+  public subscribeAllMini24hrTickers(
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const streamName = 'miniTicker';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`!${streamName}@arr`, wsKey);
+  }
+
+  /**
+   * Subscribe to 24hr ticker for a symbol in any market.
+   */
+  public subscribeSymbol24hrTicker(
+    symbol: string,
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'ticker';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
+  }
+
+  /**
+   * Subscribe to 24hr ticker in any market.
+   */
+  public subscribeAll24hrTickers(
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const streamName = 'ticker';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`!${streamName}@arr`, wsKey);
+  }
+
+  /**
+   * Subscribe to rolling window ticker statistics for all market symbols,
+   * computed over multiple windows. Note that only tickers that have
+   * changed will be present in the array.
+   *
+   * Notes:
+   * - Supported window sizes: 1h,4h,1d.
+   * - Supported markets: spot
+   */
+  public subscribeAllRollingWindowTickers(
+    market: 'spot',
+    windowSize: '1h' | '4h' | '1d',
+  ): Promise<unknown> {
+    const streamName = 'ticker';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`!${streamName}_${windowSize}@arr`, wsKey);
+  }
+
+  /**
+   * Subscribe to best bid/ask for symbol in spot markets.
+   */
+  public subscribeSymbolBookTicker(
+    symbol: string,
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'bookTicker';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
+  }
+
+  /**
+   * Subscribe to best bid/ask for all symbols in spot markets.
+   */
+  public subscribeAllBookTickers(
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const streamName = 'bookTicker';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`!${streamName}`, wsKey);
+  }
+
+  /**
+   * Subscribe to best bid/ask for symbol in spot markets.
+   */
+  public subscribeSymbolLiquidationOrders(
+    symbol: string,
+    market: 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'forceOrder';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
+  }
+
+  /**
+   * Subscribe to best bid/ask for all symbols in spot markets.
+   */
+  public subscribeAllLiquidationOrders(
+    market: 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const streamName = 'forceOrder@arr';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`!${streamName}`, wsKey);
+  }
+
+  /**
+   * Subscribe to partial book depths (snapshots).
+   *
+   * Note:
+   * - spot only supports 1000ms or 100ms for updateMs
+   * - futures only support 100, 250 or 500ms for updateMs
+   *
+   * Use getContextFromWsKey(data.wsKey) to extract symbol from events
+   */
+  public subscribePartialBookDepths(
+    symbol: string,
+    levels: 5 | 10 | 20,
+    updateMs: 100 | 250 | 500 | 1000,
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'depth';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`,
+      wsKey,
+    );
+  }
+
+  /**
+   * Subscribe to orderbook depth updates to locally manage an order book.
+   *
+   * Note that the updatems parameter depends on which market you're trading
+   *
+   * - Spot: https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream
+   * - USDM Futures: https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams
+   *
+   * Use getContextFromWsKey(data.wsKey) to extract symbol from events
+   */
+  public subscribeDiffBookDepth(
+    symbol: string,
+    updateMs: 100 | 250 | 500 | 1000 = 100,
+    market: 'spot' | 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    const streamName = 'diffBookDepth';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}${updateMsSuffx}`,
+      wsKey,
+    );
+  }
+
+  /**
+   * Subscribe to best bid/ask for all symbols in spot markets.
+   */
+  public subscribeContractInfoStream(
+    market: 'usdm' | 'coinm',
+  ): Promise<unknown> {
+    const streamName = '!contractInfo';
+
+    const wsKey = resolveWsKeyForMarket(market);
+    return this.subscribe(`${streamName}`, wsKey);
+  }
+
+  /**
+   * --------------------------
+   * SPOT market websocket streams
+   * --------------------------
+   **/
+
+  /**
+   * Subscribe to aggregate trades for a symbol in spot markets.
+   */
+  public subscribeSpotAggregateTrades(symbol: string): Promise<unknown> {
+    return this.subscribeAggregateTrades(symbol, 'spot');
+  }
+
+  /**
+   * Subscribe to trades for a symbol in spot markets.
+   */
+  public subscribeSpotTrades(symbol: string): Promise<unknown> {
+    return this.subscribeTrades(symbol, 'spot');
+  }
+
+  /**
+   * Subscribe to candles for a symbol in spot markets.
+   */
+  public subscribeSpotKline(
+    symbol: string,
+    interval: KlineInterval,
+  ): Promise<unknown> {
+    return this.subscribeKlines(symbol, interval, 'spot');
+  }
+
+  /**
+   * Subscribe to mini 24hr ticker for a symbol in spot markets.
+   */
+  public subscribeSpotSymbolMini24hrTicker(symbol: string): Promise<unknown> {
+    return this.subscribeSymbolMini24hrTicker(symbol, 'spot');
+  }
+
+  /**
+   * Subscribe to mini 24hr mini ticker in spot markets.
+   */
+  public subscribeSpotAllMini24hrTickers(): Promise<unknown> {
+    return this.subscribeAllMini24hrTickers('spot');
+  }
+
+  /**
+   * Subscribe to 24hr ticker for a symbol in spot markets.
+   */
+  public subscribeSpotSymbol24hrTicker(symbol: string): Promise<unknown> {
+    return this.subscribeSymbol24hrTicker(symbol, 'spot');
+  }
+
+  /**
+   * Subscribe to 24hr ticker in spot markets.
+   */
+  public subscribeSpotAll24hrTickers(): Promise<unknown> {
+    return this.subscribeAll24hrTickers('spot');
+  }
+
+  /**
+   * Subscribe to best bid/ask for symbol in spot markets.
+   */
+  public subscribeSpotSymbolBookTicker(symbol: string): Promise<unknown> {
+    return this.subscribeSymbolBookTicker(symbol, 'spot');
+  }
+
+  /**
+   * Subscribe to best bid/ask for all symbols in spot markets.
+   */
+  public subscribeSpotAllBookTickers(): Promise<unknown> {
+    return this.subscribeAllBookTickers('spot');
+  }
+
+  /**
+   * Subscribe to top bid/ask levels for symbol in spot markets.
+   */
+  public subscribeSpotPartialBookDepth(
+    symbol: string,
+    levels: 5 | 10 | 20,
+    updateMs: 1000 | 100 = 1000,
+  ): Promise<unknown> {
+    return this.subscribePartialBookDepths(symbol, levels, updateMs, 'spot');
+  }
+
+  /**
+   * Subscribe to spot orderbook depth updates to locally manage an order book.
+   */
+  public subscribeSpotDiffBookDepth(
+    symbol: string,
+    updateMs: 1000 | 100 = 1000,
+  ): Promise<unknown> {
+    return this.subscribeDiffBookDepth(symbol, updateMs, 'spot');
   }
 }

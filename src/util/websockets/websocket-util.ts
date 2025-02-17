@@ -84,8 +84,8 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
   // TODO: combined stream suffix on all of these
   // https://developers.binance.com/docs/binance-spot-api-docs/testnet/web-socket-streams#general-wss-information
-  mainTestnetPublic: 'wss://testnet.binance.vision/ws',
-  mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443',
+  mainTestnetPublic: 'wss://testnet.binance.vision/stream',
+  mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443/stream',
 
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
   mainWSAPI: 'wss://ws-api.binance.com:443/ws-api/v3',
@@ -97,10 +97,10 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
   // market data, user data
-  usdm: 'wss://fstream.binance.com',
+  usdm: 'wss://fstream.binance.com/stream',
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/general-info
-  usdmTestnet: 'wss://stream.binancefuture.com',
+  usdmTestnet: 'wss://stream.binancefuture.com/stream',
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
   // ONLY WS API
@@ -109,10 +109,10 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-market-streams
   // market data, user data
-  coinm: 'wss://dstream.binance.com',
-  coinm2: 'wss://dstream-auth.binance.com',
+  coinm: 'wss://dstream.binance.com/stream',
+  coinm2: 'wss://dstream-auth.binance.com/stream',
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
-  coinmTestnet: 'wss://dstream.binancefuture.com',
+  coinmTestnet: 'wss://dstream.binancefuture.com/stream',
 
   // https://developers.binance.com/docs/derivatives/option/user-data-streams
   options: 'wss://nbstream.binance.com/eoptions',

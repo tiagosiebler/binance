@@ -1,10 +1,10 @@
 import {
-  WebsocketClient,
   DefaultLogger,
   isWsFormatted24hrTicker,
-  isWsFormattedKline,
   isWsFormatted24hrTickerArray,
+  isWsFormattedKline,
   isWsFormattedRollingWindowTickerArray,
+  WebsocketClient,
 } from '../src';
 
 // or, with the npm package
