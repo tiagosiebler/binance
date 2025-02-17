@@ -1,25 +1,24 @@
-import { WS_KEY_MAP } from '../../util/websockets/websocket-util';
-import { WsKey } from './ws-general';
+import { WS_KEY_MAP, WsKey } from '../../util/websockets/websocket-util';
 
-export type WSAPIOperation = 'order.create' | 'order.amend' | 'order.cancel';
+export type WSAPIOperation = any; //'order.create' | 'order.amend' | 'order.cancel';
 
 export type WsOperation =
-  | 'subscribe'
-  | 'unsubscribe'
-  | 'auth'
-  | 'ping'
-  | 'pong';
+  | 'SUBSCRIBE'
+  | 'UNSUBSCRIBE'
+  | 'LIST_SUBSCRIPTIONS'
+  | 'SET_PROPERTY'
+  | 'GET_PROPERTY';
 
 export const WS_API_Operations: WSAPIOperation[] = [
-  'order.create',
-  'order.amend',
-  'order.cancel',
+  // 'order.create',
+  // 'order.amend',
+  // 'order.cancel',
 ];
 
-export interface WsRequestOperationBybit<TWSTopic extends string> {
-  req_id: string;
-  op: WsOperation;
-  args?: (TWSTopic | string | number)[];
+export interface WsRequestOperationBinance<TWSTopic extends string> {
+  method: WsOperation;
+  params?: (TWSTopic | string | number)[];
+  id: number;
 }
 
 export interface WSAPIRequest<
@@ -32,7 +31,6 @@ export interface WSAPIRequest<
   header: {
     'X-BAPI-TIMESTAMP': string;
     'X-BAPI-RECV-WINDOW': string;
-    // Referer: typeof APIID;
   };
   args: [TRequestParams];
 }
@@ -69,26 +67,55 @@ export type Exact<T> = {
  * List of operations supported for this WsKey (connection)
  */
 export interface WsAPIWsKeyTopicMap {
-  [WS_KEY_MAP.v5PrivateTrade]: WSAPIOperation;
+  [WS_KEY_MAP.main]: WsOperation;
+  [WS_KEY_MAP.main2]: WsOperation;
+  [WS_KEY_MAP.main3]: WsOperation;
+
+  [WS_KEY_MAP.mainTestnetPublic]: WsOperation;
+  [WS_KEY_MAP.mainTestnetUserData]: WsOperation;
+
+  [WS_KEY_MAP.marginRiskUserData]: WsOperation;
+  [WS_KEY_MAP.usdm]: WsOperation;
+  [WS_KEY_MAP.usdmTestnet]: WsOperation;
+
+  [WS_KEY_MAP.coinm]: WsOperation;
+  [WS_KEY_MAP.coinm2]: WsOperation;
+  [WS_KEY_MAP.coinmTestnet]: WsOperation;
+  [WS_KEY_MAP.options]: WsOperation;
+  [WS_KEY_MAP.portfolioMargin]: WsOperation;
+  [WS_KEY_MAP.portfolioMarginPro]: WsOperation;
+
+  [WS_KEY_MAP.mainWSAPI]: WSAPIOperation;
+  [WS_KEY_MAP.mainWSAPI2]: WSAPIOperation;
+  [WS_KEY_MAP.mainWSAPITestnet]: WSAPIOperation;
+
+  [WS_KEY_MAP.usdmWSAPI]: WSAPIOperation;
+  [WS_KEY_MAP.usdmWSAPITestnet]: WSAPIOperation;
 }
 
 /**
  * Request parameters expected per operation
  */
 export interface WsAPITopicRequestParamMap {
-  'order.create': never;
+  SUBSCRIBE: never;
+  UNSUBSCRIBE: never;
+  LIST_SUBSCRIPTIONS: never;
+  SET_PROPERTY: never;
+  GET_PROPERTY: never;
 }
 
 /**
  * Response structure expected for each operation
  */
 export interface WsAPIOperationResponseMap {
-  'order.create': WSAPIResponse<never, 'order.create'>;
-  ping: {
-    retCode: 0 | number;
-    retMsg: 'OK' | string;
-    op: 'pong';
-    data: [string];
-    connId: string;
-  };
+  [key: string]: never;
+
+  // 'order.create': WSAPIResponse<never, 'order.create'>;
+  // ping: {
+  //   retCode: 0 | number;
+  //   retMsg: 'OK' | string;
+  //   op: 'pong';
+  //   data: [string];
+  //   connId: string;
+  // };
 }

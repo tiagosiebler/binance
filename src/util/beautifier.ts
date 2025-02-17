@@ -266,22 +266,31 @@ export default class Beautifier {
    * Entry point to beautify WS message. EventType is determined automatically unless this is a combined stream event.
    */
   beautifyWsMessage(
-    data: any,
+    event: any,
     eventType?: string,
     isCombined?: boolean,
   ): WsFormattedMessage {
-    if (Array.isArray(data)) {
-      return data.map((event) => {
+    if (event.data) {
+      return this.beautifyWsMessage(event.data, eventType, isCombined);
+    }
+
+    if (Array.isArray(event)) {
+      return event.map((event) => {
         if (event.e) {
           return this.beautify(event, event.e + 'Event');
         }
         return event;
       });
-    } else if (data.e) {
-      return this.beautify(data, data.e + 'Event') as WsFormattedMessage;
-    } else if (isCombined && typeof data === 'object' && data !== null) {
-      return this.beautify(data, eventType) as WsFormattedMessage;
     }
-    return data;
+
+    if (event.e) {
+      return this.beautify(event, event.e + 'Event') as WsFormattedMessage;
+    }
+
+    if (isCombined && typeof event === 'object' && event !== null) {
+      return this.beautify(event, eventType) as WsFormattedMessage;
+    }
+
+    return event;
   }
 }

@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import WebSocket from 'isomorphic-ws';
 
+import { DefaultLogger } from '../..';
 import { WSAPIRequest } from '../../types/websockets/ws-api';
-import { APIMarket, WsTopic } from '../../types/websockets/ws-general';
-import { WebsocketClientOptions, WsKey } from '../../websocket-client';
-import { DefaultLogger } from '../logger';
-import { neverGuard } from '../typeGuards';
+import {
+  WebsocketClientOptions,
+  WsTopic,
+} from '../../types/websockets/ws-general';
+// import { DefaultLogger } from '../logger';
+// import { neverGuard } from '../typeGuards';
 
 export const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
@@ -14,17 +18,22 @@ export const WS_KEY_MAP = {
   main2: 'main2', // spot, margin, isolated margin, user data | alternative
   main3: 'main3', // spot, margin, isolated margin | alternative | MARKET DATA ONLY | NO USER DATA
 
+  // https://developers.binance.com/docs/binance-spot-api-docs/testnet/web-socket-streams#general-wss-information
+  mainTestnetPublic: 'mainTestnetPublic',
+  mainTestnetUserData: 'mainTestnetUserData',
+
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
   mainWSAPI: 'mainWSAPI', // trading over WS in spot, margin, isolated margin. User data supported too.
   mainWSAPI2: 'mainWSAPI2', // trading over WS in spot, margin, isolated margin. User data supported too.
   mainWSAPITestnet: 'mainWSAPITestnet', // trading over WS in spot, margin, isolated margin | TESTNET
 
   // https://developers.binance.com/docs/margin_trading/risk-data-stream
-  riskUserData: 'riskUserData',
+  marginRiskUserData: 'marginRiskUserData',
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
   // market data, user data
   usdm: 'usdm',
+
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/general-info
   usdmTestnet: 'usdmTestnet',
 
@@ -33,16 +42,24 @@ export const WS_KEY_MAP = {
   usdmWSAPI: 'usdmWSAPI',
   usdmWSAPITestnet: 'usdmWSAPITestnet',
 
+  // https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-market-streams
+  // market data, user data
   coinm: 'coinm',
   coinm2: 'coinm2',
+  // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
   coinmTestnet: 'coinmTestnet',
 
   options: 'options',
-  optionsTestnet: 'optionsTestnet',
+  // optionsTestnet: 'optionsTestnet',
 
+  // https://developers.binance.com/docs/derivatives/portfolio-margin/user-data-streams
   portfolioMargin: 'portfolioMargin',
+
+  // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
   portfolioMarginPro: 'portfolioMarginPro',
 } as const;
+
+export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
 
 /**
    *
@@ -59,12 +76,13 @@ export const WS_KEY_MAP = {
    *
    */
 
-const allWsURLs: Record<string, string> = {
+export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
-  main: 'wss://stream.binance.com:9443', // spot, margin, isolated margin, user data
-  main2: 'wss://stream.binance.com:443', // spot, margin, isolated margin, user data | alternative
-  main3: 'wss://data-stream.binance.vision', // spot, margin, isolated margin | alternative | MARKET DATA ONLY | NO USER DATA
+  main: 'wss://stream.binance.com:9443/stream', // spot, margin, isolated margin, user data
+  main2: 'wss://stream.binance.com:443/stream', // spot, margin, isolated margin, user data | alternative
+  main3: 'wss://data-stream.binance.vision/stream', // spot, margin, isolated margin | alternative | MARKET DATA ONLY | NO USER DATA
 
+  // TODO: combined stream suffix on all of these
   // https://developers.binance.com/docs/binance-spot-api-docs/testnet/web-socket-streams#general-wss-information
   mainTestnetPublic: 'wss://testnet.binance.vision/ws',
   mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443',
@@ -108,59 +126,18 @@ const allWsURLs: Record<string, string> = {
 };
 
 export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [
-  WS_KEY_MAP.v5Private,
-  WS_KEY_MAP.v5PrivateTrade,
+  // WS_KEY_MAP.v5Private,
+  // WS_KEY_MAP.v5PrivateTrade,
 ];
 
-export const PUBLIC_WS_KEYS = [
-  WS_KEY_MAP.v5SpotPublic,
-  WS_KEY_MAP.v5LinearPublic,
-  WS_KEY_MAP.v5InversePublic,
-  WS_KEY_MAP.v5OptionPublic,
-] as string[];
+// export const PUBLIC_WS_KEYS = [
+//   WS_KEY_MAP.main,
+//   WS_KEY_MAP.main,
+//   WS_KEY_MAP.main,
+// ] as WsKey[];
 
 /** Used to automatically determine if a sub request should be to the public or private ws (when there's two) */
-const PRIVATE_TOPICS = [
-  'stop_order',
-  'outboundAccountInfo',
-  'executionReport',
-  'ticketInfo',
-  // copy trading apis
-  'copyTradePosition',
-  'copyTradeOrder',
-  'copyTradeExecution',
-  'copyTradeWallet',
-  // usdc options
-  'user.openapi.option.position',
-  'user.openapi.option.trade',
-  'user.order',
-  'user.openapi.option.order',
-  'user.service',
-  'user.openapi.greeks',
-  'user.mmp.event',
-  // usdc perps
-  'user.openapi.perp.position',
-  'user.openapi.perp.trade',
-  'user.openapi.perp.order',
-  'user.service',
-  // unified margin
-  'user.position.unifiedAccount',
-  'user.execution.unifiedAccount',
-  'user.order.unifiedAccount',
-  'user.wallet.unifiedAccount',
-  'user.greeks.unifiedAccount',
-  // contract v3
-  'user.position.contractAccount',
-  'user.execution.contractAccount',
-  'user.order.contractAccount',
-  'user.wallet.contractAccount',
-  // v5
-  'position',
-  'execution',
-  'order',
-  'wallet',
-  'greeks',
-];
+const PRIVATE_TOPICS = ['listenkey'];
 
 /**
  * Normalised internal format for a request (subscribe/unsubscribe/etc) on a topic, with optional parameters.
@@ -185,104 +162,26 @@ export type WsTopicRequestOrStringTopic<
   TWSPayload = unknown,
 > = WsTopicRequest<TWSTopic, TWSPayload> | string;
 
-interface NetworkMapV3 {
-  livenet: string;
-  livenet2?: string;
-  testnet: string;
-  testnet2?: string;
-}
-
-type PublicPrivateNetwork = 'public' | 'private';
-
-/**
- * The following WS keys are logical.
- *
- * They're not directly used as a market. They usually have one private endpoint but many public ones,
- * so they need a bit of extra handling for seamless messaging between endpoints.
- *
- * For the unified keys, the "split" happens using the symbol. Symbols suffixed with USDT are obviously USDT topics.
- * For the v5 endpoints, the subscribe/unsubscribe call must specify the category the subscription should route to.
- */
-type PublicOnlyWsKeys =
-  | 'v5SpotPublic'
-  | 'v5LinearPublic'
-  | 'v5InversePublic'
-  | 'v5OptionPublic';
-
-export const WS_BASE_URL_MAP: Record<
-  APIMarket,
-  Record<PublicPrivateNetwork, NetworkMapV3>
-> &
-  Record<PublicOnlyWsKeys, Record<'public', NetworkMapV3>> &
-  Record<
-    typeof WS_KEY_MAP.v5PrivateTrade,
-    Record<PublicPrivateNetwork, NetworkMapV3>
-  > = {
-  v5: {
-    public: {
-      livenet: 'public topics are routed internally via the public wskeys',
-      testnet: 'public topics are routed internally via the public wskeys',
-    },
-    private: {
-      livenet: 'wss://stream.bybit.com/v5/private',
-      testnet: 'wss://stream-testnet.bybit.com/v5/private',
-    },
-  },
-  v5PrivateTrade: {
-    public: {
-      livenet: 'public topics are routed internally via the public wskeys',
-      testnet: 'public topics are routed internally via the public wskeys',
-    },
-    private: {
-      livenet: 'wss://stream.bybit.com/v5/trade',
-      testnet: 'wss://stream-testnet.bybit.com/v5/trade',
-    },
-  },
-  v5SpotPublic: {
-    public: {
-      livenet: 'wss://stream.bybit.com/v5/public/spot',
-      testnet: 'wss://stream-testnet.bybit.com/v5/public/spot',
-    },
-  },
-  v5LinearPublic: {
-    public: {
-      livenet: 'wss://stream.bybit.com/v5/public/linear',
-      testnet: 'wss://stream-testnet.bybit.com/v5/public/linear',
-    },
-  },
-  v5InversePublic: {
-    public: {
-      livenet: 'wss://stream.bybit.com/v5/public/inverse',
-      testnet: 'wss://stream-testnet.bybit.com/v5/public/inverse',
-    },
-  },
-  v5OptionPublic: {
-    public: {
-      livenet: 'wss://stream.bybit.com/v5/public/option',
-      testnet: 'wss://stream-testnet.bybit.com/v5/public/option',
-    },
-  },
-};
-
 export function isPrivateWsTopic(topic: string): boolean {
   return PRIVATE_TOPICS.includes(topic);
 }
 
 export function getWsKeyForTopic(
-  market: APIMarket,
-  topic: string,
-  isPrivate?: boolean,
+  wsKey: string,
+  // topic: string,
+  // isPrivate?: boolean,
 ): WsKey {
-  const isPrivateTopic = isPrivate === true || PRIVATE_TOPICS.includes(topic);
-  switch (market) {
-    case 'v5': {
-      if (isPrivateTopic) {
-        return WS_KEY_MAP.v5Private;
-      }
-      return WS_KEY_MAP.v5Private;
-    }
+  // const isPrivateTopic = isPrivate === true || PRIVATE_TOPICS.includes(topic);
+  switch (wsKey) {
+    // case 'v5': {
+    //   if (isPrivateTopic) {
+    //     return WS_KEY_MAP.main;
+    //   }
+    //   return WS_KEY_MAP.main;
+    // }
     default: {
-      throw neverGuard(market, 'getWsKeyForTopic(): Unhandled market');
+      return WS_KEY_MAP.main;
+      // throw neverGuard(wsKey, 'getWsKeyForTopic(): Unhandled market');
     }
   }
 }
@@ -303,51 +202,53 @@ export function getWsUrl(
   //   return 'wss://stream-demo.bybit.com/v5/private';
   // }
 
-  const isTestnet = wsClientOptions.testnet;
-  const networkKey = isTestnet ? 'testnet' : 'livenet';
+  // TODO:
+  // const isTestnet = wsClientOptions.testnet;
+  // const networkKey = isTestnet ? 'testnet' : 'livenet';
 
-  switch (wsKey) {
-    case WS_KEY_MAP.v5Private: {
-      return WS_BASE_URL_MAP.v5.private[networkKey];
-    }
-    case WS_KEY_MAP.v5PrivateTrade: {
-      return WS_BASE_URL_MAP[wsKey].private[networkKey];
-    }
-    case WS_KEY_MAP.v5SpotPublic: {
-      return WS_BASE_URL_MAP.v5SpotPublic.public[networkKey];
-    }
-    case WS_KEY_MAP.v5LinearPublic: {
-      return WS_BASE_URL_MAP.v5LinearPublic.public[networkKey];
-    }
-    case WS_KEY_MAP.v5InversePublic: {
-      return WS_BASE_URL_MAP.v5InversePublic.public[networkKey];
-    }
-    case WS_KEY_MAP.v5OptionPublic: {
-      return WS_BASE_URL_MAP.v5OptionPublic.public[networkKey];
-    }
-    default: {
-      logger.error('getWsUrl(): Unhandled wsKey: ', {
-        category: 'bybit-ws',
-        wsKey,
-      });
-      throw neverGuard(wsKey, 'getWsUrl(): Unhandled wsKey');
-    }
-  }
+  const resolvedUrl = WS_KEY_URL_MAP[wsKey];
+  return resolvedUrl;
+
+  // switch (wsKey) {
+  //   case WS_KEY_MAP.v5Private: {
+  //     return WS_BASE_URL_MAP.v5.private[networkKey];
+  //   }
+  //   case WS_KEY_MAP.v5PrivateTrade: {
+  //     return WS_BASE_URL_MAP[wsKey].private[networkKey];
+  //   }
+  //   case WS_KEY_MAP.v5SpotPublic: {
+  //     return WS_BASE_URL_MAP.v5SpotPublic.public[networkKey];
+  //   }
+  //   case WS_KEY_MAP.v5LinearPublic: {
+  //     return WS_BASE_URL_MAP.v5LinearPublic.public[networkKey];
+  //   }
+  //   case WS_KEY_MAP.v5InversePublic: {
+  //     return WS_BASE_URL_MAP.v5InversePublic.public[networkKey];
+  //   }
+  //   case WS_KEY_MAP.v5OptionPublic: {
+  //     return WS_BASE_URL_MAP.v5OptionPublic.public[networkKey];
+  //   }
+  //   default: {
+  //     logger.error('getWsUrl(): Unhandled wsKey: ', {
+  //       category: 'bybit-ws',
+  //       wsKey,
+  //     });
+  //     throw neverGuard(wsKey, 'getWsUrl(): Unhandled wsKey');
+  //   }
+  // }
 }
 
-export function getMaxTopicsPerSubscribeEvent(
-  market: APIMarket,
-  wsKey: WsKey,
-): number | null {
-  switch (market) {
-    case 'v5': {
-      if (wsKey === WS_KEY_MAP.v5SpotPublic) {
-        return 10;
-      }
-      return null;
-    }
+export function getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
+  switch (wsKey) {
+    // case 'v5': {
+    //   if (wsKey === WS_KEY_MAP.v5SpotPublic) {
+    //     return 10;
+    //   }
+    //   return null;
+    // }
     default: {
-      throw neverGuard(market, 'getWsKeyForTopic(): Unhandled market');
+      return null;
+      // throw neverGuard(market, 'getWsKeyForTopic(): Unhandled market');
     }
   }
 }
@@ -416,10 +317,9 @@ export function getNormalisedTopicRequests(
  * @returns
  */
 export function getTopicsPerWSKey(
-  market: APIMarket,
   normalisedTopicRequests: WsTopicRequest[],
-  wsKey?: WsKey,
-  isPrivateTopic?: boolean,
+  wsKey: WsKey,
+  // isPrivateTopic?: boolean,
 ): {
   [key in WsKey]?: WsTopicRequest<WsTopic>[];
 } {
@@ -427,8 +327,9 @@ export function getTopicsPerWSKey(
 
   // Sort into per wsKey arrays, in case topics are mixed together for different wsKeys
   for (const topicRequest of normalisedTopicRequests) {
-    const derivedWsKey =
-      wsKey || getWsKeyForTopic(market, topicRequest.topic, isPrivateTopic);
+    // const derivedWsKey =
+    //   wsKey || getWsKeyForTopic(market, topicRequest.topic, isPrivateTopic);
+    const derivedWsKey = wsKey;
 
     if (
       !perWsKeyTopics[derivedWsKey] ||
@@ -441,4 +342,18 @@ export function getTopicsPerWSKey(
   }
 
   return perWsKeyTopics;
+}
+
+export function parseEventTypeFromMessage(parsedMsg?: any): string | undefined {
+  if (parsedMsg?.data) {
+    return parseEventTypeFromMessage(parsedMsg.data);
+  }
+  if (parsedMsg?.e) {
+    return parsedMsg.e;
+  }
+  if (Array.isArray(parsedMsg) && parsedMsg.length) {
+    return parseEventTypeFromMessage(parsedMsg[0]);
+  }
+
+  return;
 }

@@ -1,8 +1,6 @@
-import { RestClientOptions } from '../../util/requestUtils';
-import { WS_KEY_MAP } from '../../util/websockets/websocket-util';
+import { AxiosRequestConfig } from 'axios';
 
-/** For spot markets, spotV3 is recommended */
-export type APIMarket = 'v5';
+import { RestClientOptions } from '../../util/requestUtils';
 
 // Same as inverse futures
 export type WsPublicInverseTopic =
@@ -70,16 +68,26 @@ export type WsPrivateTopic =
 
 export type WsTopic = WsPublicTopics | WsPrivateTopic;
 
-/** This is used to differentiate between each of the available websocket streams (as bybit has multiple websockets) */
-export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
-export type WsMarket = 'all';
+/** This is used to differentiate product groups on a connection */
+// export type WsMarket =
+//   | 'spot'
+//   | 'margin'
+//   | 'isolatedMargin'
+//   | 'usdm'
+//   | 'usdmTestnet'
+//   | 'coinm'
+//   | 'coinmTestnet'
+//   | 'options'
+//   | 'optionsTestnet';
 
 export interface WSClientConfigurableOptions {
   /** Your API key */
-  key?: string;
+  api_key?: string;
 
   /** Your API secret */
-  secret?: string;
+  api_secret?: string;
+
+  beautify?: boolean;
 
   /**
    * Set to `true` to connect to Bybit's testnet environment.
@@ -98,15 +106,11 @@ export interface WSClientConfigurableOptions {
    */
   demoTrading?: boolean;
 
-  /**
-   * The API group this client should connect to. The V5 market is currently used by default.
-   *
-   * Only the "V5" "market" is supported here.
-   */
-  market?: APIMarket;
-
   /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
   recvWindow?: number;
+
+  // Disable ping/pong ws heartbeat mechanism (not recommended)
+  disableHeartbeat?: boolean;
 
   /** How often to check if the connection is alive */
   pingInterval?: number;
@@ -119,10 +123,22 @@ export interface WSClientConfigurableOptions {
 
   restOptions?: RestClientOptions;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  requestOptions?: any;
+  requestOptions?: AxiosRequestConfig;
+
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  };
 
   wsUrl?: string;
+
+  /**
+   * Default: true.
+   *
+   * When enabled, any calls to the subscribe method will return a promise.
+   * // TODO:
+   */
+  promiseSubscribe?: boolean;
 
   /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
@@ -137,7 +153,6 @@ export interface WSClientConfigurableOptions {
  * (usually comes from defaults if there's no user-provided values)
  */
 export interface WebsocketClientOptions extends WSClientConfigurableOptions {
-  market: APIMarket;
   pongTimeout: number;
   pingInterval: number;
   reconnectTimeout: number;

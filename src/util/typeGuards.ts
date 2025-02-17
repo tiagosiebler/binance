@@ -296,3 +296,31 @@ export function isAccountUpdateRaw(
 ): data is WsMessageFuturesUserDataAccountUpdateRaw {
   return !Array.isArray(data) && data.e === 'ACCOUNT_UPDATE';
 }
+
+export interface WebsocketTopicSubscriptionConfirmationEvent {
+  result: boolean;
+  id: number;
+}
+
+export function isTopicSubscriptionConfirmation(
+  msg: unknown,
+): msg is WebsocketTopicSubscriptionConfirmationEvent {
+  if (typeof msg !== 'object') {
+    return false;
+  }
+  if (!msg) {
+    return false;
+  }
+  if (typeof msg['result'] === 'boolean') {
+    return false;
+  }
+
+  return false;
+}
+
+export function isTopicSubscriptionSuccess(
+  msg: unknown,
+): msg is WebsocketTopicSubscriptionConfirmationEvent {
+  if (!isTopicSubscriptionConfirmation(msg)) return false;
+  return msg.result === true;
+}

@@ -3,28 +3,43 @@
 import EventEmitter from 'events';
 import WebSocket from 'isomorphic-ws';
 
-import { WsMarket } from '../types/websockets';
+import {
+  WsFormattedMessage,
+  WsRawMessage,
+  WsUserDataEvents,
+} from '../types/websockets';
 import { WsOperation } from '../types/websockets/ws-api';
+import {
+  isMessageEvent,
+  MessageEventLike,
+} from '../types/websockets/ws-events';
 import {
   WebsocketClientOptions,
   WSClientConfigurableOptions,
-} from '../websocket-client';
+} from '../types/websockets/ws-general';
 import { DefaultLogger } from './logger';
 import {
   getNormalisedTopicRequests,
+  safeTerminateWs,
   WS_LOGGER_CATEGORY,
   WsTopicRequest,
   WsTopicRequestOrStringTopic,
 } from './websockets/websocket-util';
-import { safeTerminateWs } from './websockets/ws-utils';
 import { WsStore } from './websockets/WsStore';
-import { WsConnectionStateEnum } from './websockets/WsStore.types';
+import {
+  WSConnectedResult,
+  WsConnectionStateEnum,
+} from './websockets/WsStore.types';
+
+type WsEventInternalSrc = 'event' | 'function';
+
+type UseTheExceptionEventInstead = never;
 
 interface WSClientEventMap<WsKey extends string> {
   /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
   open: (evt: { wsKey: WsKey; event: any }) => void;
   /** Reconnecting a dropped connection */
-  reconnect: (evt: { wsKey: WsKey; event: any }) => void;
+  reconnecting: (evt: { wsKey: WsKey; event: any }) => void;
   /** Successfully reconnected a connection that dropped */
   reconnected: (evt: { wsKey: WsKey; event: any }) => void;
   /** Connection closed */
@@ -34,9 +49,20 @@ interface WSClientEventMap<WsKey extends string> {
     response: any & { wsKey: WsKey; isWSAPIResponse?: boolean },
   ) => void;
   /** Received data for topic */
-  update: (response: any & { wsKey: WsKey }) => void;
-  /** Exception from ws client OR custom listeners (e.g. if you throw inside your event handler) */
-  error: (response: any & { wsKey: WsKey; isWSAPIResponse?: boolean }) => void;
+  message: (response: WsRawMessage) => void;
+  formattedMessage: (response: WsFormattedMessage) => void;
+  formattedUserDataMessage: (response: WsUserDataEvents) => void;
+  /**
+   * See for more information: https://github.com/tiagosiebler/bybit-api/issues/413
+   * @deprecated Use the 'exception' event instead. The 'error' event had the unintended consequence of throwing an unhandled promise rejection.
+   */
+  error: UseTheExceptionEventInstead;
+  /**
+   * Exception from ws client OR custom listeners (e.g. if you throw inside your event handler)
+   */
+  exception: (
+    response: any & { wsKey: WsKey; isWSAPIResponse?: boolean },
+  ) => void;
   /** Confirmation that a connection successfully authenticated */
   authenticated: (event: {
     wsKey: WsKey;
@@ -45,9 +71,12 @@ interface WSClientEventMap<WsKey extends string> {
   }) => void;
 }
 
-export interface EmittableEvent<TEvent = any> {
-  eventType: 'response' | 'update' | 'error' | 'authenticated';
-  event: TEvent;
+export interface EmittableEvent<
+  TEventType extends
+    keyof WSClientEventMap<string> = keyof WSClientEventMap<string>,
+> {
+  eventType: TEventType;
+  event: Parameters<WSClientEventMap<string>[TEventType]>[0];
   isWSAPIResponse?: boolean;
 }
 
@@ -68,14 +97,6 @@ export interface BaseWebsocketClient<
   ): boolean;
 }
 
-// interface TopicsPendingSubscriptions {
-//   wsKey: string;
-//   failedTopicsSubscriptions: Set<string>;
-//   pendingTopicsSubscriptions: Set<string>;
-//   resolver: TopicsPendingSubscriptionsResolver;
-//   rejector: TopicsPendingSubscriptionsRejector;
-// }
-
 /**
  * A midflight WS request event (e.g. subscribe to these topics).
  *
@@ -83,7 +104,7 @@ export interface BaseWebsocketClient<
  * - requestEvent: the raw request, as an object, that will be sent on the ws connection. This may contain multiple topics/requests in one object, if the exchange supports it.
  */
 export interface MidflightWsRequestEvent<TEvent = object> {
-  requestKey: string;
+  requestKey: string | number;
   requestEvent: TEvent;
 }
 
@@ -147,10 +168,6 @@ export abstract class BaseWebsocketClient<
     this.options = {
       // Some defaults:
       testnet: false,
-      demoTrading: false,
-
-      // Connect to V5 by default, if not defined by the user
-      market: 'v5',
 
       pongTimeout: 1000,
       pingInterval: 10000,
@@ -163,10 +180,6 @@ export abstract class BaseWebsocketClient<
       authPrivateRequests: false,
       ...options,
     };
-
-    // add default error handling so this doesn't crash node (if the user didn't set a handler)
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    this.on('error', () => {});
   }
 
   /**
@@ -201,10 +214,9 @@ export abstract class BaseWebsocketClient<
    * @returns one or more correctly structured request events for performing a operations over WS. This can vary per exchange spec.
    */
   protected abstract getWsRequestEvents(
-    market: WsMarket,
+    wsKey: TWSKey,
     operation: WsOperation,
     requests: WsTopicRequest<string>[],
-    wsKey: TWSKey,
   ): Promise<MidflightWsRequestEvent<TWSRequestEvent>[]>;
 
   /**
@@ -225,8 +237,8 @@ export abstract class BaseWebsocketClient<
   }
 
   /** Returns auto-incrementing request ID, used to track promise references for async requests */
-  protected getNewRequestId(): string {
-    return `${++this.wsApiRequestId}`;
+  protected getNewRequestId(): number {
+    return ++this.wsApiRequestId;
   }
 
   protected abstract sendWSAPIRequest(
@@ -249,102 +261,6 @@ export abstract class BaseWebsocketClient<
     this.timeOffsetMs = newOffset;
   }
 
-  private getWsKeyPendingSubscriptionStore(wsKey: TWSKey) {
-    if (!this.pendingTopicSubscriptionRequests[wsKey]) {
-      this.pendingTopicSubscriptionRequests[wsKey] = {};
-    }
-
-    return this.pendingTopicSubscriptionRequests[wsKey]!;
-  }
-
-  protected upsertPendingTopicSubscribeRequests(
-    wsKey: TWSKey,
-    requestData: MidflightWsRequestEvent<TWSRequestEvent>,
-  ) {
-    // a unique identifier for this subscription request (e.g. csv of topics, or request id, etc)
-    const requestKey = requestData.requestKey;
-
-    // Should not be possible to see a requestKey collision in the current design, since the req ID increments automatically with every request, so this should never be true, but just in case a future mistake happens...
-
-    const pendingSubReqs = this.getWsKeyPendingSubscriptionStore(wsKey);
-    if (pendingSubReqs[requestKey]) {
-      throw new Error(
-        'Implementation error: attempted to upsert pending topics with duplicate request ID!',
-      );
-    }
-
-    return new Promise(
-      (
-        resolver: TopicsPendingSubscriptionsResolver<TWSRequestEvent>,
-        rejector: TopicsPendingSubscriptionsRejector<TWSRequestEvent>,
-      ) => {
-        const pendingSubReqs = this.getWsKeyPendingSubscriptionStore(wsKey);
-        pendingSubReqs[requestKey] = {
-          requestData: requestData.requestEvent,
-          resolver,
-          rejector,
-        };
-      },
-    );
-  }
-
-  protected removeTopicPendingSubscription(wsKey: TWSKey, requestKey: string) {
-    const pendingSubReqs = this.getWsKeyPendingSubscriptionStore(wsKey);
-    delete pendingSubReqs[requestKey];
-  }
-
-  private clearTopicsPendingSubscriptions(
-    wsKey: TWSKey,
-    rejectAll: boolean,
-    rejectReason: string,
-  ) {
-    if (rejectAll) {
-      const pendingSubReqs = this.getWsKeyPendingSubscriptionStore(wsKey);
-
-      for (const requestKey in pendingSubReqs) {
-        const request = pendingSubReqs[requestKey];
-        request?.rejector(request.requestData, rejectReason);
-      }
-    }
-
-    this.pendingTopicSubscriptionRequests[wsKey] = {};
-  }
-
-  /**
-   * Resolve/reject the promise for a midflight request.
-   *
-   * This will typically execute before the event is emitted.
-   */
-  protected updatePendingTopicSubscriptionStatus(
-    wsKey: TWSKey,
-    requestKey: string,
-    msg: object,
-    isTopicSubscriptionSuccessEvent: boolean,
-  ) {
-    const wsKeyPendingRequests = this.getWsKeyPendingSubscriptionStore(wsKey);
-    if (!wsKeyPendingRequests) {
-      return;
-    }
-
-    const pendingSubscriptionRequest = wsKeyPendingRequests[requestKey];
-    if (!pendingSubscriptionRequest) {
-      return;
-    }
-
-    if (isTopicSubscriptionSuccessEvent) {
-      pendingSubscriptionRequest.resolver(
-        pendingSubscriptionRequest.requestData,
-      );
-    } else {
-      pendingSubscriptionRequest.rejector(
-        pendingSubscriptionRequest.requestData,
-        msg,
-      );
-    }
-
-    this.removeTopicPendingSubscription(wsKey, requestKey);
-  }
-
   /**
    * Don't call directly! Use subscribe() instead!
    *
@@ -361,7 +277,7 @@ export abstract class BaseWebsocketClient<
   protected async subscribeTopicsForWsKey(
     wsTopicRequests: WsTopicRequestOrStringTopic<string>[],
     wsKey: TWSKey,
-  ) {
+  ): Promise<unknown> {
     const normalisedTopicRequests = getNormalisedTopicRequests(wsTopicRequests);
 
     // Store topics, so future automation (post-auth, post-reconnect) has everything needed to resubscribe automatically
@@ -395,7 +311,7 @@ export abstract class BaseWebsocketClient<
           wsTopicRequests,
         },
       );
-      return;
+      return isConnectionInProgress;
     }
 
     // We're connected. Check if auth is needed and if already authenticated
@@ -563,8 +479,10 @@ export abstract class BaseWebsocketClient<
       wsKey,
     });
 
-    const agent = this.options.requestOptions?.agent;
-    const ws = new WebSocket(url, undefined, agent ? { agent } : undefined);
+    const { protocols = [], ...wsOptions } = this.options.wsOptions || {};
+
+    const ws = new WebSocket(url, protocols, wsOptions);
+    // this.wsUrlKeyMap[url] = wsRefKey;
 
     ws.onopen = (event: any) => this.onWsOpen(event, wsKey);
     ws.onmessage = (event: any) => this.onWsMessage(event, wsKey, ws);
@@ -572,14 +490,48 @@ export abstract class BaseWebsocketClient<
       this.parseWsError('Websocket onWsError', event, wsKey);
     ws.onclose = (event: any) => this.onWsClose(event, wsKey);
 
+    if (typeof ws.on === 'function') {
+      ws.on('ping', (event) => this.onWsPing(event, wsKey, ws, 'event'));
+      ws.on('pong', (event) => this.onWsPong(event, wsKey, 'event'));
+    }
+
+    // Not sure these work in the browser, the traditional event listeners are required for ping/pong frames in node
+    ws.onping = (event) => this.onWsPing(event, wsKey, ws, 'function');
+    ws.onpong = (event) => this.onWsPong(event, wsKey, 'function');
+
+    ws.wsKey = wsKey;
+
     return ws;
+  }
+
+  private onWsPing(
+    event: any,
+    wsKey: TWSKey,
+    ws: WebSocket,
+    source: WsEventInternalSrc,
+  ) {
+    this.logger.trace('Received ping frame, sending pong frame', {
+      ...WS_LOGGER_CATEGORY,
+      wsKey,
+      source,
+    });
+    this.sendPongEvent(wsKey, ws);
+  }
+
+  private onWsPong(_event: any, wsKey: TWSKey, source: WsEventInternalSrc) {
+    this.logger.trace('Received pong frame, clearing pong timer', {
+      ...WS_LOGGER_CATEGORY,
+      wsKey,
+      source,
+    });
+    this.clearPongTimer(wsKey);
   }
 
   private parseWsError(context: string, error: any, wsKey: TWSKey) {
     if (!error.message) {
       this.logger.error(`${context} due to unexpected error: `, error);
       this.emit('response', { ...error, wsKey });
-      this.emit('error', { ...error, wsKey });
+      this.emit('exception', { ...error, wsKey });
       return;
     }
 
@@ -612,7 +564,7 @@ export abstract class BaseWebsocketClient<
     }
 
     this.emit('response', { ...error, wsKey });
-    this.emit('error', { ...error, wsKey });
+    this.emit('exception', { ...error, wsKey });
   }
 
   /** Get a signature, build the auth request and send it */
@@ -670,6 +622,7 @@ export abstract class BaseWebsocketClient<
     this.clearPongTimer(wsKey);
 
     this.logger.trace('Sending ping', { ...WS_LOGGER_CATEGORY, wsKey });
+
     const ws = this.wsStore.get(wsKey, true).ws;
 
     if (!ws) {
@@ -778,7 +731,6 @@ export abstract class BaseWebsocketClient<
 
     // Events that are ready to send (usually stringified JSON)
     const requestEvents: MidflightWsRequestEvent<TWSRequestEvent>[] = [];
-    const market: WsMarket = 'all';
 
     const maxTopicsPerEvent = this.getMaxTopicsPerSubscribeEvent(wsKey);
     if (
@@ -789,10 +741,9 @@ export abstract class BaseWebsocketClient<
       for (let i = 0; i < topics.length; i += maxTopicsPerEvent) {
         const batch = topics.slice(i, i + maxTopicsPerEvent);
         const subscribeRequestEvents = await this.getWsRequestEvents(
-          market,
+          wsKey,
           operation,
           batch,
-          wsKey,
         );
 
         requestEvents.push(...subscribeRequestEvents);
@@ -802,10 +753,9 @@ export abstract class BaseWebsocketClient<
     }
 
     const subscribeRequestEvents = await this.getWsRequestEvents(
-      market,
+      wsKey,
       operation,
       topics,
-      wsKey,
     );
 
     return subscribeRequestEvents;
@@ -828,7 +778,7 @@ export abstract class BaseWebsocketClient<
     const subscribeWsMessages = await this.getWsOperationEventsForTopics(
       wsTopicRequests,
       wsKey,
-      'subscribe',
+      'SUBSCRIBE',
     );
 
     this.logger.trace(
@@ -837,14 +787,8 @@ export abstract class BaseWebsocketClient<
 
     // console.log(`batches: `, JSON.stringify(subscribeWsMessages, null, 2));
 
-    const promises: Promise<TWSRequestEvent>[] = [];
-
     for (const midflightRequest of subscribeWsMessages) {
       const wsMessage = midflightRequest.requestEvent;
-
-      promises.push(
-        this.upsertPendingTopicSubscribeRequests(wsKey, midflightRequest),
-      );
 
       this.logger.trace(
         `Sending batch via message: "${JSON.stringify(wsMessage)}"`,
@@ -855,8 +799,6 @@ export abstract class BaseWebsocketClient<
     this.logger.trace(
       `Finished subscribing to ${wsTopicRequests.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
     );
-
-    return Promise.all(promises);
   }
 
   /**
@@ -875,21 +817,15 @@ export abstract class BaseWebsocketClient<
     const subscribeWsMessages = await this.getWsOperationEventsForTopics(
       wsTopicRequests,
       wsKey,
-      'unsubscribe',
+      'UNSUBSCRIBE',
     );
 
     this.logger.trace(
       `Unsubscribing to ${wsTopicRequests.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches. Events: "${JSON.stringify(wsTopicRequests)}"`,
     );
 
-    const promises: Promise<TWSRequestEvent>[] = [];
-
     for (const midflightRequest of subscribeWsMessages) {
       const wsMessage = midflightRequest.requestEvent;
-
-      promises.push(
-        this.upsertPendingTopicSubscribeRequests(wsKey, midflightRequest),
-      );
 
       this.logger.trace(`Sending batch via message: "${wsMessage}"`);
       this.tryWsSend(wsKey, JSON.stringify(wsMessage));
@@ -898,8 +834,6 @@ export abstract class BaseWebsocketClient<
     this.logger.trace(
       `Finished unsubscribing to ${wsTopicRequests.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
     );
-
-    return Promise.all(promises);
   }
 
   /**
@@ -957,7 +891,6 @@ export abstract class BaseWebsocketClient<
         ...WS_LOGGER_CATEGORY,
         wsKey,
         testnet: this.options.testnet === true,
-        market: this.options.market,
       });
 
       this.emit('open', { wsKey, event });
@@ -966,7 +899,6 @@ export abstract class BaseWebsocketClient<
         ...WS_LOGGER_CATEGORY,
         wsKey,
         testnet: this.options.testnet === true,
-        market: this.options.market,
       });
 
       this.emit('reconnected', { wsKey, event });
@@ -992,6 +924,7 @@ export abstract class BaseWebsocketClient<
     } catch (e) {
       this.logger.error(
         'Exception trying to resolve "connectionInProgress" promise',
+        e,
       );
     }
 
@@ -1045,6 +978,7 @@ export abstract class BaseWebsocketClient<
     } catch (e) {
       this.logger.error(
         'Exception trying to resolve "connectionInProgress" promise',
+        e,
       );
     }
 
@@ -1107,14 +1041,14 @@ export abstract class BaseWebsocketClient<
             },
           );
 
-          return this.emit('update', { ...event, wsKey });
+          // TODO: type guard refinement
+          // TODO: test book ticker, diff book depth and partial book depth (see appendEventIfMissing)
+          // TODO: append wsMarket?
+
+          return this.emit('message', { ...(event as any), wsKey });
         }
 
         for (const emittable of emittableEvents) {
-          // if (emittable.event?.op) {
-          //   console.log('emittable: ', emittable);
-          // }
-
           if (this.isWsPong(emittable)) {
             this.logger.trace('Received pong2', {
               ...WS_LOGGER_CATEGORY,
@@ -1140,6 +1074,7 @@ export abstract class BaseWebsocketClient<
             continue;
           }
 
+          // Other event types are automatically emitted here
           this.emit(emittable.eventType, emittableFinalEvent);
         }
 
@@ -1171,26 +1106,31 @@ export abstract class BaseWebsocketClient<
       wsKey,
     });
 
+    // todo:
     const wsState = this.wsStore.get(wsKey, true);
     wsState.isAuthenticated = false;
 
     if (
       this.wsStore.getConnectionState(wsKey) !== WsConnectionStateEnum.CLOSING
     ) {
+      this.logger.trace(
+        `onWsClose(${wsKey}): rejecting all deferred promises...`,
+      );
       // clean up any pending promises for this connection
       this.getWsStore().rejectAllDeferredPromises(
         wsKey,
         'connection lost, reconnecting',
       );
 
-      this.clearTopicsPendingSubscriptions(wsKey, true, 'WS Closed');
-
       this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
 
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
-      this.emit('reconnect', { wsKey, event });
+      this.emit('reconnecting', { wsKey, event });
     } else {
       // clean up any pending promises for this connection
+      this.logger.trace(
+        `onWsClose(${wsKey}): rejecting all deferred promises...`,
+      );
       this.getWsStore().rejectAllDeferredPromises(wsKey, 'disconnected');
       this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
       this.emit('close', { wsKey, event });

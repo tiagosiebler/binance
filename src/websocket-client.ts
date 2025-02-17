@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { AxiosRequestConfig } from 'axios';
 import { EventEmitter } from 'events';
 import WebSocket from 'isomorphic-ws';
 
@@ -13,6 +12,10 @@ import {
   WsResponse,
   WsUserDataEvents,
 } from './types/websockets';
+import {
+  WebsocketClientOptions,
+  WSClientConfigurableOptions,
+} from './types/websockets/ws-general';
 import { USDMClient } from './usdm-client';
 import Beautifier from './util/beautifier';
 import { DefaultLogger } from './util/logger';
@@ -23,7 +26,12 @@ import {
   getWsKeyWithContext,
   RestClientOptions,
 } from './util/requestUtils';
-import { safeTerminateWs } from './util/websockets/websocket-util';
+import {
+  parseEventTypeFromMessage,
+  safeTerminateWs,
+  WS_LOGGER_CATEGORY,
+  WsKey,
+} from './util/websockets/websocket-util';
 import { WsStore } from './util/websockets/WsStore';
 import { WsConnectionStateEnum } from './util/websockets/WsStore.types';
 
@@ -39,44 +47,18 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
   optionsTestnet: 'wss://testnetws.binanceops.com',
 };
 
-const loggerCategory = { category: 'binance-ws' };
-
-export interface WSClientConfigurableOptions {
-  api_key?: string;
-  api_secret?: string;
-  beautify?: boolean;
-  // Disable ping/pong ws heartbeat mechanism (not recommended)
-  disableHeartbeat?: boolean;
-  pongTimeout?: number;
-  pingInterval?: number;
-  reconnectTimeout?: number;
-  restOptions?: RestClientOptions;
-  requestOptions?: AxiosRequestConfig;
-  wsOptions?: {
-    protocols?: string[];
-    agent?: any;
-  };
-  wsUrl?: string;
-}
-
-export interface WebsocketClientOptions extends WSClientConfigurableOptions {
-  pongTimeout: number;
-  pingInterval: number;
-  reconnectTimeout: number;
-}
-
 // export const wsKeySpot = 'spot';
 // export const wsKeyLinearPrivate = 'linearPrivate';
 // export const wsKeyLinearPublic = 'linearPublic';
 
 // This is used to differentiate between each of the available websocket streams (as binance has multiple websockets)
-export type WsKey =
-  | string
-  | 'spot'
-  | 'margin'
-  | 'usdmfutures'
-  | 'coinmfutures'
-  | 'options';
+// export type WsKey =
+//   | string
+//   | 'spot'
+//   | 'margin'
+//   | 'usdmfutures'
+//   | 'coinmfutures'
+//   | 'options';
 
 type WsEventInternalSrc = 'event' | 'function';
 
@@ -128,17 +110,6 @@ function throwUnhandledSwitch(x: never, msg: string): never {
   throw new Error(msg);
 }
 
-function parseEventTypeFromMessage(parsedMsg?): string | undefined {
-  if (parsedMsg?.e) {
-    return parsedMsg.e;
-  }
-  if (Array.isArray(parsedMsg) && parsedMsg.length) {
-    return parsedMsg[0]?.e;
-  }
-
-  return;
-}
-
 /**
  * Try to resolve event.data. Example circumstance: {"stream":"!forceOrder@arr","data":{"e":"forceOrder","E":1634653599186,"o":{"s":"IOTXUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"3661","p":"0.06606","ap":"0.06669","X":"FILLED","l":"962","z":"3661","T":1634653599180}}}
  */
@@ -164,7 +135,7 @@ export class WebsocketClient extends EventEmitter {
 
   private options: WebsocketClientOptions;
 
-  private wsStore: WsStore<WsKey, string>;
+  private wsStore: WsStore<WsKey | string, string>;
 
   private beautifier: Beautifier;
 
@@ -172,7 +143,7 @@ export class WebsocketClient extends EventEmitter {
 
   private listenKeyStateStore: Record<string, ListenKeyPersistenceState>;
 
-  private wsUrlKeyMap: Record<string, WsKey>;
+  private wsUrlKeyMap: Record<string, WsKey | string>;
 
   constructor(
     options: WSClientConfigurableOptions,
@@ -187,9 +158,16 @@ export class WebsocketClient extends EventEmitter {
     this.restClients = {};
 
     this.options = {
+      // Some defaults:
+      testnet: false,
       pongTimeout: 7500,
       pingInterval: 10000,
       reconnectTimeout: 500,
+      recvWindow: 5000,
+      // Automatically send an authentication op/request after a connection opens, for private connections.
+      authPrivateConnectionsOnConnect: false,
+      // Individual requests require a signature
+      authPrivateRequests: true,
       ...options,
     };
 
@@ -211,7 +189,7 @@ export class WebsocketClient extends EventEmitter {
 
   public connectToWsUrl(
     url: string,
-    wsKey?: WsKey,
+    wsKey?: WsKey | string,
     forceNewConnection?: boolean,
   ): WebSocket {
     const wsRefKey = wsKey || url;
@@ -220,14 +198,14 @@ export class WebsocketClient extends EventEmitter {
     if (oldWs && this.wsStore.isWsOpen(wsRefKey) && !forceNewConnection) {
       this.logger.trace(
         'connectToWsUrl(): Returning existing open WS connection',
-        { ...loggerCategory, wsRefKey },
+        { ...WS_LOGGER_CATEGORY, wsRefKey },
       );
       return oldWs;
     }
 
     this.logger.trace(
       `connectToWsUrl(): Opening WS connection to URL: ${url}`,
-      { ...loggerCategory, wsRefKey },
+      { ...WS_LOGGER_CATEGORY, wsRefKey },
     );
 
     const { protocols = [], ...wsOptions } = this.options.wsOptions || {};
@@ -258,10 +236,10 @@ export class WebsocketClient extends EventEmitter {
     return ws;
   }
 
-  public tryWsSend(wsKey: WsKey, wsMessage: string) {
+  public tryWsSend(wsKey: WsKey | string, wsMessage: string) {
     try {
       this.logger.trace('Sending upstream ws message: ', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         wsMessage,
         wsKey,
       });
@@ -278,7 +256,7 @@ export class WebsocketClient extends EventEmitter {
       ws.send(wsMessage);
     } catch (e) {
       this.logger.error('Failed to send WS message', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         wsMessage,
         wsKey,
         exception: e,
@@ -286,7 +264,7 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  public tryWsPing(wsKey: WsKey) {
+  public tryWsPing(wsKey: WsKey | string) {
     try {
       // this.logger.trace(`Sending upstream ping: `, { ...loggerCategory, wsKey });
       if (!wsKey) {
@@ -307,27 +285,30 @@ export class WebsocketClient extends EventEmitter {
       } else {
         this.logger.trace(
           'WS ready state not open - refusing to send WS ping',
-          { ...loggerCategory, wsKey, readyState: ws?.readyState },
+          { ...WS_LOGGER_CATEGORY, wsKey, readyState: ws?.readyState },
         );
       }
     } catch (e) {
       this.logger.error('Failed to send WS ping', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         wsKey,
         exception: e,
       });
     }
   }
 
-  private onWsOpen(ws: WebSocket, wsKey: WsKey, wsUrl: string) {
+  private onWsOpen(ws: WebSocket, wsKey: WsKey | string, wsUrl: string) {
     this.logger.trace(`onWsOpen(): ${wsUrl} : ${wsKey}`);
     if (
       this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.RECONNECTING)
     ) {
-      this.logger.info('Websocket reconnected', { ...loggerCategory, wsKey });
+      this.logger.info('Websocket reconnected', {
+        ...WS_LOGGER_CATEGORY,
+        wsKey,
+      });
       this.emit('reconnected', { wsKey, ws });
     } else {
-      this.logger.info('Websocket connected', { ...loggerCategory, wsKey });
+      this.logger.info('Websocket connected', { ...WS_LOGGER_CATEGORY, wsKey });
       this.emit('open', { wsKey, ws });
     }
 
@@ -351,12 +332,17 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  private onWsClose(event: any, wsKey: WsKey, ws: WebSocket, wsUrl: string) {
+  private onWsClose(
+    event: any,
+    wsKey: WsKey | string,
+    ws: WebSocket,
+    wsUrl: string,
+  ) {
     const wsConnectionState = this.wsStore.getConnectionState(wsKey);
     const { market, listenKey, isUserData } = getContextFromWsKey(wsKey);
 
     this.logger.info('Websocket connection closed', {
-      ...loggerCategory,
+      ...WS_LOGGER_CATEGORY,
       wsKey,
       eventCloseCode: event?.target?._closeCode,
       wsConnectionState,
@@ -388,7 +374,7 @@ export class WebsocketClient extends EventEmitter {
 
   private onWsMessage(
     event: MessageEvent,
-    wsKey: WsKey,
+    wsKey: WsKey | string,
     source: WsEventInternalSrc,
   ) {
     try {
@@ -460,7 +446,7 @@ export class WebsocketClient extends EventEmitter {
       this.logger.error(
         'Bug? Unhandled ws message event type. Check if appendEventIfMissing needs to parse wsKey.',
         {
-          ...loggerCategory,
+          ...WS_LOGGER_CATEGORY,
           parsedMessage: JSON.stringify(msg),
           rawEvent: event,
           wsKey,
@@ -469,7 +455,7 @@ export class WebsocketClient extends EventEmitter {
       );
     } catch (e) {
       this.logger.error('Exception parsing ws message: ', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         rawEvent: event,
         wsKey,
         error: e,
@@ -479,10 +465,10 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  private sendPing(wsKey: WsKey, wsUrl: string) {
+  private sendPing(wsKey: WsKey | string, wsUrl: string) {
     this.clearPongTimer(wsKey);
 
-    this.logger.trace('Sending ping', { ...loggerCategory, wsKey });
+    this.logger.trace('Sending ping', { ...WS_LOGGER_CATEGORY, wsKey });
     this.tryWsPing(wsKey);
 
     this.wsStore.get(wsKey, true).activePongTimer = setTimeout(
@@ -493,21 +479,25 @@ export class WebsocketClient extends EventEmitter {
 
   private onWsPing(
     event: any,
-    wsKey: WsKey,
+    wsKey: WsKey | string,
     ws: WebSocket,
     source: WsEventInternalSrc,
   ) {
     this.logger.trace('Received ping, sending pong frame', {
-      ...loggerCategory,
+      ...WS_LOGGER_CATEGORY,
       wsKey,
       source,
     });
     ws.pong();
   }
 
-  private onWsPong(event: any, wsKey: WsKey, source: WsEventInternalSrc) {
+  private onWsPong(
+    event: any,
+    wsKey: WsKey | string,
+    source: WsEventInternalSrc,
+  ) {
     this.logger.trace('Received pong, clearing pong timer', {
-      ...loggerCategory,
+      ...WS_LOGGER_CATEGORY,
       wsKey,
       source,
     });
@@ -519,12 +509,12 @@ export class WebsocketClient extends EventEmitter {
    * If closed, trigger a reconnect immediately
    */
   private executeReconnectableClose(
-    wsKey: WsKey,
+    wsKey: WsKey | string,
     reason: string,
     wsUrl: string,
   ) {
-    this.logger.info(`${reason} - closing socket to reconnect`, {
-      ...loggerCategory,
+    this.logger.info(new Date(), `${reason} - closing socket to reconnect`, {
+      ...WS_LOGGER_CATEGORY,
       wsKey,
       reason,
     });
@@ -540,7 +530,7 @@ export class WebsocketClient extends EventEmitter {
       this.logger.info(
         `${reason} - socket already closed - trigger immediate reconnect`,
         {
-          ...loggerCategory,
+          ...WS_LOGGER_CATEGORY,
           wsKey,
           reason,
         },
@@ -549,9 +539,9 @@ export class WebsocketClient extends EventEmitter {
     }
   }
 
-  public close(wsKey: WsKey, shouldReconnectAfterClose?: boolean) {
+  public close(wsKey: WsKey | string, shouldReconnectAfterClose?: boolean) {
     this.logger.info('Closing connection', {
-      ...loggerCategory,
+      ...WS_LOGGER_CATEGORY,
       wsKey,
       willReconnect: shouldReconnectAfterClose,
     });
@@ -594,10 +584,10 @@ export class WebsocketClient extends EventEmitter {
   private parseWsError(
     context: string,
     error: any,
-    wsKey: WsKey,
+    wsKey: WsKey | string,
     wsUrl: string,
   ) {
-    this.logger.error(context, { ...loggerCategory, wsKey, error });
+    this.logger.error(context, { ...WS_LOGGER_CATEGORY, wsKey, error });
 
     if (!error.message) {
       this.logger.error(`${context} due to unexpected error: `, error);
@@ -608,7 +598,7 @@ export class WebsocketClient extends EventEmitter {
     switch (error.message) {
       case 'Unexpected server response: 401':
         this.logger.error(`${context} due to 401 authorization failure.`, {
-          ...loggerCategory,
+          ...WS_LOGGER_CATEGORY,
           wsKey,
         });
         break;
@@ -622,7 +612,7 @@ export class WebsocketClient extends EventEmitter {
             `${context} due to unexpected response error: "${
               error?.msg || error?.message || error
             }"`,
-            { ...loggerCategory, wsKey, error },
+            { ...WS_LOGGER_CATEGORY, wsKey, error },
           );
           this.executeReconnectableClose(wsKey, 'unhandled onWsError', wsUrl);
         } else {
@@ -636,7 +626,7 @@ export class WebsocketClient extends EventEmitter {
   }
 
   private reconnectWithDelay(
-    wsKey: WsKey,
+    wsKey: WsKey | string,
     connectionDelayMs: number,
     wsUrl: string,
   ) {
@@ -650,7 +640,7 @@ export class WebsocketClient extends EventEmitter {
     }
 
     this.logger.info('Reconnecting to websocket with delay...', {
-      ...loggerCategory,
+      ...WS_LOGGER_CATEGORY,
       wsKey,
       connectionDelayMs,
     });
@@ -665,7 +655,7 @@ export class WebsocketClient extends EventEmitter {
       if (wsKey.includes('userData')) {
         const { market, symbol, isTestnet } = getContextFromWsKey(wsKey);
         this.logger.info('Reconnecting to user data stream', {
-          ...loggerCategory,
+          ...WS_LOGGER_CATEGORY,
           wsKey,
           market,
           symbol,
@@ -680,7 +670,7 @@ export class WebsocketClient extends EventEmitter {
       }
 
       this.logger.info('Reconnecting to public websocket', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         wsKey,
         wsUrl,
       });
@@ -688,14 +678,14 @@ export class WebsocketClient extends EventEmitter {
     }, connectionDelayMs);
   }
 
-  private clearTimers(wsKey: WsKey) {
+  private clearTimers(wsKey: WsKey | string) {
     this.clearPingTimer(wsKey);
     this.clearPongTimer(wsKey);
     this.clearReconnectTimer(wsKey);
   }
 
   // Send a ping at intervals
-  private clearPingTimer(wsKey: WsKey) {
+  private clearPingTimer(wsKey: WsKey | string) {
     const wsState = this.wsStore.get(wsKey);
     if (wsState?.activePingTimer) {
       clearInterval(wsState.activePingTimer);
@@ -704,7 +694,7 @@ export class WebsocketClient extends EventEmitter {
   }
 
   // Expect a pong within a time limit
-  private clearPongTimer(wsKey: WsKey) {
+  private clearPongTimer(wsKey: WsKey | string) {
     const wsState = this.wsStore.get(wsKey);
     if (wsState?.activePongTimer) {
       clearTimeout(wsState.activePongTimer);
@@ -713,7 +703,7 @@ export class WebsocketClient extends EventEmitter {
   }
 
   // Timer tracking that a reconnect is about to happen / in progress
-  private clearReconnectTimer(wsKey: WsKey) {
+  private clearReconnectTimer(wsKey: WsKey | string) {
     const wsState = this.wsStore.get(wsKey);
     if (wsState?.activeReconnectTimer) {
       clearTimeout(wsState.activeReconnectTimer);
@@ -743,7 +733,7 @@ export class WebsocketClient extends EventEmitter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private getWsBaseUrl(market: WsMarket, wsKey?: WsKey): string {
+  private getWsBaseUrl(market: WsMarket, wsKey?: WsKey | string): string {
     if (this.options.wsUrl) {
       return this.options.wsUrl;
     }
@@ -751,11 +741,11 @@ export class WebsocketClient extends EventEmitter {
     return wsBaseEndpoints[market];
   }
 
-  public getWs(wsKey: WsKey): WebSocket | undefined {
+  public getWs(wsKey: WsKey | string): WebSocket | undefined {
     return this.wsStore.getWs(wsKey);
   }
 
-  private setWsState(wsKey: WsKey, state: WsConnectionStateEnum) {
+  private setWsState(wsKey: WsKey | string, state: WsConnectionStateEnum) {
     this.wsStore.setConnectionState(wsKey, state);
   }
 
@@ -812,7 +802,7 @@ export class WebsocketClient extends EventEmitter {
   /**
    * Send WS message to subscribe to topics. Use subscribe() to call this.
    */
-  private requestSubscribeTopics(wsKey: WsKey, topics: string[]) {
+  private requestSubscribeTopics(wsKey: WsKey | string, topics: string[]) {
     const wsMessage = JSON.stringify({
       method: 'SUBSCRIBE',
       params: topics,
@@ -1011,7 +1001,7 @@ export class WebsocketClient extends EventEmitter {
       listenKeyState.keepAliveFailures = 0;
       this.logger.info(
         `Completed keep alive cycle for listenKey(${listenKey}) in market(${market})`,
-        { ...loggerCategory, listenKey },
+        { ...WS_LOGGER_CATEGORY, listenKey },
       );
     } catch (e) {
       listenKeyState.keepAliveFailures++;
@@ -1023,7 +1013,7 @@ export class WebsocketClient extends EventEmitter {
         this.logger.error(
           'FATAL: Failed to keep WS alive for listen key - listen key expired/invalid. Respawning with fresh listen key...',
           {
-            ...loggerCategory,
+            ...WS_LOGGER_CATEGORY,
             listenKey,
             error: e,
             errorCode,
@@ -1042,7 +1032,7 @@ export class WebsocketClient extends EventEmitter {
       if (listenKeyState.keepAliveFailures >= 3) {
         this.logger.error(
           'FATAL: Failed to keep WS alive for listen key after 3 attempts',
-          { ...loggerCategory, listenKey, error: e },
+          { ...WS_LOGGER_CATEGORY, listenKey, error: e },
         );
 
         // reconnect follows a less automatic workflow since this is tied to a listen key (which may need a new one).
@@ -1060,7 +1050,7 @@ export class WebsocketClient extends EventEmitter {
       this.logger.info(
         `Userdata keep alive request failed due to error, trying again with short delay (${reconnectDelaySeconds} seconds)`,
         {
-          ...loggerCategory,
+          ...WS_LOGGER_CATEGORY,
           listenKey,
           error: e,
           keepAliveAttempts: listenKeyState.keepAliveFailures,
@@ -1156,7 +1146,7 @@ export class WebsocketClient extends EventEmitter {
       }
     } catch (e) {
       this.logger.error('Exception trying to spawn user data stream', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         market,
         symbol,
         isTestnet,
@@ -1170,7 +1160,7 @@ export class WebsocketClient extends EventEmitter {
       this.logger.error(
         'User key respawn failed, trying again with short delay',
         {
-          ...loggerCategory,
+          ...WS_LOGGER_CATEGORY,
           market,
           symbol,
           isTestnet,
@@ -1836,7 +1826,7 @@ export class WebsocketClient extends EventEmitter {
       );
     } catch (e) {
       this.logger.error('Failed to connect to spot user data', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         error: e,
       });
       this.emit('error', { wsKey: 'spot' + '_' + 'userData', error: e });
@@ -1891,7 +1881,7 @@ export class WebsocketClient extends EventEmitter {
       return ws;
     } catch (e) {
       this.logger.error('Failed to connect to margin user data', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         error: e,
       });
       this.emit('error', { wsKey: 'margin' + '_' + 'userData', error: e });
@@ -1948,7 +1938,7 @@ export class WebsocketClient extends EventEmitter {
       return ws;
     } catch (e) {
       this.logger.error('Failed to connect to isolated margin user data', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         error: e,
         symbol,
       });
@@ -2021,7 +2011,7 @@ export class WebsocketClient extends EventEmitter {
       return ws;
     } catch (e) {
       this.logger.error('Failed to connect to USD Futures user data', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         error: e,
       });
       this.emit('error', { wsKey: 'usdm' + '_' + 'userData', error: e });
@@ -2084,7 +2074,7 @@ export class WebsocketClient extends EventEmitter {
       return ws;
     } catch (e) {
       this.logger.error('Failed to connect to COIN Futures user data', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         error: e,
       });
       this.emit('error', { wsKey: 'coinm' + '_' + 'userData', error: e });

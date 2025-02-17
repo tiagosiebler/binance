@@ -14,3 +14,4 @@ export * from './util/typeGuards';
 export * from './util/usdm';
 export * from './util/websockets/WsStore';
 export * from './websocket-client';
+export * from './websocket-client-new';
