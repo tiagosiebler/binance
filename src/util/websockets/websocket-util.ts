@@ -345,11 +345,33 @@ export function getTopicsPerWSKey(
 }
 
 export function parseEventTypeFromMessage(parsedMsg?: any): string | undefined {
-  if (parsedMsg?.data) {
-    return parseEventTypeFromMessage(parsedMsg.data);
-  }
   if (parsedMsg?.e) {
     return parsedMsg.e;
+  }
+  if (parsedMsg?.stream && typeof parsedMsg?.stream === 'string') {
+    const streamName = parsedMsg.stream;
+
+    // All symbol streams can be returned as is
+    if (streamName.startsWith('!')) {
+      return streamName;
+    }
+
+    // Per symbol streams can have the symbol trimmed off (string before first "@")
+    // E.g. btcusdt@kline_5m@+08:00 -> kline_5m@+08:00
+    const eventType = streamName.split('@');
+    if (eventType.length) {
+      // remove first, keep the rest rejoined
+      eventType.shift();
+      return eventType.join('@');
+    }
+
+    console.error(
+      'parseEventTypeFromMessage(): Cannot extract event type from message: ',
+      parsedMsg,
+    );
+  }
+  if (parsedMsg?.data) {
+    return parseEventTypeFromMessage(parsedMsg.data);
   }
   if (Array.isArray(parsedMsg) && parsedMsg.length) {
     return parseEventTypeFromMessage(parsedMsg[0]);

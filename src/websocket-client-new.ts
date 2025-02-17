@@ -579,17 +579,17 @@ export class WebsocketClientNew extends BaseWebsocketClient<
     try {
       // const parsed = JSON.parse(event.data);
       const parsed = parseRawWsMessage(event);
+      const eventType = parseEventTypeFromMessage(parsed);
+
       appendEventIfMissing(parsed, wsKey);
 
-      const eventType = parseEventTypeFromMessage(parsed);
       // const eventType = eventType; //parsed?.stream;
-      const eventOperation = parsed?.op;
+      // const eventOperation = parsed?.op;
 
       // this.logger.trace('resolveEmittableEvents', {
       //   ...WS_LOGGER_CATEGORY,
       //   wsKey,
       //   eventType,
-      //   eventOperation,
       //   parsed: JSON.stringify(parsed),
       //   // parsed: JSON.stringify(parsed, null, 2),
       // });
@@ -748,7 +748,7 @@ export class WebsocketClientNew extends BaseWebsocketClient<
       }
 
       // Messages that are a "reply" to a request/command (e.g. subscribe to these topics) typically include the "op" property
-      if (typeof eventOperation === 'string') {
+      if (typeof eventType === 'string') {
         // Failed request
         if (parsed.success === false) {
           results.push({
@@ -759,7 +759,7 @@ export class WebsocketClientNew extends BaseWebsocketClient<
         }
 
         // These are r  equest/reply pattern events (e.g. after subscribing to topics or authenticating)
-        if (EVENTS_RESPONSES.includes(eventOperation)) {
+        if (EVENTS_RESPONSES.includes(eventType)) {
           results.push({
             eventType: 'response',
             event: parsed,
@@ -768,7 +768,7 @@ export class WebsocketClientNew extends BaseWebsocketClient<
         }
 
         // Request/reply pattern for authentication success
-        if (EVENTS_AUTHENTICATED.includes(eventOperation)) {
+        if (EVENTS_AUTHENTICATED.includes(eventType)) {
           results.push({
             eventType: 'authenticated',
             event: parsed,
@@ -777,12 +777,12 @@ export class WebsocketClientNew extends BaseWebsocketClient<
         }
 
         this.logger.error(
-          `!! Unhandled string operation type "${eventOperation}". Defaulting to "update" channel...`,
+          `!! Unhandled string operation type "${eventType}". Defaulting to "update" channel...`,
           parsed,
         );
       } else {
         this.logger.error(
-          `!!!! Unhandled non-string event type "${eventOperation}". Defaulting to "update" channel...`,
+          `!!!! Unhandled non-string event type "${eventType}". Defaulting to "update" channel...`,
           parsed,
         );
       }

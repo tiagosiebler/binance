@@ -13,6 +13,7 @@ import { WsMarket } from '../types/websockets';
 import { USDMClient } from '../usdm-client';
 import { WsKey } from '../websocket-client';
 import { signMessage } from './node-support';
+import { parseEventTypeFromMessage } from './websockets/websocket-util';
 
 export type RestClient = MainClient | USDMClient;
 
@@ -265,9 +266,37 @@ export function logInvalidOrderId(
   );
 }
 
+/**
+ * For some topics, the received event does not include any information on the topic the event is for (e.g. book tickers).
+ *
+ * This method extracts this using available context, to add an "eventType" property if missing.
+ *
+ * - For the old WebsocketClient, this is extracted using the WsKey.
+ * - For the new multiplex Websocketclient, this is extracted using the "stream" parameter.
+ */
 export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
   if (wsMsg.e) {
     return;
+  }
+
+  // Multiplex websockets include the eventType as the stream name
+  if (wsMsg.stream && wsMsg.data) {
+    const eventType = parseEventTypeFromMessage(wsMsg);
+    if (eventType) {
+      if (Array.isArray(wsMsg.data)) {
+        for (const key in wsMsg.data) {
+          wsMsg.data[key].streamName = wsMsg.stream;
+          wsMsg.data[key].e = eventType;
+        }
+        return;
+      }
+
+      wsMsg.data = {
+        streamName: wsMsg.stream,
+        e: eventType,
+        ...wsMsg.data,
+      };
+    }
   }
 
   if (wsKey.indexOf('bookTicker') !== -1) {
