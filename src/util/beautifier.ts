@@ -1,6 +1,10 @@
 import { WsFormattedMessage } from '../types/websockets';
 import { BEAUTIFIER_EVENT_MAP } from './beautifier-maps';
 
+export interface BeautifierConfig {
+  warnKeyMissingInMap: boolean;
+}
+
 export default class Beautifier {
   private beautificationMap: Record<string, Record<string, any>>;
 
@@ -8,7 +12,10 @@ export default class Beautifier {
 
   private floatKeysHashMap: Record<string, boolean>;
 
-  constructor() {
+  private config: BeautifierConfig | undefined;
+
+  constructor(config: BeautifierConfig) {
+    this.config = config;
     this.floatKeys = [
       'accumulatedQuantity',
       'accumulatedRealisedPreFee',
@@ -195,6 +202,7 @@ export default class Beautifier {
   }
 
   beautify(data: any, key?: string | number) {
+    // console.log('beautify()', { key });
     if (typeof key !== 'string' && typeof key !== 'number') {
       console.warn(
         `beautify(object, ${key}) is not valid key - beautification failed `,
@@ -203,9 +211,26 @@ export default class Beautifier {
       );
       return data;
     }
+
     const knownBeautification = this.beautificationMap[key];
     if (!knownBeautification) {
-      // console.log(`beautify unknown key(..., "${key}")`);
+      const valueType = typeof data;
+      const isPrimitive =
+        valueType === 'string' ||
+        valueType === 'number' ||
+        valueType === 'boolean';
+
+      // Nothing to warn for primitives
+      if (this.config?.warnKeyMissingInMap && !isPrimitive) {
+        console.log(
+          `Beautifier(): event not found in map: key(..., "${key}")`,
+          {
+            valueType,
+            data,
+          },
+        );
+        process.exit(-1);
+      }
       if (Array.isArray(data)) {
         return this.beautifyArrayValues(data);
       }
@@ -266,22 +291,47 @@ export default class Beautifier {
    * Entry point to beautify WS message. EventType is determined automatically unless this is a combined stream event.
    */
   beautifyWsMessage(
-    data: any,
+    event: any,
     eventType?: string,
     isCombined?: boolean,
+    eventMapSuffix?: string,
   ): WsFormattedMessage {
-    if (Array.isArray(data)) {
-      return data.map((event) => {
+    const eventMapSuffixResolved = eventMapSuffix || '';
+    if (event.data) {
+      return this.beautifyWsMessage(
+        event.data,
+        eventType,
+        isCombined,
+        eventMapSuffixResolved,
+      );
+    }
+
+    if (Array.isArray(event)) {
+      return event.map((event) => {
         if (event.e) {
-          return this.beautify(event, event.e + 'Event');
+          return this.beautify(
+            event,
+            event.e + eventMapSuffixResolved + 'Event',
+          );
         }
         return event;
       });
-    } else if (data.e) {
-      return this.beautify(data, data.e + 'Event') as WsFormattedMessage;
-    } else if (isCombined && typeof data === 'object' && data !== null) {
-      return this.beautify(data, eventType) as WsFormattedMessage;
     }
-    return data;
+
+    if (event.e) {
+      return this.beautify(
+        event,
+        event.e + eventMapSuffixResolved + 'Event',
+      ) as WsFormattedMessage;
+    }
+
+    if (isCombined && typeof event === 'object' && event !== null) {
+      return this.beautify(
+        event,
+        eventType + eventMapSuffixResolved,
+      ) as WsFormattedMessage;
+    }
+
+    return event;
   }
 }
