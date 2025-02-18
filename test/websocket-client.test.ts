@@ -1,4 +1,4 @@
-import { parseRawWsMessage } from '../src/websocket-client';
+import { parseRawWsMessage } from '../src/websocket-client-legacy';
 
 describe('websocket-client', () => {
   describe('parseRawWsMessage()', () => {

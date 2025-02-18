@@ -81,9 +81,9 @@ export interface WsAPIWsKeyTopicMap {
   [WS_KEY_MAP.coinm]: WsOperation;
   [WS_KEY_MAP.coinm2]: WsOperation;
   [WS_KEY_MAP.coinmTestnet]: WsOperation;
-  [WS_KEY_MAP.options]: WsOperation;
-  [WS_KEY_MAP.portfolioMargin]: WsOperation;
-  [WS_KEY_MAP.portfolioMarginPro]: WsOperation;
+  [WS_KEY_MAP.eoptions]: WsOperation;
+  [WS_KEY_MAP.portfolioMarginUserData]: WsOperation;
+  [WS_KEY_MAP.portfolioMarginProUserData]: WsOperation;
 
   [WS_KEY_MAP.mainWSAPI]: WSAPIOperation;
   [WS_KEY_MAP.mainWSAPI2]: WSAPIOperation;

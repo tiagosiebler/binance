@@ -6,7 +6,7 @@ import {
   isWsFormattedUserDataEvent,
   WsUserDataEvents,
 } from '../src';
-import { WebsocketClient } from '../src/websocket-client';
+import { WebsocketClientV1 } from '../src/websocket-client-legacy';
 
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';
@@ -34,7 +34,7 @@ import { WebsocketClient } from '../src/websocket-client';
     },
   };
 
-  const wsClient = new WebsocketClient(
+  const wsClient = new WebsocketClientV1(
     {
       api_key: key,
       api_secret: secret,

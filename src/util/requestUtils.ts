@@ -280,7 +280,7 @@ export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
 
   // Multiplex websockets include the eventType as the stream name
   if (wsMsg.stream && wsMsg.data) {
-    const eventType = parseEventTypeFromMessage(wsMsg);
+    const eventType = parseEventTypeFromMessage(wsKey, wsMsg);
     if (eventType) {
       if (Array.isArray(wsMsg.data)) {
         for (const key in wsMsg.data) {

@@ -1,10 +1,10 @@
 import { EventEmitter } from 'events';
 
 import {
-  WebsocketClient,
   isWsFormattedKline,
-  USDMClient,
   KlineInterval,
+  USDMClient,
+  WebsocketClientV1,
 } from '../src';
 
 // or, with the npm package
@@ -29,7 +29,7 @@ import {
  */
 
 const restClient = new USDMClient();
-const wsClient = new WebsocketClient({
+const wsClient = new WebsocketClientV1({
   beautify: true,
 });
 
@@ -95,6 +95,7 @@ export class CandleStore {
   private openCandles: Record<string, EngineCandle | null> = {};
 
   private maxStoredCandles: number;
+
   private emitter: EventEmitter;
 
   constructor(symbol: string, options: CandleStoreOptions) {

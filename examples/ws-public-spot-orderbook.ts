@@ -1,8 +1,8 @@
 import {
-  WebsocketClient,
   DefaultLogger,
-  isWsPartialBookDepthEventFormatted,
   getContextFromWsKey,
+  isWsPartialBookDepthEventFormatted,
+  WebsocketClientV1,
 } from '../src';
 
 // or, with the npm package
@@ -20,7 +20,7 @@ import {
     // silly: () => {},
   };
 
-  const wsClient = new WebsocketClient(
+  const wsClient = new WebsocketClientV1(
     {
       beautify: true,
     },
@@ -35,7 +35,7 @@ import {
       const context = getContextFromWsKey(data.wsKey);
 
       if (!context?.symbol) {
-        throw new Error(`Failed to extract context from event?`);
+        throw new Error('Failed to extract context from event?');
       }
 
       console.log(`ws book event for "${context.symbol.toUpperCase()}"`, data);
@@ -58,7 +58,7 @@ import {
     console.log('ws has reconnected ', data?.wsKey);
   });
   wsClient.on('error', (data) => {
-    console.error(`ws error: `, data?.wsKey, data);
+    console.error('ws error: ', data?.wsKey, data);
   });
 
   // Request subscription to the following symbol trade events:

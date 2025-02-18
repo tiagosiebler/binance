@@ -139,9 +139,10 @@ function getFinalEmittable(
   }
 
   if (Array.isArray(emittable.event)) {
+    const { event, ...others } = emittable;
     return {
-      ...emittable.event,
-      event: emittable.event.map((subEvent) =>
+      ...others,
+      event: event.map((subEvent) =>
         getFinalEmittable(subEvent, wsKey, isWSAPIResponse),
       ),
     };
@@ -1109,6 +1110,7 @@ export abstract class BaseWebsocketClient<
             wsKey,
             emittable.isWSAPIResponse,
           );
+
           // this.logger.trace(
           //   'getFinalEmittable()->post(): ',
           //   JSON.stringify(emittable),

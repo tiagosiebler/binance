@@ -1,7 +1,7 @@
 /**
  * Minimal example for using a socks proxy with the ws client, extracted from https://github.com/tiagosiebler/binance/pull/319
  */
-import { WebsocketClient } from '../src';
+import { WebsocketClientV1 } from '../src';
 
 // or
 // import { WebsocketClient } from 'binance';
@@ -9,7 +9,7 @@ import { WebsocketClient } from '../src';
 const { SocksProxyAgent } = require('socks-proxy-agent');
 
 const agent = new SocksProxyAgent(process.env.http_proxy);
-const wsClient = new WebsocketClient({
+const wsClient = new WebsocketClientV1({
   beautify: true,
   wsOptions: {
     agent: agent,

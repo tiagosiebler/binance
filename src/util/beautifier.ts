@@ -202,6 +202,7 @@ export default class Beautifier {
   }
 
   beautify(data: any, key?: string | number) {
+    // console.log('beautify()', { key });
     if (typeof key !== 'string' && typeof key !== 'number') {
       console.warn(
         `beautify(object, ${key}) is not valid key - beautification failed `,
@@ -221,10 +222,14 @@ export default class Beautifier {
 
       // Nothing to warn for primitives
       if (this.config?.warnKeyMissingInMap && !isPrimitive) {
-        console.log(`Beautifier(): key not found in map: key(..., "${key}")`, {
-          valueType,
-          data,
-        });
+        console.log(
+          `Beautifier(): event not found in map: key(..., "${key}")`,
+          {
+            valueType,
+            data,
+          },
+        );
+        process.exit(-1);
       }
       if (Array.isArray(data)) {
         return this.beautifyArrayValues(data);
@@ -289,26 +294,42 @@ export default class Beautifier {
     event: any,
     eventType?: string,
     isCombined?: boolean,
+    eventMapSuffix?: string,
   ): WsFormattedMessage {
+    const eventMapSuffixResolved = eventMapSuffix || '';
     if (event.data) {
-      return this.beautifyWsMessage(event.data, eventType, isCombined);
+      return this.beautifyWsMessage(
+        event.data,
+        eventType,
+        isCombined,
+        eventMapSuffixResolved,
+      );
     }
 
     if (Array.isArray(event)) {
       return event.map((event) => {
         if (event.e) {
-          return this.beautify(event, event.e + 'Event');
+          return this.beautify(
+            event,
+            event.e + eventMapSuffixResolved + 'Event',
+          );
         }
         return event;
       });
     }
 
     if (event.e) {
-      return this.beautify(event, event.e + 'Event') as WsFormattedMessage;
+      return this.beautify(
+        event,
+        event.e + eventMapSuffixResolved + 'Event',
+      ) as WsFormattedMessage;
     }
 
     if (isCombined && typeof event === 'object' && event !== null) {
-      return this.beautify(event, eventType) as WsFormattedMessage;
+      return this.beautify(
+        event,
+        eventType + eventMapSuffixResolved,
+      ) as WsFormattedMessage;
     }
 
     return event;

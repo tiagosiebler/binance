@@ -49,14 +49,14 @@ export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
   coinmTestnet: 'coinmTestnet',
 
-  options: 'options',
+  eoptions: 'eoptions',
   // optionsTestnet: 'optionsTestnet',
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin/user-data-streams
-  portfolioMargin: 'portfolioMargin',
+  portfolioMarginUserData: 'portfolioMarginUserData',
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
-  portfolioMarginPro: 'portfolioMarginPro',
+  portfolioMarginProUserData: 'portfolioMarginProUserData',
 } as const;
 
 export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
@@ -82,18 +82,21 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   main2: 'wss://stream.binance.com:443/stream', // spot, margin, isolated margin, user data | alternative
   main3: 'wss://data-stream.binance.vision/stream', // spot, margin, isolated margin | alternative | MARKET DATA ONLY | NO USER DATA
 
-  // TODO: combined stream suffix on all of these
   // https://developers.binance.com/docs/binance-spot-api-docs/testnet/web-socket-streams#general-wss-information
   mainTestnetPublic: 'wss://testnet.binance.vision/stream',
+  // TODO:
   mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443/stream',
 
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
+  // TODO:
   mainWSAPI: 'wss://ws-api.binance.com:443/ws-api/v3',
   mainWSAPI2: 'wss://ws-api.binance.com:9443/ws-api/v3',
   mainWSAPITestnet: 'wss://testnet.binance.vision/ws-api/v3',
 
   // https://developers.binance.com/docs/margin_trading/risk-data-stream
-  marginRiskUserData: 'wss://margin-stream.binance.com',
+  // Margin websocket only support Cross Margin Accounts
+  // TODO:
+  marginRiskUserData: 'wss://margin-stream.binance.com/stream',
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
   // market data, user data
@@ -104,25 +107,30 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
   // ONLY WS API
+  // TODO:
   usdmWSAPI: 'wss://ws-fapi.binance.com/ws-fapi/v1',
   usdmWSAPITestnet: 'wss://testnet.binancefuture.com/ws-fapi/v1',
 
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-market-streams
   // market data, user data
   coinm: 'wss://dstream.binance.com/stream',
-  coinm2: 'wss://dstream-auth.binance.com/stream',
+  // TODO: requires listenkey
+  coinm2: 'wss://dstream-auth.binance.com/stream&listenKey=',
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
   coinmTestnet: 'wss://dstream.binancefuture.com/stream',
 
+  // https://developers.binance.com/docs/derivatives/option/websocket-market-streams
   // https://developers.binance.com/docs/derivatives/option/user-data-streams
-  options: 'wss://nbstream.binance.com/eoptions',
+  eoptions: 'wss://nbstream.binance.com/eoptions/stream',
   // optionsTestnet: 'wss://testnetws.binanceops.com',
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin/user-data-streams
-  portfolioMargin: 'wss://fstream.binance.com/pm', // /ws/listekeyhere
+  // TODO:
+  portfolioMarginUserData: 'wss://fstream.binance.com/pm', // /ws/listekeyhere
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
-  portfolioMarginPro: 'wss://fstream.binance.com/pm-classic', // /ws/listenkeyhere
+  // TODO:
+  portfolioMarginProUserData: 'wss://fstream.binance.com/pm-classic', // /ws/listenkeyhere
 };
 
 export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [
@@ -137,7 +145,7 @@ export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [
 // ] as WsKey[];
 
 /** Used to automatically determine if a sub request should be to the public or private ws (when there's two) */
-const PRIVATE_TOPICS = ['listenkey'];
+const PRIVATE_TOPICS = [];
 
 /**
  * Normalised internal format for a request (subscribe/unsubscribe/etc) on a topic, with optional parameters.
@@ -344,12 +352,16 @@ export function getTopicsPerWSKey(
   return perWsKeyTopics;
 }
 
-export function parseEventTypeFromMessage(parsedMsg?: any): string | undefined {
+export function parseEventTypeFromMessage(
+  wsKey: WsKey,
+  parsedMsg?: any,
+): string | undefined {
   if (parsedMsg?.e) {
     return parsedMsg.e;
   }
   if (parsedMsg?.stream && typeof parsedMsg?.stream === 'string') {
     const streamName = parsedMsg.stream;
+    // console.log(`parseEventTypeFromMessage(${wsKey}) `, streamName, parsedMsg);
 
     const eventType = streamName.split('@');
 
@@ -364,6 +376,11 @@ export function parseEventTypeFromMessage(parsedMsg?: any): string | undefined {
     if (eventType.length) {
       // remove first, keep the rest rejoined
       eventType.shift();
+
+      // Edge case, for european options, the suffix is a variable date so will never match the map
+      if (wsKey === 'eoptions') {
+        return eventType[0];
+      }
       return eventType.join('@');
     }
 
@@ -373,10 +390,10 @@ export function parseEventTypeFromMessage(parsedMsg?: any): string | undefined {
     );
   }
   if (parsedMsg?.data) {
-    return parseEventTypeFromMessage(parsedMsg.data);
+    return parseEventTypeFromMessage(wsKey, parsedMsg.data);
   }
   if (Array.isArray(parsedMsg) && parsedMsg.length) {
-    return parseEventTypeFromMessage(parsedMsg[0]);
+    return parseEventTypeFromMessage(wsKey, parsedMsg[0]);
   }
 
   return;
