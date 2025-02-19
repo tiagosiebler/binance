@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { USDMClient } from '../src/index';
 
 // or
@@ -26,8 +27,8 @@ async function start() {
      */
     const [
       { positionAmt: longAmount, ...long },
-      { positionAmt: shortAmount, ...short }
-    ]: any = await client.getPositions({ symbol });
+      { positionAmt: shortAmount, ...short },
+    ]: any = await client.getPositionsV3({ symbol });
 
     // if longAmount is bigger than 0 means we have open long position and if shortAmount is below 0 means we have open short position
     const hasLong = parseFloat(longAmount) > 0;
@@ -36,16 +37,17 @@ async function start() {
 
     // if we have any open position then we continue
     if (hasOpen) {
-
       // we get ourstop loss here
       const orders = await client.getAllOpenOrders({ symbol });
-      const stopOrders = orders.filter(({ type }) => type === 'STOP_MARKET') ?? {};
+      const stopOrders =
+        orders.filter(({ type }) => type === 'STOP_MARKET') ?? [];
 
-      // we want to modify our long position SL here 
+      // we want to modify our long position SL here
       if (hasLong) {
-
         // we get the StopLoss order which is realted to long
-        const { orderId }: any = stopOrders.find(({ positionSide: ps }) => ps == 'LONG');
+        const { orderId }: any = stopOrders.find(
+          ({ positionSide: ps }) => ps == 'LONG',
+        );
 
         // if it exists, cancel it.
         if (orderId) {
@@ -62,8 +64,8 @@ async function start() {
           timeInForce: 'GTC',
           type: 'STOP_MARKET',
           closePosition: 'true', // this is here because we don't have the position quantity value, and it means closee all quantity
-          stopPrice: parseFloat((markPrice * .99).toFixed(3)), // set sl price 1% below current price
-          workingType: 'MARK_PRICE'
+          stopPrice: parseFloat((markPrice * 0.99).toFixed(3)), // set sl price 1% below current price
+          workingType: 'MARK_PRICE',
         });
         console.log('SL Modifiled sell result: ', result);
       }

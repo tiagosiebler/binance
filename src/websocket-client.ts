@@ -1,8 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-constraint */
+import { AxiosRequestConfig } from 'axios';
 import WebSocket from 'isomorphic-ws';
 
-import { getWsKeyWithContext, KlineInterval, parseRawWsMessage } from '.';
+import {
+  CoinMClient,
+  getWsKeyWithContext,
+  KlineInterval,
+  MainClient,
+  parseRawWsMessage,
+  USDMClient,
+} from '.';
 import { WsMarket } from './types/websockets';
 import {
   Exact,
@@ -22,7 +30,11 @@ import {
   MidflightWsRequestEvent,
 } from './util/BaseWSClient';
 import Beautifier from './util/beautifier';
-import { appendEventIfMissing, isWsPong } from './util/requestUtils';
+import {
+  appendEventIfMissing,
+  isWsPong,
+  RestClientOptions,
+} from './util/requestUtils';
 import {
   isTopicSubscriptionConfirmation,
   isTopicSubscriptionSuccess,
@@ -70,14 +82,14 @@ function resolveWsKeyForMarket(market: 'spot' | 'usdm' | 'coinm'): WsKey {
  * - [] Listenkey subscription on DEDICATED connection.
  * - [] Testnet listenkey
  * - [] WS API commands
+ * - [] update examples to use new WS client. Should be plug and play! Test!
  *
  *
  *
  *
  *
  *
- *
- *
+ *RestClientCache
  *
  * Multiplex Node.js, JavaScript & TypeScript Websocket Client for all of Binance's available WebSockets.
  *

@@ -6,7 +6,7 @@ import {
   isWsFormattedUserDataEvent,
   WsUserDataEvents,
 } from '../src';
-import { WebsocketClientV1 } from '../src/websocket-client-legacy';
+import { WebsocketClientV1 } from '../src';
 
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';

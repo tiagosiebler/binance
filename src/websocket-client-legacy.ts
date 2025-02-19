@@ -2,8 +2,6 @@
 import { EventEmitter } from 'events';
 import WebSocket from 'isomorphic-ws';
 
-import { CoinMClient } from './coinm-client';
-import { MainClient } from './main-client';
 import { KlineInterval } from './types/shared';
 import {
   WsFormattedMessage,
@@ -16,7 +14,6 @@ import {
   WebsocketClientOptions,
   WSClientConfigurableOptions,
 } from './types/websockets/ws-general';
-import { USDMClient } from './usdm-client';
 import Beautifier from './util/beautifier';
 import { DefaultLogger } from './util/logger';
 import {
@@ -26,6 +23,7 @@ import {
   getWsKeyWithContext,
   RestClientOptions,
 } from './util/requestUtils';
+import { RestClientCache } from './util/websockets/rest-client-cache';
 import {
   parseEventTypeFromMessage,
   safeTerminateWs,
@@ -62,16 +60,6 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
 
 type WsEventInternalSrc = 'event' | 'function';
 
-interface RestClientStore {
-  spot: MainClient;
-  margin: MainClient;
-  usdmFutures: USDMClient;
-  usdmFuturesTestnet: USDMClient;
-  coinmFutures: CoinMClient;
-  coinmFuturesTestnet: CoinMClient;
-  // options: MainClient;
-}
-
 export declare interface WebsocketClientV1 {
   on(event: 'reply', listener: (event: WsResponse) => void): this;
 
@@ -87,6 +75,7 @@ export declare interface WebsocketClientV1 {
     listener: (event: WsUserDataEvents) => void,
   ): this;
 
+  // TODO: make consistent with new client, at least?
   on(
     event: 'error',
     listener: (event: { wsKey: WsKey; error: any; rawEvent?: string }) => void,
@@ -146,7 +135,7 @@ export class WebsocketClientV1 extends EventEmitter {
     warnKeyMissingInMap: false,
   });
 
-  private restClients: Partial<RestClientStore>;
+  private restClientCache: RestClientCache = new RestClientCache();
 
   private listenKeyStateStore: Record<string, ListenKeyPersistenceState>;
 
@@ -160,8 +149,6 @@ export class WebsocketClientV1 extends EventEmitter {
 
     this.logger = logger || DefaultLogger;
     this.wsStore = new WsStore(this.logger);
-
-    this.restClients = {};
 
     this.options = {
       // Some defaults:
@@ -755,56 +742,6 @@ export class WebsocketClientV1 extends EventEmitter {
     this.wsStore.setConnectionState(wsKey, state);
   }
 
-  private getSpotRestClient(): MainClient {
-    if (!this.restClients.spot) {
-      this.restClients.spot = new MainClient(
-        this.getRestClientOptions(),
-        this.options.requestOptions,
-      );
-    }
-    return this.restClients.spot;
-  }
-
-  private getUSDMRestClient(isTestnet?: boolean): USDMClient {
-    if (isTestnet) {
-      if (!this.restClients.usdmFuturesTestnet) {
-        this.restClients.usdmFuturesTestnet = new USDMClient(
-          this.getRestClientOptions(),
-          this.options.requestOptions,
-          isTestnet,
-        );
-      }
-      return this.restClients.usdmFuturesTestnet;
-    }
-    if (!this.restClients.usdmFutures) {
-      this.restClients.usdmFutures = new USDMClient(
-        this.getRestClientOptions(),
-        this.options.requestOptions,
-      );
-    }
-    return this.restClients.usdmFutures;
-  }
-
-  private getCOINMRestClient(isTestnet?: boolean): CoinMClient {
-    if (isTestnet) {
-      if (!this.restClients.coinmFuturesTestnet) {
-        this.restClients.coinmFuturesTestnet = new CoinMClient(
-          this.getRestClientOptions(),
-          this.options.requestOptions,
-          isTestnet,
-        );
-      }
-      return this.restClients.coinmFuturesTestnet;
-    }
-    if (!this.restClients.coinmFutures) {
-      this.restClients.coinmFutures = new CoinMClient(
-        this.getRestClientOptions(),
-        this.options.requestOptions,
-      );
-    }
-    return this.restClients.coinmFutures;
-  }
-
   /**
    * Send WS message to subscribe to topics. Use subscribe() to call this.
    */
@@ -943,30 +880,55 @@ export class WebsocketClientV1 extends EventEmitter {
   ) {
     switch (market) {
       case 'spot':
-        return this.getSpotRestClient().keepAliveSpotUserDataListenKey(
-          listenKey,
-        );
+        return this.restClientCache
+          .getSpotRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+          )
+          .keepAliveSpotUserDataListenKey(listenKey);
       case 'margin':
-        return this.getSpotRestClient().keepAliveMarginUserDataListenKey(
-          listenKey,
-        );
+        return this.restClientCache
+          .getSpotRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+          )
+          .keepAliveMarginUserDataListenKey(listenKey);
       case 'isolatedMargin':
-        return this.getSpotRestClient().keepAliveIsolatedMarginUserDataListenKey(
-          { listenKey, symbol: symbol! },
-        );
+        return this.restClientCache
+          .getSpotRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+          )
+          .keepAliveIsolatedMarginUserDataListenKey({
+            listenKey,
+            symbol: symbol!,
+          });
       case 'coinm':
       case 'options':
       case 'optionsTestnet':
       case 'usdm':
-        return this.getUSDMRestClient().keepAliveFuturesUserDataListenKey();
+        return this.restClientCache
+          .getUSDMRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+          )
+          .keepAliveFuturesUserDataListenKey();
       case 'usdmTestnet':
-        return this.getUSDMRestClient(
-          isTestnet,
-        ).keepAliveFuturesUserDataListenKey();
+        return this.restClientCache
+          .getUSDMRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+            isTestnet,
+          )
+          .keepAliveFuturesUserDataListenKey();
       case 'coinmTestnet':
-        return this.getUSDMRestClient(
-          isTestnet,
-        ).keepAliveFuturesUserDataListenKey();
+        return this.restClientCache
+          .getCOINMRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+            isTestnet,
+          )
+          .keepAliveFuturesUserDataListenKey();
       default:
         throwUnhandledSwitch(
           market,
@@ -1823,8 +1785,12 @@ export class WebsocketClientV1 extends EventEmitter {
     isReconnecting?: boolean,
   ): Promise<WebSocket | undefined> {
     try {
-      const { listenKey } =
-        await this.getSpotRestClient().getSpotUserDataListenKey();
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getSpotUserDataListenKey();
       return this.subscribeSpotUserDataStreamWithListenKey(
         listenKey,
         forceNewConnection,
@@ -1847,8 +1813,12 @@ export class WebsocketClientV1 extends EventEmitter {
     isReconnecting?: boolean,
   ): Promise<WebSocket> {
     try {
-      const { listenKey } =
-        await this.getSpotRestClient().getMarginUserDataListenKey();
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getMarginUserDataListenKey();
 
       const market: WsMarket = 'margin';
       const wsKey = getWsKeyWithContext(
@@ -1904,8 +1874,12 @@ export class WebsocketClientV1 extends EventEmitter {
   ): Promise<WebSocket> {
     try {
       const lowerCaseSymbol = symbol.toLowerCase();
-      const { listenKey } =
-        await this.getSpotRestClient().getIsolatedMarginUserDataListenKey({
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getIsolatedMarginUserDataListenKey({
           symbol: lowerCaseSymbol,
         });
       const market: WsMarket = 'isolatedMargin';
@@ -1970,7 +1944,12 @@ export class WebsocketClientV1 extends EventEmitter {
     isReconnecting?: boolean,
   ): Promise<WebSocket> {
     try {
-      const restClient = this.getUSDMRestClient(isTestnet);
+      const restClient = this.restClientCache.getUSDMRestClient(
+        this.getRestClientOptions(),
+        this.options.requestOptions,
+        isTestnet,
+      );
+
       const { listenKey } = await restClient.getFuturesUserDataListenKey();
 
       const market: WsMarket = isTestnet ? 'usdmTestnet' : 'usdm';
@@ -2033,8 +2012,13 @@ export class WebsocketClientV1 extends EventEmitter {
     isReconnecting?: boolean,
   ): Promise<WebSocket> {
     try {
-      const { listenKey } =
-        await this.getCOINMRestClient(isTestnet).getFuturesUserDataListenKey();
+      const { listenKey } = await this.restClientCache
+        .getCOINMRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+          isTestnet,
+        )
+        .getFuturesUserDataListenKey();
 
       const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
       const wsKey = getWsKeyWithContext(

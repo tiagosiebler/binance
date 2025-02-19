@@ -145,7 +145,7 @@ export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [
 // ] as WsKey[];
 
 /** Used to automatically determine if a sub request should be to the public or private ws (when there's two) */
-const PRIVATE_TOPICS = [];
+const PRIVATE_TOPICS: string[] = [];
 
 /**
  * Normalised internal format for a request (subscribe/unsubscribe/etc) on a topic, with optional parameters.
