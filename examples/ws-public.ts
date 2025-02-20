@@ -17,9 +17,10 @@ import {
   const logger: DefaultLogger = {
     ...DefaultLogger,
     trace: (...params) => {
-      if (params[0].includes('ping') || params[0].includes('pong')) {
-        return;
-      }
+      // A simple way to suppress heartbeats but receive all other traces
+      // if (params[0].includes('ping') || params[0].includes('pong')) {
+      //   return;
+      // }
       console.log('\n', new Date(), 'trace ', ...params);
     },
   };

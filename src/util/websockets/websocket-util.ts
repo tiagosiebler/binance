@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import WebSocket from 'isomorphic-ws';
 
-import { DefaultLogger } from '../..';
+import { DefaultLogger, neverGuard, WsMarket } from '../..';
 import { WSAPIRequest } from '../../types/websockets/ws-api';
 import {
   WebsocketClientOptions,
@@ -76,61 +76,138 @@ export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
    *
    */
 
+export function getWsURLSuffix(
+  wsKey: WsKey,
+  connectionType: 'market' | 'userData' | 'wsAPI',
+): string {
+  switch (wsKey) {
+    case 'main':
+    case 'main2':
+    case 'main3':
+    case 'mainWSAPI':
+    case 'mainWSAPI2':
+    case 'marginRiskUserData':
+    case 'mainTestnetPublic':
+    case 'mainTestnetUserData':
+    case 'mainWSAPITestnet': {
+      switch (connectionType) {
+        case 'market':
+          return '/stream';
+        case 'userData':
+          return '/ws';
+        case 'wsAPI':
+          return '/ws-api/v3';
+        default: {
+          throw neverGuard(
+            connectionType,
+            `Unhandled connectionType "${wsKey}/${connectionType}"`,
+          );
+        }
+      }
+    }
+    case 'usdm':
+    case 'usdmWSAPI':
+    case 'usdmTestnet':
+    case 'usdmWSAPITestnet': {
+      switch (connectionType) {
+        case 'market':
+          return '/stream';
+        case 'userData':
+          return '/ws';
+        case 'wsAPI':
+          return '/ws-fapi/v1';
+        default: {
+          throw neverGuard(
+            connectionType,
+            `Unhandled connectionType "${wsKey}/${connectionType}"`,
+          );
+        }
+      }
+    }
+    case 'coinm':
+    case 'coinmTestnet':
+    case 'eoptions':
+      switch (connectionType) {
+        case 'market':
+          return '/stream';
+        case 'userData':
+          return '/ws';
+        case 'wsAPI':
+          return '/ws-capi/v1';
+        default: {
+          throw neverGuard(
+            connectionType,
+            `Unhandled connectionType "${wsKey}/${connectionType}"`,
+          );
+        }
+      }
+    case 'coinm2':
+      return '/stream&listenKey=';
+    case 'portfolioMarginUserData':
+      return '/pm/ws'; // pm/ws/listenKeyHere
+    case 'portfolioMarginProUserData':
+      return '/pm-classic/ws';
+    default: {
+      throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
+    }
+  }
+}
+
 export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
-  main: 'wss://stream.binance.com:9443/stream', // spot, margin, isolated margin, user data
-  main2: 'wss://stream.binance.com:443/stream', // spot, margin, isolated margin, user data | alternative
-  main3: 'wss://data-stream.binance.vision/stream', // spot, margin, isolated margin | alternative | MARKET DATA ONLY | NO USER DATA
+  main: 'wss://stream.binance.com:9443', // spot, margin, isolated margin, user data
+  main2: 'wss://stream.binance.com:443', // spot, margin, isolated margin, user data | alternative
+  main3: 'wss://data-stream.binance.vision', // spot, margin, isolated margin | alternative | MARKET DATA ONLY | NO USER DATA
 
   // https://developers.binance.com/docs/binance-spot-api-docs/testnet/web-socket-streams#general-wss-information
-  mainTestnetPublic: 'wss://testnet.binance.vision/stream',
+  mainTestnetPublic: 'wss://testnet.binance.vision',
   // TODO:
-  mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443/stream',
+  mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443',
 
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
   // TODO:
-  mainWSAPI: 'wss://ws-api.binance.com:443/ws-api/v3',
-  mainWSAPI2: 'wss://ws-api.binance.com:9443/ws-api/v3',
-  mainWSAPITestnet: 'wss://testnet.binance.vision/ws-api/v3',
+  mainWSAPI: 'wss://ws-api.binance.com:443',
+  mainWSAPI2: 'wss://ws-api.binance.com:9443',
+  mainWSAPITestnet: 'wss://testnet.binance.vision',
 
   // https://developers.binance.com/docs/margin_trading/risk-data-stream
   // Margin websocket only support Cross Margin Accounts
   // TODO:
-  marginRiskUserData: 'wss://margin-stream.binance.com/stream',
+  marginRiskUserData: 'wss://margin-stream.binance.com',
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
   // market data, user data
-  usdm: 'wss://fstream.binance.com/stream',
+  usdm: 'wss://fstream.binance.com',
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/general-info
-  usdmTestnet: 'wss://stream.binancefuture.com/stream',
+  usdmTestnet: 'wss://stream.binancefuture.com',
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
   // ONLY WS API
   // TODO:
-  usdmWSAPI: 'wss://ws-fapi.binance.com/ws-fapi/v1',
-  usdmWSAPITestnet: 'wss://testnet.binancefuture.com/ws-fapi/v1',
+  usdmWSAPI: 'wss://ws-fapi.binance.com',
+  usdmWSAPITestnet: 'wss://testnet.binancefuture.com',
 
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-market-streams
   // market data, user data
-  coinm: 'wss://dstream.binance.com/stream',
+  coinm: 'wss://dstream.binance.com',
   // TODO: requires listenkey
-  coinm2: 'wss://dstream-auth.binance.com/stream&listenKey=',
+  coinm2: 'wss://dstream-auth.binance.com',
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
-  coinmTestnet: 'wss://dstream.binancefuture.com/stream',
+  coinmTestnet: 'wss://dstream.binancefuture.com',
 
   // https://developers.binance.com/docs/derivatives/option/websocket-market-streams
   // https://developers.binance.com/docs/derivatives/option/user-data-streams
-  eoptions: 'wss://nbstream.binance.com/eoptions/stream',
+  eoptions: 'wss://nbstream.binance.com/eoptions',
   // optionsTestnet: 'wss://testnetws.binanceops.com',
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin/user-data-streams
   // TODO:
-  portfolioMarginUserData: 'wss://fstream.binance.com/pm', // /ws/listekeyhere
+  portfolioMarginUserData: 'wss://fstream.binance.com', // /ws/listekeyhere
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
   // TODO:
-  portfolioMarginProUserData: 'wss://fstream.binance.com/pm-classic', // /ws/listenkeyhere
+  portfolioMarginProUserData: 'wss://fstream.binance.com', // /ws/listenkeyhere
 };
 
 export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [
@@ -397,4 +474,81 @@ export function parseEventTypeFromMessage(
   }
 
   return;
+}
+
+export function resolveUserDataMarketForWsKey(wsKey: WsKey): WsMarket {
+  switch (wsKey) {
+    case 'main':
+    case 'main2':
+    case 'main3':
+    case 'mainWSAPI':
+    case 'mainWSAPI2':
+    case 'marginRiskUserData':
+      return 'spot';
+    case 'mainTestnetPublic':
+    case 'mainTestnetUserData':
+    case 'mainWSAPITestnet':
+      return 'spotTestnet';
+    case 'usdm':
+    case 'usdmWSAPI':
+      return 'usdm';
+    case 'usdmTestnet':
+    case 'usdmWSAPITestnet':
+      return 'usdmTestnet';
+    case 'coinm':
+    case 'coinm2':
+      return 'coinm';
+    case 'coinmTestnet':
+      return 'coinmTestnet';
+    case 'eoptions':
+      return 'options';
+    case 'portfolioMarginUserData':
+    case 'portfolioMarginProUserData':
+      return 'portfoliom';
+    default: {
+      throw neverGuard(
+        wsKey,
+        `resolveMarketForWsKey(): Unhandled WsKey "${wsKey}"`,
+      );
+    }
+  }
+}
+
+/**
+ * Used by the legacy subscribe* utility methods to determine which wsKey to route the subscription to.
+ */
+export function resolveWsKeyForLegacyMarket(
+  market: 'spot' | 'usdm' | 'coinm',
+): WsKey {
+  switch (market) {
+    case 'spot': {
+      return 'main';
+    }
+    case 'coinm': {
+      return 'coinm';
+    }
+    case 'usdm': {
+      return 'usdm';
+    }
+  }
+}
+
+/**
+ * Try to resolve event.data. Example circumstance: {"stream":"!forceOrder@arr","data":{"e":"forceOrder","E":1634653599186,"o":{"s":"IOTXUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"3661","p":"0.06606","ap":"0.06669","X":"FILLED","l":"962","z":"3661","T":1634653599180}}}
+ */
+export function parseRawWsMessage(event: any) {
+  if (typeof event === 'string') {
+    const parsedEvent = JSON.parse(event);
+
+    if (parsedEvent.data) {
+      if (typeof parsedEvent.data === 'string') {
+        return parseRawWsMessage(parsedEvent.data);
+      }
+      return parsedEvent.data;
+    }
+  }
+  if (event?.data) {
+    return JSON.parse(event.data);
+  }
+  return event;
 }

@@ -23,6 +23,7 @@ import {
 
 export type WsMarket =
   | 'spot'
+  | 'spotTestnet'
   | 'margin'
   | 'isolatedMargin'
   | 'usdm'
@@ -30,7 +31,8 @@ export type WsMarket =
   | 'coinm'
   | 'coinmTestnet'
   | 'options'
-  | 'optionsTestnet';
+  | 'optionsTestnet'
+  | 'portfoliom';
 
 interface WsSharedBase {
   wsMarket: WsMarket;

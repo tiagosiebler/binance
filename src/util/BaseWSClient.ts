@@ -37,11 +37,21 @@ type UseTheExceptionEventInstead = never;
 
 interface WSClientEventMap<WsKey extends string> {
   /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
-  open: (evt: { wsKey: WsKey; event: any }) => void;
+  open: (evt: {
+    wsKey: WsKey;
+    event: any;
+    wsUrl: string;
+    ws: WebSocket;
+  }) => void;
   /** Reconnecting a dropped connection */
   reconnecting: (evt: { wsKey: WsKey; event: any }) => void;
   /** Successfully reconnected a connection that dropped */
-  reconnected: (evt: { wsKey: WsKey; event: any }) => void;
+  reconnected: (evt: {
+    wsKey: WsKey;
+    event: any;
+    wsUrl: string;
+    ws: WebSocket;
+  }) => void;
   /** Connection closed */
   close: (evt: { wsKey: WsKey; event: any }) => void;
   /** Received reply to websocket command (e.g. after subscribing to topics) */
@@ -226,6 +236,12 @@ export abstract class BaseWebsocketClient<
    * Return true if this wsKey connection should automatically authenticate immediately after connecting
    */
   protected abstract isAuthOnConnectWsKey(wsKey: TWSKey): boolean;
+
+  protected abstract isCustomReconnectionNeeded(wsKey: TWSKey): boolean;
+
+  protected abstract triggerCustomReconnectionWorkflow(
+    wsKey: TWSKey,
+  ): Promise<void>;
 
   protected abstract sendPingEvent(wsKey: TWSKey, ws: WebSocket): void;
 
@@ -472,7 +488,8 @@ export abstract class BaseWebsocketClient<
    */
   public async connect(
     wsKey: TWSKey,
-    customUrl?: string,
+    customUrl?: string | undefined,
+    throwOnError?: boolean,
   ): Promise<WSConnectedResult | undefined> {
     try {
       if (this.wsStore.isWsOpen(wsKey)) {
@@ -483,6 +500,7 @@ export abstract class BaseWebsocketClient<
         return { wsKey };
       }
 
+      // Don't check for reconnecting? Conflicts a bit with user data reconnect workflow...
       if (
         this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.CONNECTING)
       ) {
@@ -513,6 +531,10 @@ export abstract class BaseWebsocketClient<
     } catch (err) {
       this.parseWsError('Connection failed', err, wsKey);
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
+
+      if (throwOnError) {
+        throw err;
+      }
     }
   }
 
@@ -527,7 +549,7 @@ export abstract class BaseWebsocketClient<
     const ws = new WebSocket(url, protocols, wsOptions);
     // this.wsUrlKeyMap[url] = wsRefKey;
 
-    ws.onopen = (event: any) => this.onWsOpen(event, wsKey);
+    ws.onopen = (event: any) => this.onWsOpen(event, wsKey, url, ws);
     ws.onmessage = (event: any) => this.onWsMessage(event, wsKey, ws);
     ws.onerror = (event: any) =>
       this.parseWsError('Websocket onWsError', event, wsKey);
@@ -643,17 +665,32 @@ export abstract class BaseWebsocketClient<
       this.setWsState(wsKey, WsConnectionStateEnum.RECONNECTING);
     }
 
+    this.logger.info('Reconnecting to websocket with delay...', {
+      ...WS_LOGGER_CATEGORY,
+      wsKey,
+      connectionDelayMs,
+    });
+
     if (this.wsStore.get(wsKey)?.activeReconnectTimer) {
       this.clearReconnectTimer(wsKey);
     }
 
     this.wsStore.get(wsKey, true).activeReconnectTimer = setTimeout(() => {
-      this.logger.info('Reconnecting to websocket', {
+      this.clearReconnectTimer(wsKey);
+
+      if (this.isCustomReconnectionNeeded(wsKey)) {
+        this.wsStore.delete(wsKey);
+
+        return this.triggerCustomReconnectionWorkflow(wsKey);
+      }
+
+      this.logger.info('Reconnecting to websocket now', {
         ...WS_LOGGER_CATEGORY,
         wsKey,
       });
-      this.clearReconnectTimer(wsKey);
       this.connect(wsKey);
+
+      // TODO: this needs a very different workflow for the user data stream....see legacy client
     }, connectionDelayMs);
   }
 
@@ -686,7 +723,7 @@ export abstract class BaseWebsocketClient<
    * Closes a connection, if it's even open. If open, this will trigger a reconnect asynchronously.
    * If closed, trigger a reconnect immediately
    */
-  private executeReconnectableClose(wsKey: TWSKey, reason: string) {
+  protected executeReconnectableClose(wsKey: TWSKey, reason: string) {
     this.logger.info(`${reason} - closing socket to reconnect`, {
       ...WS_LOGGER_CATEGORY,
       wsKey,
@@ -918,7 +955,12 @@ export abstract class BaseWebsocketClient<
     }
   }
 
-  private async onWsOpen(event: any, wsKey: TWSKey) {
+  private async onWsOpen(
+    event: any,
+    wsKey: TWSKey,
+    url: string,
+    ws: WebSocket,
+  ) {
     const isFreshConnectionAttempt = this.wsStore.isConnectionState(
       wsKey,
       WsConnectionStateEnum.CONNECTING,
@@ -936,7 +978,7 @@ export abstract class BaseWebsocketClient<
         testnet: this.options.testnet === true,
       });
 
-      this.emit('open', { wsKey, event });
+      this.emit('open', { wsKey, event, wsUrl: url, ws });
     } else if (isReconnectionAttempt) {
       this.logger.info('Websocket reconnected', {
         ...WS_LOGGER_CATEGORY,
@@ -944,7 +986,7 @@ export abstract class BaseWebsocketClient<
         testnet: this.options.testnet === true,
       });
 
-      this.emit('reconnected', { wsKey, event });
+      this.emit('reconnected', { wsKey, event, wsUrl: url, ws });
     }
 
     this.setWsState(wsKey, WsConnectionStateEnum.CONNECTED);

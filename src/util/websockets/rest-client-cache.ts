@@ -2,26 +2,39 @@ import { AxiosRequestConfig } from 'axios';
 
 import { CoinMClient } from '../../coinm-client';
 import { MainClient } from '../../main-client';
+import { PortfolioClient } from '../../portfolio-client';
 import { USDMClient } from '../../usdm-client';
 import { RestClientOptions } from '../requestUtils';
 
 interface RestClientStore {
   spot: MainClient;
+  spotTestnet: MainClient;
   margin: MainClient;
   usdmFutures: USDMClient;
   usdmFuturesTestnet: USDMClient;
   coinmFutures: CoinMClient;
   coinmFuturesTestnet: CoinMClient;
+  portfolio: PortfolioClient;
   // options: MainClient;
 }
 
 export class RestClientCache {
-  private restClients: Partial<RestClientStore>;
+  private restClients: Partial<RestClientStore> = {};
 
   public getSpotRestClient(
     restOptions: RestClientOptions,
     requestOptions?: AxiosRequestConfig,
+    isTestnet?: boolean,
   ): MainClient {
+    if (isTestnet) {
+      if (!this.restClients.spotTestnet) {
+        this.restClients.spotTestnet = new MainClient(
+          { ...restOptions, useTestnet: true },
+          requestOptions,
+        );
+      }
+      return this.restClients.spotTestnet;
+    }
     if (!this.restClients.spot) {
       this.restClients.spot = new MainClient(restOptions, requestOptions);
     }
@@ -76,5 +89,18 @@ export class RestClientCache {
       );
     }
     return this.restClients.coinmFutures;
+  }
+
+  public getPortfolioClient(
+    restOptions: RestClientOptions,
+    requestOptions?: AxiosRequestConfig,
+  ): PortfolioClient {
+    if (!this.restClients.portfolio) {
+      this.restClients.portfolio = new PortfolioClient(
+        restOptions,
+        requestOptions,
+      );
+    }
+    return this.restClients.portfolio;
   }
 }

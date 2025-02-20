@@ -20,12 +20,15 @@ import {
   appendEventIfMissing,
   appendEventMarket,
   getContextFromWsKey,
-  getWsKeyWithContext,
+  getLegacyWsStoreKeyWithContext,
   RestClientOptions,
 } from './util/requestUtils';
+import { neverGuard } from './util/typeGuards';
+import { ListenKeyStateCache } from './util/websockets/listen-key-state-cache';
 import { RestClientCache } from './util/websockets/rest-client-cache';
 import {
   parseEventTypeFromMessage,
+  parseRawWsMessage,
   safeTerminateWs,
   WS_LOGGER_CATEGORY,
   WsKey,
@@ -43,6 +46,8 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
   coinmTestnet: 'wss://dstream.binancefuture.com',
   options: 'wss://vstream.binance.com',
   optionsTestnet: 'wss://testnetws.binanceops.com',
+  spotTestnet: '',
+  portfoliom: '',
 };
 
 // export const wsKeySpot = 'spot';
@@ -86,46 +91,13 @@ export declare interface WebsocketClientV1 {
     listener: (event: { wsKey: WsKey; ws: WebSocket; event?: any }) => void,
   ): this;
 }
-
-interface ListenKeyPersistenceState {
-  keepAliveTimer: ReturnType<typeof setInterval> | undefined;
-  keepAliveRetryTimer: ReturnType<typeof setTimeout> | undefined;
-  lastKeepAlive: number;
-  market: WsMarket;
-  keepAliveFailures: number;
-}
-
-function throwUnhandledSwitch(x: never, msg: string): never {
-  throw new Error(msg);
-}
-
-/**
- * Try to resolve event.data. Example circumstance: {"stream":"!forceOrder@arr","data":{"e":"forceOrder","E":1634653599186,"o":{"s":"IOTXUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"3661","p":"0.06606","ap":"0.06669","X":"FILLED","l":"962","z":"3661","T":1634653599180}}}
- */
-export function parseRawWsMessage(event: any) {
-  if (typeof event === 'string') {
-    const parsedEvent = JSON.parse(event);
-
-    if (parsedEvent.data) {
-      if (typeof parsedEvent.data === 'string') {
-        return parseRawWsMessage(parsedEvent.data);
-      }
-      return parsedEvent.data;
-    }
-  }
-  if (event?.data) {
-    return JSON.parse(event.data);
-  }
-  return event;
-}
-
 /**
  * This legacy websocket client creates one websocket connection per topic.
  *
  * If subscribing to a lot of topics, consider using the new multiplex `WebsocketClient`.
  */
 export class WebsocketClientV1 extends EventEmitter {
-  private logger: typeof DefaultLogger;
+  private logger: DefaultLogger;
 
   private options: WebsocketClientOptions;
 
@@ -137,7 +109,7 @@ export class WebsocketClientV1 extends EventEmitter {
 
   private restClientCache: RestClientCache = new RestClientCache();
 
-  private listenKeyStateStore: Record<string, ListenKeyPersistenceState>;
+  private listenKeyStateCache: ListenKeyStateCache;
 
   private wsUrlKeyMap: Record<string, WsKey | string>;
 
@@ -149,6 +121,7 @@ export class WebsocketClientV1 extends EventEmitter {
 
     this.logger = logger || DefaultLogger;
     this.wsStore = new WsStore(this.logger);
+    this.listenKeyStateCache = new ListenKeyStateCache(this.logger);
 
     this.options = {
       // Some defaults:
@@ -164,7 +137,6 @@ export class WebsocketClientV1 extends EventEmitter {
       ...options,
     };
 
-    this.listenKeyStateStore = {};
     this.wsUrlKeyMap = {};
 
     // add default error handling so this doesn't crash node (if the user didn't set a handler)
@@ -352,7 +324,7 @@ export class WebsocketClientV1 extends EventEmitter {
       this.wsStore.delete(wsKey);
 
       if (listenKey) {
-        this.clearUserDataKeepAliveTimer(listenKey);
+        this.listenKeyStateCache.clearAllListenKeyState(listenKey);
       }
     }
 
@@ -704,27 +676,6 @@ export class WebsocketClientV1 extends EventEmitter {
     }
   }
 
-  private clearUserDataKeepAliveTimer(listenKey: string): void {
-    const state = this.listenKeyStateStore[listenKey];
-    if (!state) {
-      return;
-    }
-
-    if (state.keepAliveTimer) {
-      this.logger.trace(
-        `Clearing old listen key interval timer for ${listenKey}`,
-      );
-      clearInterval(state.keepAliveTimer);
-    }
-
-    if (state.keepAliveRetryTimer) {
-      this.logger.trace(
-        `Clearing old listen key keepAliveRetry timer for ${listenKey}`,
-      );
-      clearTimeout(state.keepAliveRetryTimer);
-    }
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private getWsBaseUrl(market: WsMarket, wsKey?: WsKey | string): string {
     if (this.options.wsUrl) {
@@ -821,24 +772,6 @@ export class WebsocketClientV1 extends EventEmitter {
    * --------------------------
    **/
 
-  private getListenKeyState(
-    listenKey: string,
-    market: WsMarket,
-  ): ListenKeyPersistenceState {
-    const state = this.listenKeyStateStore[listenKey];
-    if (state) {
-      return state;
-    }
-    this.listenKeyStateStore[listenKey] = {
-      market,
-      lastKeepAlive: 0,
-      keepAliveTimer: undefined,
-      keepAliveRetryTimer: undefined,
-      keepAliveFailures: 0,
-    };
-    return this.listenKeyStateStore[listenKey];
-  }
-
   private setKeepAliveListenKeyTimer(
     listenKey: string,
     market: WsMarket,
@@ -847,9 +780,12 @@ export class WebsocketClientV1 extends EventEmitter {
     symbol?: string,
     isTestnet?: boolean,
   ) {
-    const listenKeyState = this.getListenKeyState(listenKey, market);
+    this.listenKeyStateCache.clearAllListenKeyState(listenKey);
 
-    this.clearUserDataKeepAliveTimer(listenKey);
+    const listenKeyState = this.listenKeyStateCache.getListenKeyState(
+      listenKey,
+      market,
+    );
 
     this.logger.trace(`Created new listen key interval timer for ${listenKey}`);
 
@@ -884,6 +820,14 @@ export class WebsocketClientV1 extends EventEmitter {
           .getSpotRestClient(
             this.getRestClientOptions(),
             this.options.requestOptions,
+          )
+          .keepAliveSpotUserDataListenKey(listenKey);
+      case 'spotTestnet':
+        return this.restClientCache
+          .getSpotRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+            true,
           )
           .keepAliveSpotUserDataListenKey(listenKey);
       case 'margin':
@@ -929,8 +873,15 @@ export class WebsocketClientV1 extends EventEmitter {
             isTestnet,
           )
           .keepAliveFuturesUserDataListenKey();
+      case 'portfoliom':
+        return this.restClientCache
+          .getPortfolioClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+          )
+          .keepAlivePMUserDataListenKey();
       default:
-        throwUnhandledSwitch(
+        throw neverGuard(
           market,
           `Failed to send keep alive for user data stream in unhandled market ${market}`,
         );
@@ -945,7 +896,10 @@ export class WebsocketClientV1 extends EventEmitter {
     symbol?: string,
     isTestnet?: boolean,
   ) {
-    const listenKeyState = this.getListenKeyState(listenKey, market);
+    const listenKeyState = this.listenKeyStateCache.getListenKeyState(
+      listenKey,
+      market,
+    );
 
     try {
       if (listenKeyState.keepAliveRetryTimer) {
@@ -1033,10 +987,10 @@ export class WebsocketClientV1 extends EventEmitter {
     }
   }
 
+  // TODO: Used in the close() fn in the legacy client. Still needed?
   private teardownUserDataListenKey(listenKey: string, ws: WebSocket) {
     if (listenKey) {
-      this.clearUserDataKeepAliveTimer(listenKey);
-      delete this.listenKeyStateStore[listenKey];
+      this.listenKeyStateCache.clearAllListenKeyState(listenKey);
       safeTerminateWs(ws);
     }
   }
@@ -1101,13 +1055,15 @@ export class WebsocketClientV1 extends EventEmitter {
             isReconnecting,
           );
           break;
+        case 'portfoliom':
+        case 'spotTestnet':
         case 'options':
         case 'optionsTestnet':
           throw new Error(
             'TODO: respawn other user data streams once subscribe methods have been added',
           );
         default:
-          throwUnhandledSwitch(
+          throw neverGuard(
             market,
             `Failed to respawn user data stream - unhandled market: ${market}`,
           );
@@ -1136,6 +1092,8 @@ export class WebsocketClientV1 extends EventEmitter {
           delayInSeconds,
         },
       );
+
+      // TODO: this timer should probably be tracked/singleton
       setTimeout(
         () =>
           this.respawnUserDataStream(
@@ -1164,7 +1122,7 @@ export class WebsocketClientV1 extends EventEmitter {
     market: 'spot' | 'usdm' | 'coinm',
     forceNewConnection?: boolean,
   ): WebSocket {
-    const wsKey = getWsKeyWithContext(market, endpoint);
+    const wsKey = getLegacyWsStoreKeyWithContext(market, endpoint);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${endpoint}`,
       wsKey,
@@ -1182,7 +1140,11 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'aggTrade';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      lowerCaseSymbol,
+    );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
@@ -1201,7 +1163,11 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'trade';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      lowerCaseSymbol,
+    );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
@@ -1221,7 +1187,11 @@ export class WebsocketClientV1 extends EventEmitter {
     const streamName = 'indexPrice';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
     const market: WsMarket = 'coinm';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      lowerCaseSymbol,
+    );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`,
@@ -1242,7 +1212,11 @@ export class WebsocketClientV1 extends EventEmitter {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'markPrice';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      lowerCaseSymbol,
+    );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) +
         `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`,
@@ -1261,7 +1235,7 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const streamName = '!markPrice@arr';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
-    const wsKey = getWsKeyWithContext(market, streamName);
+    const wsKey = getLegacyWsStoreKeyWithContext(market, streamName);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${streamName}${speedSuffix}`,
       wsKey,
@@ -1280,7 +1254,7 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'kline';
-    const wsKey = getWsKeyWithContext(
+    const wsKey = getLegacyWsStoreKeyWithContext(
       market,
       streamName,
       lowerCaseSymbol,
@@ -1306,7 +1280,7 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'continuousKline';
-    const wsKey = getWsKeyWithContext(
+    const wsKey = getLegacyWsStoreKeyWithContext(
       market,
       streamName,
       lowerCaseSymbol,
@@ -1331,7 +1305,7 @@ export class WebsocketClientV1 extends EventEmitter {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'indexPriceKline';
     const market: WsMarket = 'coinm';
-    const wsKey = getWsKeyWithContext(
+    const wsKey = getLegacyWsStoreKeyWithContext(
       market,
       streamName,
       lowerCaseSymbol,
@@ -1356,7 +1330,7 @@ export class WebsocketClientV1 extends EventEmitter {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'markPrice_kline';
     const market: WsMarket = 'coinm';
-    const wsKey = getWsKeyWithContext(
+    const wsKey = getLegacyWsStoreKeyWithContext(
       market,
       streamName,
       lowerCaseSymbol,
@@ -1380,7 +1354,11 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'miniTicker';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      lowerCaseSymbol,
+    );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
@@ -1396,7 +1374,7 @@ export class WebsocketClientV1 extends EventEmitter {
     forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'miniTicker';
-    const wsKey = getWsKeyWithContext(market, streamName);
+    const wsKey = getLegacyWsStoreKeyWithContext(market, streamName);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}@arr`,
       wsKey,
@@ -1414,7 +1392,11 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'ticker';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      lowerCaseSymbol,
+    );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
@@ -1430,7 +1412,7 @@ export class WebsocketClientV1 extends EventEmitter {
     forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'ticker';
-    const wsKey = getWsKeyWithContext(market, streamName);
+    const wsKey = getLegacyWsStoreKeyWithContext(market, streamName);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}@arr`,
       wsKey,
@@ -1453,7 +1435,11 @@ export class WebsocketClientV1 extends EventEmitter {
     forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'ticker';
-    const wsKey = getWsKeyWithContext(market, streamName, windowSize);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      windowSize,
+    );
 
     const wsUrl =
       this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}_${windowSize}@arr`;
@@ -1470,7 +1456,11 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'bookTicker';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      lowerCaseSymbol,
+    );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
@@ -1486,7 +1476,7 @@ export class WebsocketClientV1 extends EventEmitter {
     forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'bookTicker';
-    const wsKey = getWsKeyWithContext(market, streamName);
+    const wsKey = getLegacyWsStoreKeyWithContext(market, streamName);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}`,
       wsKey,
@@ -1504,7 +1494,11 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'forceOrder';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      lowerCaseSymbol,
+    );
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
       wsKey,
@@ -1520,7 +1514,7 @@ export class WebsocketClientV1 extends EventEmitter {
     forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = 'forceOrder@arr';
-    const wsKey = getWsKeyWithContext(market, streamName);
+    const wsKey = getLegacyWsStoreKeyWithContext(market, streamName);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}`,
       wsKey,
@@ -1546,7 +1540,11 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'depth';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      lowerCaseSymbol,
+    );
 
     const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
 
@@ -1576,7 +1574,7 @@ export class WebsocketClientV1 extends EventEmitter {
   ): WebSocket {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'diffBookDepth';
-    const wsKey = getWsKeyWithContext(
+    const wsKey = getLegacyWsStoreKeyWithContext(
       market,
       'diffBookDepth',
       lowerCaseSymbol,
@@ -1601,7 +1599,7 @@ export class WebsocketClientV1 extends EventEmitter {
     forceNewConnection?: boolean,
   ): WebSocket {
     const streamName = '!contractInfo';
-    const wsKey = getWsKeyWithContext(market, streamName);
+    const wsKey = getLegacyWsStoreKeyWithContext(market, streamName);
     return this.connectToWsUrl(
       this.getWsBaseUrl(market, wsKey) + `/ws/${streamName}`,
       wsKey,
@@ -1747,7 +1745,12 @@ export class WebsocketClientV1 extends EventEmitter {
     isReconnecting?: boolean,
   ): WebSocket | undefined {
     const market: WsMarket = 'spot';
-    const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
+    const wsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      'userData',
+      undefined,
+      listenKey,
+    );
 
     if (
       !forceNewConnection &&
@@ -1778,7 +1781,7 @@ export class WebsocketClientV1 extends EventEmitter {
   }
 
   /**
-   * Subscribe to spot user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   * Subscribe to spot user data stream - listen key is automaticallyr generated. Calling multiple times only opens one connection.
    */
   public async subscribeSpotUserDataStream(
     forceNewConnection?: boolean,
@@ -1801,7 +1804,10 @@ export class WebsocketClientV1 extends EventEmitter {
         ...WS_LOGGER_CATEGORY,
         error: e,
       });
-      this.emit('error', { wsKey: 'spot' + '_' + 'userData', error: e });
+      this.emit('error', {
+        wsKey: 'spot' + '_' + 'userData',
+        error: e?.stack || e,
+      });
     }
   }
 
@@ -1821,7 +1827,7 @@ export class WebsocketClientV1 extends EventEmitter {
         .getMarginUserDataListenKey();
 
       const market: WsMarket = 'margin';
-      const wsKey = getWsKeyWithContext(
+      const wsKey = getLegacyWsStoreKeyWithContext(
         market,
         'userData',
         undefined,
@@ -1883,7 +1889,7 @@ export class WebsocketClientV1 extends EventEmitter {
           symbol: lowerCaseSymbol,
         });
       const market: WsMarket = 'isolatedMargin';
-      const wsKey = getWsKeyWithContext(
+      const wsKey = getLegacyWsStoreKeyWithContext(
         market,
         'userData',
         lowerCaseSymbol,
@@ -1953,7 +1959,7 @@ export class WebsocketClientV1 extends EventEmitter {
       const { listenKey } = await restClient.getFuturesUserDataListenKey();
 
       const market: WsMarket = isTestnet ? 'usdmTestnet' : 'usdm';
-      const wsKey = getWsKeyWithContext(
+      const wsKey = getLegacyWsStoreKeyWithContext(
         market,
         'userData',
         undefined,
@@ -2021,7 +2027,7 @@ export class WebsocketClientV1 extends EventEmitter {
         .getFuturesUserDataListenKey();
 
       const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
-      const wsKey = getWsKeyWithContext(
+      const wsKey = getLegacyWsStoreKeyWithContext(
         market,
         'userData',
         undefined,

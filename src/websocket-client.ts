@@ -1,16 +1,9 @@
+/* eslint-disable no-unreachable */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-constraint */
-import { AxiosRequestConfig } from 'axios';
 import WebSocket from 'isomorphic-ws';
 
-import {
-  CoinMClient,
-  getWsKeyWithContext,
-  KlineInterval,
-  MainClient,
-  parseRawWsMessage,
-  USDMClient,
-} from '.';
+import { KlineInterval } from './types/shared';
 import { WsMarket } from './types/websockets';
 import {
   Exact,
@@ -23,74 +16,54 @@ import {
   WsRequestOperationBinance,
 } from './types/websockets/ws-api';
 import { MessageEventLike } from './types/websockets/ws-events';
-import { WsTopic } from './types/websockets/ws-general';
+import {
+  WSClientConfigurableOptions,
+  WsTopic,
+} from './types/websockets/ws-general';
 import {
   BaseWebsocketClient,
   EmittableEvent,
   MidflightWsRequestEvent,
 } from './util/BaseWSClient';
 import Beautifier from './util/beautifier';
+import { DefaultLogger } from './util/logger';
 import {
   appendEventIfMissing,
-  isWsPong,
+  getLegacyWsKeyContext,
+  getLegacyWsStoreKeyWithContext,
   RestClientOptions,
 } from './util/requestUtils';
 import {
   isTopicSubscriptionConfirmation,
   isTopicSubscriptionSuccess,
+  neverGuard,
 } from './util/typeGuards';
 import { SignAlgorithm, signMessage } from './util/webCryptoAPI';
+import { ListenKeyStateCache } from './util/websockets/listen-key-state-cache';
+import { RestClientCache } from './util/websockets/rest-client-cache';
 import {
   getMaxTopicsPerSubscribeEvent,
   getNormalisedTopicRequests,
   getWsUrl,
+  getWsURLSuffix,
   isPrivateWsTopic,
   parseEventTypeFromMessage,
+  parseRawWsMessage,
+  resolveUserDataMarketForWsKey,
+  resolveWsKeyForLegacyMarket,
+  safeTerminateWs,
   WS_AUTH_ON_CONNECT_KEYS,
   WS_KEY_MAP,
   WsKey,
   WsTopicRequest,
 } from './util/websockets/websocket-util';
-import { WSConnectedResult } from './util/websockets/WsStore.types';
+import {
+  WSConnectedResult,
+  WsConnectionStateEnum,
+} from './util/websockets/WsStore.types';
 
 const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
-
 /**
- * Used by the legacy subscribe* utility methods to determine which wsKey to route the subscription to.
- */
-function resolveWsKeyForMarket(market: 'spot' | 'usdm' | 'coinm'): WsKey {
-  switch (market) {
-    case 'spot': {
-      return 'main';
-    }
-    case 'coinm': {
-      return 'coinm';
-    }
-    case 'usdm': {
-      return 'usdm';
-    }
-  }
-}
-
-/**
- *
- * Different steps:
- * - [x] Public WS subscription on multiplex connection.
- * - [x] Is everything consistent and intuitive across different products?
- * - [x] Testnet
- * - [] Listenkey subscription on multiplex connection.
- * - [] Listenkey subscription on DEDICATED connection.
- * - [] Testnet listenkey
- * - [] WS API commands
- * - [] update examples to use new WS client. Should be plug and play! Test!
- *
- *
- *
- *
- *
- *
- *RestClientCache
- *
  * Multiplex Node.js, JavaScript & TypeScript Websocket Client for all of Binance's available WebSockets.
  *
  * When possible, it will subscribe to all requested topics on a single websocket connection. A list of
@@ -99,16 +72,44 @@ function resolveWsKeyForMarket(market: 'spot' | 'usdm' | 'coinm'): WsKey {
  * Connectivity is automatically maintained. If disconnected, the WebsocketClient will automatically
  * clean out the old dead connection, respawn a fresh one and resubscribe to all the requested topics.
  *
- * User data streams will use a dedicated connection for increased resilience.
+ * If any connection is reconnected, the WS client will:
+ * - Emit the "reconnecting" event when the process begins.
+ * - Emit the "reconnected" event, when the process has completed. When this event arrives, it is often a
+ * good time to execute any synchorisation workflow (e.g. via the REST API) if any information was missed
+ * while disconnected.
+ *
+ * User data streams will use a dedicated connection per stream for increased resilience.
  */
 
 export class WebsocketClient extends BaseWebsocketClient<
   WsKey,
   WsRequestOperationBinance<WsTopic>
 > {
+  private restClientCache: RestClientCache = new RestClientCache();
+
+  private listenKeyStateCache: ListenKeyStateCache;
+
+  private respawnTimeoutCache: Record<string, ReturnType<typeof setTimeout>> =
+    {};
+
   private beautifier: Beautifier = new Beautifier({
     warnKeyMissingInMap: true,
   });
+
+  constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger) {
+    super(options, logger);
+
+    this.listenKeyStateCache = new ListenKeyStateCache(this.logger);
+  }
+
+  private getRestClientOptions(): RestClientOptions {
+    return {
+      ...this.options,
+      ...this.options.restOptions,
+      api_key: this.options.api_key,
+      api_secret: this.options.api_secret,
+    };
+  }
 
   /**
    * Request connection of all dependent (public & private) websockets, instead of waiting
@@ -337,8 +338,13 @@ export class WebsocketClient extends BaseWebsocketClient<
   /**
    * @returns The WS URL to connect to for this WS key
    */
-  protected async getWsUrl(wsKey: WsKey): Promise<string> {
-    const wsBaseURL = getWsUrl(wsKey, this.options, this.logger);
+  protected async getWsUrl(
+    wsKey: WsKey,
+    connectionType: 'market' | 'userData' | 'wsAPI' = 'market',
+  ): Promise<string> {
+    const wsBaseURL =
+      getWsUrl(wsKey, this.options, this.logger) +
+      getWsURLSuffix(wsKey, connectionType);
 
     // If auth is needed for this wsKey URL, this returns a suffix
     const authParams = await this.getWsAuthURLSuffix(wsKey);
@@ -621,6 +627,10 @@ export class WebsocketClient extends BaseWebsocketClient<
       // Some events don't include the topic (event name)
       // This tries to extract and append it, using available context
       appendEventIfMissing(parsed, wsKey);
+      const legacyContext = getLegacyWsKeyContext(wsKey);
+      if (legacyContext) {
+        parsed.wsMarket = legacyContext.market;
+      }
 
       // const eventType = eventType; //parsed?.stream;
       // const eventOperation = parsed?.op;
@@ -732,6 +742,29 @@ export class WebsocketClient extends BaseWebsocketClient<
         });
 
         return results;
+      }
+
+      // Handle incoming event that listen key expired
+      if (eventType === 'listenKeyExpired') {
+        const legacyContext = getLegacyWsKeyContext(wsKey);
+        if (!legacyContext) {
+          // handle this how?
+          throw new Error(
+            'No context found within wsKey - fatal error with expired listen key',
+          );
+        }
+
+        this.logger.info(
+          `${legacyContext.market} listenKey EXPIRED - attempting to respawn user data stream: ${wsKey}`,
+          parsed,
+        );
+
+        // Just closing the connection (with the last parameter as true) will handle cleanup and respawn
+        this.teardownUserDataListenKey(
+          legacyContext.listenKey,
+          this.getWsStore().getWs(wsKey),
+        );
+        this.executeReconnectableClose(wsKey, 'listenKeyExpired');
       }
 
       if (this.options.beautify) {
@@ -859,6 +892,584 @@ export class WebsocketClient extends BaseWebsocketClient<
    *
    *
    *
+   *
+   *  User Data Streams
+   *
+   *
+   *
+   *
+   *
+   */
+
+  /**
+   * --------------------------
+   * User data listen key tracking & persistence
+   * --------------------------
+   **/
+
+  private teardownUserDataListenKey(listenKey?: string, ws?: WebSocket) {
+    if (listenKey) {
+      this.listenKeyStateCache.clearAllListenKeyState(listenKey);
+      safeTerminateWs(ws);
+    }
+  }
+
+  protected isCustomReconnectionNeeded(wsKey: string): boolean {
+    return wsKey.includes('userData');
+  }
+
+  protected async triggerCustomReconnectionWorkflow(
+    legacyWsKey: string,
+  ): Promise<void> {
+    if (legacyWsKey.includes('userData')) {
+      const legacyWsKeyContext = getLegacyWsKeyContext(legacyWsKey);
+      if (!legacyWsKeyContext) {
+        throw new Error(
+          `triggerCustomReconnectionWorkflow(): no context found in supplied wsKey: "${legacyWsKey}"`,
+        );
+      }
+
+      const { market, symbol, isTestnet, listenKey, wsKey } =
+        legacyWsKeyContext;
+
+      this.logger.info('Preparing to reconnect userData stream...', {
+        ...WS_LOGGER_CATEGORY,
+        legacyWsKey,
+        market,
+        symbol,
+        isTestnet,
+        listenKey,
+        wsKey,
+      });
+
+      if (listenKey) {
+        this.logger.trace('Checking if old listenKey has active timers...', {
+          listenKey,
+        });
+        this.listenKeyStateCache.clearAllListenKeyState(listenKey);
+      } else {
+        throw new Error('No listenKey stashed in legacyWsKey context???');
+      }
+
+      this.logger.info('Reconnecting to user data stream...', {
+        ...WS_LOGGER_CATEGORY,
+        wsKey,
+        market,
+        symbol,
+        legacyWsKeyContext,
+      });
+
+      // We'll set a new one once the new stream respawns, it might have a diff listenKey in the wsKey
+      this.getWsStore().delete(legacyWsKey as any);
+
+      if (!wsKey) {
+        this.logger.error(
+          'triggerCustomReconnectionWorkflow(): missing real "wsKey" from legacy context: ',
+          {
+            legacyWsKeyContext,
+            legacyWsKey,
+          },
+        );
+        throw new Error(
+          'triggerCustomReconnectionWorkflow(): missing real "wsKey" from legacy context',
+        );
+      }
+      this.respawnUserDataStream(wsKey, market, symbol, isTestnet);
+
+      return;
+    }
+  }
+
+  private setKeepAliveListenKeyTimer(
+    listenKey: string,
+    market: WsMarket,
+    ws: WebSocket,
+    wsKey: WsKey,
+    symbol?: string,
+    isTestnet?: boolean,
+  ) {
+    // This MUST happen before fetching listenKey state,
+    // since the getListenKeyState() creates new state,
+    // while clearAllListenKeyState DELETES it
+    this.listenKeyStateCache.clearAllListenKeyState(listenKey);
+
+    const listenKeyState = this.listenKeyStateCache.getListenKeyState(
+      listenKey,
+      market,
+    );
+
+    this.logger.trace(
+      `setKeepAliveListenKeyTimer() -> CREATED NEW keepAliveListenKey INTERVAL timer for ${listenKey}`,
+    );
+
+    // Set timer to keep WS alive every 50 minutes
+    const minutes50 = 1000 * 60 * 50;
+    listenKeyState.keepAliveTimer = setInterval(
+      () =>
+        this.checkKeepAliveListenKey(
+          listenKey,
+          market,
+          ws,
+          wsKey,
+          symbol,
+          isTestnet,
+        ),
+      minutes50,
+      // 1000 * 60
+    );
+  }
+
+  private sendKeepAliveForMarket(
+    listenKey: string,
+    market: WsMarket,
+    ws: WebSocket,
+    wsKey: WsKey,
+    symbol?: string,
+    isTestnet?: boolean,
+  ) {
+    switch (market) {
+      case 'spot':
+        return this.restClientCache
+          .getSpotRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+          )
+          .keepAliveSpotUserDataListenKey(listenKey);
+      case 'spotTestnet':
+        return this.restClientCache
+          .getSpotRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+            true,
+          )
+          .keepAliveSpotUserDataListenKey(listenKey);
+      case 'margin':
+        return this.restClientCache
+          .getSpotRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+          )
+          .keepAliveMarginUserDataListenKey(listenKey);
+      case 'isolatedMargin':
+        return this.restClientCache
+          .getSpotRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+          )
+          .keepAliveIsolatedMarginUserDataListenKey({
+            listenKey,
+            symbol: symbol!,
+          });
+      case 'coinm':
+      case 'options':
+      case 'optionsTestnet':
+      case 'usdm':
+        return this.restClientCache
+          .getUSDMRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+          )
+          .keepAliveFuturesUserDataListenKey();
+      case 'usdmTestnet':
+        return this.restClientCache
+          .getUSDMRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+            isTestnet,
+          )
+          .keepAliveFuturesUserDataListenKey();
+      case 'coinmTestnet':
+        return this.restClientCache
+          .getCOINMRestClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+            isTestnet,
+          )
+          .keepAliveFuturesUserDataListenKey();
+      case 'portfoliom':
+        return this.restClientCache
+          .getPortfolioClient(
+            this.getRestClientOptions(),
+            this.options.requestOptions,
+          )
+          .keepAlivePMUserDataListenKey();
+      default:
+        throw neverGuard(
+          market,
+          `Failed to send keep alive for user data stream in unhandled market ${market}`,
+        );
+    }
+  }
+
+  private async checkKeepAliveListenKey(
+    listenKey: string,
+    market: WsMarket,
+    ws: WebSocket,
+    wsKey: WsKey,
+    symbol?: string,
+    isTestnet?: boolean,
+  ) {
+    const listenKeyState = this.listenKeyStateCache.getListenKeyState(
+      listenKey,
+      market,
+    );
+
+    try {
+      if (listenKeyState.keepAliveRetryTimer) {
+        clearTimeout(listenKeyState.keepAliveRetryTimer);
+        listenKeyState.keepAliveRetryTimer = undefined;
+
+        this.logger.trace(
+          `checkKeepAliveListenKey() -> CLEARED old one-off keepAliveRetryTimer timer for ${listenKey}`,
+        );
+      }
+
+      // Simple way to test keep alive failure handling:
+      // throw new Error(`Fake keep alive failure`);
+
+      await this.sendKeepAliveForMarket(
+        listenKey,
+        market,
+        ws,
+        wsKey,
+        symbol,
+        isTestnet,
+      );
+
+      listenKeyState.lastKeepAlive = Date.now();
+      listenKeyState.keepAliveFailures = 0;
+      this.logger.info(
+        `Completed keep alive cycle for listenKey(${listenKey}) in market(${market})`,
+        { ...WS_LOGGER_CATEGORY, listenKey },
+      );
+    } catch (e) {
+      listenKeyState.keepAliveFailures++;
+
+      // Reconnect follows a less automatic workflow since this is tied to a listen key (which may need a new one).
+      // - Kill connection first, with instruction NOT to reconnect automatically
+      // - Then respawn a connection with a potentially new listen key (since the old one may be invalid now)
+
+      const shouldReconnectAfterClose = false;
+
+      // code: -1125,
+      // message: 'This listenKey does not exist.',
+      const errorCode = e?.code;
+      if (errorCode === -1125) {
+        this.logger.error(
+          'FATAL: Failed to keep WS alive for listen key - listen key expired/invalid. Respawning with fresh listen key...',
+          {
+            ...WS_LOGGER_CATEGORY,
+            listenKey,
+            error: e,
+            errorCode,
+            errorMsg: e?.message,
+          },
+        );
+
+        this.close(wsKey, shouldReconnectAfterClose);
+        this.respawnUserDataStream(wsKey, market, symbol, isTestnet);
+
+        return;
+      }
+
+      // If max failurees reached, tear down and respawn if allowed
+      if (listenKeyState.keepAliveFailures >= 3) {
+        this.logger.error(
+          'FATAL: Failed to keep WS alive for listen key after 3 attempts',
+          { ...WS_LOGGER_CATEGORY, listenKey, error: e },
+        );
+
+        this.close(wsKey, shouldReconnectAfterClose);
+        this.respawnUserDataStream(wsKey, market, symbol, isTestnet);
+
+        return;
+      }
+
+      const reconnectDelaySeconds = 1000 * 15;
+      this.logger.info(
+        `Userdata keep alive request failed due to error, trying again with short delay (${reconnectDelaySeconds} seconds)`,
+        {
+          ...WS_LOGGER_CATEGORY,
+          listenKey,
+          error: e,
+          keepAliveAttempts: listenKeyState.keepAliveFailures,
+        },
+      );
+
+      this.logger.trace(
+        `checkKeepAliveListenKey() -> CREATED NEW one-off keepAliveRetryTimer  timer for ${listenKey}`,
+      );
+      listenKeyState.keepAliveRetryTimer = setTimeout(
+        () =>
+          this.checkKeepAliveListenKey(listenKey, market, ws, wsKey, symbol),
+        reconnectDelaySeconds,
+      );
+    }
+  }
+
+  private async respawnUserDataStream(
+    wsKey: WsKey,
+    market: WsMarket,
+    symbol?: string,
+    isTestnet?: boolean,
+    respawnAttempt?: number,
+  ): Promise<void> {
+    // If another connection attempt is in progress for this listen key, don't initiate a retry or the risk is multiple connections on the same listen key
+    const forceNewConnection = false;
+    const isReconnecting = true;
+    let ws: WebSocket | undefined;
+
+    try {
+      switch (market) {
+        case 'spot':
+          ws = await this.subscribeSpotUserDataStream(
+            wsKey,
+            forceNewConnection,
+            isReconnecting,
+          );
+          break;
+        case 'margin':
+          // ws = await this.subscribeMarginUserDataStream(
+          //   forceNewConnection,
+          //   isReconnecting,
+          // );
+          throw new Error('todo');
+          break;
+        case 'isolatedMargin':
+          // ws = await this.subscribeIsolatedMarginUserDataStream(
+          //   symbol!,
+          //   forceNewConnection,
+          //   isReconnecting,
+          // );
+          throw new Error('todo');
+          break;
+        case 'usdm':
+          // ws = await this.subscribeUsdFuturesUserDataStream(
+          //   isTestnet,
+          //   forceNewConnection,
+          //   isReconnecting,
+          // );
+          throw new Error('todo');
+          break;
+        case 'usdmTestnet':
+          // ws = await this.subscribeUsdFuturesUserDataStream(
+          //   true,
+          //   forceNewConnection,
+          //   isReconnecting,
+          // );
+          throw new Error('todo');
+          break;
+        case 'coinm':
+          // ws = await this.subscribeCoinFuturesUserDataStream(
+          //   isTestnet,
+          //   forceNewConnection,
+          //   isReconnecting,
+          // );
+          throw new Error('todo');
+          break;
+        case 'coinmTestnet':
+          // ws = await this.subscribeCoinFuturesUserDataStream(
+          //   true,
+          //   forceNewConnection,
+          //   isReconnecting,
+          // );
+          throw new Error('todo');
+          break;
+        case 'portfoliom':
+        case 'spotTestnet':
+        case 'options':
+        case 'optionsTestnet':
+          throw new Error(
+            'TODO: respawn other user data streams once subscribe methods have been added',
+          );
+        default:
+          throw neverGuard(
+            market,
+            `Failed to respawn user data stream - unhandled market: ${market}`,
+          );
+      }
+    } catch (e) {
+      this.logger.error('Exception trying to spawn user data stream', {
+        ...WS_LOGGER_CATEGORY,
+        market,
+        symbol,
+        isTestnet,
+        error: e,
+      });
+      this.emit('exception', { wsKey: market + '_' + 'userData', error: e });
+    }
+
+    if (!ws) {
+      const delayInSeconds = 2;
+      this.logger.error(
+        'User key respawn failed, trying again with short delay',
+        {
+          ...WS_LOGGER_CATEGORY,
+          market,
+          symbol,
+          isTestnet,
+          respawnAttempt,
+          delayInSeconds,
+        },
+      );
+
+      const respawnTimeoutKey = [market, symbol, isTestnet].join('_');
+
+      // Prevent simultaneous timers in same scope
+      if (this.respawnTimeoutCache[respawnTimeoutKey]) {
+        clearTimeout(this.respawnTimeoutCache[respawnTimeoutKey]);
+        delete this.respawnTimeoutCache[respawnTimeoutKey];
+
+        this.logger.error(
+          'Respawn timer already active while trying to queue respawn...delaying existing timer further...',
+          {
+            ...WS_LOGGER_CATEGORY,
+            market,
+            symbol,
+            isTestnet,
+            respawnAttempt,
+            delayInSeconds,
+          },
+        );
+      }
+
+      // Execute reconnection workflow after short delay
+      this.respawnTimeoutCache[respawnTimeoutKey] = setTimeout(() => {
+        delete this.respawnTimeoutCache[respawnTimeoutKey];
+        this.respawnUserDataStream(
+          wsKey,
+          market,
+          symbol,
+          isTestnet,
+          respawnAttempt ? respawnAttempt + 1 : 1,
+        );
+      }, 1000 * delayInSeconds);
+    }
+  }
+
+  /**
+   * Subscribe to a spot user data stream. Use REST client to generate and persist listen key.
+   * Supports spot, margin & isolated margin listen keys.
+   */
+  public async subscribeSpotUserDataStreamWithListenKey(
+    wsKey: WsKey,
+    listenKey: string,
+    forceNewConnection?: boolean,
+    isReconnecting?: boolean,
+  ): WebSocket | undefined {
+    const market = resolveUserDataMarketForWsKey(wsKey);
+    const streamName = 'userData';
+    const symbol = undefined;
+
+    const derivedWsKey = getLegacyWsStoreKeyWithContext(
+      market,
+      streamName,
+      symbol,
+      listenKey,
+      wsKey,
+    );
+
+    this.logger.trace('subscribeSpotUserDataStreamWithListenKey()->begin', {
+      wsKey,
+      derivedWsKey,
+      listenKey,
+      forceNewConnection,
+      isReconnecting,
+      market,
+    });
+
+    if (
+      !forceNewConnection &&
+      this.getWsStore().isConnectionAttemptInProgress(derivedWsKey)
+    ) {
+      this.logger.trace(
+        'Existing spot user data connection in progress for listen key. Avoiding duplicate',
+      );
+      return this.getWsStore().getWs(derivedWsKey);
+    }
+
+    // Prepare the WS state for awareness whether this is a reconnect or fresh connect
+
+    if (isReconnecting) {
+      this.getWsStore().setConnectionState(
+        derivedWsKey,
+        WsConnectionStateEnum.RECONNECTING,
+      );
+    }
+    try {
+      const wsBaseUrl = await this.getWsUrl(wsKey, 'userData');
+      const wsURL = wsBaseUrl + `/${listenKey}`;
+
+      const throwOnConnectionError = true;
+      const ws = await this.connect(
+        derivedWsKey,
+        wsURL,
+        throwOnConnectionError,
+      );
+
+      // TODO: perhaps only start the listen key timer after the connection is successfully open??
+
+      // Start & store timer to keep alive listen key (and handle expiration)
+      this.setKeepAliveListenKeyTimer(listenKey, market, ws, derivedWsKey);
+      return ws;
+    } catch (e) {
+      this.logger.error(
+        'Exception in subscribeSpotUserDataStreamWithListenKey()',
+        { ...WS_LOGGER_CATEGORY, e: e?.stack || e },
+      );
+
+      // So the next attempt doesn't think an attempt is already in progress
+      this.getWsStore().setConnectionState(
+        wsKey,
+        WsConnectionStateEnum.INITIAL,
+      );
+
+      throw e;
+    }
+  }
+
+  /**
+   * Subscribe to spot user data stream - listen key is automaticallyr generated. Calling multiple times only opens one connection.
+   */
+  public async subscribeSpotUserDataStream(
+    wsKey: WsKey = 'main',
+    forceNewConnection?: boolean,
+    isReconnecting?: boolean,
+  ): Promise<WebSocket | undefined> {
+    try {
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getSpotUserDataListenKey();
+
+      return this.subscribeSpotUserDataStreamWithListenKey(
+        wsKey,
+        listenKey,
+        forceNewConnection,
+        isReconnecting,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to spot user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeSpotUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        isReconnecting,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  /**
+   *
+   *
+   *
+   *
    * Convenient subscribe methods, similar to the legacy WebsocketClient for Binance.
    *
    *
@@ -891,9 +1502,11 @@ export class WebsocketClient extends BaseWebsocketClient<
       coinmTestnet: 'wss://dstream.binancefuture.com',
       options: 'wss://vstream.binance.com',
       optionsTestnet: 'wss://testnetws.binanceops.com',
+      spotTestnet: '',
+      portfoliom: '',
     };
 
-    const wsKey = getWsKeyWithContext(market, endpoint);
+    const wsKey = getLegacyWsStoreKeyWithContext(market, endpoint);
     return this.connect(wsKey, wsBaseEndpoints[market] + `/ws/${endpoint}`);
   }
 
@@ -907,7 +1520,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'aggTrade';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -922,7 +1535,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'trade';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -938,7 +1551,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
     const market: WsMarket = 'coinm';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}${speedSuffix}`,
       wsKey,
@@ -957,7 +1570,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const streamName = 'markPrice';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}${speedSuffix}`,
       wsKey,
@@ -974,7 +1587,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const streamName = '!markPrice@arr';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`${streamName}${speedSuffix}`, wsKey);
   }
 
@@ -989,7 +1602,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'kline';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
@@ -1008,7 +1621,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'continuousKline';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(
       `${lowerCaseSymbol}_${contractType}@${streamName}_${interval}`,
       wsKey,
@@ -1026,7 +1639,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const streamName = 'indexPriceKline';
     const market: WsMarket = 'coinm';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
@@ -1044,7 +1657,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const streamName = 'markPriceKline';
     const market: WsMarket = 'coinm';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
@@ -1061,7 +1674,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'miniTicker';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -1073,7 +1686,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   ): Promise<unknown> {
     const streamName = 'miniTicker';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`!${streamName}@arr`, wsKey);
   }
 
@@ -1087,7 +1700,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'ticker';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -1099,7 +1712,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   ): Promise<unknown> {
     const streamName = 'ticker';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`!${streamName}@arr`, wsKey);
   }
 
@@ -1118,7 +1731,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   ): Promise<unknown> {
     const streamName = 'ticker';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`!${streamName}_${windowSize}@arr`, wsKey);
   }
 
@@ -1132,7 +1745,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'bookTicker';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -1142,7 +1755,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeAllBookTickers(market: 'usdm' | 'coinm'): Promise<unknown> {
     const streamName = 'bookTicker';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`!${streamName}`, wsKey);
   }
 
@@ -1156,7 +1769,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'forceOrder';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -1168,7 +1781,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   ): Promise<unknown> {
     const streamName = 'forceOrder@arr';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`!${streamName}`, wsKey);
   }
 
@@ -1178,8 +1791,6 @@ export class WebsocketClient extends BaseWebsocketClient<
    * Note:
    * - spot only supports 1000ms or 100ms for updateMs
    * - futures only support 100, 250 or 500ms for updateMs
-   *
-   * Use getContextFromWsKey(data.wsKey) to extract symbol from events
    */
   public subscribePartialBookDepths(
     symbol: string,
@@ -1190,7 +1801,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'depth';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`,
@@ -1205,8 +1816,6 @@ export class WebsocketClient extends BaseWebsocketClient<
    *
    * - Spot: https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream
    * - USDM Futures: https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams
-   *
-   * Use getContextFromWsKey(data.wsKey) to extract symbol from events
    */
   public subscribeDiffBookDepth(
     symbol: string,
@@ -1216,7 +1825,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = market === 'spot' ? 'depth' : 'diffBookDepth';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}${updateMsSuffx}`,
@@ -1232,7 +1841,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   ): Promise<unknown> {
     const streamName = '!contractInfo';
 
-    const wsKey = resolveWsKeyForMarket(market);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`${streamName}`, wsKey);
   }
 

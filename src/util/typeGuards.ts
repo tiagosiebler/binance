@@ -138,13 +138,13 @@ export function isWsFormattedUserDataEvent(
 export function isWsFormattedSpotUserDataEvent(
   data: WsFormattedMessage,
 ): data is WsMessageSpotUserDataEventFormatted {
-  return isWsFormattedUserDataEvent(data) && data.wsMarket.includes('spot');
+  return isWsFormattedUserDataEvent(data) && data.wsMarket?.includes('spot');
 }
 
 export function isWsFormattedFuturesUserDataEvent(
   data: WsFormattedMessage,
 ): data is WsMessageFuturesUserDataEventFormatted {
-  return isWsFormattedUserDataEvent(data) && data.wsMarket.includes('usdm');
+  return isWsFormattedUserDataEvent(data) && data.wsMarket?.includes('usdm');
 }
 
 export function isWsFormattedSpotUserDataExecutionReport(
