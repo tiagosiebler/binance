@@ -63,6 +63,7 @@ import {
 } from './util/websockets/WsStore.types';
 
 const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
+
 /**
  * Multiplex Node.js, JavaScript & TypeScript Websocket Client for all of Binance's available WebSockets.
  *
@@ -112,19 +113,11 @@ export class WebsocketClient extends BaseWebsocketClient<
   }
 
   /**
-   * Request connection of all dependent (public & private) websockets, instead of waiting
-   * for automatic connection by SDK.
+   * Request connection of all dependent (public & WS API) websockets in prod, instead of waiting
+   * for automatic connection by SDK. TODO: also do the user data streams?
    */
   public connectAll(): Promise<WSConnectedResult | undefined>[] {
-    // switch (this.options.market) {
-    //   case 'v5': {
-    //     return [...this.connectPublic(), this.connectPrivate()];
-    //   }
-    //   default: {
-    //     throw neverGuard(this.options.market, 'connectAll(): Unhandled market');
-    //   }
-    // }
-    return [];
+    return this.connectPublic();
   }
 
   /**
@@ -134,23 +127,23 @@ export class WebsocketClient extends BaseWebsocketClient<
    * it can accelerate the first request (by preparing the connection in advance).
    */
   public connectWSAPI(): Promise<unknown> {
+    // TODO: this will need a switch for diff WS API endpoints
+
     /** This call automatically ensures the connection is active AND authenticated before resolving */
     return this.assertIsAuthenticated(WS_KEY_MAP.mainWSAPI);
   }
 
+  /**
+   * Request connection to all public websockets in prod (spot, margin, futures, options). Overkill if
+   * you're only working with one product group.
+   */
   public connectPublic(): Promise<WSConnectedResult | undefined>[] {
-    // switch (this.options.market) {
-    //   case 'v5':
-    //   default: {
-    //     return [
-    //       this.connect(WS_KEY_MAP.v5SpotPublic),
-    //       this.connect(WS_KEY_MAP.v5LinearPublic),
-    //       this.connect(WS_KEY_MAP.v5InversePublic),
-    //       this.connect(WS_KEY_MAP.v5OptionPublic),
-    //     ];
-    //   }
-    // }
-    return [];
+    return [
+      this.connect(WS_KEY_MAP.main),
+      this.connect(WS_KEY_MAP.usdm),
+      this.connect(WS_KEY_MAP.coinm),
+      this.connect(WS_KEY_MAP.eoptions),
+    ];
   }
 
   public async connectPrivate(): Promise<WebSocket | undefined> {
@@ -160,6 +153,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     //     return this.connect(WS_KEY_MAP.v5Private);
     //   }
     // }
+    // TODO:
     return;
   }
 
@@ -346,20 +340,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       getWsUrl(wsKey, this.options, this.logger) +
       getWsURLSuffix(wsKey, connectionType);
 
-    // If auth is needed for this wsKey URL, this returns a suffix
-    const authParams = await this.getWsAuthURLSuffix(wsKey);
-    if (!authParams) {
-      return wsBaseURL;
-    }
-
-    return wsBaseURL + '?' + authParams;
-  }
-
-  /**
-   * Return params required to make authorized request
-   */
-  private async getWsAuthURLSuffix(wsKey: WsKey): Promise<string> {
-    return '';
+    return wsBaseURL;
   }
 
   private async signMessage(
@@ -1389,13 +1370,14 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
 
     // Prepare the WS state for awareness whether this is a reconnect or fresh connect
-
     if (isReconnecting) {
       this.getWsStore().setConnectionState(
         derivedWsKey,
         WsConnectionStateEnum.RECONNECTING,
       );
     }
+
+    // Begin the connection process with the active listen key
     try {
       const wsBaseUrl = await this.getWsUrl(wsKey, 'userData');
       const wsURL = wsBaseUrl + `/${listenKey}`;
@@ -1407,8 +1389,6 @@ export class WebsocketClient extends BaseWebsocketClient<
         throwOnConnectionError,
       );
 
-      // TODO: perhaps only start the listen key timer after the connection is successfully open??
-
       // Start & store timer to keep alive listen key (and handle expiration)
       this.setKeepAliveListenKeyTimer(listenKey, market, ws, derivedWsKey);
       return ws;
@@ -1417,6 +1397,9 @@ export class WebsocketClient extends BaseWebsocketClient<
         'Exception in subscribeSpotUserDataStreamWithListenKey()',
         { ...WS_LOGGER_CATEGORY, e: e?.stack || e },
       );
+
+      // In case any timers already exist, pre-wipe
+      this.listenKeyStateCache.clearAllListenKeyState(listenKey);
 
       // So the next attempt doesn't think an attempt is already in progress
       this.getWsStore().setConnectionState(
