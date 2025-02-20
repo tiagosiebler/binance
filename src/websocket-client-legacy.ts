@@ -1794,6 +1794,7 @@ export class WebsocketClientV1 extends EventEmitter {
           this.options.requestOptions,
         )
         .getSpotUserDataListenKey();
+
       return this.subscribeSpotUserDataStreamWithListenKey(
         listenKey,
         forceNewConnection,
