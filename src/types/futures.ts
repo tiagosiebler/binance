@@ -647,6 +647,7 @@ export interface FuturesCoinMAccountInformation {
 
 export interface FuturesPosition {
   entryPrice: numberInString;
+  breakEvenPrice: numberInString;
   marginType: 'isolated' | 'cross';
   isAutoAddMargin: 'false' | 'true';
   isolatedMargin: numberInString;
