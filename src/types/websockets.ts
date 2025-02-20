@@ -24,7 +24,7 @@ import {
 export type WsMarket =
   | 'spot'
   | 'spotTestnet'
-  | 'margin'
+  | 'crossMargin'
   | 'isolatedMargin'
   | 'usdm'
   | 'usdmTestnet'

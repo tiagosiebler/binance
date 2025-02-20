@@ -4001,7 +4001,9 @@ export class MainClient extends BaseRestClient {
     return this.delete(`api/v3/userDataStream?listenKey=${listenKey}`);
   }
 
-  // margin
+  /**
+   * Get a cross margin user data listen key
+   */
   getMarginUserDataListenKey(): Promise<{ listenKey: string }> {
     return this.post('sapi/v1/userDataStream');
   }

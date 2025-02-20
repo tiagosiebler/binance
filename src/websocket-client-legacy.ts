@@ -38,7 +38,7 @@ import { WsConnectionStateEnum } from './util/websockets/WsStore.types';
 
 const wsBaseEndpoints: Record<WsMarket, string> = {
   spot: 'wss://stream.binance.com:9443',
-  margin: 'wss://stream.binance.com:9443',
+  crossMargin: 'wss://stream.binance.com:9443',
   isolatedMargin: 'wss://stream.binance.com:9443',
   usdm: 'wss://fstream.binance.com',
   usdmTestnet: 'wss://stream.binancefuture.com',
@@ -830,7 +830,7 @@ export class WebsocketClientV1 extends EventEmitter {
             true,
           )
           .keepAliveSpotUserDataListenKey(listenKey);
-      case 'margin':
+      case 'crossMargin':
         return this.restClientCache
           .getSpotRestClient(
             this.getRestClientOptions(),
@@ -1014,7 +1014,7 @@ export class WebsocketClientV1 extends EventEmitter {
             isReconnecting,
           );
           break;
-        case 'margin':
+        case 'crossMargin':
           ws = await this.subscribeMarginUserDataStream(
             forceNewConnection,
             isReconnecting,
@@ -1827,7 +1827,7 @@ export class WebsocketClientV1 extends EventEmitter {
         )
         .getMarginUserDataListenKey();
 
-      const market: WsMarket = 'margin';
+      const market: WsMarket = 'crossMargin';
       const wsKey = getLegacyWsStoreKeyWithContext(
         market,
         'userData',

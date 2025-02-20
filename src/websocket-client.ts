@@ -1024,7 +1024,7 @@ export class WebsocketClient extends BaseWebsocketClient<
             true,
           )
           .keepAliveSpotUserDataListenKey(listenKey);
-      case 'margin':
+      case 'crossMargin':
         return this.restClientCache
           .getSpotRestClient(
             this.getRestClientOptions(),
@@ -1209,53 +1209,50 @@ export class WebsocketClient extends BaseWebsocketClient<
             isReconnecting,
           );
           break;
-        case 'margin':
-          // ws = await this.subscribeMarginUserDataStream(
-          //   forceNewConnection,
-          //   isReconnecting,
-          // );
-          throw new Error('todo');
+        case 'crossMargin':
+          ws = await this.subscribeCrossMarginUserDataStream(
+            wsKey,
+            forceNewConnection,
+            isReconnecting,
+          );
           break;
         case 'isolatedMargin':
-          // ws = await this.subscribeIsolatedMarginUserDataStream(
-          //   symbol!,
-          //   forceNewConnection,
-          //   isReconnecting,
-          // );
-          throw new Error('todo');
+          ws = await this.subscribeIsolatedMarginUserDataStream(
+            symbol!,
+            wsKey,
+            forceNewConnection,
+            isReconnecting,
+          );
           break;
         case 'usdm':
-          // ws = await this.subscribeUsdFuturesUserDataStream(
-          //   isTestnet,
-          //   forceNewConnection,
-          //   isReconnecting,
-          // );
-          throw new Error('todo');
+          ws = await this.subscribeUsdFuturesUserDataStream(
+            wsKey,
+            forceNewConnection,
+            isReconnecting,
+          );
           break;
         case 'usdmTestnet':
-          // ws = await this.subscribeUsdFuturesUserDataStream(
-          //   true,
-          //   forceNewConnection,
-          //   isReconnecting,
-          // );
-          throw new Error('todo');
+          ws = await this.subscribeUsdFuturesUserDataStream(
+            'usdmTestnet',
+            forceNewConnection,
+            isReconnecting,
+          );
           break;
         case 'coinm':
-          // ws = await this.subscribeCoinFuturesUserDataStream(
-          //   isTestnet,
-          //   forceNewConnection,
-          //   isReconnecting,
-          // );
-          throw new Error('todo');
+          ws = await this.subscribeCoinFuturesUserDataStream(
+            wsKey,
+            forceNewConnection,
+            isReconnecting,
+          );
           break;
         case 'coinmTestnet':
-          // ws = await this.subscribeCoinFuturesUserDataStream(
-          //   true,
-          //   forceNewConnection,
-          //   isReconnecting,
-          // );
-          throw new Error('todo');
+          ws = await this.subscribeCoinFuturesUserDataStream(
+            'coinmTestnet',
+            forceNewConnection,
+            isReconnecting,
+          );
           break;
+        // TODO: next, after testing existing streams work
         case 'portfoliom':
         case 'spotTestnet':
         case 'options':
@@ -1457,12 +1454,8 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   /**
    * Subscribe to margin user data stream - listen key is automatically generated.
-   *
-   * //TODO: testme
-   * //TODO: test that market is correctly resolved in the consumer
-   * //TODO: testnet
    */
-  public async subscribeMarginUserDataStream(
+  public async subscribeCrossMarginUserDataStream(
     wsKey: WsKey = 'main',
     forceNewConnection?: boolean,
     isReconnecting?: boolean,
@@ -1475,7 +1468,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         )
         .getMarginUserDataListenKey();
 
-      const market: WsMarket = 'margin';
+      const market: WsMarket = 'crossMargin';
       return this.subscribeGeneralUserDataStreamWithListenKey(
         wsKey,
         market,
@@ -1500,14 +1493,10 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   /**
    * Subscribe to isolated margin user data stream - listen key is automatically generated.
-   *
-   * //TODO: testme
-   * //TODO: test that market is correctly resolved in the consumer
-   * //TODO: testnet
    */
   public async subscribeIsolatedMarginUserDataStream(
-    wsKey: WsKey = 'main',
     symbol: string,
+    wsKey: WsKey = 'main',
     forceNewConnection?: boolean,
     isReconnecting?: boolean,
   ): Promise<WSConnectedResult | undefined> {
@@ -1553,13 +1542,10 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   /**
    * Subscribe to USD-M Futures user data stream - listen key is automatically generated.
-   *
-   * //TODO: testme
    * //TODO: test that market is correctly resolved in the consumer
-   * //TODO: testnet
    */
   public async subscribeUsdFuturesUserDataStream(
-    wsKey: WsKey = 'usdm',
+    wsKey: WsKey = 'usdm', // usdm | usdmTestnet
     forceNewConnection?: boolean,
     isReconnecting?: boolean,
   ): Promise<WSConnectedResult | undefined> {
@@ -1599,18 +1585,14 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   /**
    * Subscribe to COIN-M Futures user data stream - listen key is automatically generated.
-   *
-   * //TODO: testme
-   * //TODO: test that market is correctly resolved in the consumer
-   * //TODO: testnet
    */
   public async subscribeCoinFuturesUserDataStream(
-    wsKey: WsKey = 'coinm',
-    isTestnet?: boolean,
+    wsKey: WsKey = 'coinm', // coinm | coinmTestnet
     forceNewConnection?: boolean,
     isReconnecting?: boolean,
   ): Promise<WSConnectedResult | undefined> {
     try {
+      const isTestnet = wsKey === WS_KEY_MAP.coinmTestnet;
       const { listenKey } = await this.restClientCache
         .getCOINMRestClient(
           this.getRestClientOptions(),
@@ -1672,7 +1654,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   ): Promise<unknown> {
     const wsBaseEndpoints: Record<WsMarket, string> = {
       spot: 'wss://stream.binance.com:9443',
-      margin: 'wss://stream.binance.com:9443',
+      crossMargin: 'wss://stream.binance.com:9443',
       isolatedMargin: 'wss://stream.binance.com:9443',
       usdm: 'wss://fstream.binance.com',
       usdmTestnet: 'wss://stream.binancefuture.com',
