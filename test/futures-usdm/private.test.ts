@@ -134,11 +134,12 @@ describe('Private Futures USDM REST API Endpoints', () => {
 
       expect(await api.submitMultipleOrders(orders)).toMatchObject([
         {
-          code: -2019,
+          // -4408 = This symbol is in reduce only mode due to regulation requirements. Please upgrade to Binance Credits Trading Mode.
+          code: -4408,
           msg: expect.any(String),
         },
         {
-          code: -2019,
+          code: -4408,
           msg: expect.any(String),
         },
       ]);
