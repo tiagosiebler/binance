@@ -25,6 +25,7 @@ import {
   FuturesOrderBook,
   FuturesPosition,
   FuturesPositionTrade,
+  FuturesPositionV3,
   FuturesSymbolOrderBookTicker,
   FuturesTradeHistoryDownloadId,
   FuturesTransactionDownloadLink,
@@ -453,7 +454,7 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v2/positionRisk', params);
   }
 
-  getPositionsV3(params?: { symbol?: string }): Promise<FuturesPosition[]> {
+  getPositionsV3(params?: { symbol?: string }): Promise<FuturesPositionV3[]> {
     return this.getPrivate('fapi/v3/positionRisk', params);
   }
 
