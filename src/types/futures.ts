@@ -663,6 +663,29 @@ export interface FuturesPosition {
   updateTime: number;
 }
 
+export interface FuturesPositionV3 {
+  symbol: string;
+  positionSide: PositionSide;
+  positionAmt: numberInString;
+  entryPrice: numberInString;
+  breakEvenPrice: numberInString;
+  markPrice: numberInString;
+  unRealizedProfit: numberInString;
+  liquidationPrice: numberInString;
+  isolatedMargin: numberInString;
+  notional: numberInString;
+  marginAsset: string;
+  isolatedWallet: numberInString;
+  initialMargin: numberInString;
+  maintMargin: numberInString;
+  positionInitialMargin: numberInString;
+  openOrderInitialMargin: numberInString;
+  adl: number;
+  bidNotional: numberInString;
+  askNotional: numberInString;
+  updateTime: number;
+}
+
 export interface FuturesPositionTrade {
   buyer: boolean;
   commission: numberInString;
