@@ -5,7 +5,6 @@ import {
   KlineInterval,
   numberInString,
   OrderBookRow,
-  OrderResponseType,
   OrderSide,
   OrderStatus,
   OrderTimeInForce,
@@ -135,7 +134,7 @@ export interface NewFuturesOrderParams<numberType = number> {
   callbackRate?: numberType;
   workingType?: WorkingType;
   priceProtect?: BooleanStringCapitalised;
-  newOrderRespType?: OrderResponseType;
+  newOrderRespType?: 'ACK' | 'RESULT';
   selfTradePreventionMode?: SelfTradePreventionMode;
   priceMatch?: PriceMatchMode;
   goodTillDate?: number; // Mandatory when timeInForce is GTD
