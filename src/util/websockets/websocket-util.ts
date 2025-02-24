@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import WebSocket from 'isomorphic-ws';
 
-import { DefaultLogger, neverGuard, WsMarket } from '../..';
+import { WsMarket } from '../../types/websockets';
 import { WSAPIRequest } from '../../types/websockets/ws-api';
 import {
   WebsocketClientOptions,
   WsTopic,
 } from '../../types/websockets/ws-general';
-// import { DefaultLogger } from '../logger';
-// import { neverGuard } from '../typeGuards';
+import { DefaultLogger } from '../logger';
+import { neverGuard } from '../typeGuards';
 
 export const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
@@ -61,21 +61,6 @@ export const WS_KEY_MAP = {
 
 export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
 
-/**
-   *
-   * Listen key sub on an active connection
-{
-  "method": "SUBSCRIBE",
-  "params": [
-    "listenkey"
-  ],
-  "id": 1
-}
-
-   *
-   *
-   */
-
 export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
   main: 'wss://stream.binance.com:9443', // spot, margin, isolated margin, user data
@@ -84,7 +69,6 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
   // https://developers.binance.com/docs/binance-spot-api-docs/testnet/web-socket-streams#general-wss-information
   mainTestnetPublic: 'wss://testnet.binance.vision',
-  // TODO:
   mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443',
 
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
@@ -95,7 +79,6 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
   // https://developers.binance.com/docs/margin_trading/risk-data-stream
   // Margin websocket only support Cross Margin Accounts
-  // TODO:
   marginRiskUserData: 'wss://margin-stream.binance.com',
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
@@ -114,8 +97,7 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-market-streams
   // market data, user data
   coinm: 'wss://dstream.binance.com',
-  // TODO: requires listenkey
-  coinm2: 'wss://dstream-auth.binance.com',
+  coinm2: 'wss://dstream-auth.binance.com', // Warning, coinm2 requires a listenkey
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
   coinmTestnet: 'wss://dstream.binancefuture.com',
 
@@ -125,12 +107,10 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   // optionsTestnet: 'wss://testnetws.binanceops.com',
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin/user-data-streams
-  // TODO:
-  portfolioMarginUserData: 'wss://fstream.binance.com', // /ws/listekeyhere
+  portfolioMarginUserData: 'wss://fstream.binance.com',
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
-  // TODO:
-  portfolioMarginProUserData: 'wss://fstream.binance.com', // /ws/listenkeyhere
+  portfolioMarginProUserData: 'wss://fstream.binance.com',
 };
 
 export function getWsURLSuffix(
@@ -348,14 +328,25 @@ export const WS_ERROR_ENUM = {
 /**
  * #305: ws.terminate() is undefined in browsers.
  * This only works in node.js, not in browsers.
- * Does nothing if `ws` is undefined.
+ * Does nothing if `ws` is undefined. Does nothing in browsers.
  */
-export function safeTerminateWs(ws?: WebSocket | unknown) {
-  // #305: ws.terminate() undefined in browsers
-  if (ws && typeof ws['terminate'] === 'function') {
-    ws.terminate();
+export function safeTerminateWs(
+  ws?: WebSocket | any,
+  fallbackToClose?: boolean,
+): boolean {
+  if (!ws) {
+    return false;
   }
+  if (typeof ws['terminate'] === 'function') {
+    ws.terminate();
+    return true;
+  } else if (fallbackToClose) {
+    ws.close();
+  }
+
+  return false;
 }
+
 /**
  * WS API promises are stored using a primary key. This key is constructed using
  * properties found in every request & reply.
@@ -551,4 +542,9 @@ export function parseRawWsMessage(event: any) {
     return JSON.parse(event.data);
   }
   return event;
+}
+
+export interface MiscUserDataConnectionState {
+  isReconnecting?: boolean;
+  respawnAttempt?: number;
 }

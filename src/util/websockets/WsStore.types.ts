@@ -8,7 +8,7 @@ export enum WsConnectionStateEnum {
   CLOSING = 3,
   RECONNECTING = 4,
   // ERROR_RECONNECTING = 5,
-  // ERROR = 5,
+  ERROR = 5,
 }
 
 export interface DeferredPromise<TSuccess = any, TError = any> {
@@ -26,6 +26,7 @@ export interface WsStoredState<TWSTopicSubscribeEvent extends string | object> {
   ws?: WebSocket;
   /** The current lifecycle state of the connection (enum) */
   connectionState?: WsConnectionStateEnum;
+  connectionStateChangedAt?: Date;
   /** A timer that will send an upstream heartbeat (ping) when it expires */
   activePingTimer?: ReturnType<typeof setTimeout> | undefined;
   /** A timer tracking that an upstream heartbeat was sent, expecting a reply before it expires */

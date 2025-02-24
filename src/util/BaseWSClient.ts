@@ -219,7 +219,7 @@ export abstract class BaseWebsocketClient<
       // Some defaults:
       testnet: false,
 
-      pongTimeout: 1000,
+      pongTimeout: 5000,
       pingInterval: 10000,
       reconnectTimeout: 500,
       recvWindow: 5000,

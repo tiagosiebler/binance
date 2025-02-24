@@ -26,6 +26,7 @@ export type WsMarket =
   | 'spotTestnet'
   | 'crossMargin'
   | 'isolatedMargin'
+  | 'riskDataMargin'
   | 'usdm'
   | 'usdmTestnet'
   | 'coinm'

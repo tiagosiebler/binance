@@ -346,6 +346,7 @@ export class WsStore<
 
   setConnectionState(key: WsKey, state: WsConnectionStateEnum) {
     this.get(key, true).connectionState = state;
+    this.get(key, true).connectionStateChangedAt = new Date();
   }
 
   isConnectionState(key: WsKey, state: WsConnectionStateEnum): boolean {
@@ -361,6 +362,22 @@ export class WsStore<
     const isConnectionInProgress =
       this.isConnectionState(key, WsConnectionStateEnum.CONNECTING) ||
       this.isConnectionState(key, WsConnectionStateEnum.RECONNECTING);
+
+    if (isConnectionInProgress) {
+      const wsState = this.get(key, true);
+      const stateLastChangedAt = wsState?.connectionStateChangedAt;
+      const stateChangedAtTimestamp = stateLastChangedAt?.getTime();
+      if (stateChangedAtTimestamp) {
+        const timestampNow = new Date().getTime();
+        const stateChangedTimeAgo = timestampNow - stateChangedAtTimestamp;
+        const stateChangeTimeout = 15000; // allow a max 15 second timeout since the last state change before assuming stuck;
+        if (stateChangedTimeAgo >= stateChangeTimeout) {
+          const msg = 'State change timed out, reconnect workflow stuck?';
+          this.logger.error(msg, { key, wsState });
+          this.setConnectionState(key, WsConnectionStateEnum.ERROR);
+        }
+      }
+    }
 
     return isConnectionInProgress;
   }
@@ -379,7 +396,6 @@ export class WsStore<
     return result;
   }
 
-  // Since topics are objects we can't rely on the set to detect duplicates
   /**
    * Find matching "topic" request from the store
    * @param key
@@ -387,10 +403,6 @@ export class WsStore<
    * @returns
    */
   getMatchingTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs) {
-    // if (typeof topic === 'string') {
-    //   return this.getMatchingTopic(key, { channel: topic });
-    // }
-
     const allTopics = this.getTopics(key).values();
     for (const storedTopic of allTopics) {
       if (isDeepObjectMatch(topic, storedTopic)) {
@@ -400,13 +412,6 @@ export class WsStore<
   }
 
   addTopic(key: WsKey, topic: TWSTopicSubscribeEventArgs) {
-    // if (typeof topic === 'string') {
-    //   return this.addTopic(key, {
-    //     instType: 'sp',
-    //     channel: topic,
-    //     instId: 'default',
-    //   };
-    // }
     // Check for duplicate topic. If already tracked, don't store this one
     const existingTopic = this.getMatchingTopic(key, topic);
     if (existingTopic) {

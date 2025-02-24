@@ -4044,6 +4044,20 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
+   * Get a cross margin risk data listen key
+   */
+  getMarginRiskUserDataListenKey(): Promise<{ listenKey: string }> {
+    return this.post('sapi/v1/margin/listen-key');
+  }
+
+  keepAliveMarginRiskUserDataListenKey(listenKey: string): Promise<object> {
+    return this.put(`sapi/v1/margin/listen-key?listenKey=${listenKey}`);
+  }
+
+  closeMarginRiskUserDataListenKey(): Promise<object> {
+    return this.delete('sapi/v1/margin/listen-key');
+  }
+  /**
    *
    * DEPRECATED ENDPOINTS
    *

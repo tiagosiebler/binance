@@ -46,6 +46,7 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
   coinmTestnet: 'wss://dstream.binancefuture.com',
   options: 'wss://vstream.binance.com',
   optionsTestnet: 'wss://testnetws.binanceops.com',
+  riskDataMargin: '',
   spotTestnet: '',
   portfoliom: '',
 };
@@ -486,7 +487,7 @@ export class WebsocketClientV1 extends EventEmitter {
 
     const wasOpen = this.wsStore.isWsOpen(wsKey);
 
-    safeTerminateWs(this.getWs(wsKey));
+    safeTerminateWs(this.getWs(wsKey), true);
 
     this.clearPingTimer(wsKey);
     this.clearPongTimer(wsKey);
@@ -524,7 +525,7 @@ export class WebsocketClientV1 extends EventEmitter {
     if (listenKey) {
       this.teardownUserDataListenKey(listenKey, this.getWs(wsKey));
     } else {
-      safeTerminateWs(this.getWs(wsKey));
+      safeTerminateWs(this.getWs(wsKey), true);
     }
   }
 
@@ -880,6 +881,11 @@ export class WebsocketClientV1 extends EventEmitter {
             this.options.requestOptions,
           )
           .keepAlivePMUserDataListenKey();
+      case 'riskDataMargin': {
+        throw new Error(
+          'Unsupported user data stream. Use the new "WebsocketClient" to use this stream.',
+        );
+      }
       default:
         throw neverGuard(
           market,
@@ -991,7 +997,7 @@ export class WebsocketClientV1 extends EventEmitter {
   private teardownUserDataListenKey(listenKey: string, ws: WebSocket) {
     if (listenKey) {
       this.listenKeyStateCache.clearAllListenKeyState(listenKey);
-      safeTerminateWs(ws);
+      safeTerminateWs(ws, true);
     }
   }
 
@@ -1059,9 +1065,11 @@ export class WebsocketClientV1 extends EventEmitter {
         case 'spotTestnet':
         case 'options':
         case 'optionsTestnet':
+        case 'riskDataMargin': {
           throw new Error(
-            'TODO: respawn other user data streams once subscribe methods have been added',
+            'Unsupported user data stream. Use the new "WebsocketClient" to use this stream.',
           );
+        }
         default:
           throw neverGuard(
             market,
