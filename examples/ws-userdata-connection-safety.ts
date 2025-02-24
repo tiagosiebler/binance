@@ -2,11 +2,11 @@ import {
   DefaultLogger,
   isWsFormattedFuturesUserDataEvent,
   isWsFormattedSpotUserDataEvent,
-  isWsFormattedUserDataEvent,
   isWsFormattedSpotUserDataExecutionReport,
+  isWsFormattedUserDataEvent,
   WsUserDataEvents,
 } from '../src';
-import { WebsocketClient } from '../src/websocket-client';
+import { WebsocketClientV1 } from '../src/websocket-client-legacy';
 
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';
@@ -37,13 +37,13 @@ import { WebsocketClient } from '../src/websocket-client';
     },
   };
 
-  const wsClient = new WebsocketClient(
+  const wsClient = new WebsocketClientV1(
     {
       api_key: key,
       api_secret: secret,
       beautify: true,
     },
-    logger
+    logger,
   );
 
   wsClient.on('message', (data) => {
@@ -124,7 +124,7 @@ import { WebsocketClient } from '../src/websocket-client';
     if (!didConnectUserDataSuccessfully && data.wsKey.includes('userData')) {
       setTimeout(() => {
         console.warn(
-          `Retrying connection to userdata ws ${data.wsKey} in 1 second...`
+          `Retrying connection to userdata ws ${data.wsKey} in 1 second...`,
         );
         if (data.wsKey.includes('spot')) {
           wsClient.subscribeSpotUserDataStream();

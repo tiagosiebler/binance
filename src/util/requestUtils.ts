@@ -11,8 +11,8 @@ import {
 } from '../types/shared';
 import { WsMarket } from '../types/websockets';
 import { USDMClient } from '../usdm-client';
-import { WsKey } from '../websocket-client';
 import { signMessage } from './node-support';
+import { parseEventTypeFromMessage, WsKey } from './websockets/websocket-util';
 
 export type RestClient = MainClient | USDMClient;
 
@@ -265,9 +265,37 @@ export function logInvalidOrderId(
   );
 }
 
+/**
+ * For some topics, the received event does not include any information on the topic the event is for (e.g. book tickers).
+ *
+ * This method extracts this using available context, to add an "eventType" property if missing.
+ *
+ * - For the old WebsocketClient, this is extracted using the WsKey.
+ * - For the new multiplex Websocketclient, this is extracted using the "stream" parameter.
+ */
 export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
   if (wsMsg.e) {
     return;
+  }
+
+  // Multiplex websockets include the eventType as the stream name
+  if (wsMsg.stream && wsMsg.data) {
+    const eventType = parseEventTypeFromMessage(wsKey, wsMsg);
+    if (eventType) {
+      if (Array.isArray(wsMsg.data)) {
+        for (const key in wsMsg.data) {
+          wsMsg.data[key].streamName = wsMsg.stream;
+          wsMsg.data[key].e = eventType;
+        }
+        return;
+      }
+
+      wsMsg.data = {
+        streamName: wsMsg.stream,
+        e: eventType,
+        ...wsMsg.data,
+      };
+    }
   }
 
   if (wsKey.indexOf('bookTicker') !== -1) {
@@ -293,6 +321,8 @@ export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
 
 interface WsContext {
   symbol: string | undefined;
+  legacyWsKey: string | undefined;
+  wsKey: WsKey | undefined;
   market: WsMarket;
   isTestnet: boolean | undefined;
   isUserData: boolean;
@@ -301,27 +331,32 @@ interface WsContext {
   otherParams: undefined | string[];
 }
 
-export function getContextFromWsKey(wsKey: WsKey): WsContext {
-  const [market, streamName, symbol, listenKey, ...otherParams] =
-    wsKey.split('_');
+export function getContextFromWsKey(legacyWsKey: any): WsContext {
+  const [market, streamName, symbol, listenKey, wsKey, ...otherParams] =
+    legacyWsKey.split('_');
   return {
     symbol: symbol === 'undefined' ? undefined : symbol,
+    legacyWsKey,
+    wsKey,
     market: market as WsMarket,
     isTestnet: market.includes('estnet'),
-    isUserData: wsKey.includes('userData'),
+    isUserData: legacyWsKey.includes('userData'),
     streamName,
     listenKey: listenKey === 'undefined' ? undefined : listenKey,
     otherParams,
   };
 }
 
-export function getWsKeyWithContext(
+/**
+ * The legacy WS client creates a deterministic WS Key based on consistent input parameters
+ */
+export function getLegacyWsStoreKeyWithContext(
   market: WsMarket,
   streamName: string,
   symbol: string | undefined = undefined,
   listenKey: string | undefined = undefined,
   ...otherParams: (string | boolean)[]
-): WsKey {
+): any {
   return [market, streamName, symbol, listenKey, ...otherParams].join('_');
 }
 
@@ -329,6 +364,13 @@ export function appendEventMarket(wsMsg: any, wsKey: WsKey) {
   const { market } = getContextFromWsKey(wsKey);
   wsMsg.wsMarket = market;
   wsMsg.wsKey = wsKey;
+}
+
+export function getLegacyWsKeyContext(wsKey: string): WsContext | undefined {
+  if (wsKey.indexOf('userData') !== -1) {
+    return getContextFromWsKey(wsKey);
+  }
+  return undefined;
 }
 
 export function asArray<T>(el: T[] | T): T[] {

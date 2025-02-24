@@ -1,4 +1,4 @@
-import { WsKey } from '../websocket-client';
+import { WsKey } from '../util/websockets/websocket-util';
 import {
   FuturesContractType,
   FuturesOrderType,
@@ -23,14 +23,17 @@ import {
 
 export type WsMarket =
   | 'spot'
-  | 'margin'
+  | 'spotTestnet'
+  | 'crossMargin'
   | 'isolatedMargin'
+  | 'riskDataMargin'
   | 'usdm'
   | 'usdmTestnet'
   | 'coinm'
   | 'coinmTestnet'
   | 'options'
-  | 'optionsTestnet';
+  | 'optionsTestnet'
+  | 'portfoliom';
 
 interface WsSharedBase {
   wsMarket: WsMarket;
@@ -40,10 +43,11 @@ interface WsSharedBase {
 export interface WsResponse {
   type: 'message';
   data: {
-    result: boolean | string[];
+    result: boolean | string[] | null;
     id: number;
+    isWSAPIResponse: boolean;
+    wsKey: WsKey;
   };
-  wsKey: WsKey;
 }
 
 export interface WsMessageKlineRaw extends WsSharedBase {
