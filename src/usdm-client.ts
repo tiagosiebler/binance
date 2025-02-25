@@ -383,9 +383,9 @@ export class USDMClient extends BaseRestClient {
     return this.deletePrivate('fapi/v1/batchOrders', requestParams);
   }
 
-  cancelAllOpenOrders(
-    params: BasicSymbolParam,
-  ): Promise<CancelAllOpenOrdersResult> {
+  cancelAllOpenOrders(params: {
+    symbol: string;
+  }): Promise<CancelAllOpenOrdersResult> {
     return this.deletePrivate('fapi/v1/allOpenOrders', params);
   }
 
