@@ -88,7 +88,7 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
 }
 
 export function generateNewOrderId(network: BinanceBaseUrlKey): string {
-  const id = nanoid(25);
+  const id = nanoid(22);
   const prefixedId = 'x-' + getOrderIdPrefix(network) + id;
 
   return prefixedId;

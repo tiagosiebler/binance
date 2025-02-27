@@ -80,6 +80,7 @@ import {
   Kline,
   KlinesParams,
   NewOCOParams,
+  numberInString,
   OrderBookParams,
   OrderIdProperty,
   RecentTradesParams,
@@ -318,15 +319,29 @@ export class USDMClient extends BaseRestClient {
   }
 
   /**
-   * Warning: max 5 orders at a time! This method does not throw, instead it returns individual errors in the response array if any orders were rejected.
+   * Warning: max 5 orders at a time! This method does not throw, instead it returns
+   * individual errors in the response array if any orders were rejected.
    *
-   * Known issue: `quantity` and `price` should be sent as strings
+   * Note: this method will automatically ensure "price" and "quantity" are sent as a
+   * string, if present in the request. See #523 & #526 for more details.
    */
-  submitMultipleOrders<TNumberType = number>(
+  submitMultipleOrders<TNumberType = numberInString>(
     orders: NewFuturesOrderParams<TNumberType>[],
   ): Promise<(NewOrderResult | NewOrderError)[]> {
     const stringOrders = orders.map((order) => {
       const orderToStringify = { ...order };
+
+      // Known issue: `quantity` and `price` should be sent as strings, see #523, #526
+      const price = orderToStringify['price'];
+      if (price && typeof price == 'number') {
+        orderToStringify['price'] = `${price}` as TNumberType;
+      }
+
+      const quantity = orderToStringify['quantity'];
+      if (quantity && typeof quantity == 'number') {
+        orderToStringify['quantity'] = `${quantity}` as TNumberType;
+      }
+
       this.validateOrderId(orderToStringify, 'newClientOrderId');
       return JSON.stringify(orderToStringify);
     });
