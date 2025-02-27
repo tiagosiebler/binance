@@ -16,17 +16,14 @@ import {
 } from './types/websockets/ws-general';
 import Beautifier from './util/beautifier';
 import { DefaultLogger } from './util/logger';
-import {
-  appendEventIfMissing,
-  appendEventMarket,
-  getContextFromWsKey,
-  getLegacyWsStoreKeyWithContext,
-  RestClientOptions,
-} from './util/requestUtils';
+import { appendEventIfMissing, RestClientOptions } from './util/requestUtils';
 import { neverGuard } from './util/typeGuards';
 import { ListenKeyStateCache } from './util/websockets/listen-key-state-cache';
 import { RestClientCache } from './util/websockets/rest-client-cache';
 import {
+  appendEventMarket,
+  getContextFromWsKey,
+  getLegacyWsStoreKeyWithContext,
   parseEventTypeFromMessage,
   parseRawWsMessage,
   safeTerminateWs,

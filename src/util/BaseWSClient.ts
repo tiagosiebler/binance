@@ -118,21 +118,6 @@ export interface MidflightWsRequestEvent<TEvent = object> {
   requestEvent: TEvent;
 }
 
-type TopicsPendingSubscriptionsResolver<TWSRequestEvent extends object> = (
-  requests: TWSRequestEvent,
-) => void;
-
-type TopicsPendingSubscriptionsRejector<TWSRequestEvent extends object> = (
-  requests: TWSRequestEvent,
-  reason: string | object,
-) => void;
-
-interface WsKeyPendingTopicSubscriptions<TWSRequestEvent extends object> {
-  requestData: TWSRequestEvent;
-  resolver: TopicsPendingSubscriptionsResolver<TWSRequestEvent>;
-  rejector: TopicsPendingSubscriptionsRejector<TWSRequestEvent>;
-}
-
 /**
  * Appends wsKey and isWSAPIResponse to all events.
  * Some events are arrays, this handles that nested scenario too.
@@ -196,15 +181,6 @@ export abstract class BaseWebsocketClient<
   private wsApiRequestId: number = 0;
 
   private timeOffsetMs: number = 0;
-
-  /**
-   * A nested wsKey->request key store.
-   * pendingTopicSubscriptionRequests[wsKey][requestKey] = WsKeyPendingTopicSubscriptions<TWSRequestEvent>
-   */
-  private pendingTopicSubscriptionRequests: Record<
-    string,
-    Record<string, undefined | WsKeyPendingTopicSubscriptions<TWSRequestEvent>>
-  > = {};
 
   constructor(
     options?: WSClientConfigurableOptions,
@@ -497,7 +473,7 @@ export abstract class BaseWebsocketClient<
           'Refused to connect to ws with existing active connection',
           { ...WS_LOGGER_CATEGORY, wsKey },
         );
-        return { wsKey };
+        return { wsKey, ws: this.wsStore.getWs(wsKey) };
       }
 
       // Don't check for reconnecting? Conflicts a bit with user data reconnect workflow...
@@ -508,7 +484,7 @@ export abstract class BaseWebsocketClient<
           'Refused to connect to ws, connection attempt already active',
           { ...WS_LOGGER_CATEGORY, wsKey },
         );
-        return;
+        return this.wsStore.getConnectionInProgressPromise(wsKey)?.promise;
       }
 
       if (
@@ -678,6 +654,8 @@ export abstract class BaseWebsocketClient<
     this.wsStore.get(wsKey, true).activeReconnectTimer = setTimeout(() => {
       this.clearReconnectTimer(wsKey);
 
+      // Some streams need a specialist reconnection workflow.
+      // E.g. the user data stream can't just be reconnected as is.
       if (this.isCustomReconnectionNeeded(wsKey)) {
         this.wsStore.delete(wsKey);
 
@@ -689,8 +667,6 @@ export abstract class BaseWebsocketClient<
         wsKey,
       });
       this.connect(wsKey);
-
-      // TODO: this needs a very different workflow for the user data stream....see legacy client
     }, connectionDelayMs);
   }
 
@@ -1004,6 +980,7 @@ export abstract class BaseWebsocketClient<
       if (connectionInProgressPromise?.resolve) {
         connectionInProgressPromise.resolve({
           wsKey,
+          ws,
         });
       }
     } catch (e) {
@@ -1058,6 +1035,7 @@ export abstract class BaseWebsocketClient<
         inProgressPromise.resolve({
           wsKey,
           event,
+          ws: wsState.ws,
         });
       }
     } catch (e) {

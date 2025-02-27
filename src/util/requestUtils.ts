@@ -9,7 +9,6 @@ import {
   NewOCOParams,
   OrderIdProperty,
 } from '../types/shared';
-import { WsMarket } from '../types/websockets';
 import { USDMClient } from '../usdm-client';
 import { signMessage } from './node-support';
 import { parseEventTypeFromMessage, WsKey } from './websockets/websocket-util';
@@ -88,7 +87,7 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
 }
 
 export function generateNewOrderId(network: BinanceBaseUrlKey): string {
-  const id = nanoid(25);
+  const id = nanoid(22); // must pass ^[\.A-Z\:/a-z0-9_-]{1,32}$ with prefix
   const prefixedId = 'x-' + getOrderIdPrefix(network) + id;
 
   return prefixedId;
@@ -317,60 +316,6 @@ export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
   }
 
   // console.warn('couldnt derive event type: ', wsKey);
-}
-
-interface WsContext {
-  symbol: string | undefined;
-  legacyWsKey: string | undefined;
-  wsKey: WsKey | undefined;
-  market: WsMarket;
-  isTestnet: boolean | undefined;
-  isUserData: boolean;
-  streamName: string;
-  listenKey: string | undefined;
-  otherParams: undefined | string[];
-}
-
-export function getContextFromWsKey(legacyWsKey: any): WsContext {
-  const [market, streamName, symbol, listenKey, wsKey, ...otherParams] =
-    legacyWsKey.split('_');
-  return {
-    symbol: symbol === 'undefined' ? undefined : symbol,
-    legacyWsKey,
-    wsKey,
-    market: market as WsMarket,
-    isTestnet: market.includes('estnet'),
-    isUserData: legacyWsKey.includes('userData'),
-    streamName,
-    listenKey: listenKey === 'undefined' ? undefined : listenKey,
-    otherParams,
-  };
-}
-
-/**
- * The legacy WS client creates a deterministic WS Key based on consistent input parameters
- */
-export function getLegacyWsStoreKeyWithContext(
-  market: WsMarket,
-  streamName: string,
-  symbol: string | undefined = undefined,
-  listenKey: string | undefined = undefined,
-  ...otherParams: (string | boolean)[]
-): any {
-  return [market, streamName, symbol, listenKey, ...otherParams].join('_');
-}
-
-export function appendEventMarket(wsMsg: any, wsKey: WsKey) {
-  const { market } = getContextFromWsKey(wsKey);
-  wsMsg.wsMarket = market;
-  wsMsg.wsKey = wsKey;
-}
-
-export function getLegacyWsKeyContext(wsKey: string): WsContext | undefined {
-  if (wsKey.indexOf('userData') !== -1) {
-    return getContextFromWsKey(wsKey);
-  }
-  return undefined;
 }
 
 export function asArray<T>(el: T[] | T): T[] {

@@ -548,3 +548,72 @@ export interface MiscUserDataConnectionState {
   isReconnecting?: boolean;
   respawnAttempt?: number;
 }
+
+interface WsContext {
+  symbol: string | undefined;
+  legacyWsKey: string | undefined;
+  wsKey: WsKey | undefined;
+  market: WsMarket;
+  isTestnet: boolean | undefined;
+  isUserData: boolean;
+  streamName: string;
+  listenKey: string | undefined;
+  otherParams: undefined | string[];
+}
+
+export function getContextFromWsKey(legacyWsKey: any): WsContext {
+  const [market, streamName, symbol, listenKey, wsKey, ...otherParams] =
+    legacyWsKey.split('_');
+  return {
+    symbol: symbol === 'undefined' ? undefined : symbol,
+    legacyWsKey,
+    wsKey,
+    market: market as WsMarket,
+    isTestnet: market.includes('estnet'),
+    isUserData: legacyWsKey.includes('userData'),
+    streamName,
+    listenKey: listenKey === 'undefined' ? undefined : listenKey,
+    otherParams,
+  };
+}
+
+/**
+ * The legacy WS client creates a deterministic WS Key based on consistent input parameters
+ */
+export function getLegacyWsStoreKeyWithContext(
+  market: WsMarket,
+  streamName: string,
+  symbol: string | undefined = undefined,
+  listenKey: string | undefined = undefined,
+  ...otherParams: (string | boolean)[]
+): any {
+  return [market, streamName, symbol, listenKey, ...otherParams].join('_');
+}
+
+export function getLegacyWsKeyContext(wsKey: string): WsContext | undefined {
+  if (wsKey.indexOf('userData') !== -1) {
+    return getContextFromWsKey(wsKey);
+  }
+  return undefined;
+}
+
+export function getRealWsKeyFromDerivedWsKey(wsKey: string | WsKey): WsKey {
+  if (!wsKey.includes('userData')) {
+    return wsKey as WsKey;
+  }
+
+  const legacyWsKeyContext = getLegacyWsKeyContext(wsKey);
+  if (!legacyWsKeyContext || !legacyWsKeyContext.wsKey) {
+    throw new Error(
+      `getRealWsKeyFromDerivedWsKey(): no context found in supplied wsKey: "${wsKey}" | "${legacyWsKeyContext}"`,
+    );
+  }
+
+  return legacyWsKeyContext.wsKey;
+}
+
+export function appendEventMarket(wsMsg: any, wsKey: WsKey) {
+  const { market } = getContextFromWsKey(wsKey);
+  wsMsg.wsMarket = market;
+  wsMsg.wsKey = wsKey;
+}

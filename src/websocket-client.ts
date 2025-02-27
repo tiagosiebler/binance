@@ -27,12 +27,7 @@ import {
 } from './util/BaseWSClient';
 import Beautifier from './util/beautifier';
 import { DefaultLogger } from './util/logger';
-import {
-  appendEventIfMissing,
-  getLegacyWsKeyContext,
-  getLegacyWsStoreKeyWithContext,
-  RestClientOptions,
-} from './util/requestUtils';
+import { appendEventIfMissing, RestClientOptions } from './util/requestUtils';
 import {
   isTopicSubscriptionConfirmation,
   isTopicSubscriptionSuccess,
@@ -41,9 +36,13 @@ import {
 import { SignAlgorithm, signMessage } from './util/webCryptoAPI';
 import { ListenKeyStateCache } from './util/websockets/listen-key-state-cache';
 import { RestClientCache } from './util/websockets/rest-client-cache';
+import { UserDataStreamManager } from './util/websockets/user-data-stream-manager';
 import {
+  getLegacyWsKeyContext,
+  getLegacyWsStoreKeyWithContext,
   getMaxTopicsPerSubscribeEvent,
   getNormalisedTopicRequests,
+  getRealWsKeyFromDerivedWsKey,
   getWsUrl,
   getWsURLSuffix,
   isPrivateWsTopic,
@@ -64,21 +63,6 @@ import {
 } from './util/websockets/WsStore.types';
 
 const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
-
-function getRealWsKeyFromDerivedWsKey(wsKey: string | WsKey): WsKey {
-  if (!wsKey.includes('userData')) {
-    return wsKey as WsKey;
-  }
-
-  const legacyWsKeyContext = getLegacyWsKeyContext(wsKey);
-  if (!legacyWsKeyContext || !legacyWsKeyContext.wsKey) {
-    throw new Error(
-      `getRealWsKeyFromDerivedWsKey(): no context found in supplied wsKey: "${wsKey}" | "${legacyWsKeyContext}"`,
-    );
-  }
-
-  return legacyWsKeyContext.wsKey;
-}
 
 /**
  * Multiplex Node.js, JavaScript & TypeScript Websocket Client for all of Binance's available WebSockets.
@@ -104,19 +88,49 @@ export class WebsocketClient extends BaseWebsocketClient<
 > {
   private restClientCache: RestClientCache = new RestClientCache();
 
-  private listenKeyStateCache: ListenKeyStateCache;
-
-  private respawnTimeoutCache: Record<string, ReturnType<typeof setTimeout>> =
-    {};
-
   private beautifier: Beautifier = new Beautifier({
     warnKeyMissingInMap: true,
   });
 
+  private userDataStreamManager: UserDataStreamManager;
+
+  private respawnTimeoutCache: Record<string, ReturnType<typeof setTimeout>> =
+    {};
+
   constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger) {
     super(options, logger);
 
-    this.listenKeyStateCache = new ListenKeyStateCache(this.logger);
+    this.userDataStreamManager = new UserDataStreamManager({
+      logger: this.logger,
+      wsStore: this.getWsStore(),
+      restClientCache: this.restClientCache,
+      // fn pointers:
+      respawnUserDataFn: (
+        wsKey: WsKey,
+        market: WsMarket,
+        context: {
+          symbol?: string;
+          isTestnet?: boolean;
+          respawnAttempt?: number;
+        } = {},
+      ) => this.respawnUserDataStream(wsKey, market, context),
+      getWsUrlFn: (
+        wsKey: WsKey,
+        connectionType: 'market' | 'userData' | 'wsAPI',
+      ) => this.getWsUrl(wsKey, connectionType),
+      getRestClientOptionsFn: () => this.getRestClientOptions(),
+      getWsClientOptionsfn: () => this.options,
+      closeWsFn: (wsKey: WsKey, force?: boolean) => this.close(wsKey, force),
+      connectFn: (
+        wsKey: WsKey,
+        customUrl?: string | undefined,
+        throwOnError?: boolean,
+      ) => this.connect(wsKey, customUrl, throwOnError),
+    });
+  }
+
+  private getUserDataStreamManager(): UserDataStreamManager {
+    return this.userDataStreamManager;
   }
 
   private getRestClientOptions(): RestClientOptions {
@@ -348,7 +362,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   /**
    * @returns The WS URL to connect to for this WS key
    */
-  protected async getWsUrl(
+  async getWsUrl(
     wsKey: WsKey,
     connectionType: 'market' | 'userData' | 'wsAPI' = 'market',
   ): Promise<string> {
@@ -758,7 +772,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
         // Just closing the connection (with the last parameter as true) will handle cleanup and respawn
         // Automatically leads to triggerCustomReconnectionWorkflow() to handle fresh user data respawn
-        this.teardownUserDataListenKey(
+        this.getUserDataStreamManager().teardownUserDataListenKey(
           legacyContext.listenKey,
           this.getWsStore().getWs(wsKey),
         );
@@ -904,10 +918,187 @@ export class WebsocketClient extends BaseWebsocketClient<
    * --------------------------
    **/
 
-  private teardownUserDataListenKey(listenKey?: string, ws?: WebSocket) {
-    if (listenKey) {
-      this.listenKeyStateCache.clearAllListenKeyState(listenKey);
-      safeTerminateWs(ws, true);
+  /**
+   * Subscribe to a spot user data stream. Use REST client to generate and persist listen key.
+   * Supports spot, margin & isolated margin listen keys.
+   */
+  public async subscribeSpotUserDataStreamWithListenKey(
+    wsKey: WsKey,
+    listenKey: string,
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+      wsKey,
+      'spot',
+      listenKey,
+      forceNewConnection,
+      miscState,
+    );
+  }
+
+  /**
+   * Subscribe to spot user data stream - listen key is automaticallyr generated. Calling multiple times only opens one connection.
+   */
+  public async subscribeSpotUserDataStream(
+    wsKey: WsKey = 'main',
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | void> {
+    this.logger.trace('subscribeSpotUserDataStream()', {
+      wsKey,
+      forceNewConnection,
+      miscState,
+    });
+    try {
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getSpotUserDataListenKey();
+
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        'spot',
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to spot user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeSpotUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  /**
+   * Subscribe to margin user data stream - listen key is automatically generated.
+   */
+  public async subscribeCrossMarginUserDataStream(
+    wsKey: WsKey = 'main',
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getMarginUserDataListenKey();
+
+      const market: WsMarket = 'crossMargin';
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to margin user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeMarginUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  /**
+   * Subscribe to isolated margin user data stream - listen key is automatically generated.
+   */
+  public async subscribeIsolatedMarginUserDataStream(
+    symbol: string,
+    wsKey: WsKey = 'main',
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const lowerCaseSymbol = symbol.toLowerCase();
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getIsolatedMarginUserDataListenKey({
+          symbol: lowerCaseSymbol,
+        });
+
+      const market: WsMarket = 'isolatedMargin';
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to isolated margin user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+        symbol,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeIsolatedMarginUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  /**
+   * Subscribe to margin risk user data stream - listen key is automatically generated.
+   */
+  public async subscribeMarginRiskUserDataStream(
+    wsKey: WsKey = 'main',
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getMarginRiskUserDataListenKey();
+
+      const market: WsMarket = 'riskDataMargin';
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to margin risk user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeMarginRiskUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
     }
   }
 
@@ -920,299 +1111,8 @@ export class WebsocketClient extends BaseWebsocketClient<
   ): Promise<void> {
     console.log(`triggerCustomReconnectionWorkflow(${legacyWsKey})`);
     if (legacyWsKey.includes('userData')) {
-      const legacyWsKeyContext = getLegacyWsKeyContext(legacyWsKey);
-      if (!legacyWsKeyContext) {
-        throw new Error(
-          `triggerCustomReconnectionWorkflow(): no context found in supplied wsKey: "${legacyWsKey}"`,
-        );
-      }
-
-      const { market, symbol, isTestnet, listenKey, wsKey } =
-        legacyWsKeyContext;
-
-      this.logger.info('Preparing to reconnect userData stream...', {
-        ...WS_LOGGER_CATEGORY,
+      return this.getUserDataStreamManager().triggerUserDataReconnectionWorkflow(
         legacyWsKey,
-        market,
-        symbol,
-        isTestnet,
-        listenKey,
-        wsKey,
-      });
-
-      if (listenKey) {
-        this.logger.trace('Checking if old listenKey has active timers...', {
-          listenKey,
-        });
-        this.listenKeyStateCache.clearAllListenKeyState(listenKey);
-      } else {
-        throw new Error('No listenKey stashed in legacyWsKey context???');
-      }
-
-      this.logger.info('Reconnecting to user data stream...', {
-        ...WS_LOGGER_CATEGORY,
-        ...legacyWsKeyContext,
-        wsKey,
-        market,
-        symbol,
-      });
-
-      // We'll set a new one once the new stream respawns, it might have a diff listenKey in the wsKey
-      this.getWsStore().delete(legacyWsKey as any);
-
-      if (!wsKey) {
-        const errorMessage =
-          'triggerCustomReconnectionWorkflow(): missing real "wsKey" from legacy context';
-        this.logger.error(errorMessage, {
-          legacyWsKeyContext,
-          legacyWsKey,
-        });
-        throw new Error(errorMessage);
-      }
-
-      this.respawnUserDataStream(wsKey, market, symbol, isTestnet);
-
-      return;
-    }
-  }
-
-  private setKeepAliveListenKeyTimer(
-    listenKey: string,
-    market: WsMarket,
-    ws: WebSocket,
-    wsKey: WsKey,
-    symbol?: string,
-    isTestnet?: boolean,
-  ) {
-    // This MUST happen before fetching listenKey state,
-    // since the getListenKeyState() creates new state,
-    // while clearAllListenKeyState DELETES it
-    this.listenKeyStateCache.clearAllListenKeyState(listenKey);
-
-    const listenKeyState = this.listenKeyStateCache.getListenKeyState(
-      listenKey,
-      market,
-    );
-
-    // this.logger.trace(
-    //   `----> setKeepAliveListenKeyTimer() -> CREATED NEW keepAliveListenKey INTERVAL timer for ${listenKey}`,
-    // );
-
-    // Set timer to keep WS alive every 50 minutes
-    const minutes50 = 1000 * 60 * 50;
-    listenKeyState.keepAliveTimer = setInterval(
-      () =>
-        this.checkKeepAliveListenKey(
-          listenKey,
-          market,
-          ws,
-          wsKey,
-          symbol,
-          isTestnet,
-        ),
-      minutes50,
-      // 1000 * 60
-    );
-  }
-
-  private sendKeepAliveForMarket(
-    listenKey: string,
-    market: WsMarket,
-    ws: WebSocket,
-    wsKey: WsKey,
-    deriedWsKey: string,
-    symbol?: string,
-    isTestnet?: boolean,
-  ) {
-    switch (market) {
-      case 'spot':
-        return this.restClientCache
-          .getSpotRestClient(
-            this.getRestClientOptions(),
-            this.options.requestOptions,
-          )
-          .keepAliveSpotUserDataListenKey(listenKey);
-      case 'spotTestnet':
-        return this.restClientCache
-          .getSpotRestClient(
-            this.getRestClientOptions(),
-            this.options.requestOptions,
-            true,
-          )
-          .keepAliveSpotUserDataListenKey(listenKey);
-      case 'crossMargin':
-        return this.restClientCache
-          .getSpotRestClient(
-            this.getRestClientOptions(),
-            this.options.requestOptions,
-          )
-          .keepAliveMarginUserDataListenKey(listenKey);
-      case 'riskDataMargin':
-        return this.restClientCache
-          .getSpotRestClient(
-            this.getRestClientOptions(),
-            this.options.requestOptions,
-          )
-          .keepAliveMarginRiskUserDataListenKey(listenKey);
-      case 'isolatedMargin':
-        return this.restClientCache
-          .getSpotRestClient(
-            this.getRestClientOptions(),
-            this.options.requestOptions,
-          )
-          .keepAliveIsolatedMarginUserDataListenKey({
-            listenKey,
-            symbol: symbol!,
-          });
-      case 'coinm':
-      case 'options':
-      case 'optionsTestnet':
-      case 'usdm':
-        return this.restClientCache
-          .getUSDMRestClient(
-            this.getRestClientOptions(),
-            this.options.requestOptions,
-          )
-          .keepAliveFuturesUserDataListenKey();
-      case 'usdmTestnet':
-        return this.restClientCache
-          .getUSDMRestClient(
-            this.getRestClientOptions(),
-            this.options.requestOptions,
-            isTestnet,
-          )
-          .keepAliveFuturesUserDataListenKey();
-      case 'coinmTestnet':
-        return this.restClientCache
-          .getCOINMRestClient(
-            this.getRestClientOptions(),
-            this.options.requestOptions,
-            isTestnet,
-          )
-          .keepAliveFuturesUserDataListenKey();
-      case 'portfoliom':
-        return this.restClientCache
-          .getPortfolioClient(
-            this.getRestClientOptions(),
-            this.options.requestOptions,
-          )
-          .keepAlivePMUserDataListenKey();
-      default:
-        throw neverGuard(
-          market,
-          `Failed to send keep alive for user data stream in unhandled market ${market}`,
-        );
-    }
-  }
-
-  private async checkKeepAliveListenKey(
-    listenKey: string,
-    market: WsMarket,
-    ws: WebSocket,
-    derivedWsKey: WsKey,
-    symbol?: string,
-    isTestnet?: boolean,
-  ) {
-    const listenKeyState = this.listenKeyStateCache.getListenKeyState(
-      listenKey,
-      market,
-    );
-
-    const wsKey = getRealWsKeyFromDerivedWsKey(derivedWsKey);
-
-    try {
-      if (listenKeyState.keepAliveRetryTimer) {
-        clearTimeout(listenKeyState.keepAliveRetryTimer);
-        listenKeyState.keepAliveRetryTimer = undefined;
-
-        this.logger.trace(
-          `checkKeepAliveListenKey() -> CLEARED old one-off keepAliveRetryTimer timer for ${listenKey}`,
-        );
-      }
-
-      await this.sendKeepAliveForMarket(
-        listenKey,
-        market,
-        ws,
-        wsKey,
-        derivedWsKey,
-        symbol,
-        isTestnet,
-      );
-
-      listenKeyState.lastKeepAlive = Date.now();
-      listenKeyState.keepAliveFailures = 0;
-      this.logger.info(
-        `Completed keep alive cycle for listenKey(${listenKey}) in market(${market})`,
-        { ...WS_LOGGER_CATEGORY, listenKey },
-      );
-    } catch (e) {
-      listenKeyState.keepAliveFailures++;
-
-      // Reconnect follows a less automatic workflow since this is tied to a listen key (which may need a new one).
-      // - Kill connection first, with instruction NOT to reconnect automatically
-      // - Then respawn a connection with a potentially new listen key (since the old one may be invalid now)
-
-      const shouldReconnectAfterClose = false;
-
-      // code: -1125,
-      // message: 'This listenKey does not exist.',
-      const errorCode = e?.code;
-      if (errorCode === -1125) {
-        this.logger.error(
-          'FATAL: Failed to keep WS alive for listen key - listen key expired/invalid. Respawning with fresh listen key...',
-          {
-            ...WS_LOGGER_CATEGORY,
-            listenKey,
-            error: e,
-            errorCode,
-            errorMsg: e?.message,
-          },
-        );
-
-        this.close(derivedWsKey, shouldReconnectAfterClose);
-        this.respawnUserDataStream(wsKey, market, symbol, isTestnet);
-
-        return;
-      }
-
-      // If max failurees reached, tear down and respawn if allowed
-      if (listenKeyState.keepAliveFailures >= 3) {
-        this.logger.error(
-          'FATAL: Failed to keep WS alive for listen key after 3 attempts',
-          { ...WS_LOGGER_CATEGORY, listenKey, error: e },
-        );
-
-        this.close(derivedWsKey, shouldReconnectAfterClose);
-        this.respawnUserDataStream(wsKey, market, symbol, isTestnet);
-
-        return;
-      }
-
-      const reconnectDelaySeconds = 1000 * 15;
-      this.logger.info(
-        `Userdata keep alive request failed due to error, trying again with short delay (${reconnectDelaySeconds} seconds)`,
-        {
-          ...WS_LOGGER_CATEGORY,
-          listenKey,
-          error: e,
-          keepAliveAttempts: listenKeyState.keepAliveFailures,
-        },
-      );
-
-      this.logger.trace(
-        `checkKeepAliveListenKey() -> CREATED NEW one-off keepAliveRetryTimer  timer for ${listenKey}`,
-      );
-      listenKeyState.keepAliveRetryTimer = setTimeout(
-        () =>
-          this.checkKeepAliveListenKey(
-            listenKey,
-            market,
-            ws,
-            derivedWsKey,
-            symbol,
-          ),
-        reconnectDelaySeconds,
       );
     }
   }
@@ -1220,9 +1120,11 @@ export class WebsocketClient extends BaseWebsocketClient<
   private async respawnUserDataStream(
     wsKey: WsKey,
     market: WsMarket,
-    symbol?: string,
-    isTestnet?: boolean,
-    respawnAttempt?: number,
+    context: {
+      symbol?: string;
+      isTestnet?: boolean;
+      respawnAttempt?: number;
+    } = {},
   ): Promise<void> {
     // Handle corner case where wsKey is still the derived key for some reason...
     const realWsKey = getRealWsKeyFromDerivedWsKey(wsKey);
@@ -1230,9 +1132,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       console.error('Derived key fed into respawn method!! ', {
         wsKey,
         market,
-        symbol,
-        isTestnet,
-        respawnAttempt,
+        ...context,
         realWsKey,
       });
       console.trace();
@@ -1244,7 +1144,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
     const miscConnectionState: MiscUserDataConnectionState = {
       isReconnecting: true,
-      respawnAttempt,
+      respawnAttempt: context?.respawnAttempt,
     };
 
     let ws: WSConnectedResult | undefined | void = undefined;
@@ -1268,7 +1168,7 @@ export class WebsocketClient extends BaseWebsocketClient<
           break;
         case 'isolatedMargin':
           ws = await this.subscribeIsolatedMarginUserDataStream(
-            symbol!,
+            context.symbol!,
             realWsKey,
             forceNewConnection,
             miscConnectionState,
@@ -1331,8 +1231,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       this.logger.error('Exception trying to spawn user data stream', {
         ...WS_LOGGER_CATEGORY,
         market,
-        symbol,
-        isTestnet,
+        ...context,
         error: e,
       });
 
@@ -1346,14 +1245,16 @@ export class WebsocketClient extends BaseWebsocketClient<
         {
           ...WS_LOGGER_CATEGORY,
           market,
-          symbol,
-          isTestnet,
-          respawnAttempt,
+          ...context,
           delayInSeconds,
         },
       );
 
-      const respawnTimeoutKey = [market, symbol, isTestnet].join('_');
+      const respawnTimeoutKey = [
+        market,
+        context?.symbol,
+        context?.isTestnet,
+      ].join('_');
 
       // Prevent simultaneous timers in same scope
       if (this.respawnTimeoutCache[respawnTimeoutKey]) {
@@ -1365,9 +1266,7 @@ export class WebsocketClient extends BaseWebsocketClient<
           {
             ...WS_LOGGER_CATEGORY,
             market,
-            symbol,
-            isTestnet,
-            respawnAttempt,
+            ...context,
             delayInSeconds,
           },
         );
@@ -1376,285 +1275,13 @@ export class WebsocketClient extends BaseWebsocketClient<
       // Execute reconnection workflow after short delay
       this.respawnTimeoutCache[respawnTimeoutKey] = setTimeout(() => {
         delete this.respawnTimeoutCache[respawnTimeoutKey];
-        this.respawnUserDataStream(
-          realWsKey,
-          market,
-          symbol,
-          isTestnet,
-          respawnAttempt ? respawnAttempt + 1 : 1,
-        );
-      }, 1000 * delayInSeconds);
-    }
-  }
-
-  public async subscribeGeneralUserDataStreamWithListenKey(
-    wsKey: WsKey,
-    market: WsMarket,
-    listenKey: string,
-    forceNewConnection?: boolean,
-    miscState?: MiscUserDataConnectionState,
-  ): Promise<WSConnectedResult | undefined> {
-    const streamName = 'userData';
-    const symbol = undefined;
-
-    this.logger.trace('subscribeGeneralUserDataStreamWithListenKey(): ', {
-      wsKey,
-      market,
-      listenKey,
-      forceNewConnection,
-      miscState,
-    });
-
-    const derivedWsKey = getLegacyWsStoreKeyWithContext(
-      market,
-      streamName,
-      symbol,
-      listenKey,
-      wsKey,
-    );
-
-    const wsState = this.getWsStore().get(derivedWsKey, true);
-    if (
-      !forceNewConnection &&
-      this.getWsStore().isConnectionAttemptInProgress(derivedWsKey)
-    ) {
-      const stateLastChangedAt = wsState?.connectionStateChangedAt;
-      const timestamp = stateLastChangedAt?.getTime();
-      const timestampNow = new Date().getTime();
-
-      const stateChangedTimeAgo = timestampNow - (timestamp || NaN);
-
-      this.logger.trace(
-        `Existing ${wsKey} user data connection in progress for listen key. Avoiding duplicate`,
-        { stateLastChangedAt, stateChangedTimeAgo, wsKey, derivedWsKey },
-      );
-      return this.getWsStore().getWs(derivedWsKey);
-    }
-
-    // Prepare the WS state for awareness whether this is a reconnect or fresh connect
-    if (miscState?.isReconnecting) {
-      this.getWsStore().setConnectionState(
-        derivedWsKey,
-        WsConnectionStateEnum.RECONNECTING,
-      );
-    }
-
-    // Begin the connection process with the active listen key
-    try {
-      const wsBaseUrl = await this.getWsUrl(wsKey, 'userData');
-      const wsURL = wsBaseUrl + `/${listenKey}`;
-
-      const throwOnConnectionError = true;
-      const ws = await this.connect(
-        derivedWsKey,
-        wsURL,
-        throwOnConnectionError,
-      );
-
-      // Start & store timer to keep alive listen key (and handle expiration)
-      this.setKeepAliveListenKeyTimer(listenKey, market, ws, derivedWsKey);
-
-      return ws;
-    } catch (e) {
-      this.logger.error(
-        'Exception in subscribeGeneralUserDataStreamWithListenKey()',
-        { ...WS_LOGGER_CATEGORY, wsKey, derivedWsKey, e: e?.stack || e },
-      );
-
-      // In case any timers already exist, pre-wipe
-      this.listenKeyStateCache.clearAllListenKeyState(listenKey);
-
-      // So the next attempt doesn't think an attempt is already in progress
-      this.getWsStore().setConnectionState(
-        derivedWsKey,
-        WsConnectionStateEnum.ERROR,
-      );
-
-      throw e;
-    }
-  }
-
-  /**
-   * Subscribe to a spot user data stream. Use REST client to generate and persist listen key.
-   * Supports spot, margin & isolated margin listen keys.
-   */
-  public async subscribeSpotUserDataStreamWithListenKey(
-    wsKey: WsKey,
-    listenKey: string,
-    forceNewConnection?: boolean,
-    miscState?: MiscUserDataConnectionState,
-  ): Promise<WSConnectedResult | undefined> {
-    return this.subscribeGeneralUserDataStreamWithListenKey(
-      wsKey,
-      'spot',
-      listenKey,
-      forceNewConnection,
-      miscState,
-    );
-  }
-
-  /**
-   * Subscribe to spot user data stream - listen key is automaticallyr generated. Calling multiple times only opens one connection.
-   */
-  public async subscribeSpotUserDataStream(
-    wsKey: WsKey = 'main',
-    forceNewConnection?: boolean,
-    miscState?: MiscUserDataConnectionState,
-  ): Promise<WSConnectedResult | void> {
-    this.logger.trace('subscribeSpotUserDataStream()', {
-      wsKey,
-      forceNewConnection,
-      miscState,
-    });
-    try {
-      const { listenKey } = await this.restClientCache
-        .getSpotRestClient(
-          this.getRestClientOptions(),
-          this.options.requestOptions,
-        )
-        .getSpotUserDataListenKey();
-
-      return this.subscribeGeneralUserDataStreamWithListenKey(
-        wsKey,
-        'spot',
-        listenKey,
-        forceNewConnection,
-        miscState,
-      );
-    } catch (e) {
-      this.logger.error('Failed to connect to spot user data', {
-        ...WS_LOGGER_CATEGORY,
-        error: e,
-      });
-      this.emit('exception', {
-        functionRef: 'subscribeSpotUserDataStream()',
-        wsKey,
-        forceNewConnection,
-        ...miscState,
-        error: e?.stack || e,
-      });
-    }
-  }
-
-  /**
-   * Subscribe to margin user data stream - listen key is automatically generated.
-   */
-  public async subscribeCrossMarginUserDataStream(
-    wsKey: WsKey = 'main',
-    forceNewConnection?: boolean,
-    miscState?: MiscUserDataConnectionState,
-  ): Promise<WSConnectedResult | undefined> {
-    try {
-      const { listenKey } = await this.restClientCache
-        .getSpotRestClient(
-          this.getRestClientOptions(),
-          this.options.requestOptions,
-        )
-        .getMarginUserDataListenKey();
-
-      const market: WsMarket = 'crossMargin';
-      return this.subscribeGeneralUserDataStreamWithListenKey(
-        wsKey,
-        market,
-        listenKey,
-        forceNewConnection,
-        miscState,
-      );
-    } catch (e) {
-      this.logger.error('Failed to connect to margin user data', {
-        ...WS_LOGGER_CATEGORY,
-        error: e,
-      });
-      this.emit('exception', {
-        functionRef: 'subscribeMarginUserDataStream()',
-        wsKey,
-        forceNewConnection,
-        ...miscState,
-        error: e?.stack || e,
-      });
-    }
-  }
-
-  /**
-   * Subscribe to isolated margin user data stream - listen key is automatically generated.
-   */
-  public async subscribeIsolatedMarginUserDataStream(
-    symbol: string,
-    wsKey: WsKey = 'main',
-    forceNewConnection?: boolean,
-    miscState?: MiscUserDataConnectionState,
-  ): Promise<WSConnectedResult | undefined> {
-    try {
-      const lowerCaseSymbol = symbol.toLowerCase();
-      const { listenKey } = await this.restClientCache
-        .getSpotRestClient(
-          this.getRestClientOptions(),
-          this.options.requestOptions,
-        )
-        .getIsolatedMarginUserDataListenKey({
-          symbol: lowerCaseSymbol,
+        this.respawnUserDataStream(realWsKey, market, {
+          ...context,
+          respawnAttempt: context?.respawnAttempt
+            ? context.respawnAttempt + 1
+            : 1,
         });
-
-      const market: WsMarket = 'isolatedMargin';
-      return this.subscribeGeneralUserDataStreamWithListenKey(
-        wsKey,
-        market,
-        listenKey,
-        forceNewConnection,
-        miscState,
-      );
-    } catch (e) {
-      this.logger.error('Failed to connect to isolated margin user data', {
-        ...WS_LOGGER_CATEGORY,
-        error: e,
-        symbol,
-      });
-      this.emit('exception', {
-        functionRef: 'subscribeIsolatedMarginUserDataStream()',
-        wsKey,
-        forceNewConnection,
-        ...miscState,
-        error: e?.stack || e,
-      });
-    }
-  }
-
-  /**
-   * Subscribe to margin risk user data stream - listen key is automatically generated.
-   */
-  public async subscribeMarginRiskUserDataStream(
-    wsKey: WsKey = 'main',
-    forceNewConnection?: boolean,
-    miscState?: MiscUserDataConnectionState,
-  ): Promise<WSConnectedResult | undefined> {
-    try {
-      const { listenKey } = await this.restClientCache
-        .getSpotRestClient(
-          this.getRestClientOptions(),
-          this.options.requestOptions,
-        )
-        .getMarginRiskUserDataListenKey();
-
-      const market: WsMarket = 'riskDataMargin';
-      return this.subscribeGeneralUserDataStreamWithListenKey(
-        wsKey,
-        market,
-        listenKey,
-        forceNewConnection,
-        miscState,
-      );
-    } catch (e) {
-      this.logger.error('Failed to connect to margin risk user data', {
-        ...WS_LOGGER_CATEGORY,
-        error: e,
-      });
-      this.emit('exception', {
-        functionRef: 'subscribeMarginRiskUserDataStream()',
-        wsKey,
-        forceNewConnection,
-        ...miscState,
-        error: e?.stack || e,
-      });
+      }, 1000 * delayInSeconds);
     }
   }
 
@@ -1684,7 +1311,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
       const market: WsMarket = isTestnet ? 'usdmTestnet' : 'usdm';
 
-      return this.subscribeGeneralUserDataStreamWithListenKey(
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
         wsKey,
         market,
         listenKey,
@@ -1726,7 +1353,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
       const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
 
-      return this.subscribeGeneralUserDataStreamWithListenKey(
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
         wsKey,
         market,
         listenKey,
@@ -1766,7 +1393,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
       const market: WsMarket = 'portfoliom';
 
-      return this.subscribeGeneralUserDataStreamWithListenKey(
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
         wsKey,
         market,
         listenKey,

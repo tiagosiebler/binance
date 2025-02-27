@@ -19,6 +19,7 @@ export interface DeferredPromise<TSuccess = any, TError = any> {
 
 export interface WSConnectedResult {
   wsKey: string;
+  ws: WebSocket;
 }
 
 export interface WsStoredState<TWSTopicSubscribeEvent extends string | object> {
