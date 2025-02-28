@@ -294,6 +294,9 @@ import {
   GetTargetAssetListParams,
   GetTargetAssetListResponse,
   GetTargetAssetROIParams,
+  GetTravelRuleDepositHistoryParams,
+  GetTravelRuleWithdrawHistoryParams,
+  GetTravelRuleWithdrawHistoryV2Params,
   GetUniversalTransferBrokerParams,
   GetVipLoanOngoingOrdersParams,
   GetVipLoanRepaymentHistoryParams,
@@ -498,6 +501,8 @@ import {
   SubmitOneTimeTransactionResponse,
   SubmitSpotTwapNewOrderParams,
   SubmitSpotTwapNewOrderResponse,
+  SubmitTravelRuleDepositQuestionnaireParams,
+  SubmitTravelRuleDepositQuestionnaireResponse,
   SubmitTwapNewOrderParams,
   SubmitTwapNewOrderResponse,
   SubmitVpNewOrderParams,
@@ -518,12 +523,15 @@ import {
   TradingDayTickerParams,
   TransferBrokerSubAccount,
   TransferBrokerSubAccountParams,
+  TravelRuleDepositHistoryRecord,
+  TravelRuleWithdrawHistoryRecord,
   UniversalTransferBrokerParams,
   UniversalTransferHistoryParams,
   UniversalTransferParams,
   UpdateIpRestrictionForSubApiKey,
   UsdtMarginedFuturesResponse,
   UserAsset,
+  VASPInfo,
   VipCollateralAccount,
   VipLoanAccruedInterestParams,
   VipLoanAccruedInterestRecord,
@@ -544,6 +552,7 @@ import {
   WithdrawHistory,
   WithdrawHistoryParams,
   WithdrawParams,
+  WithdrawTravelRuleParams,
   WrapBethResponse,
   WrapHistory,
 } from './types/spot';
@@ -1599,7 +1608,65 @@ export class MainClient extends BaseRestClient {
    *
    **/
 
-  // to be added
+  /**
+   * Submit a withdrawal request for local entities that require travel rule
+   *
+   * For questionaire format, please refer to the docs:
+   * https://developers.binance.com/docs/wallet/travel-rule/withdraw-questionnaire
+   */
+  withdrawTravelRule(params: WithdrawTravelRuleParams): Promise<{
+    trId: number;
+    accpted: boolean;
+    info: string;
+  }> {
+    return this.postPrivate('sapi/v1/localentity/withdraw/apply', params);
+  }
+
+  /**
+   * Fetch withdraw history for local entities that require travel rule
+   */
+  getTravelRuleWithdrawHistory(
+    params?: GetTravelRuleWithdrawHistoryParams,
+  ): Promise<TravelRuleWithdrawHistoryRecord[]> {
+    return this.getPrivate('sapi/v1/localentity/withdraw/history', params);
+  }
+
+  /**
+   * Fetch withdraw history for local entities that require travel rule
+   */
+  getTravelRuleWithdrawHistoryV2(
+    params?: GetTravelRuleWithdrawHistoryV2Params,
+  ): Promise<TravelRuleWithdrawHistoryRecord[]> {
+    return this.getPrivate('sapi/v2/localentity/withdraw/history', params);
+  }
+
+  /**
+   * Submit questionnaire for local entities that require travel rule
+   *
+   * for questionaire format, please refer to the docs:
+   * https://developers.binance.com/docs/wallet/travel-rule/deposit-questionnaire
+   */
+  submitTravelRuleDepositQuestionnaire(
+    params: SubmitTravelRuleDepositQuestionnaireParams,
+  ): Promise<SubmitTravelRuleDepositQuestionnaireResponse> {
+    return this.putPrivate('sapi/v1/localentity/deposit/provide-info', params);
+  }
+
+  /**
+   * Fetch deposit history for local entities that require travel rule
+   */
+  getTravelRuleDepositHistory(
+    params?: GetTravelRuleDepositHistoryParams,
+  ): Promise<TravelRuleDepositHistoryRecord[]> {
+    return this.getPrivate('sapi/v1/localentity/deposit/history', params);
+  }
+
+  /**
+   * Fetch the onboarded VASP list for local entities that require travel rule
+   */
+  getOnboardedVASPList(): Promise<VASPInfo[]> {
+    return this.getPrivate('sapi/v1/localentity/vasp');
+  }
 
   /**
    *

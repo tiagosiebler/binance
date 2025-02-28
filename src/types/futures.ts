@@ -5,7 +5,6 @@ import {
   KlineInterval,
   numberInString,
   OrderBookRow,
-  OrderResponseType,
   OrderSide,
   OrderStatus,
   OrderTimeInForce,
@@ -135,7 +134,7 @@ export interface NewFuturesOrderParams<numberType = number> {
   callbackRate?: numberType;
   workingType?: WorkingType;
   priceProtect?: BooleanStringCapitalised;
-  newOrderRespType?: OrderResponseType;
+  newOrderRespType?: 'ACK' | 'RESULT';
   selfTradePreventionMode?: SelfTradePreventionMode;
   priceMatch?: PriceMatchMode;
   goodTillDate?: number; // Mandatory when timeInForce is GTD
@@ -660,6 +659,29 @@ export interface FuturesPosition {
   symbol: string;
   unRealizedProfit: numberInString;
   positionSide: PositionSide;
+  updateTime: number;
+}
+
+export interface FuturesPositionV3 {
+  symbol: string;
+  positionSide: PositionSide;
+  positionAmt: numberInString;
+  entryPrice: numberInString;
+  breakEvenPrice: numberInString;
+  markPrice: numberInString;
+  unRealizedProfit: numberInString;
+  liquidationPrice: numberInString;
+  isolatedMargin: numberInString;
+  notional: numberInString;
+  marginAsset: string;
+  isolatedWallet: numberInString;
+  initialMargin: numberInString;
+  maintMargin: numberInString;
+  positionInitialMargin: numberInString;
+  openOrderInitialMargin: numberInString;
+  adl: number;
+  bidNotional: numberInString;
+  askNotional: numberInString;
   updateTime: number;
 }
 

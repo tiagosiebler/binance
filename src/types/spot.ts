@@ -5577,3 +5577,115 @@ export interface VipLoanAccruedInterestRecord {
   accrualTime: number;
   orderId: number;
 }
+
+export interface WithdrawTravelRuleParams {
+  coin: string;
+  withdrawOrderId?: string;
+  network?: string;
+  address: string;
+  addressTag?: string;
+  amount: number;
+  transactionFeeFlag?: boolean;
+  name?: string;
+  walletType?: number;
+  questionnaire: string;
+}
+
+export interface GetTravelRuleWithdrawHistoryParams {
+  trId?: string;
+  txId?: string;
+  withdrawOrderId?: string;
+  network?: string;
+  coin?: string;
+  travelRuleStatus?: number;
+  offset?: number;
+  limit?: number;
+  startTime?: number;
+  endTime?: number;
+}
+
+export interface GetTravelRuleWithdrawHistoryV2Params {
+  trId?: string;
+  txId?: string;
+  withdrawOrderId?: string;
+  network?: string;
+  coin?: string;
+  travelRuleStatus?: number;
+  offset?: number;
+  limit?: number;
+  startTime?: number;
+  endTime?: number;
+}
+
+export interface SubmitTravelRuleDepositQuestionnaireParams {
+  tranId: number;
+  questionnaire: string;
+}
+
+export interface GetTravelRuleDepositHistoryParams {
+  trId?: string;
+  txId?: string;
+  tranId?: string;
+  network?: string;
+  coin?: string;
+  travelRuleStatus?: number;
+  pendingQuestionnaire?: boolean;
+  startTime?: number;
+  endTime?: number;
+  offset?: number;
+  limit?: number;
+}
+
+export interface TravelRuleWithdrawHistoryRecord {
+  id: string;
+  trId: number;
+  amount: string;
+  transactionFee: string;
+  coin: string;
+  withdrawalStatus: number;
+  travelRuleStatus: number;
+  address: string;
+  addressTag?: string;
+  txId: string;
+  applyTime: string;
+  network?: string;
+  transferType: number;
+  withdrawOrderId?: string;
+  info: string;
+  confirmNo: number;
+  walletType: number;
+  txKey: string;
+  questionnaire: string;
+  completeTime?: string;
+}
+
+export interface SubmitTravelRuleDepositQuestionnaireResponse {
+  trId: number;
+  accepted: boolean;
+  info: string;
+}
+
+export interface TravelRuleDepositHistoryRecord {
+  trId: number;
+  tranId: number;
+  amount: string;
+  coin: string;
+  network: string;
+  depositStatus: number;
+  travelRuleStatus: number;
+  address: string;
+  addressTag?: string;
+  txId: string;
+  insertTime: number;
+  transferType: number;
+  confirmTimes: string;
+  unlockConfirm: number;
+  walletType: number;
+  requireQuestionnaire: boolean;
+  questionnaire: string | null;
+}
+
+export interface VASPInfo {
+  vaspName: string;
+  vaspCode: string;
+}
