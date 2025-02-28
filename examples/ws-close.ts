@@ -1,4 +1,4 @@
-import { DefaultLogger, WebsocketClient } from '../src';
+import { DefaultLogger, WebsocketClientV1 } from '../src';
 
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';
@@ -13,7 +13,7 @@ import { DefaultLogger, WebsocketClient } from '../src';
     silly: () => {},
   };
 
-  const wsClient = new WebsocketClient(
+  const wsClient = new WebsocketClientV1(
     {
       api_key: key,
       api_secret: secret,

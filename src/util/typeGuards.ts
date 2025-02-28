@@ -30,6 +30,10 @@ import {
   WsUserDataEvents,
 } from '../types/websockets';
 
+export function neverGuard(x: never, msg: string): Error {
+  return new Error(`Unhandled value exception "${x}", ${msg}`);
+}
+
 /**
  * Use type guards to narrow down types with minimal efforts.
  *
@@ -124,6 +128,7 @@ export function isWsPartialBookDepthEventFormatted(
   return !Array.isArray(data) && data.eventType === 'partialBookDepth';
 }
 
+// TODO: this won't work on multiplex! Can we make one that doesn't use wsKey?
 export function isWsFormattedUserDataEvent(
   data: WsFormattedMessage,
 ): data is WsUserDataEvents {
@@ -133,13 +138,13 @@ export function isWsFormattedUserDataEvent(
 export function isWsFormattedSpotUserDataEvent(
   data: WsFormattedMessage,
 ): data is WsMessageSpotUserDataEventFormatted {
-  return isWsFormattedUserDataEvent(data) && data.wsMarket.includes('spot');
+  return isWsFormattedUserDataEvent(data) && data.wsMarket?.includes('spot');
 }
 
 export function isWsFormattedFuturesUserDataEvent(
   data: WsFormattedMessage,
 ): data is WsMessageFuturesUserDataEventFormatted {
-  return isWsFormattedUserDataEvent(data) && data.wsMarket.includes('usdm');
+  return isWsFormattedUserDataEvent(data) && data.wsMarket?.includes('usdm');
 }
 
 export function isWsFormattedSpotUserDataExecutionReport(
@@ -291,4 +296,32 @@ export function isAccountUpdateRaw(
   data: WsRawMessage,
 ): data is WsMessageFuturesUserDataAccountUpdateRaw {
   return !Array.isArray(data) && data.e === 'ACCOUNT_UPDATE';
+}
+
+export interface WebsocketTopicSubscriptionConfirmationEvent {
+  result: boolean;
+  id: number;
+}
+
+export function isTopicSubscriptionConfirmation(
+  msg: unknown,
+): msg is WebsocketTopicSubscriptionConfirmationEvent {
+  if (typeof msg !== 'object') {
+    return false;
+  }
+  if (!msg) {
+    return false;
+  }
+  if (typeof msg['result'] === 'boolean') {
+    return false;
+  }
+
+  return false;
+}
+
+export function isTopicSubscriptionSuccess(
+  msg: unknown,
+): msg is WebsocketTopicSubscriptionConfirmationEvent {
+  if (!isTopicSubscriptionConfirmation(msg)) return false;
+  return msg.result === true;
 }

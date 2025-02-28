@@ -9,10 +9,9 @@ import {
   NewOCOParams,
   OrderIdProperty,
 } from '../types/shared';
-import { WsMarket } from '../types/websockets';
 import { USDMClient } from '../usdm-client';
-import { WsKey } from '../websocket-client';
 import { signMessage } from './node-support';
+import { parseEventTypeFromMessage, WsKey } from './websockets/websocket-util';
 
 export type RestClient = MainClient | USDMClient;
 
@@ -88,7 +87,7 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
 }
 
 export function generateNewOrderId(network: BinanceBaseUrlKey): string {
-  const id = nanoid(22);
+  const id = nanoid(22); // must pass ^[\.A-Z\:/a-z0-9_-]{1,32}$ with prefix
   const prefixedId = 'x-' + getOrderIdPrefix(network) + id;
 
   return prefixedId;
@@ -265,9 +264,37 @@ export function logInvalidOrderId(
   );
 }
 
+/**
+ * For some topics, the received event does not include any information on the topic the event is for (e.g. book tickers).
+ *
+ * This method extracts this using available context, to add an "eventType" property if missing.
+ *
+ * - For the old WebsocketClient, this is extracted using the WsKey.
+ * - For the new multiplex Websocketclient, this is extracted using the "stream" parameter.
+ */
 export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
   if (wsMsg.e) {
     return;
+  }
+
+  // Multiplex websockets include the eventType as the stream name
+  if (wsMsg.stream && wsMsg.data) {
+    const eventType = parseEventTypeFromMessage(wsKey, wsMsg);
+    if (eventType) {
+      if (Array.isArray(wsMsg.data)) {
+        for (const key in wsMsg.data) {
+          wsMsg.data[key].streamName = wsMsg.stream;
+          wsMsg.data[key].e = eventType;
+        }
+        return;
+      }
+
+      wsMsg.data = {
+        streamName: wsMsg.stream,
+        e: eventType,
+        ...wsMsg.data,
+      };
+    }
   }
 
   if (wsKey.indexOf('bookTicker') !== -1) {
@@ -289,46 +316,6 @@ export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
   }
 
   // console.warn('couldnt derive event type: ', wsKey);
-}
-
-interface WsContext {
-  symbol: string | undefined;
-  market: WsMarket;
-  isTestnet: boolean | undefined;
-  isUserData: boolean;
-  streamName: string;
-  listenKey: string | undefined;
-  otherParams: undefined | string[];
-}
-
-export function getContextFromWsKey(wsKey: WsKey): WsContext {
-  const [market, streamName, symbol, listenKey, ...otherParams] =
-    wsKey.split('_');
-  return {
-    symbol: symbol === 'undefined' ? undefined : symbol,
-    market: market as WsMarket,
-    isTestnet: market.includes('estnet'),
-    isUserData: wsKey.includes('userData'),
-    streamName,
-    listenKey: listenKey === 'undefined' ? undefined : listenKey,
-    otherParams,
-  };
-}
-
-export function getWsKeyWithContext(
-  market: WsMarket,
-  streamName: string,
-  symbol: string | undefined = undefined,
-  listenKey: string | undefined = undefined,
-  ...otherParams: (string | boolean)[]
-): WsKey {
-  return [market, streamName, symbol, listenKey, ...otherParams].join('_');
-}
-
-export function appendEventMarket(wsMsg: any, wsKey: WsKey) {
-  const { market } = getContextFromWsKey(wsKey);
-  wsMsg.wsMarket = market;
-  wsMsg.wsKey = wsKey;
 }
 
 export function asArray<T>(el: T[] | T): T[] {
