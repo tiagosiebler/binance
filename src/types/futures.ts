@@ -589,7 +589,6 @@ export interface FuturesAccountPosition {
   maxNotional: numberInString;
   positionSide: PositionSide;
   positionAmt: numberInString;
-  crossUnPnl: numberInString;
   notional: numberInString;
   isolatedWallet: numberInString;
   updateTime: number;

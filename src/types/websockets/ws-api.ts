@@ -120,6 +120,10 @@ export interface WsAPIWsKeyTopicMap {
   [WS_KEY_MAP.usdmWSAPITestnet]: WsAPIOperation;
 }
 
+export type WsAPIFuturesWsKey =
+  | typeof WS_KEY_MAP.usdmWSAPI
+  | typeof WS_KEY_MAP.usdmWSAPITestnet;
+
 /**
  * Request parameters expected per operation.
  *
@@ -128,7 +132,7 @@ export interface WsAPIWsKeyTopicMap {
  *
  * Make sure to add new topics to WS_API_Operations and the response param map too.
  */
-export interface WsAPITopicRequestParamMap {
+export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   SUBSCRIBE: never;
   UNSUBSCRIBE: never;
   LIST_SUBSCRIPTIONS: never;
@@ -196,7 +200,9 @@ export interface WsAPITopicRequestParamMap {
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/trading-requests
    */
 
-  'order.place': (NewSpotOrderParams | NewFuturesOrderParams) & {
+  'order.place': (TWSKey extends WsAPIFuturesWsKey
+    ? NewFuturesOrderParams
+    : NewSpotOrderParams) & {
     timestamp?: number;
   };
   'orderList.place': any;

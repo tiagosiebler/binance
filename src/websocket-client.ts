@@ -307,7 +307,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   async sendWSAPIRequest<
     TWSKey extends keyof WsAPIWsKeyTopicMap,
     TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
-    TWSParams extends Exact<WsAPITopicRequestParamMap[TWSOperation]>,
+    TWSParams extends Exact<WsAPITopicRequestParamMap<TWSKey>[TWSOperation]>,
     TWSAPIResponse extends
       WsAPIOperationResponseMap[TWSOperation] = WsAPIOperationResponseMap[TWSOperation],
   >(
