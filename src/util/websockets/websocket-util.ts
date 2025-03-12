@@ -1,16 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import WebSocket from 'isomorphic-ws';
 
-import { WsMarket } from '../../types/websockets';
-import { WSAPIRequest } from '../../types/websockets/ws-api';
 import {
   WebsocketClientOptions,
+  WsMarket,
   WsTopic,
 } from '../../types/websockets/ws-general';
 import { DefaultLogger } from '../logger';
 import { neverGuard } from '../typeGuards';
+import { WsRequestOperationBinance } from '../../types/websockets/ws-api';
 
 export const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
+
+/**
+ * These WS Key values correspond to a WS API connection
+ */
+export type WSAPIWsKey =
+  | 'mainWSAPI'
+  | 'mainWSAPI2'
+  | 'mainWSAPITestnet'
+  | 'usdmWSAPI'
+  | 'usdmWSAPITestnet';
 
 export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
@@ -121,8 +131,6 @@ export function getWsURLSuffix(
     case 'main':
     case 'main2':
     case 'main3':
-    case 'mainWSAPI':
-    case 'mainWSAPI2':
     case 'marginRiskUserData':
     case 'mainTestnetPublic':
     case 'mainTestnetUserData':
@@ -142,10 +150,12 @@ export function getWsURLSuffix(
         }
       }
     }
+    case 'mainWSAPI':
+    case 'mainWSAPI2': {
+      return '/ws-api/v3';
+    }
     case 'usdm':
-    case 'usdmWSAPI':
-    case 'usdmTestnet':
-    case 'usdmWSAPITestnet': {
+    case 'usdmTestnet': {
       switch (connectionType) {
         case 'market':
           return '/stream';
@@ -160,6 +170,10 @@ export function getWsURLSuffix(
           );
         }
       }
+    }
+    case 'usdmWSAPI':
+    case 'usdmWSAPITestnet': {
+      return '/ws-fapi/v1';
     }
     case 'coinm':
     case 'coinmTestnet':
@@ -191,6 +205,12 @@ export function getWsURLSuffix(
 }
 
 export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [
+  WS_KEY_MAP.mainWSAPI,
+  WS_KEY_MAP.mainWSAPI2,
+  WS_KEY_MAP.mainWSAPITestnet,
+  WS_KEY_MAP.usdmWSAPI,
+  WS_KEY_MAP.usdmWSAPITestnet,
+
   // WS_KEY_MAP.v5Private,
   // WS_KEY_MAP.v5PrivateTrade,
 ];
@@ -350,11 +370,14 @@ export function safeTerminateWs(
 /**
  * WS API promises are stored using a primary key. This key is constructed using
  * properties found in every request & reply.
+ *
+ * The counterpart to this is in resolveEmittableEvents
  */
 export function getPromiseRefForWSAPIRequest(
-  requestEvent: WSAPIRequest<unknown>,
+  wsKey: WsKey,
+  requestEvent: WsRequestOperationBinance<string>,
 ): string {
-  const promiseRef = [requestEvent.op, requestEvent.reqId].join('_');
+  const promiseRef = [wsKey, requestEvent.id].join('_');
   return promiseRef;
 }
 

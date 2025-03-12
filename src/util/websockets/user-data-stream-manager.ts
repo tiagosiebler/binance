@@ -1,5 +1,7 @@
-import { WsMarket } from '../../types/websockets';
-import { WebsocketClientOptions } from '../../types/websockets/ws-general';
+import {
+  WebsocketClientOptions,
+  WsMarket,
+} from '../../types/websockets/ws-general';
 import { DefaultLogger } from '../logger';
 import { RestClientOptions } from '../requestUtils';
 import { neverGuard } from '../typeGuards';

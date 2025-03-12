@@ -1,4 +1,4 @@
-import { WsFormattedMessage } from '../types/websockets';
+import { WsFormattedMessage } from '../types/websockets/ws-events-formatted';
 import { BEAUTIFIER_EVENT_MAP } from './beautifier-maps';
 
 export interface BeautifierConfig {

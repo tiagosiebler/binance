@@ -3,21 +3,20 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-constraint */
 import WebSocket from 'isomorphic-ws';
 
-import { KlineInterval } from './types/shared';
-import { WsMarket } from './types/websockets';
+import { KlineInterval, OrderIdProperty } from './types/shared';
 import {
   Exact,
-  WSAPIOperation,
+  WsAPIOperation,
   WsAPIOperationResponseMap,
-  WSAPIRequest,
   WsAPITopicRequestParamMap,
   WsAPIWsKeyTopicMap,
   WsOperation,
   WsRequestOperationBinance,
 } from './types/websockets/ws-api';
-import { MessageEventLike } from './types/websockets/ws-events';
 import {
+  MessageEventLike,
   WSClientConfigurableOptions,
+  WsMarket,
   WsTopic,
 } from './types/websockets/ws-general';
 import {
@@ -27,7 +26,17 @@ import {
 } from './util/BaseWSClient';
 import Beautifier from './util/beautifier';
 import { DefaultLogger } from './util/logger';
-import { appendEventIfMissing, RestClientOptions } from './util/requestUtils';
+import {
+  appendEventIfMissing,
+  generateNewOrderId,
+  getOrderIdPrefix,
+  getRequestSignature,
+  logInvalidOrderId,
+  requiresWSAPINewClientOID,
+  RestClientOptions,
+  serialiseParams,
+  validateWSAPINewClientOID,
+} from './util/requestUtils';
 import {
   isTopicSubscriptionConfirmation,
   isTopicSubscriptionSuccess,
@@ -42,6 +51,7 @@ import {
   getLegacyWsStoreKeyWithContext,
   getMaxTopicsPerSubscribeEvent,
   getNormalisedTopicRequests,
+  getPromiseRefForWSAPIRequest,
   getRealWsKeyFromDerivedWsKey,
   getWsUrl,
   getWsURLSuffix,
@@ -54,6 +64,7 @@ import {
   safeTerminateWs,
   WS_AUTH_ON_CONNECT_KEYS,
   WS_KEY_MAP,
+  WSAPIWsKey,
   WsKey,
   WsTopicRequest,
 } from './util/websockets/websocket-util';
@@ -156,11 +167,9 @@ export class WebsocketClient extends BaseWebsocketClient<
    * You do not need to call this, but if you call this before making any WS API requests,
    * it can accelerate the first request (by preparing the connection in advance).
    */
-  public connectWSAPI(): Promise<unknown> {
-    // TODO: this will need a switch for diff WS API endpoints
-
+  public connectWSAPI(wsKey: WSAPIWsKey): Promise<unknown> {
     /** This call automatically ensures the connection is active AND authenticated before resolving */
-    return this.assertIsAuthenticated(WS_KEY_MAP.mainWSAPI);
+    return this.assertIsAuthenticated(wsKey);
   }
 
   /**
@@ -265,11 +274,12 @@ export class WebsocketClient extends BaseWebsocketClient<
   sendWSAPIRequest<
     TWSKey extends keyof WsAPIWsKeyTopicMap,
     TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
+    // if this throws a type error, probably forgot to add a new operation to WsAPITopicRequestParamMap
     TWSParams extends Exact<WsAPITopicRequestParamMap[TWSOperation]>,
   >(
     wsKey: TWSKey,
     operation: TWSOperation,
-    ...params: TWSParams extends undefined ? [] : [TWSParams]
+    ...params: TWSParams extends undefined | void | never ? [] : [TWSParams]
   ): Promise<WsAPIOperationResponseMap[TWSOperation]>;
 
   // These overloads give stricter types than mapped generics, since generic constraints
@@ -297,8 +307,9 @@ export class WebsocketClient extends BaseWebsocketClient<
   async sendWSAPIRequest<
     TWSKey extends keyof WsAPIWsKeyTopicMap,
     TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
-    TWSParams extends any, //Exact<WsAPITopicRequestParamMap[TWSOperation]>,
-    TWSAPIResponse extends any, //      WsAPIOperationResponseMap[TWSOperation] = WsAPIOperationResponseMap[TWSOperation],
+    TWSParams extends Exact<WsAPITopicRequestParamMap[TWSOperation]>,
+    TWSAPIResponse extends
+      WsAPIOperationResponseMap[TWSOperation] = WsAPIOperationResponseMap[TWSOperation],
   >(
     wsKey: WsKey,
     operation: TWSOperation,
@@ -306,49 +317,57 @@ export class WebsocketClient extends BaseWebsocketClient<
   ): Promise<TWSAPIResponse> {
     //WsAPIOperationResponseMap[TWSOperation]> {
 
-    return { wsKey, operation, params } as any;
+    /**
+     * Spot: https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
+     */
+
     // this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
-    // await this.assertIsConnected(wsKey);
+    await this.assertIsConnected(wsKey);
     // this.logger.trace('sendWSAPIRequest()->assertIsConnected() ok');
 
-    // await this.assertIsAuthenticated(wsKey);
+    await this.assertIsAuthenticated(wsKey);
     // this.logger.trace('sendWSAPIRequest()->assertIsAuthenticated() ok');
 
-    // const requestEvent: WSAPIRequest<TWSParams> = {
-    //   reqId: this.getNewRequestId(),
-    //   header: {
-    //     'X-BAPI-RECV-WINDOW': `${this.options.recvWindow}`,
-    //     'X-BAPI-TIMESTAMP': `${Date.now()}`,
-    //     Referer: APIID,
-    //   },
-    //   op: operation,
-    //   args: [params],
-    // };
+    const request: WsRequestOperationBinance<string> = {
+      id: this.getNewRequestId(),
+      method: operation,
+      params: {
+        timestamp: Date.now(),
+        recvWindow: this.options.recvWindow,
+        ...params,
+      },
+    };
 
-    // // Sign, if needed
-    // const signedEvent = await this.signWSAPIRequest(requestEvent);
+    if (requiresWSAPINewClientOID(request, wsKey)) {
+      validateWSAPINewClientOID(request, wsKey);
+    }
 
-    // // Store deferred promise, resolved within the "resolveEmittableEvents" method while parsing incoming events
-    // const promiseRef = getPromiseRefForWSAPIRequest(requestEvent);
+    // Sign, if needed
+    const signedEvent = await this.signWSAPIRequest(request);
 
-    // const deferredPromise =
-    //   this.getWsStore().createDeferredPromise<TWSAPIResponse>(
-    //     wsKey,
-    //     promiseRef,
-    //     false,
-    //   );
+    // Store deferred promise, resolved within the "resolveEmittableEvents" method while parsing incoming events
+    const promiseRef = getPromiseRefForWSAPIRequest(wsKey, signedEvent);
+
+    const deferredPromise =
+      this.getWsStore().createDeferredPromise<TWSAPIResponse>(
+        wsKey,
+        promiseRef,
+        false,
+      );
 
     // this.logger.trace(
-    //   `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent, null, 2)}`,
+    //   `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,
     // );
 
-    // // Send event
-    // this.tryWsSend(wsKey, JSON.stringify(signedEvent));
+    // Send event
+    this.tryWsSend(wsKey, JSON.stringify(signedEvent));
 
-    // this.logger.trace(`sendWSAPIRequest(): sent ${operation} event`);
+    this.logger.trace(
+      `sendWSAPIRequest(): sent "${operation}" event with promiseRef(${promiseRef})`,
+    );
 
-    // // Return deferred promise, so caller can await this call
-    // return deferredPromise.promise!;
+    // Return deferred promise, so caller can await this call
+    return deferredPromise.promise!;
   }
 
   /**
@@ -385,16 +404,64 @@ export class WebsocketClient extends BaseWebsocketClient<
     return await signMessage(paramsStr, secret, method, algorithm);
   }
 
+  private async signWSAPIRequest<TRequestParams extends string = string>(
+    requestEvent: WsRequestOperationBinance<TRequestParams>,
+  ): Promise<WsRequestOperationBinance<TRequestParams>> {
+    // Not needed for Binance. Auth happens only on connection open, automatically.
+    // Faster than performing auth for every request
+    return requestEvent;
+  }
+
   protected async getWsAuthRequestEvent(
     wsKey: WsKey,
-  ): Promise<WsRequestOperationBinance<string>> {
+  ): Promise<
+    WsRequestOperationBinance<
+      string,
+      { apiKey: string; signature: string; timestamp: number }
+    >
+  > {
     try {
-      const listenKey = '';
+      // Note: Only Ed25519 keys are supported for this feature.
 
+      // If you do not want to specify apiKey and signature in each individual request, you can authenticate your API key for the active WebSocket session.
+
+      // Once authenticated, you no longer have to specify apiKey and signature for those requests that need them. Requests will be performed on behalf of the account owning the authenticated API key.
+
+      // Note: You still have to specify the timestamp parameter for SIGNED requests.
+
+      const recvWindow = this.options.recvWindow || 0;
+      const timestamp = Date.now() + (this.getTimeOffsetMs() || 0) + recvWindow;
+
+      const strictParamValidation = true;
+      const encodeValues = true;
+      const filterUndefinedParams = true;
+
+      const authParams = {
+        apiKey: this.options.api_key,
+        timestamp,
+      };
+      const serialisedParams = serialiseParams(
+        authParams,
+        strictParamValidation,
+        encodeValues,
+        filterUndefinedParams,
+      );
+
+      const signature = await this.signMessage(
+        serialisedParams,
+        this.options.api_secret!,
+        'base64',
+        'SHA-256',
+      );
+
+      // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/request-security#signed-request-example-ed25519
       const request: WsRequestOperationBinance<string> = {
-        method: 'SUBSCRIBE',
-        params: [listenKey],
         id: this.getNewRequestId(),
+        method: 'session.logon',
+        params: {
+          ...authParams,
+          signature,
+        },
       };
 
       return request;
@@ -404,48 +471,40 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
   }
 
-  private async getWsAuthSignature(
-    wsKey: WsKey,
-  ): Promise<{ expiresAt: number; signature: string }> {
-    const { api_key, api_secret } = this.options;
+  // private async getWsAuthSignature(
+  //   wsKey: WsKey,
+  // ): Promise<{ expiresAt: number; signature: string }> {
+  //   const { api_key, api_secret } = this.options;
 
-    if (!api_key || !api_secret) {
-      this.logger.error(
-        'Cannot authenticate websocket, either api or private keys missing.',
-        { ...WS_LOGGER_CATEGORY, wsKey },
-      );
-      throw new Error('Cannot auth - missing api or secret in config');
-    }
+  //   if (!api_key || !api_secret) {
+  //     this.logger.error(
+  //       'Cannot authenticate websocket, either api or private keys missing.',
+  //       { ...WS_LOGGER_CATEGORY, wsKey },
+  //     );
+  //     throw new Error('Cannot auth - missing api or secret in config');
+  //   }
 
-    this.logger.trace("Getting auth'd request params", {
-      ...WS_LOGGER_CATEGORY,
-      wsKey,
-    });
+  //   this.logger.trace("Getting auth'd request params", {
+  //     ...WS_LOGGER_CATEGORY,
+  //     wsKey,
+  //   });
 
-    const recvWindow = this.options.recvWindow || 5000;
+  //   const recvWindow = this.options.recvWindow || 5000;
 
-    const signatureExpiresAt = Date.now() + this.getTimeOffsetMs() + recvWindow;
+  //   const signatureExpiresAt = Date.now() + this.getTimeOffsetMs() + recvWindow;
 
-    const signature = await this.signMessage(
-      'GET/realtime' + signatureExpiresAt,
-      api_secret,
-      'hex',
-      'SHA-256',
-    );
+  //   // const signature = await this.signMessage(
+  //   //   'GET/realtime' + signatureExpiresAt,
+  //   //   api_secret,
+  //   //   'hex',
+  //   //   'SHA-256',
+  //   // );
 
-    return {
-      expiresAt: signatureExpiresAt,
-      signature,
-    };
-  }
-
-  private async signWSAPIRequest<TRequestParams = object>(
-    requestEvent: WSAPIRequest<TRequestParams>,
-  ): Promise<WSAPIRequest<TRequestParams>> {
-    // Not needed for Binance. Auth happens only on connection open, automatically.
-    // TODO:? needed for binance?
-    return requestEvent;
-  }
+  //   return {
+  //     expiresAt: signatureExpiresAt,
+  //     signature: '',
+  //   };
+  // }
 
   protected sendPingEvent(wsKey: WsKey) {
     try {
@@ -671,7 +730,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       // WS API response
       // TODO: after
       if (isWSAPIResponse) {
-        const retCode = parsed.retCode;
+        const retCode = parsed.status;
 
         /**
          * Responses to "subscribe" are quite basic, with no indication of errors (e.g. bad topic):
@@ -682,10 +741,34 @@ export class WebsocketClient extends BaseWebsocketClient<
          *   };
          *
          * Will need some way to tell this apart from an actual WS API response with error. Maybe to send it via a diff check than isWSAPIResponse=true
+         *
+         * Example wsapi error:
+         *
+{
+  id: 1,
+  status: 400,
+  error: {
+    code: -1021,
+    msg: "Timestamp for this request was 1000ms ahead of the server's time."
+  },
+  rateLimits: [
+    {
+      rateLimitType: 'REQUEST_WEIGHT',
+      interval: 'MINUTE',
+      intervalNum: 1,
+      limit: 6000,
+      count: 4
+    }
+  ],
+  wsKey: 'mainWSAPI',
+  isWSAPIResponse: true
+}
          */
 
-        const isError = false; // retCode !== 0;
+        const isError =
+          typeof parsed.error?.code === 'number' && parsed.error?.code !== 0;
 
+        // This is the counterpart to getPromiseRefForWSAPIRequest
         const promiseRef = [wsKey, reqId].join('_');
 
         if (!reqId) {
@@ -725,6 +808,18 @@ export class WebsocketClient extends BaseWebsocketClient<
             isWSAPIResponse: isWSAPIResponse,
           });
           return results;
+        }
+
+        // authenticated
+        if (parsed.result?.apiKey) {
+          // Note: Without this check, this will also trigger "onWsAuthenticaated()" for session.status requests
+          if (this.getWsStore().getAuthenticationInProgressPromise(wsKey)) {
+            results.push({
+              eventType: 'authenticated',
+              event: parsed,
+              isWSAPIResponse: isWSAPIResponse,
+            });
+          }
         }
 
         // WS API Success

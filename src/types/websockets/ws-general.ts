@@ -1,6 +1,52 @@
 import { AxiosRequestConfig } from 'axios';
+import WebSocket from 'isomorphic-ws';
 
 import { RestClientOptions } from '../../util/requestUtils';
+import { WsKey } from '../../util/websockets/websocket-util';
+
+export interface MessageEventLike {
+  target: WebSocket;
+  type: 'message';
+  data: string;
+}
+
+export function isMessageEvent(msg: unknown): msg is MessageEventLike {
+  if (typeof msg !== 'object' || !msg) {
+    return false;
+  }
+
+  const message = msg as MessageEventLike;
+  return message['type'] === 'message' && typeof message['data'] === 'string';
+}
+
+export type WsMarket =
+  | 'spot'
+  | 'spotTestnet'
+  | 'crossMargin'
+  | 'isolatedMargin'
+  | 'riskDataMargin'
+  | 'usdm'
+  | 'usdmTestnet'
+  | 'coinm'
+  | 'coinmTestnet'
+  | 'options'
+  | 'optionsTestnet'
+  | 'portfoliom';
+
+export interface WsSharedBase {
+  wsMarket: WsMarket;
+  wsKey: WsKey;
+}
+
+export interface WsResponse {
+  type: 'message';
+  data: {
+    result: boolean | string[] | null;
+    id: number;
+    isWSAPIResponse: boolean;
+    wsKey: WsKey;
+  };
+}
 
 // Same as inverse futures
 export type WsPublicInverseTopic =

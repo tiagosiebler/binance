@@ -4,15 +4,10 @@ import WebSocket from 'isomorphic-ws';
 
 import { KlineInterval } from './types/shared';
 import {
-  WsFormattedMessage,
-  WsMarket,
-  WsRawMessage,
-  WsResponse,
-  WsUserDataEvents,
-} from './types/websockets';
-import {
   WebsocketClientOptions,
   WSClientConfigurableOptions,
+  WsMarket,
+  WsResponse,
 } from './types/websockets/ws-general';
 import Beautifier from './util/beautifier';
 import { DefaultLogger } from './util/logger';
@@ -32,6 +27,11 @@ import {
 } from './util/websockets/websocket-util';
 import { WsStore } from './util/websockets/WsStore';
 import { WsConnectionStateEnum } from './util/websockets/WsStore.types';
+import {
+  WsFormattedMessage,
+  WsUserDataEvents,
+} from './types/websockets/ws-events-formatted';
+import { WsRawMessage } from './types/websockets/ws-events-raw';
 
 const wsBaseEndpoints: Record<WsMarket, string> = {
   spot: 'wss://stream.binance.com:9443',

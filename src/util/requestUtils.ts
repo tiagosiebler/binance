@@ -11,7 +11,12 @@ import {
 } from '../types/shared';
 import { USDMClient } from '../usdm-client';
 import { signMessage } from './node-support';
-import { parseEventTypeFromMessage, WsKey } from './websockets/websocket-util';
+import {
+  parseEventTypeFromMessage,
+  WS_KEY_MAP,
+  WsKey,
+} from './websockets/websocket-util';
+import { WsRequestOperationBinance } from '../types/websockets/ws-api';
 
 export type RestClient = MainClient | USDMClient;
 
@@ -93,6 +98,106 @@ export function generateNewOrderId(network: BinanceBaseUrlKey): string {
   return prefixedId;
 }
 
+export function requiresWSAPINewClientOID(
+  request: WsRequestOperationBinance<string>,
+  wsKey: WsKey,
+): boolean {
+  switch (wsKey) {
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2:
+    case WS_KEY_MAP.mainWSAPITestnet:
+    case WS_KEY_MAP.usdmWSAPI:
+    case WS_KEY_MAP.usdmWSAPITestnet: {
+      switch (request.method) {
+        case 'order.place': {
+          return true;
+        }
+        default: {
+          return false;
+        }
+      }
+    }
+
+    default: {
+      return false;
+    }
+  }
+}
+
+export function getBaseURLKeyForWsKey(wsKey: WsKey): BinanceBaseUrlKey {
+  switch (wsKey) {
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2:
+    case WS_KEY_MAP.mainWSAPITestnet: {
+      return 'spot';
+    }
+    case WS_KEY_MAP.usdmWSAPI:
+    case WS_KEY_MAP.usdmWSAPITestnet: {
+      return 'usdm';
+    }
+
+    default: {
+      return 'spot';
+    }
+  }
+}
+
+function getWSAPINewOrderIdProperties(
+  operation: WsRequestOperationBinance<string>['method'],
+  wsKey: WsKey,
+): OrderIdProperty[] {
+  //
+  switch (wsKey) {
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2:
+    case WS_KEY_MAP.mainWSAPITestnet:
+    case WS_KEY_MAP.usdmWSAPI:
+    case WS_KEY_MAP.usdmWSAPITestnet: {
+      if (operation === 'order.place' || operation === 'sor.order.place') {
+        return ['newClientOrderId'];
+      }
+      if (operation === 'orderList.place') {
+        return ['listClientOrderId', 'limitClientOrderId', 'stopClientOrderId'];
+      }
+      return [];
+    }
+    default: {
+      return [];
+    }
+  }
+}
+
+export function validateWSAPINewClientOID(
+  request: WsRequestOperationBinance<string>,
+  wsKey: WsKey,
+): void {
+  if (!requiresWSAPINewClientOID(request, wsKey) || !request.params) {
+    return;
+  }
+
+  const newClientOIDProperties = getWSAPINewOrderIdProperties(
+    request.method,
+    wsKey,
+  );
+
+  if (!newClientOIDProperties.length) {
+    return;
+  }
+
+  const baseUrlKey = getBaseURLKeyForWsKey(wsKey);
+  for (const orderIdProperty of newClientOIDProperties) {
+    if (!request.params[orderIdProperty]) {
+      request.params[orderIdProperty] = generateNewOrderId(baseUrlKey);
+      continue;
+    }
+
+    const expectedOrderIdPrefix = `x-${getOrderIdPrefix(baseUrlKey)}`;
+    if (!request.params[orderIdProperty].startsWith(expectedOrderIdPrefix)) {
+      logInvalidOrderId(orderIdProperty, expectedOrderIdPrefix, request.params);
+    }
+  }
+}
+
 export function serialiseParams(
   params: object = {},
   strict_validation = false,
@@ -128,7 +233,7 @@ export interface SignedRequestState {
 }
 
 export async function getRequestSignature(
-  data: any,
+  data: object & { recvWindow?: number; signature?: string },
   key?: string,
   secret?: string,
   recvWindow?: number,
@@ -151,7 +256,14 @@ export async function getRequestSignature(
       true,
       filterUndefinedParams,
     );
-    const signature = await signMessage(serialisedParams, secret);
+
+    // TODO:
+    const signature = await signMessage(
+      serialisedParams,
+      secret,
+      'hex',
+      'SHA-256',
+    );
     requestParams.signature = signature;
 
     return {
@@ -251,11 +363,7 @@ export function isWsPong(response: any) {
 export function logInvalidOrderId(
   orderIdProperty: OrderIdProperty,
   expectedOrderIdPrefix: string,
-  params:
-    | NewFuturesOrderParams
-    | CancelOrderParams
-    | NewOCOParams
-    | CancelOCOParams,
+  params: object,
 ) {
   console.warn(
     `WARNING: '${orderIdProperty}' invalid - it should be prefixed with ${expectedOrderIdPrefix}. Use the 'client.generateNewOrderId()' REST client utility method to generate a fresh order ID on demand. Original request: ${JSON.stringify(

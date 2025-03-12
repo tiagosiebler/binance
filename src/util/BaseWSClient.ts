@@ -3,17 +3,10 @@
 import EventEmitter from 'events';
 import WebSocket from 'isomorphic-ws';
 
-import {
-  WsFormattedMessage,
-  WsRawMessage,
-  WsUserDataEvents,
-} from '../types/websockets';
 import { WsOperation } from '../types/websockets/ws-api';
 import {
   isMessageEvent,
   MessageEventLike,
-} from '../types/websockets/ws-events';
-import {
   WebsocketClientOptions,
   WSClientConfigurableOptions,
 } from '../types/websockets/ws-general';
@@ -30,6 +23,11 @@ import {
   WSConnectedResult,
   WsConnectionStateEnum,
 } from './websockets/WsStore.types';
+import {
+  WsFormattedMessage,
+  WsUserDataEvents,
+} from '../types/websockets/ws-events-formatted';
+import { WsRawMessage } from '../types/websockets/ws-events-raw';
 
 type WsEventInternalSrc = 'event' | 'function';
 
@@ -993,6 +991,14 @@ export abstract class BaseWebsocketClient<
     // Remove before continuing, in case there's more requests queued
     this.wsStore.removeConnectingInProgressPromise(wsKey);
 
+    // Some websockets require an auth packet to be sent after opening the connection
+    if (
+      this.isAuthOnConnectWsKey(wsKey) &&
+      this.options.authPrivateConnectionsOnConnect
+    ) {
+      await this.assertIsAuthenticated(wsKey);
+    }
+
     // Reconnect to topics known before it connected
     const { privateReqs, publicReqs } = this.sortTopicRequestsIntoPublicPrivate(
       [...this.wsStore.getTopics(wsKey)],
@@ -1006,14 +1012,6 @@ export abstract class BaseWebsocketClient<
     // Else, this is automatic after authentication is successfully confirmed
     if (!this.options.authPrivateConnectionsOnConnect) {
       this.requestSubscribeTopics(wsKey, privateReqs);
-    }
-
-    // Some websockets require an auth packet to be sent after opening the connection
-    if (
-      this.isAuthOnConnectWsKey(wsKey) &&
-      this.options.authPrivateConnectionsOnConnect
-    ) {
-      await this.sendAuthRequest(wsKey);
     }
   }
 
@@ -1275,7 +1273,7 @@ export abstract class BaseWebsocketClient<
 
     const isAuthenticated = this.wsStore.get(wsKey)?.isAuthenticated;
     if (isAuthenticated) {
-      this.logger.trace('assertIsAuthenticated(): ok');
+      // this.logger.trace('assertIsAuthenticated(): ok');
       return;
     }
 

@@ -1,4 +1,4 @@
-import { WsMarket } from '../../types/websockets';
+import { WsMarket } from '../../types/websockets/ws-general';
 import { DefaultLogger } from '../logger';
 
 interface ListenKeyPersistenceState {

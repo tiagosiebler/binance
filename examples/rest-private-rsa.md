@@ -4,7 +4,7 @@
 
 Officially, binance recommends downloading and running a key generator from their repo. Guidance for this can be found on the binance website when trying to add a new RSA API key.
 
-However, the following steps use openssl to create public and private key files.
+However, openssl can be used to create the public & private key files using the following steps:
 
 ```bash
 # Generate a private key with either 2048 or 4096 bit length
@@ -66,11 +66,11 @@ csB6pxkLLH2qHx05xPBy4PyoB
 
 This is your secret, you should never share this with anyone, not even binance! Treat this like a password.
 
-As part of this authentication process, your private key is used to generate a signature (using `RSA-SHA256`). This SDK handles this process automatically for you. RSA authentication is automatically detected if the "api_secret" parameter contains the words "PRIVATE KEY", such as the header shown in the example above:
+As part of this authentication process, your private key is used to generate a signature (using `RSA-SHA256`). This SDK handles this process automatically for you. RSA authentication is automatically detected if the "api_secret" parameter contains the words "PRIVATE KEY", such as the header shown in the example above.
 
-```pem
------BEGIN RSA PRIVATE KEY-----
-```
+Note: Binance also supports Ed25519 authentication. If your "secret" matches the following condition, the SDK will revert to to Ed25519 authentication:
+- Contains "PRIVATE KEY" as a header
+- Does NOT contain "RSA PRIVATE KEY" as a header.
 
 From here, simply use the key provided by binance as the `api_key` parameter and your private key (with the header) as the `api_secret` parameter.
 
