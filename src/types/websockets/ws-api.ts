@@ -279,10 +279,10 @@ export interface WsAPIOperationResponseMap {
   /**
    * Futures:
    */
-  'v2/account.balance': FuturesAccountBalance;
-  'account.balance': FuturesAccountBalance;
-  'v2/account.status': FuturesAccountInformation;
-  'account.status': FuturesAccountInformation;
+  'v2/account.balance': WSAPIResponse<FuturesAccountBalance>;
+  'account.balance': WSAPIResponse<FuturesAccountBalance>;
+  'v2/account.status': WSAPIResponse<FuturesAccountInformation>;
+  'account.status': WSAPIResponse<FuturesAccountInformation>;
 
   /**
    * Trading responses
