@@ -462,7 +462,6 @@ export interface ReplaceSpotOrderParams<
 
 export interface GetOCOParams {
   symbol?: string;
-  isIsolated?: StringBoolean;
   orderListId?: number;
   origClientOrderId?: string;
 }
@@ -798,7 +797,6 @@ export interface CancelSpotOrderResult {
   timeInForce: OrderTimeInForce;
   type: OrderType;
   side: OrderSide;
-  isIsolated?: boolean;
   selfTradePreventionMode: SelfTradePreventionMode;
 }
 
@@ -881,7 +879,7 @@ export interface SpotOrder {
   updateTime: number;
   isWorking: boolean;
   origQuoteOrderQty: numberInString;
-  isIsolated?: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
 }
 
 export interface SpotAssetBalance {

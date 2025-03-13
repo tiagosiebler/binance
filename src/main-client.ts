@@ -813,9 +813,9 @@ export class MainClient extends BaseRestClient {
     return this.deletePrivate('api/v3/order', params);
   }
 
-  cancelAllSymbolOrders(
-    params: BasicSymbolParam,
-  ): Promise<CancelSpotOrderResult[]> {
+  cancelAllSymbolOrders(params: {
+    symbol: string;
+  }): Promise<CancelSpotOrderResult[]> {
     return this.deletePrivate('api/v3/openOrders', params);
   }
 
@@ -828,7 +828,7 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('api/v3/order/cancelReplace', params);
   }
 
-  getOpenOrders(params?: Partial<BasicSymbolParam>): Promise<SpotOrder[]> {
+  getOpenOrders(params?: { symbol?: string }): Promise<SpotOrder[]> {
     return this.getPrivate('api/v3/openOrders', params);
   }
 
@@ -855,7 +855,6 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('api/v3/orderList/oco', params);
   }
 
-  // TO CHECK!!
   submitNewOrderListOTO(
     params: NewOrderListOTOParams,
   ): Promise<NewOrderListOTOResponse> {
@@ -865,7 +864,6 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('api/v3/orderList/oto', params);
   }
 
-  // TO CHECK!!
   submitNewOrderListOTOCO(
     params: NewOrderListOTOCOParams,
   ): Promise<NewOrderListOTOCOResponse> {

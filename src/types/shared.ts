@@ -162,14 +162,12 @@ export interface GetOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  isIsolated?: StringBoolean;
 }
 
 export interface GetOrderModifyHistoryParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  isIsolated?: StringBoolean;
   startTime?: number;
   endTime?: number;
   limit?: number;
@@ -218,14 +216,11 @@ export interface CancelOrderParams {
   origClientOrderId?: string;
   /** For isolated margin trading only */
   newClientOrderId?: string;
-  /** For isolated margin trading only */
-  isIsolated?: StringBoolean;
+  cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
 }
 
 export interface CancelOCOParams {
   symbol: string;
-  /** For isolated margin trading only */
-  isIsolated?: string;
   orderListId?: number;
   listClientOrderId?: string;
   newClientOrderId?: string;
@@ -299,8 +294,6 @@ export interface GetAllOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  /** For isolated margin trading only */
-  isIsolated?: StringBoolean;
 }
 
 export interface RateLimiter {
