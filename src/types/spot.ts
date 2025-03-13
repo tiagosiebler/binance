@@ -893,13 +893,22 @@ export interface AccountInformation {
   takerCommission: number;
   buyerCommission: number;
   sellerCommission: number;
+  commissionRates: {
+    maker: string;
+    taker: string;
+    buyer: string;
+    seller: string;
+  };
   canTrade: boolean;
   canWithdraw: boolean;
   canDeposit: boolean;
+  brokered: boolean;
+  requireSelfTradePrevention: boolean;
+  preventSor: boolean;
   updateTime: number;
   accoountType: string;
   balances: SpotAssetBalance[];
-  permissions: any[];
+  permissions: string[];
   uid: number;
 }
 
@@ -2540,9 +2549,10 @@ export interface PreventedMatch {
   symbol: string;
   preventedMatchId: number;
   takerOrderId: number;
+  makerSymbol: string;
   makerOrderId: number;
   tradeGroupId: number;
-  selfTradePreventionMode: string;
+  selfTradePreventionMode: SelfTradePreventionMode;
   price: string;
   makerPreventedQuantity: string;
   transactTime: number;
@@ -2555,6 +2565,23 @@ export interface AllocationsParams {
   fromAllocationId?: number;
   limit?: number;
   orderId?: number;
+}
+
+export interface Allocation {
+  symbol: string;
+  allocationId: number;
+  allocationType: string;
+  orderId: number;
+  orderListId: number;
+  price: string;
+  qty: string;
+  quoteQty: string;
+  commission: string;
+  commissionAsset: string;
+  time: number;
+  isBuyer: boolean;
+  isMaker: boolean;
+  isAllocator: boolean;
 }
 
 export interface CommissionRates {

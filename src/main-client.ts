@@ -38,6 +38,7 @@ import {
   AggregateTrade,
   AlgoOrder,
   AllCoinsInformationResponse,
+  Allocation,
   AllocationsParams,
   ApiKeyBrokerSubAccount,
   APIPermissions,
@@ -924,8 +925,10 @@ export class MainClient extends BaseRestClient {
   /**
    * Get current account information
    */
-  getAccountInformation(): Promise<AccountInformation> {
-    return this.getPrivate('api/v3/account');
+  getAccountInformation(params?: {
+    omitZeroBalances?: boolean;
+  }): Promise<AccountInformation> {
+    return this.getPrivate('api/v3/account', params);
   }
 
   getAccountTradeList(
@@ -944,7 +947,7 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('api/v3/myPreventedMatches', params);
   }
 
-  getAllocations(params: AllocationsParams): Promise<any> {
+  getAllocations(params: AllocationsParams): Promise<Allocation[]> {
     return this.getPrivate('api/v3/myAllocations', params);
   }
 
