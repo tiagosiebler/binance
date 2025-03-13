@@ -356,7 +356,7 @@ export interface AggregateFuturesTrade {
   f: number;
   l: number;
   T: number;
-  M: boolean;
+  m: boolean;
 }
 
 export interface MarkPrice {
@@ -833,7 +833,7 @@ export interface OrderAmendment {
 
 export interface QuarterlyContractSettlementPrice {
   deliveryTime: number;
-  deliveryPrice: string;
+  deliveryPrice: number;
 }
 
 export interface BasisParams {

@@ -176,13 +176,7 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/premiumIndexKlines', params);
   }
 
-  getMarkPrice(params: BasicSymbolParam): Promise<MarkPrice>;
-
-  getMarkPrice(): Promise<MarkPrice[]>;
-
-  getMarkPrice(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<MarkPrice | MarkPrice[]> {
+  getMarkPrice(params?: { symbol?: string }): Promise<MarkPrice | MarkPrice[]> {
     return this.get('fapi/v1/premiumIndex', params);
   }
 
@@ -196,48 +190,27 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/fundingInfo');
   }
 
-  /**
-   * @deprecated use get24hrChangeStatistics() instead (method without the typo)
-   */
-  get24hrChangeStatististics(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
-    return this.get24hrChangeStatistics(params);
-  }
-
-  get24hrChangeStatistics(
-    params: Partial<BasicSymbolParam>,
-  ): Promise<ChangeStats24hr[]>;
-
-  get24hrChangeStatistics(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<ChangeStats24hr | ChangeStats24hr[]>;
-
-  get24hrChangeStatistics(
-    params: Partial<BasicSymbolParam>,
-  ): Promise<ChangeStats24hr>;
-
-  get24hrChangeStatistics(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
+  get24hrChangeStatistics(params?: {
+    symbol?: string;
+  }): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get('fapi/v1/ticker/24hr', params);
   }
 
-  getSymbolPriceTicker(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<SymbolPrice | SymbolPrice[]> {
+  getSymbolPriceTicker(params?: {
+    symbol?: string;
+  }): Promise<SymbolPrice | SymbolPrice[]> {
     return this.get('fapi/v1/ticker/price', params);
   }
 
-  getSymbolPriceTickerV2(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<SymbolPrice | SymbolPrice[]> {
+  getSymbolPriceTickerV2(params?: {
+    symbol?: string;
+  }): Promise<SymbolPrice | SymbolPrice[]> {
     return this.get('fapi/v2/ticker/price', params);
   }
 
-  getSymbolOrderBookTicker(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<FuturesSymbolOrderBookTicker | FuturesSymbolOrderBookTicker[]> {
+  getSymbolOrderBookTicker(params?: {
+    symbol?: string;
+  }): Promise<FuturesSymbolOrderBookTicker | FuturesSymbolOrderBookTicker[]> {
     return this.get('fapi/v1/ticker/bookTicker', params);
   }
 
@@ -247,7 +220,7 @@ export class USDMClient extends BaseRestClient {
     return this.get('futures/data/delivery-price', params);
   }
 
-  getOpenInterest(params: BasicSymbolParam): Promise<OpenInterest> {
+  getOpenInterest(params: { symbol: string }): Promise<OpenInterest> {
     return this.get('fapi/v1/openInterest', params);
   }
 
@@ -283,7 +256,7 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/lvtKlines', params);
   }
 
-  getCompositeSymbolIndex(params?: Partial<BasicSymbolParam>): Promise<any> {
+  getCompositeSymbolIndex(params?: { symbol?: string }): Promise<any> {
     return this.get('fapi/v1/indexInfo', params);
   }
 
@@ -298,9 +271,6 @@ export class USDMClient extends BaseRestClient {
     return this.get('futures/data/basis', params);
   }
 
-  /**
-   * Possibly @deprecated, found only in old docs
-   **/
   getIndexPriceConstituents(params: {
     symbol: string;
   }): Promise<IndexPriceConstituents> {

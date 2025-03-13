@@ -132,6 +132,7 @@ export interface BasicSymbolPaginatedParams {
 export interface SymbolPrice {
   symbol: string;
   price: numberInString;
+  time?: number;
 }
 
 // used by spot and usdm
