@@ -609,6 +609,7 @@ export interface AggregateTrade {
 export interface CurrentAvgPrice {
   mins: number;
   price: numberInString;
+  closeTime: number;
 }
 
 export interface DailyChangeStatistic {
@@ -2297,6 +2298,47 @@ export interface UIKlinesParams {
   limit?: number;
 }
 
+export interface Ticker24hrFull {
+  symbol: string;
+  priceChange: string;
+  priceChangePercent: string;
+  weightedAvgPrice: string;
+  prevClosePrice: string;
+  lastPrice: string;
+  lastQty: string;
+  bidPrice: string;
+  bidQty: string;
+  askPrice: string;
+  askQty: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
+  volume: string;
+  quoteVolume: string;
+  openTime: number;
+  closeTime: number;
+  firstId: number;
+  lastId: number;
+  count: number;
+}
+
+export interface Ticker24hrMini {
+  symbol: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
+  lastPrice: string;
+  volume: string;
+  quoteVolume: string;
+  openTime: number;
+  closeTime: number;
+  firstId: number;
+  lastId: number;
+  count: number;
+}
+
+export type Ticker24hrResponse = Ticker24hrFull | Ticker24hrMini;
+
 export interface TradingDayTickerParams {
   symbol?: string;
   symbols?: string[];
@@ -2304,7 +2346,7 @@ export interface TradingDayTickerParams {
   type?: 'FULL' | 'MINI';
 }
 
-export type TradingDayTickerFull = {
+export interface TradingDayTickerFull {
   symbol: string;
   priceChange: string;
   priceChangePercent: string;
@@ -2320,7 +2362,7 @@ export type TradingDayTickerFull = {
   firstId: number;
   lastId: number;
   count: number;
-};
+}
 
 export interface TradingDayTickerMini {
   symbol: string;
@@ -2336,6 +2378,14 @@ export interface TradingDayTickerMini {
   lastId: number;
   count: number;
 }
+
+export type TradingDayTickerSingle =
+  | TradingDayTickerFull
+  | TradingDayTickerMini;
+
+export type TradingDayTickerArray =
+  | TradingDayTickerFull[]
+  | TradingDayTickerMini[];
 
 export interface RollingWindowTickerParams {
   symbol?: string;

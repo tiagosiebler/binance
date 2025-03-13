@@ -22,7 +22,6 @@ import {
   OrderType,
   RecentTradesParams,
   RowsWithTotal,
-  SymbolArrayParam,
   SymbolFromPaginatedRequestFromId,
   SymbolPrice,
 } from './types/shared';
@@ -123,7 +122,6 @@ import {
   CustomizeMarginCallParams,
   DailyAccountSnapshot,
   DailyAccountSnapshotParams,
-  DailyChangeStatistic,
   DelegationHistory,
   DelegationHistoryParams,
   DeleteApiKeyBrokerSubAccountParams,
@@ -517,10 +515,13 @@ import {
   SymbolTradeFee,
   SystemStatusResponse,
   TargetAssetROI,
+  Ticker24hrResponse,
   ToggleBNBBurnParams,
+  TradingDayTickerArray,
   TradingDayTickerFull,
   TradingDayTickerMini,
   TradingDayTickerParams,
+  TradingDayTickerSingle,
   TransferBrokerSubAccount,
   TransferBrokerSubAccountParams,
   TravelRuleDepositHistoryRecord,
@@ -698,50 +699,71 @@ export class MainClient extends BaseRestClient {
     return this.get('api/v3/uiKlines', params);
   }
 
-  getAvgPrice(params: BasicSymbolParam): Promise<CurrentAvgPrice> {
+  getAvgPrice(params: { symbol: string }): Promise<CurrentAvgPrice> {
     return this.get('api/v3/avgPrice', params);
   }
 
-  get24hrChangeStatististics(
-    params: BasicSymbolParam,
-  ): Promise<DailyChangeStatistic>;
-
-  get24hrChangeStatististics(
-    params?: SymbolArrayParam,
-  ): Promise<DailyChangeStatistic[]>;
-
-  get24hrChangeStatististics(
-    params?: Partial<BasicSymbolParam> | Partial<SymbolArrayParam>,
-  ): Promise<DailyChangeStatistic | DailyChangeStatistic[]> {
-    if (params && typeof params['symbol'] === 'string') {
-      return this.get('api/v3/ticker/24hr', params);
-    }
-
+  get24hrChangeStatististics(params?: {
+    symbol?: string; // use for single symbol
+    symbols?: string[]; // use for multiple symbols
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse | Ticker24hrResponse[]> {
     if (params && params['symbols'] && Array.isArray(params['symbols'])) {
-      const symbols = (params as SymbolArrayParam).symbols;
+      const { symbols, ...otherParams } = params;
       const symbolsQueryParam = JSON.stringify(symbols);
 
-      return this.get('api/v3/ticker/24hr?symbols=' + symbolsQueryParam);
+      return this.get(
+        'api/v3/ticker/24hr?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
     }
-
-    return this.get('api/v3/ticker/24hr');
+    return this.get('api/v3/ticker/24hr', params);
   }
 
   getTradingDayTicker(
     params: TradingDayTickerParams,
-  ): Promise<TradingDayTickerFull[] | TradingDayTickerMini[]> {
+  ): Promise<TradingDayTickerSingle | TradingDayTickerArray[]> {
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const { symbols, ...otherParams } = params;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get(
+        'api/v3/ticker/tradingDay?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
+    }
     return this.get('api/v3/ticker/tradingDay', params);
   }
 
-  getSymbolPriceTicker(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<SymbolPrice | SymbolPrice[]> {
+  getSymbolPriceTicker(params?: {
+    symbol?: string; // use for single symbol
+    symbols?: string[]; // use for multiple symbols
+  }): Promise<SymbolPrice | SymbolPrice[]> {
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const { symbols, ...otherParams } = params;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get(
+        'api/v3/ticker/price?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
+    }
     return this.get('api/v3/ticker/price', params);
   }
 
-  getSymbolOrderBookTicker(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<SymbolOrderBookTicker | SymbolOrderBookTicker[]> {
+  getSymbolOrderBookTicker(params?: {
+    symbol?: string; // use for single symbol
+    symbols?: string[]; // use for multiple symbols
+  }): Promise<SymbolOrderBookTicker | SymbolOrderBookTicker[]> {
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const { symbols, ...otherParams } = params;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get(
+        'api/v3/ticker/bookTicker?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
+    }
     return this.get('api/v3/ticker/bookTicker', params);
   }
 

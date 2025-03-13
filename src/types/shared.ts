@@ -186,6 +186,7 @@ export interface KlinesParams {
   interval: KlineInterval;
   startTime?: number;
   endTime?: number;
+  timeZone?: string;
   limit?: number;
 }
 
