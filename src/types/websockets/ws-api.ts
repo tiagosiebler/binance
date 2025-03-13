@@ -9,6 +9,10 @@ import {
   AvgPriceWSAPIRequest,
   DepthWSAPIRequest,
   ExchangeInfoWSAPIRequest,
+  FuturesAccountBalanceV2WSAPIRequest,
+  FuturesAccountBalanceWSAPIRequest,
+  FuturesAccountStatusV2WSAPIRequest,
+  FuturesAccountStatusWSAPIRequest,
   FuturesDepthWSAPIRequest,
   FuturesOrderCancelWSAPIRequest,
   FuturesOrderModifyWSAPIRequest,
@@ -54,6 +58,8 @@ import {
   AllocationWSAPIResponse,
   AvgPriceWSAPIResponse,
   DepthWSAPIResponse,
+  FuturesAccountBalanceItemWSAPIResponse,
+  FuturesAccountStatusWSAPIResponse,
   FuturesDepthWSAPIResponse,
   FuturesOrderWSAPIResponse,
   FuturesPositionV2WSAPIResponse,
@@ -298,7 +304,9 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
 
-  'account.status': void | AccountStatusWSAPIRequest;
+  'account.status': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesAccountStatusWSAPIRequest
+    : AccountStatusWSAPIRequest;
 
   'account.commission': void | AccountCommissionWSAPIRequest;
 
@@ -324,6 +332,18 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
 
   'v2/account.position': TWSKey extends WsAPIFuturesWsKey
     ? FuturesPositionV2WSAPIRequest
+    : never;
+
+  'account.balance': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesAccountBalanceWSAPIRequest
+    : never;
+
+  'v2/account.balance': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesAccountBalanceV2WSAPIRequest
+    : never;
+
+  'v2/account.status': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesAccountStatusV2WSAPIRequest
     : never;
 
   /**
@@ -465,7 +485,9 @@ export interface WsAPIOperationResponseMap {
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/account-requests
    */
 
-  'account.status': WSAPIResponse<AccountStatusWSAPIResponse>;
+  'account.status': WSAPIResponse<
+    AccountStatusWSAPIResponse | FuturesAccountStatusWSAPIResponse
+  >;
   'account.commission': WSAPIResponse<AccountCommissionWSAPIResponse>;
   'account.rateLimits.orders': WSAPIResponse<RateLimitWSAPIResponse[]>;
   allOrders: WSAPIResponse<OrderWSAPIResponse[]>;
@@ -480,6 +502,9 @@ export interface WsAPIOperationResponseMap {
    */
   'account.position': WSAPIResponse<FuturesPositionWSAPIResponse[]>;
   'v2/account.position': WSAPIResponse<FuturesPositionV2WSAPIResponse[]>;
+  'account.balance': WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>;
+  'v2/account.balance': WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>;
+  'v2/account.status': WSAPIResponse<FuturesAccountStatusWSAPIResponse>;
 
   /**
    * Trading responses

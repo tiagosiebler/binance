@@ -540,3 +540,77 @@ export interface FuturesPositionV2WSAPIResponse {
   askNotional: string;
   updateTime: number;
 }
+
+/**
+ * Futures account response types
+ */
+export interface FuturesAccountBalanceItemWSAPIResponse {
+  accountAlias: string;
+  asset: string;
+  balance: string;
+  crossWalletBalance: string;
+  crossUnPnl: string;
+  availableBalance: string;
+  maxWithdrawAmount: string;
+  marginAvailable: boolean;
+  updateTime: number;
+}
+
+export interface FuturesAccountAssetWSAPIResponse {
+  asset: string;
+  walletBalance: string;
+  unrealizedProfit: string;
+  marginBalance: string;
+  maintMargin: string;
+  initialMargin: string;
+  positionInitialMargin: string;
+  openOrderInitialMargin: string;
+  crossWalletBalance: string;
+  crossUnPnl: string;
+  availableBalance: string;
+  maxWithdrawAmount: string;
+  marginAvailable?: boolean;
+  updateTime: number;
+}
+
+export interface FuturesAccountPositionWSAPIResponse {
+  symbol: string;
+  initialMargin?: string;
+  maintMargin?: string;
+  unrealizedProfit: string;
+  positionInitialMargin?: string;
+  openOrderInitialMargin?: string;
+  leverage?: string;
+  isolated?: boolean;
+  entryPrice?: string;
+  breakEvenPrice?: string;
+  maxNotional?: string;
+  bidNotional?: string;
+  askNotional?: string;
+  positionSide: string;
+  positionAmt: string;
+  updateTime: number;
+}
+
+export interface FuturesAccountStatusWSAPIResponse {
+  feeTier?: number;
+  canTrade?: boolean;
+  canDeposit?: boolean;
+  canWithdraw?: boolean;
+  updateTime: number;
+  multiAssetsMargin: boolean;
+  tradeGroupId?: number;
+  totalInitialMargin: string;
+  totalMaintMargin: string;
+  totalWalletBalance: string;
+  totalUnrealizedProfit: string;
+  totalMarginBalance: string;
+  totalPositionInitialMargin: string;
+  totalOpenOrderInitialMargin: string;
+  totalCrossWalletBalance: string;
+  totalCrossUnPnl: string;
+  availableBalance: string;
+  maxWithdrawAmount: string;
+  assets: FuturesAccountAssetWSAPIResponse[];
+  positions: FuturesAccountPositionWSAPIResponse[];
+}

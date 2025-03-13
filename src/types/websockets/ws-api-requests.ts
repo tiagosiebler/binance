@@ -533,3 +533,34 @@ export interface FuturesPositionV2WSAPIRequest {
   timestamp: number;
   signature: string;
 }
+
+/**
+ * Futures account request types
+ */
+export interface FuturesAccountBalanceWSAPIRequest {
+  apiKey: string;
+  recvWindow?: number;
+  timestamp: number;
+  signature: string;
+}
+
+export interface FuturesAccountBalanceV2WSAPIRequest {
+  apiKey: string;
+  recvWindow?: number;
+  timestamp: number;
+  signature: string;
+}
+
+export interface FuturesAccountStatusWSAPIRequest {
+  apiKey: string;
+  recvWindow?: number;
+  timestamp: number;
+  signature: string;
+}
+
+export interface FuturesAccountStatusV2WSAPIRequest {
+  apiKey: string;
+  recvWindow?: number;
+  timestamp: number;
+  signature: string;
+}
