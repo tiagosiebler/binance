@@ -1438,8 +1438,10 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/asset/assetDetail', params);
   }
 
-  getWalletBalances(): Promise<WalletBalance[]> {
-    return this.getPrivate('sapi/v1/asset/wallet/balance');
+  getWalletBalances(params?: {
+    quoteAsset?: string;
+  }): Promise<WalletBalance[]> {
+    return this.getPrivate('sapi/v1/asset/wallet/balance', params);
   }
 
   getUserAsset(params: GetAssetParams): Promise<UserAsset[]> {
@@ -1458,8 +1460,8 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/asset/transfer', params);
   }
 
-  getDust(): Promise<DustInfo> {
-    return this.postPrivate('sapi/v1/asset/dust-btc');
+  getDust(params: { accountType?: 'SPOT' | 'MARGIN' }): Promise<DustInfo> {
+    return this.postPrivate('sapi/v1/asset/dust-btc', params);
   }
 
   convertDustToBnb(params: ConvertDustParams): Promise<DustConversion> {
@@ -1474,7 +1476,7 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/asset/assetDividend', params);
   }
 
-  getTradeFee(params?: Partial<BasicSymbolParam>): Promise<SymbolTradeFee[]> {
+  getTradeFee(params?: { symbol?: string }): Promise<SymbolTradeFee[]> {
     return this.getPrivate('sapi/v1/asset/tradeFee', params);
   }
 

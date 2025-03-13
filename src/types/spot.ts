@@ -232,14 +232,15 @@ export enum EnumDepositStatus {
 export type DepositStatusCode = `${EnumDepositStatus}`;
 
 export interface DepositHistoryParams {
-  coin?: string;
-  status?: DepositStatusCode;
-  startTime?: number;
-  endTime?: number;
-  offset?: number;
-  limit?: number;
+  coin?: string; // Optional: Filter by coin
+  status?: DepositStatusCode; // Optional: Filter by status (0:pending, 6:credited but cannot withdraw, 7:Wrong Deposit, 8:Waiting User confirm, 1:success, 2:rejected)
+  startTime?: number; // Optional: Start time in milliseconds (Default: 90 days from current timestamp)
+  endTime?: number; // Optional: End time in milliseconds (Default: present timestamp)
+  offset?: number; // Optional: Pagination offset (Default: 0)
+  limit?: number; // Optional: Number of records to return (Default: 1000, Max: 1000)
+  txId?: string; // Optional: Filter by transaction ID
+  includeSource?: boolean; // Optional: Return sourceAddress field when set to true (Default: false)
 }
-
 export interface DepositHistory {
   amount: numberInString;
   coin: string;
@@ -266,13 +267,14 @@ export enum EnumWithdrawStatus {
 export type WithdrawStatusCode = `${EnumWithdrawStatus}`;
 
 export interface WithdrawHistoryParams {
-  coin?: string;
-  withdrawOrderId?: string;
-  status?: WithdrawStatusCode;
-  offset?: number;
-  limit?: number;
-  startTime?: number;
-  endTime?: number;
+  coin?: string; // Optional: Filter by coin
+  withdrawOrderId?: string; // Optional: Filter by withdraw order ID
+  status?: WithdrawStatusCode; // Optional: Filter by status (0:Email Sent, 2:Awaiting Approval, 3:Rejected, 4:Processing, 6:Completed)
+  offset?: number; // Optional: Pagination offset
+  limit?: number; // Optional: Number of records to return (Default: 1000, Max: 1000)
+  idList?: string; // Optional: Comma-separated list of withdrawal IDs
+  startTime?: number; // Optional: Start time in milliseconds (Default: 90 days from current timestamp)
+  endTime?: number; // Optional: End time in milliseconds (Default: present timestamp)
 }
 
 export enum EnumWithdrawTransferType {
@@ -299,6 +301,7 @@ export interface WithdrawHistory {
 export interface DepositAddressParams {
   coin: string;
   network?: string;
+  amount?: number;
 }
 
 export interface DepositAddressResponse {
@@ -310,6 +313,7 @@ export interface DepositAddressResponse {
 
 export interface ConvertDustParams {
   asset: string[];
+  accountType?: 'SPOT' | 'MARGIN';
 }
 
 export interface DustInfoDetail {
@@ -2066,7 +2070,6 @@ export interface SubmitDepositCreditResponse {
 export interface DepositAddressListParams {
   coin: string;
   network?: string;
-  timestamp: number;
 }
 
 export interface DepositAddress {
