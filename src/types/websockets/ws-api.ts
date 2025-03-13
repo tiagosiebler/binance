@@ -5,12 +5,7 @@ import {
   FuturesExchangeInfo,
   NewFuturesOrderParams,
 } from '../futures';
-import {
-  numberInString,
-  OrderResponseType,
-  OrderSide,
-  OrderType,
-} from '../shared';
+import { numberInString } from '../shared';
 import { ExchangeInfo, NewSpotOrderParams, OrderResponse } from '../spot';
 import { WSAPIRecvWindowTimestamp } from './ws-api-requests';
 import { WsAPISessionStatus } from './ws-api-responses';
@@ -38,6 +33,17 @@ export const WS_API_Operations = [
   'exchangeInfo',
   //// Market data commands //TODO:
   'depth',
+  'trades.recent',
+  'trades.historical',
+  'trades.aggregate',
+  'klines',
+  'uiKlines',
+  'avgPrice',
+  'ticker.24hr',
+  'ticker.tradingDay',
+  'ticker',
+  'ticker.price',
+  'ticker.book',
   //// Account commands
   // Futures
   'v2/account.balance',
@@ -167,7 +173,57 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/market-data-requests
    */
   depth: { symbol: string; limit: number };
-
+  'trades.recent': { symbol: string; limit?: number };
+  'trades.historical': { symbol: string; fromId?: number; limit?: number };
+  'trades.aggregate': {
+    symbol: string;
+    fromId?: number;
+    startTime?: number;
+    endTime?: number;
+    limit?: number;
+  };
+  klines: {
+    symbol: string;
+    interval: string; // '1s'|'1m'|'3m'|'5m'|'15m'|'30m'|'1h'|'2h'|'4h'|'6h'|'8h'|'12h'|'1d'|'3d'|'1w'|'1M'
+    startTime?: number;
+    endTime?: number;
+    timeZone?: string;
+    limit?: number;
+  };
+  uiKlines: {
+    symbol: string;
+    interval: string; // '1s'|'1m'|'3m'|'5m'|'15m'|'30m'|'1h'|'2h'|'4h'|'6h'|'8h'|'12h'|'1d'|'3d'|'1w'|'1M'
+    startTime?: number;
+    endTime?: number;
+    timeZone?: string;
+    limit?: number;
+  };
+  avgPrice: { symbol: string };
+  'ticker.24hr': void | {
+    symbol?: string;
+    symbols?: string[];
+    type?: 'FULL' | 'MINI';
+  };
+  'ticker.tradingDay': {
+    symbol?: string;
+    symbols?: string[];
+    timeZone?: string;
+    type?: 'FULL' | 'MINI';
+  };
+  ticker: {
+    symbol?: string;
+    symbols?: string[];
+    windowSize?: string; // '1m', '2m' ... '59m', '1h', '2h' ... '23h', '1d', '2d' ... '7d'
+    type?: 'FULL' | 'MINI';
+  };
+  'ticker.price': {
+    symbol?: string;
+    symbols?: string[];
+  };
+  'ticker.book': {
+    symbol?: string;
+    symbols?: string[];
+  };
   // TODO:
 
   /**
@@ -265,8 +321,293 @@ export interface WsAPIOperationResponseMap {
     bids: [numberInString, numberInString][];
     asks: [numberInString, numberInString][];
   }>;
-
-  // TODO:
+  'trades.recent': WSAPIResponse<
+    {
+      id: number;
+      price: numberInString;
+      qty: numberInString;
+      quoteQty: numberInString;
+      time: number;
+      isBuyerMaker: boolean;
+      isBestMatch: boolean;
+    }[]
+  >;
+  'trades.historical': WSAPIResponse<
+    {
+      id: number;
+      price: numberInString;
+      qty: numberInString;
+      quoteQty: numberInString;
+      time: number;
+      isBuyerMaker: boolean;
+      isBestMatch: boolean;
+    }[]
+  >;
+  'trades.aggregate': WSAPIResponse<
+    {
+      a: number; // Aggregate trade ID
+      p: numberInString; // Price
+      q: numberInString; // Quantity
+      f: number; // First trade ID
+      l: number; // Last trade ID
+      T: number; // Timestamp
+      m: boolean; // Was the buyer the maker?
+      M: boolean; // Was the trade the best price match?
+    }[]
+  >;
+  klines: WSAPIResponse<
+    [
+      number, // Kline open time
+      numberInString, // Open price
+      numberInString, // High price
+      numberInString, // Low price
+      numberInString, // Close price
+      numberInString, // Volume
+      number, // Kline close time
+      numberInString, // Quote asset volume
+      number, // Number of trades
+      numberInString, // Taker buy base asset volume
+      numberInString, // Taker buy quote asset volume
+      numberInString, // Unused field
+    ][]
+  >;
+  uiKlines: WSAPIResponse<
+    [
+      number, // Kline open time
+      numberInString, // Open price
+      numberInString, // High price
+      numberInString, // Low price
+      numberInString, // Close price
+      numberInString, // Volume
+      number, // Kline close time
+      numberInString, // Quote asset volume
+      number, // Number of trades
+      numberInString, // Taker buy base asset volume
+      numberInString, // Taker buy quote asset volume
+      numberInString, // Unused field
+    ][]
+  >;
+  avgPrice: WSAPIResponse<{
+    mins: number; // Average price interval (in minutes)
+    price: numberInString; // Average price
+    closeTime: number; // Last trade time
+  }>;
+  'ticker.24hr': WSAPIResponse<
+    | {
+        symbol: string;
+        priceChange: numberInString;
+        priceChangePercent: numberInString;
+        weightedAvgPrice: numberInString;
+        prevClosePrice: numberInString;
+        lastPrice: numberInString;
+        lastQty: numberInString;
+        bidPrice: numberInString;
+        bidQty: numberInString;
+        askPrice: numberInString;
+        askQty: numberInString;
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        volume: numberInString;
+        quoteVolume: numberInString;
+        openTime: number;
+        closeTime: number;
+        firstId: number; // First trade ID
+        lastId: number; // Last trade ID
+        count: number; // Number of trades
+      }
+    | {
+        symbol: string;
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        lastPrice: numberInString;
+        volume: numberInString;
+        quoteVolume: numberInString;
+        openTime: number;
+        closeTime: number;
+        firstId: number; // First trade ID
+        lastId: number; // Last trade ID
+        count: number; // Number of trades
+      }
+    | {
+        symbol: string;
+        priceChange: numberInString;
+        priceChangePercent: numberInString;
+        weightedAvgPrice: numberInString;
+        prevClosePrice: numberInString;
+        lastPrice: numberInString;
+        lastQty: numberInString;
+        bidPrice: numberInString;
+        bidQty: numberInString;
+        askPrice: numberInString;
+        askQty: numberInString;
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        volume: numberInString;
+        quoteVolume: numberInString;
+        openTime: number;
+        closeTime: number;
+        firstId: number;
+        lastId: number;
+        count: number;
+      }[]
+  >;
+  'ticker.tradingDay': WSAPIResponse<
+    | {
+        symbol: string;
+        priceChange: numberInString; // Absolute price change
+        priceChangePercent: numberInString; // Relative price change in percent
+        weightedAvgPrice: numberInString; // quoteVolume / volume
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        lastPrice: numberInString;
+        volume: numberInString; // Volume in base asset
+        quoteVolume: numberInString; // Volume in quote asset
+        openTime: number;
+        closeTime: number;
+        firstId: number; // Trade ID of the first trade in the interval
+        lastId: number; // Trade ID of the last trade in the interval
+        count: number; // Number of trades in the interval
+      }
+    | {
+        symbol: string;
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        lastPrice: numberInString;
+        volume: numberInString; // Volume in base asset
+        quoteVolume: numberInString; // Volume in quote asset
+        openTime: number;
+        closeTime: number;
+        firstId: number; // Trade ID of the first trade in the interval
+        lastId: number; // Trade ID of the last trade in the interval
+        count: number; // Number of trades in the interval
+      }
+    | {
+        symbol: string;
+        priceChange: numberInString;
+        priceChangePercent: numberInString;
+        weightedAvgPrice: numberInString;
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        lastPrice: numberInString;
+        volume: numberInString;
+        quoteVolume: numberInString;
+        openTime: number;
+        closeTime: number;
+        firstId: number;
+        lastId: number;
+        count: number;
+      }[]
+    | {
+        symbol: string;
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        lastPrice: numberInString;
+        volume: numberInString;
+        quoteVolume: numberInString;
+        openTime: number;
+        closeTime: number;
+        firstId: number;
+        lastId: number;
+        count: number;
+      }[]
+  >;
+  ticker: WSAPIResponse<
+    | {
+        symbol: string;
+        priceChange: numberInString;
+        priceChangePercent: numberInString;
+        weightedAvgPrice: numberInString;
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        lastPrice: numberInString;
+        volume: numberInString;
+        quoteVolume: numberInString;
+        openTime: number;
+        closeTime: number;
+        firstId: number; // First trade ID
+        lastId: number; // Last trade ID
+        count: number; // Number of trades
+      }
+    | {
+        symbol: string;
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        lastPrice: numberInString;
+        volume: numberInString;
+        quoteVolume: numberInString;
+        openTime: number;
+        closeTime: number;
+        firstId: number; // First trade ID
+        lastId: number; // Last trade ID
+        count: number; // Number of trades
+      }
+    | {
+        symbol: string;
+        priceChange: numberInString;
+        priceChangePercent: numberInString;
+        weightedAvgPrice: numberInString;
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        lastPrice: numberInString;
+        volume: numberInString;
+        quoteVolume: numberInString;
+        openTime: number;
+        closeTime: number;
+        firstId: number;
+        lastId: number;
+        count: number;
+      }[]
+    | {
+        symbol: string;
+        openPrice: numberInString;
+        highPrice: numberInString;
+        lowPrice: numberInString;
+        lastPrice: numberInString;
+        volume: numberInString;
+        quoteVolume: numberInString;
+        openTime: number;
+        closeTime: number;
+        firstId: number;
+        lastId: number;
+        count: number;
+      }[]
+  >;
+  'ticker.price': WSAPIResponse<
+    | {
+        symbol: string;
+        price: numberInString;
+      }
+    | {
+        symbol: string;
+        price: numberInString;
+      }[]
+  >;
+  'ticker.book': WSAPIResponse<
+    | {
+        symbol: string;
+        bidPrice: numberInString;
+        bidQty: numberInString;
+        askPrice: numberInString;
+        askQty: numberInString;
+      }
+    | {
+        symbol: string;
+        bidPrice: numberInString;
+        bidQty: numberInString;
+        askPrice: numberInString;
+        askQty: numberInString;
+      }[]
+  >;
 
   /**
    * Account requests & parameters:
