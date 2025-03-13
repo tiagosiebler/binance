@@ -275,7 +275,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     TWSKey extends keyof WsAPIWsKeyTopicMap,
     TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
     // if this throws a type error, probably forgot to add a new operation to WsAPITopicRequestParamMap
-    TWSParams extends Exact<WsAPITopicRequestParamMap[TWSOperation]>,
+    TWSParams extends Exact<WsAPITopicRequestParamMap<TWSKey>[TWSOperation]>,
   >(
     wsKey: TWSKey,
     operation: TWSOperation,
