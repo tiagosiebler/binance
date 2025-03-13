@@ -389,7 +389,7 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/allOrders', params);
   }
 
-  getAllOpenOrders(params?: Partial<BasicSymbolParam>): Promise<OrderResult[]> {
+  getAllOpenOrders(params?: { symbol?: string }): Promise<OrderResult[]> {
     return this.getPrivate('fapi/v1/openOrders', params);
   }
 
@@ -443,7 +443,7 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v3/positionRisk', params);
   }
 
-  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
+  getADLQuantileEstimation(params?: { symbol?: string }): Promise<any> {
     return this.getPrivate('fapi/v1/adlQuantile', params);
   }
 

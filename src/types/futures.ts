@@ -147,6 +147,7 @@ export interface ModifyFuturesOrderParams<numberType = number> {
   side: OrderSide;
   quantity?: numberType;
   price?: numberType;
+  priceMatch?: PriceMatchMode;
 }
 
 export enum EnumPositionMarginChangeType {
@@ -475,6 +476,7 @@ export interface OrderResult {
   priceProtect: boolean;
   selfTradePreventionMode: SelfTradePreventionMode;
   priceMatch: PriceMatchMode;
+  goodTillDate: number;
 }
 
 export interface ModifyFuturesOrderResult {
@@ -894,8 +896,6 @@ export interface GetFuturesOrderModifyHistoryParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  recvWindow?: number;
-  timestamp: number;
 }
 
 export interface FuturesTradeHistoryDownloadId {

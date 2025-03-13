@@ -215,9 +215,6 @@ export interface CancelOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  /** For isolated margin trading only */
-  newClientOrderId?: string;
-  cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
 }
 
 export interface CancelOCOParams {
