@@ -9,6 +9,9 @@ import {
   AvgPriceWSAPIRequest,
   DepthWSAPIRequest,
   ExchangeInfoWSAPIRequest,
+  FuturesDepthWSAPIRequest,
+  FuturesTickerBookWSAPIRequest,
+  FuturesTickerPriceWSAPIRequest,
   KlinesWSAPIRequest,
   MyAllocationsWSAPIRequest,
   MyPreventedMatchesWSAPIRequest,
@@ -46,6 +49,9 @@ import {
   AllocationWSAPIResponse,
   AvgPriceWSAPIResponse,
   DepthWSAPIResponse,
+  FuturesDepthWSAPIResponse,
+  FuturesTickerBookWSAPIResponse,
+  FuturesTickerPriceWSAPIResponse,
   KlineWSAPIResponse,
   OrderCancelReplaceWSAPIResponse,
   OrderCancelWSAPIResponse,
@@ -90,7 +96,7 @@ export const WS_API_Operations = [
   'ping',
   'time',
   'exchangeInfo',
-  //// Market data commands //TODO:
+  //// Market data commands
   'depth',
   'trades.recent',
   'trades.historical',
@@ -114,9 +120,6 @@ export const WS_API_Operations = [
   'myPreventedMatches',
   'myAllocations',
   // Futures
-  'v2/account.balance',
-  'account.balance',
-  'v2/account.status',
   //// Trading commands
   'order.place',
   'order.test',
@@ -242,10 +245,17 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   exchangeInfo: void | ExchangeInfoWSAPIRequest;
 
   /**
-   * SPOT Market data requests & parameters:
+   * Market data requests & parameters:
+   * - Spot:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/market-data-requests
+   * - Futures:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/websocket-api
    */
-  depth: void | DepthWSAPIRequest;
+  depth:
+    | void
+    | (TWSKey extends WsAPIFuturesWsKey
+        ? FuturesDepthWSAPIRequest
+        : DepthWSAPIRequest);
   'trades.recent': void | TradesRecentWSAPIRequest;
   'trades.historical': void | TradesHistoricalWSAPIRequest;
   'trades.aggregate': void | TradesAggregateWSAPIRequest;
@@ -255,14 +265,23 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   'ticker.24hr': void | Ticker24hrWSAPIRequest;
   'ticker.tradingDay': void | TickerTradingDayWSAPIRequest;
   ticker: void | TickerWSAPIRequest;
-  'ticker.price': void | TickerPriceWSAPIRequest;
-  'ticker.book': void | TickerBookWSAPIRequest;
+  'ticker.price':
+    | void
+    | (TWSKey extends WsAPIFuturesWsKey
+        ? FuturesTickerPriceWSAPIRequest
+        : TickerPriceWSAPIRequest);
+  'ticker.book':
+    | void
+    | (TWSKey extends WsAPIFuturesWsKey
+        ? FuturesTickerBookWSAPIRequest
+        : TickerBookWSAPIRequest);
 
   /**
    * Account requests & parameters:
    * - Spot:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/account-requests
-   *
+   * - Futures:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
 
   'account.status': void | AccountStatusWSAPIRequest;
@@ -362,9 +381,12 @@ export interface WsAPIOperationResponseMap {
 
   /**
    * Market data responses
+   * - Spot:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/market-data-requests
+   * - Futures:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/websocket-api
    */
-  depth: WSAPIResponse<DepthWSAPIResponse>;
+  depth: WSAPIResponse<DepthWSAPIResponse | FuturesDepthWSAPIResponse>;
   'trades.recent': WSAPIResponse<TradeWSAPIResponse[]>;
   'trades.historical': WSAPIResponse<TradeWSAPIResponse[]>;
   'trades.aggregate': WSAPIResponse<AggregateTradeWSAPIResponse[]>;
@@ -390,10 +412,16 @@ export interface WsAPIOperationResponseMap {
     | TickerMiniWSAPIResponse[]
   >;
   'ticker.price': WSAPIResponse<
-    TickerPriceWSAPIResponse | TickerPriceWSAPIResponse[]
+    | TickerPriceWSAPIResponse
+    | TickerPriceWSAPIResponse[]
+    | FuturesTickerPriceWSAPIResponse
+    | FuturesTickerPriceWSAPIResponse[]
   >;
   'ticker.book': WSAPIResponse<
-    TickerBookWSAPIResponse | TickerBookWSAPIResponse[]
+    | TickerBookWSAPIResponse
+    | TickerBookWSAPIResponse[]
+    | FuturesTickerBookWSAPIResponse
+    | FuturesTickerBookWSAPIResponse[]
   >;
 
   /**
@@ -444,6 +472,4 @@ export interface WsAPIOperationResponseMap {
   'sor.order.test': WSAPIResponse<
     SOROrderTestWSAPIResponse | SOROrderTestWithCommissionWSAPIResponse
   >;
-
-  // TODO:
 }

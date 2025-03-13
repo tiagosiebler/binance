@@ -130,6 +130,34 @@ export interface TickerBookWSAPIResponse {
 }
 
 /**
+ * Futures market data response types
+ */
+export interface FuturesDepthWSAPIResponse {
+  lastUpdateId: number;
+  E: number; // Message output time
+  T: number; // Transaction time
+  // [price, quantity]
+  bids: [numberInString, numberInString][];
+  asks: [numberInString, numberInString][];
+}
+
+export interface FuturesTickerPriceWSAPIResponse {
+  symbol: string;
+  price: numberInString;
+  time: number; // Transaction time
+}
+
+export interface FuturesTickerBookWSAPIResponse {
+  lastUpdateId: number;
+  symbol: string;
+  bidPrice: numberInString;
+  bidQty: numberInString;
+  askPrice: numberInString;
+  askQty: numberInString;
+  time: number; // Transaction time
+}
+
+/**
  * Account response types
  */
 export interface AccountStatusWSAPIResponse {

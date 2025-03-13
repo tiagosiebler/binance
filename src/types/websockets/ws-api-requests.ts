@@ -31,7 +31,7 @@ export interface ExchangeInfoWSAPIRequest {
  */
 export interface DepthWSAPIRequest {
   symbol: string;
-  limit: number;
+  limit?: number;
 }
 
 export interface TradesRecentWSAPIRequest {
@@ -450,4 +450,22 @@ export interface SOROrderPlaceWSAPIRequest {
 
 export interface SOROrderTestWSAPIRequest extends SOROrderPlaceWSAPIRequest {
   computeCommissionRates?: boolean;
+}
+
+/**
+ * Futures market data request types
+ */
+export interface FuturesDepthWSAPIRequest {
+  symbol: string;
+  limit?: number; // Default 500; Valid limits:[5, 10, 20, 50, 100, 500, 1000]
+}
+
+export interface FuturesTickerPriceWSAPIRequest {
+  symbol?: string;
+  // If the symbol is not sent, prices for all symbols will be returned in an array
+}
+
+export interface FuturesTickerBookWSAPIRequest {
+  symbol?: string;
+  // If the symbol is not sent, bookTickers for all symbols will be returned in an array
 }
