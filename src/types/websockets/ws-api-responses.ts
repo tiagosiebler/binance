@@ -465,3 +465,78 @@ export interface SOROrderTestWithCommissionWSAPIResponse {
     discount: numberInString;
   };
 }
+
+/**
+ * Futures trading response types
+ */
+export interface FuturesOrderWSAPIResponse {
+  orderId: number;
+  symbol: string;
+  status: string;
+  clientOrderId: string;
+  price: string;
+  avgPrice: string;
+  origQty: string;
+  executedQty: string;
+  cumQty: string;
+  cumQuote: string;
+  timeInForce: string;
+  type: string;
+  reduceOnly: boolean;
+  closePosition: boolean;
+  side: string;
+  positionSide: string;
+  stopPrice: string;
+  workingType: string;
+  priceProtect: boolean;
+  origType: string;
+  priceMatch: string;
+  selfTradePreventionMode: string;
+  goodTillDate: number;
+  updateTime: number;
+  time?: number;
+  activatePrice?: string;
+  priceRate?: string;
+}
+
+export interface FuturesPositionWSAPIResponse {
+  entryPrice: string;
+  breakEvenPrice: string;
+  marginType: string;
+  isAutoAddMargin: string;
+  isolatedMargin: string;
+  leverage: string;
+  liquidationPrice: string;
+  markPrice: string;
+  maxNotionalValue: string;
+  positionAmt: string;
+  notional: string;
+  isolatedWallet: string;
+  symbol: string;
+  unRealizedProfit: string;
+  positionSide: string;
+  updateTime: number;
+}
+
+export interface FuturesPositionV2WSAPIResponse {
+  symbol: string;
+  positionSide: string;
+  positionAmt: string;
+  entryPrice: string;
+  breakEvenPrice: string;
+  markPrice: string;
+  unrealizedProfit: string;
+  liquidationPrice: string;
+  isolatedMargin: string;
+  notional: string;
+  marginAsset: string;
+  isolatedWallet: string;
+  initialMargin: string;
+  maintMargin: string;
+  positionInitialMargin: string;
+  openOrderInitialMargin: string;
+  adl: number;
+  bidNotional: string;
+  askNotional: string;
+  updateTime: number;
+}

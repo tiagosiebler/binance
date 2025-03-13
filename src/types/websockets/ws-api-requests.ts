@@ -469,3 +469,67 @@ export interface FuturesTickerBookWSAPIRequest {
   symbol?: string;
   // If the symbol is not sent, bookTickers for all symbols will be returned in an array
 }
+
+/**
+ * Futures trading request types
+ */
+export interface FuturesOrderModifyWSAPIRequest {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  side: 'BUY' | 'SELL';
+  quantity: string | number;
+  price: string | number;
+  priceMatch?:
+    | 'NONE'
+    | 'OPPONENT'
+    | 'OPPONENT_5'
+    | 'OPPONENT_10'
+    | 'OPPONENT_20'
+    | 'QUEUE'
+    | 'QUEUE_5'
+    | 'QUEUE_10'
+    | 'QUEUE_20';
+  origType?: string;
+  positionSide?: 'BOTH' | 'LONG' | 'SHORT';
+  apiKey: string;
+  recvWindow?: number;
+  timestamp: number;
+  signature: string;
+}
+
+export interface FuturesOrderCancelWSAPIRequest {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  apiKey: string;
+  recvWindow?: number;
+  timestamp: number;
+  signature: string;
+}
+
+export interface FuturesOrderStatusWSAPIRequest {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  apiKey: string;
+  recvWindow?: number;
+  timestamp: number;
+  signature: string;
+}
+
+export interface FuturesPositionWSAPIRequest {
+  symbol?: string;
+  apiKey: string;
+  recvWindow?: number;
+  timestamp: number;
+  signature: string;
+}
+
+export interface FuturesPositionV2WSAPIRequest {
+  symbol?: string;
+  apiKey: string;
+  recvWindow?: number;
+  timestamp: number;
+  signature: string;
+}

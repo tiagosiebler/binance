@@ -10,6 +10,11 @@ import {
   DepthWSAPIRequest,
   ExchangeInfoWSAPIRequest,
   FuturesDepthWSAPIRequest,
+  FuturesOrderCancelWSAPIRequest,
+  FuturesOrderModifyWSAPIRequest,
+  FuturesOrderStatusWSAPIRequest,
+  FuturesPositionV2WSAPIRequest,
+  FuturesPositionWSAPIRequest,
   FuturesTickerBookWSAPIRequest,
   FuturesTickerPriceWSAPIRequest,
   KlinesWSAPIRequest,
@@ -50,6 +55,9 @@ import {
   AvgPriceWSAPIResponse,
   DepthWSAPIResponse,
   FuturesDepthWSAPIResponse,
+  FuturesOrderWSAPIResponse,
+  FuturesPositionV2WSAPIResponse,
+  FuturesPositionWSAPIResponse,
   FuturesTickerBookWSAPIResponse,
   FuturesTickerPriceWSAPIResponse,
   KlineWSAPIResponse,
@@ -120,12 +128,18 @@ export const WS_API_Operations = [
   'myPreventedMatches',
   'myAllocations',
   // Futures
+  'v2/account.balance',
+  'account.balance',
+  'v2/account.status',
+  'account.position',
+  'v2/account.position',
   //// Trading commands
   'order.place',
   'order.test',
   'order.status',
   'order.cancel',
   'order.cancelReplace',
+  'order.modify',
   'openOrders.status',
   'openOrders.cancelAll',
   // Order list commands
@@ -301,8 +315,23 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   myAllocations: void | MyAllocationsWSAPIRequest;
 
   /**
-   * SPOT Trading requests & parameters:
+   * Futures account requests & parameters:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
+   */
+  'account.position': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesPositionWSAPIRequest
+    : never;
+
+  'v2/account.position': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesPositionV2WSAPIRequest
+    : never;
+
+  /**
+   * Trading requests & parameters:
+   * - Spot:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/trading-requests
+   * - Futures:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/trading/websocket-api
    */
   'order.place': (TWSKey extends WsAPIFuturesWsKey
     ? NewFuturesOrderParams
@@ -310,8 +339,15 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
     timestamp?: number;
   };
   'order.test': OrderTestWSAPIRequest;
-  'order.status': OrderStatusWSAPIRequest;
-  'order.cancel': OrderCancelWSAPIRequest;
+  'order.status': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesOrderStatusWSAPIRequest
+    : OrderStatusWSAPIRequest;
+  'order.cancel': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesOrderCancelWSAPIRequest
+    : OrderCancelWSAPIRequest;
+  'order.modify': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesOrderModifyWSAPIRequest
+    : never;
   'order.cancelReplace': OrderCancelReplaceWSAPIRequest;
   'openOrders.status': OpenOrdersStatusWSAPIRequest;
   'openOrders.cancelAll': OpenOrdersCancelAllWSAPIRequest;
@@ -439,17 +475,32 @@ export interface WsAPIOperationResponseMap {
   myAllocations: WSAPIResponse<AllocationWSAPIResponse[]>;
 
   /**
-   * Trading responses
-   * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/trading-requests
+   * Futures account responses:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
-  'order.place': WSAPIResponse<OrderResponse>;
+  'account.position': WSAPIResponse<FuturesPositionWSAPIResponse[]>;
+  'v2/account.position': WSAPIResponse<FuturesPositionV2WSAPIResponse[]>;
+
+  /**
+   * Trading responses
+   * - Spot:
+   * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/trading-requests
+   * - Futures:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/trading/websocket-api
+   */
+  'order.place': WSAPIResponse<OrderResponse | FuturesOrderWSAPIResponse>;
   'order.test': WSAPIResponse<
     OrderTestWSAPIResponse | OrderTestWithCommissionWSAPIResponse
   >;
-  'order.status': WSAPIResponse<OrderWSAPIResponse>;
-  'order.cancel': WSAPIResponse<OrderCancelWSAPIResponse>;
+  'order.status': WSAPIResponse<OrderWSAPIResponse | FuturesOrderWSAPIResponse>;
+  'order.cancel': WSAPIResponse<
+    OrderCancelWSAPIResponse | FuturesOrderWSAPIResponse
+  >;
+  'order.modify': WSAPIResponse<FuturesOrderWSAPIResponse>;
   'order.cancelReplace': WSAPIResponse<OrderCancelReplaceWSAPIResponse>;
-  'openOrders.status': WSAPIResponse<OrderWSAPIResponse[]>;
+  'openOrders.status': WSAPIResponse<
+    OrderWSAPIResponse[] | FuturesOrderWSAPIResponse[]
+  >;
   'openOrders.cancelAll': WSAPIResponse<
     (OrderCancelWSAPIResponse | OrderListCancelWSAPIResponse)[]
   >;
