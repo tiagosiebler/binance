@@ -1,4 +1,13 @@
 import { numberInString } from '../shared';
+import { OrderResponse } from '../spot';
+
+/**
+ * Error response type
+ */
+export interface ErrorResponse {
+  code: number;
+  msg: string;
+}
 
 export interface WsAPISessionStatus {
   apiKey: string;
@@ -265,4 +274,166 @@ export interface AllocationWSAPIResponse {
   isBuyer: boolean;
   isMaker: boolean;
   isAllocator: boolean;
+}
+
+/**
+ * Trading response types
+ */
+export interface OrderTestWSAPIResponse {
+  // Empty response object
+  [key: string]: never;
+}
+
+export interface OrderTestWithCommissionWSAPIResponse {
+  standardCommissionForOrder: {
+    maker: numberInString;
+    taker: numberInString;
+  };
+  taxCommissionForOrder: {
+    maker: numberInString;
+    taker: numberInString;
+  };
+  discount: {
+    enabledForAccount: boolean;
+    enabledForSymbol: boolean;
+    discountAsset: string;
+    discount: numberInString;
+  };
+}
+
+export interface OrderCancelWSAPIResponse {
+  symbol: string;
+  origClientOrderId: string;
+  orderId: number;
+  orderListId: number;
+  clientOrderId: string;
+  transactTime: number;
+  price: numberInString;
+  origQty: numberInString;
+  executedQty: numberInString;
+  origQuoteOrderQty: numberInString;
+  cummulativeQuoteQty: numberInString;
+  status: string;
+  timeInForce: string;
+  type: string;
+  side: string;
+  stopPrice?: numberInString;
+  trailingDelta?: number;
+  trailingTime?: number;
+  icebergQty?: numberInString;
+  strategyId?: number;
+  strategyType?: number;
+  selfTradePreventionMode: string;
+}
+
+export interface OrderCancelReplaceWSAPIResponse {
+  cancelResult: 'SUCCESS' | 'FAILURE' | 'NOT_ATTEMPTED';
+  newOrderResult: 'SUCCESS' | 'FAILURE' | 'NOT_ATTEMPTED';
+  cancelResponse: OrderCancelWSAPIResponse | ErrorResponse;
+  newOrderResponse: OrderResponse | ErrorResponse | null;
+}
+
+export interface OrderListCancelWSAPIResponse {
+  orderListId: number;
+  contingencyType: string;
+  listStatusType: string;
+  listOrderStatus: string;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+  orderReports: OrderCancelWSAPIResponse[];
+}
+
+/**
+ * Order list response types
+ */
+export interface OrderListPlaceWSAPIResponse {
+  orderListId: number;
+  contingencyType: string;
+  listStatusType: string;
+  listOrderStatus: string;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+  orderReports: OrderResponse[];
+}
+
+export interface OrderListStatusWSAPIResponse {
+  orderListId: number;
+  contingencyType: string;
+  listStatusType: string;
+  listOrderStatus: string;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+}
+
+/**
+ * SOR response types
+ */
+export interface SOROrderPlaceWSAPIResponse {
+  symbol: string;
+  orderId: number;
+  orderListId: number;
+  clientOrderId: string;
+  transactTime: number;
+  price: string;
+  origQty: string;
+  executedQty: string;
+  origQuoteOrderQty: string;
+  cummulativeQuoteQty: string;
+  status: string;
+  timeInForce: string;
+  type: string;
+  side: string;
+  workingTime: number;
+  fills: {
+    matchType: string;
+    price: string;
+    qty: string;
+    commission: string;
+    commissionAsset: string;
+    tradeId: number;
+    allocId: number;
+  }[];
+  workingFloor: string;
+  selfTradePreventionMode: string;
+  usedSor: boolean;
+}
+
+export interface SOROrderTestWSAPIResponse {
+  // Empty response object
+  [key: string]: never;
+}
+
+export interface SOROrderTestWithCommissionWSAPIResponse {
+  standardCommissionForOrder: {
+    maker: numberInString;
+    taker: numberInString;
+  };
+  taxCommissionForOrder: {
+    maker: numberInString;
+    taker: numberInString;
+  };
+  discount: {
+    enabledForAccount: boolean;
+    enabledForSymbol: boolean;
+    discountAsset: string;
+    discount: numberInString;
+  };
 }

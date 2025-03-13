@@ -13,7 +13,22 @@ import {
   MyAllocationsWSAPIRequest,
   MyPreventedMatchesWSAPIRequest,
   MyTradesWSAPIRequest,
+  OpenOrderListsStatusWSAPIRequest,
+  OpenOrdersCancelAllWSAPIRequest,
+  OpenOrdersStatusWSAPIRequest,
+  OrderCancelReplaceWSAPIRequest,
+  OrderCancelWSAPIRequest,
+  OrderListCancelWSAPIRequest,
+  OrderListPlaceOCOWSAPIRequest,
+  OrderListPlaceOTOCOWSAPIRequest,
+  OrderListPlaceOTOWSAPIRequest,
+  OrderListPlaceWSAPIRequest,
+  OrderListStatusWSAPIRequest,
+  OrderStatusWSAPIRequest,
+  OrderTestWSAPIRequest,
   SessionLogonWSAPIRequest,
+  SOROrderPlaceWSAPIRequest,
+  SOROrderTestWSAPIRequest,
   Ticker24hrWSAPIRequest,
   TickerBookWSAPIRequest,
   TickerPriceWSAPIRequest,
@@ -32,10 +47,19 @@ import {
   AvgPriceWSAPIResponse,
   DepthWSAPIResponse,
   KlineWSAPIResponse,
-  OrderListWSAPIResponse,
+  OrderCancelReplaceWSAPIResponse,
+  OrderCancelWSAPIResponse,
+  OrderListCancelWSAPIResponse,
+  OrderListPlaceWSAPIResponse,
+  OrderListStatusWSAPIResponse,
+  OrderTestWithCommissionWSAPIResponse,
+  OrderTestWSAPIResponse,
   OrderWSAPIResponse,
   PreventedMatchWSAPIResponse,
   RateLimitWSAPIResponse,
+  SOROrderPlaceWSAPIResponse,
+  SOROrderTestWithCommissionWSAPIResponse,
+  SOROrderTestWSAPIResponse,
   TickerBookWSAPIResponse,
   TickerFullWSAPIResponse,
   TickerMiniWSAPIResponse,
@@ -93,10 +117,25 @@ export const WS_API_Operations = [
   'v2/account.balance',
   'account.balance',
   'v2/account.status',
-  //// Trading commands // TODO:
+  //// Trading commands
   'order.place',
+  'order.test',
+  'order.status',
+  'order.cancel',
+  'order.cancelReplace',
+  'openOrders.status',
+  'openOrders.cancelAll',
+  // Order list commands
   'orderList.place',
+  'orderList.place.oco',
+  'orderList.place.oto',
+  'orderList.place.otoco',
+  'orderList.status',
+  'orderList.cancel',
+  'openOrderLists.status',
+  // SOR commands
   'sor.order.place',
+  'sor.order.test',
 ] as const;
 
 export type WsAPIOperation = (typeof WS_API_Operations)[number];
@@ -246,12 +285,34 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * SPOT Trading requests & parameters:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/trading-requests
    */
-
   'order.place': (TWSKey extends WsAPIFuturesWsKey
     ? NewFuturesOrderParams
     : NewSpotOrderParams) & {
     timestamp?: number;
   };
+  'order.test': OrderTestWSAPIRequest;
+  'order.status': OrderStatusWSAPIRequest;
+  'order.cancel': OrderCancelWSAPIRequest;
+  'order.cancelReplace': OrderCancelReplaceWSAPIRequest;
+  'openOrders.status': OpenOrdersStatusWSAPIRequest;
+  'openOrders.cancelAll': OpenOrdersCancelAllWSAPIRequest;
+
+  /**
+   * Order list requests & parameters:
+   */
+  'orderList.place': OrderListPlaceWSAPIRequest;
+  'orderList.place.oco': OrderListPlaceOCOWSAPIRequest;
+  'orderList.place.oto': OrderListPlaceOTOWSAPIRequest;
+  'orderList.place.otoco': OrderListPlaceOTOCOWSAPIRequest;
+  'orderList.status': OrderListStatusWSAPIRequest;
+  'orderList.cancel': OrderListCancelWSAPIRequest;
+  'openOrderLists.status': OpenOrderListsStatusWSAPIRequest;
+
+  /**
+   * SOR requests & parameters:
+   */
+  'sor.order.place': SOROrderPlaceWSAPIRequest;
+  'sor.order.test': SOROrderTestWSAPIRequest;
 
   /**
    * User data stream:
@@ -344,7 +405,7 @@ export interface WsAPIOperationResponseMap {
   'account.commission': WSAPIResponse<AccountCommissionWSAPIResponse>;
   'account.rateLimits.orders': WSAPIResponse<RateLimitWSAPIResponse[]>;
   allOrders: WSAPIResponse<OrderWSAPIResponse[]>;
-  allOrderLists: WSAPIResponse<OrderListWSAPIResponse[]>;
+  allOrderLists: WSAPIResponse<OrderListStatusWSAPIResponse[]>;
   myTrades: WSAPIResponse<TradeWSAPIResponse[]>;
   myPreventedMatches: WSAPIResponse<PreventedMatchWSAPIResponse[]>;
   myAllocations: WSAPIResponse<AllocationWSAPIResponse[]>;
@@ -353,10 +414,36 @@ export interface WsAPIOperationResponseMap {
    * Trading responses
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/trading-requests
    */
-
   'order.place': WSAPIResponse<OrderResponse>;
-  'orderList.place': WSAPIResponse<any>;
-  'sor.order.place': WSAPIResponse<any>;
+  'order.test': WSAPIResponse<
+    OrderTestWSAPIResponse | OrderTestWithCommissionWSAPIResponse
+  >;
+  'order.status': WSAPIResponse<OrderWSAPIResponse>;
+  'order.cancel': WSAPIResponse<OrderCancelWSAPIResponse>;
+  'order.cancelReplace': WSAPIResponse<OrderCancelReplaceWSAPIResponse>;
+  'openOrders.status': WSAPIResponse<OrderWSAPIResponse[]>;
+  'openOrders.cancelAll': WSAPIResponse<
+    (OrderCancelWSAPIResponse | OrderListCancelWSAPIResponse)[]
+  >;
+
+  /**
+   * Order list responses
+   */
+  'orderList.place': WSAPIResponse<OrderListPlaceWSAPIResponse>;
+  'orderList.place.oco': WSAPIResponse<OrderListPlaceWSAPIResponse>;
+  'orderList.place.oto': WSAPIResponse<OrderListPlaceWSAPIResponse>;
+  'orderList.place.otoco': WSAPIResponse<OrderListPlaceWSAPIResponse>;
+  'orderList.status': WSAPIResponse<OrderListStatusWSAPIResponse>;
+  'orderList.cancel': WSAPIResponse<OrderListCancelWSAPIResponse>;
+  'openOrderLists.status': WSAPIResponse<OrderListStatusWSAPIResponse[]>;
+
+  /**
+   * SOR responses
+   */
+  'sor.order.place': WSAPIResponse<SOROrderPlaceWSAPIResponse>;
+  'sor.order.test': WSAPIResponse<
+    SOROrderTestWSAPIResponse | SOROrderTestWithCommissionWSAPIResponse
+  >;
 
   // TODO:
 }
