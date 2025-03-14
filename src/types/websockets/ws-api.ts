@@ -1,19 +1,87 @@
 import { WS_KEY_MAP, WsKey } from '../../util/websockets/websocket-util';
-import {
-  FuturesAccountBalance,
-  FuturesAccountInformation,
-  FuturesExchangeInfo,
-  NewFuturesOrderParams,
-} from '../futures';
-import {
-  numberInString,
-  OrderResponseType,
-  OrderSide,
-  OrderType,
-} from '../shared';
+import { FuturesExchangeInfo, NewFuturesOrderParams } from '../futures';
 import { ExchangeInfo, NewSpotOrderParams, OrderResponse } from '../spot';
-import { WSAPIRecvWindowTimestamp } from './ws-api-requests';
-import { WsAPISessionStatus } from './ws-api-responses';
+import {
+  AccountCommissionWSAPIRequest,
+  AccountStatusWSAPIRequest,
+  AllOrderListsWSAPIRequest,
+  AllOrdersWSAPIRequest,
+  AvgPriceWSAPIRequest,
+  DepthWSAPIRequest,
+  ExchangeInfoWSAPIRequest,
+  FuturesDepthWSAPIRequest,
+  FuturesOrderCancelWSAPIRequest,
+  FuturesOrderModifyWSAPIRequest,
+  FuturesOrderStatusWSAPIRequest,
+  FuturesTickerBookWSAPIRequest,
+  FuturesTickerPriceWSAPIRequest,
+  KlinesWSAPIRequest,
+  MyAllocationsWSAPIRequest,
+  MyPreventedMatchesWSAPIRequest,
+  MyTradesWSAPIRequest,
+  OpenOrdersCancelAllWSAPIRequest,
+  OpenOrdersStatusWSAPIRequest,
+  OrderCancelReplaceWSAPIRequest,
+  OrderCancelWSAPIRequest,
+  OrderListCancelWSAPIRequest,
+  OrderListPlaceOCOWSAPIRequest,
+  OrderListPlaceOTOCOWSAPIRequest,
+  OrderListPlaceOTOWSAPIRequest,
+  OrderListPlaceWSAPIRequest,
+  OrderListStatusWSAPIRequest,
+  OrderStatusWSAPIRequest,
+  OrderTestWSAPIRequest,
+  SessionLogonWSAPIRequest,
+  SOROrderPlaceWSAPIRequest,
+  SOROrderTestWSAPIRequest,
+  Ticker24hrWSAPIRequest,
+  TickerBookWSAPIRequest,
+  TickerPriceWSAPIRequest,
+  TickerTradingDayWSAPIRequest,
+  TickerWSAPIRequest,
+  TradesAggregateWSAPIRequest,
+  TradesHistoricalWSAPIRequest,
+  TradesRecentWSAPIRequest,
+  UIKlinesWSAPIRequest,
+  WSAPIRecvWindowtimestamp,
+} from './ws-api-requests';
+import {
+  AccountCommissionWSAPIResponse,
+  AccountStatusWSAPIResponse,
+  AggregateTradeWSAPIResponse,
+  AllocationWSAPIResponse,
+  AvgPriceWSAPIResponse,
+  DepthWSAPIResponse,
+  FuturesAccountBalanceItemWSAPIResponse,
+  FuturesAccountStatusWSAPIResponse,
+  FuturesDepthWSAPIResponse,
+  FuturesOrderWSAPIResponse,
+  FuturesPositionV2WSAPIResponse,
+  FuturesPositionWSAPIResponse,
+  FuturesTickerBookWSAPIResponse,
+  FuturesTickerPriceWSAPIResponse,
+  KlineWSAPIResponse,
+  OrderCancelReplaceWSAPIResponse,
+  OrderCancelWSAPIResponse,
+  OrderListCancelWSAPIResponse,
+  OrderListPlaceWSAPIResponse,
+  OrderListStatusWSAPIResponse,
+  OrderTestWithCommissionWSAPIResponse,
+  OrderTestWSAPIResponse,
+  OrderWSAPIResponse,
+  PreventedMatchWSAPIResponse,
+  RateLimitWSAPIResponse,
+  SOROrderPlaceWSAPIResponse,
+  SOROrderTestWithCommissionWSAPIResponse,
+  SOROrderTestWSAPIResponse,
+  TickerBookWSAPIResponse,
+  TickerFullWSAPIResponse,
+  TickerMiniWSAPIResponse,
+  TickerPriceWSAPIResponse,
+  TimeWSAPIResponse,
+  TradeWSAPIResponse,
+  WsAPISessionStatus,
+} from './ws-api-responses';
 
 /**
  * Standard WS commands (for consumers)
@@ -36,18 +104,55 @@ export const WS_API_Operations = [
   'ping',
   'time',
   'exchangeInfo',
-  //// Market data commands //TODO:
+  //// Market data commands
   'depth',
+  'trades.recent',
+  'trades.historical',
+  'trades.aggregate',
+  'klines',
+  'uiKlines',
+  'avgPrice',
+  'ticker.24hr',
+  'ticker.tradingDay',
+  'ticker',
+  'ticker.price',
+  'ticker.book',
   //// Account commands
+  // Spot
+  'account.status',
+  'account.commission',
+  'account.rateLimits.orders',
+  'allOrders',
+  'allOrderLists',
+  'myTrades',
+  'myPreventedMatches',
+  'myAllocations',
   // Futures
   'v2/account.balance',
   'account.balance',
   'v2/account.status',
-  'account.status',
-  //// Trading commands // TODO:
+  'account.position',
+  'v2/account.position',
+  //// Trading commands
   'order.place',
+  'order.test',
+  'order.status',
+  'order.cancel',
+  'order.cancelReplace',
+  'order.modify',
+  'openOrders.status',
+  'openOrders.cancelAll',
+  // Order list commands
   'orderList.place',
+  'orderList.place.oco',
+  'orderList.place.oto',
+  'orderList.place.otoco',
+  'orderList.status',
+  'orderList.cancel',
+  'openOrderLists.status',
+  // SOR commands
   'sor.order.place',
+  'sor.order.test',
 ] as const;
 
 export type WsAPIOperation = (typeof WS_API_Operations)[number];
@@ -61,10 +166,7 @@ export interface WsRequestOperationBinance<
   id: number;
 }
 
-export interface WSAPIResponse<
-  TResponseData extends object = object,
-  TOperation extends WsAPIOperation = WsAPIOperation,
-> {
+export interface WSAPIResponse<TResponseData extends object = object> {
   /** Auto-generated */
   id: string;
 
@@ -118,6 +220,8 @@ export interface WsAPIWsKeyTopicMap {
 
   [WS_KEY_MAP.usdmWSAPI]: WsAPIOperation;
   [WS_KEY_MAP.usdmWSAPITestnet]: WsAPIOperation;
+
+  //  TODO: Add coinmWSAPI
 }
 
 export type WsAPIFuturesWsKey =
@@ -143,7 +247,7 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * Authentication commands & parameters:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/authentication-requests
    */
-  'session.logon': { apiKey: string; signature: string; timestamp: number };
+  'session.logon': SessionLogonWSAPIRequest;
   'session.status': void;
   'session.logout': void;
 
@@ -154,60 +258,114 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   ping: void;
   time: void;
 
-  exchangeInfo: void | {
-    symbol?: string;
-    symbols?: string[];
-    permissions?: string[];
-    showPermissionSets?: boolean;
-    symbolStatus?: string;
-  };
+  exchangeInfo: void | ExchangeInfoWSAPIRequest;
 
   /**
    * Market data requests & parameters:
+   * - Spot:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/market-data-requests
+   * - Futures:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/websocket-api
    */
-  depth: { symbol: string; limit: number };
-
-  // TODO:
+  depth: TWSKey extends WsAPIFuturesWsKey
+    ? FuturesDepthWSAPIRequest
+    : DepthWSAPIRequest;
+  'trades.recent': TradesRecentWSAPIRequest;
+  'trades.historical': TradesHistoricalWSAPIRequest;
+  'trades.aggregate': TradesAggregateWSAPIRequest;
+  klines: KlinesWSAPIRequest;
+  uiKlines: UIKlinesWSAPIRequest;
+  avgPrice: AvgPriceWSAPIRequest;
+  'ticker.24hr': void | Ticker24hrWSAPIRequest;
+  'ticker.tradingDay': TickerTradingDayWSAPIRequest;
+  ticker: TickerWSAPIRequest;
+  'ticker.price': void | TWSKey extends WsAPIFuturesWsKey
+    ? FuturesTickerPriceWSAPIRequest
+    : TickerPriceWSAPIRequest;
+  'ticker.book': void | TWSKey extends WsAPIFuturesWsKey
+    ? FuturesTickerBookWSAPIRequest
+    : TickerBookWSAPIRequest;
 
   /**
    * Account requests & parameters:
    * - Spot:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/account-requests
-   *
    * - Futures:
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
 
+  'account.status': void | TWSKey extends WsAPIFuturesWsKey
+    ? WSAPIRecvWindowtimestamp
+    : AccountStatusWSAPIRequest;
+
+  'account.rateLimits.orders': void;
+
+  allOrders: AllOrdersWSAPIRequest;
+
+  allOrderLists: void | AllOrderListsWSAPIRequest;
+
+  myTrades: MyTradesWSAPIRequest;
+
+  myPreventedMatches: MyPreventedMatchesWSAPIRequest;
+
+  myAllocations: MyAllocationsWSAPIRequest;
+
+  'account.commission': AccountCommissionWSAPIRequest;
+
   /**
-   * Spot:
+   * Futures account requests & parameters:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
+  'account.position': WSAPIRecvWindowtimestamp;
 
-  // TODO: spot commands
+  'v2/account.position': WSAPIRecvWindowtimestamp;
 
-  /**
-   * Futures:
-   */
+  'account.balance': WSAPIRecvWindowtimestamp;
 
-  // TODO: futures commands
-  'v2/account.balance': WSAPIRecvWindowTimestamp;
-  'account.balance': WSAPIRecvWindowTimestamp;
-  'v2/account.status': WSAPIRecvWindowTimestamp;
-  'account.status': WSAPIRecvWindowTimestamp;
+  'v2/account.balance': WSAPIRecvWindowtimestamp;
+
+  'v2/account.status': WSAPIRecvWindowtimestamp;
 
   /**
    * Trading requests & parameters:
+   * - Spot:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/trading-requests
+   * - Futures:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/trading/websocket-api
    */
-
   'order.place': (TWSKey extends WsAPIFuturesWsKey
     ? NewFuturesOrderParams
     : NewSpotOrderParams) & {
     timestamp?: number;
   };
-  'orderList.place': any;
-  'sor.order.place': any;
-  // TODO:
+  'order.test': OrderTestWSAPIRequest;
+  'order.status': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesOrderStatusWSAPIRequest
+    : OrderStatusWSAPIRequest;
+  'order.cancel': TWSKey extends WsAPIFuturesWsKey
+    ? FuturesOrderCancelWSAPIRequest
+    : OrderCancelWSAPIRequest;
+  'order.modify': FuturesOrderModifyWSAPIRequest; // order.modify only futures
+  'order.cancelReplace': OrderCancelReplaceWSAPIRequest;
+  'openOrders.status': OpenOrdersStatusWSAPIRequest;
+  'openOrders.cancelAll': OpenOrdersCancelAllWSAPIRequest;
+
+  /**
+   * Order list requests & parameters:
+   */
+  'orderList.place': OrderListPlaceWSAPIRequest;
+  'orderList.place.oco': OrderListPlaceOCOWSAPIRequest;
+  'orderList.place.oto': OrderListPlaceOTOWSAPIRequest;
+  'orderList.place.otoco': OrderListPlaceOTOCOWSAPIRequest;
+  'orderList.status': OrderListStatusWSAPIRequest;
+  'orderList.cancel': OrderListCancelWSAPIRequest;
+  'openOrderLists.status': void | WSAPIRecvWindowtimestamp;
+
+  /**
+   * SOR requests & parameters:
+   */
+  'sor.order.place': SOROrderPlaceWSAPIRequest;
+  'sor.order.test': SOROrderTestWSAPIRequest;
 
   /**
    * User data stream:
@@ -251,53 +409,121 @@ export interface WsAPIOperationResponseMap {
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-requests
    */
 
-  ping: {};
-  time: WSAPIResponse<{ serverTime: number }>;
+  ping: unknown;
+  time: WSAPIResponse<TimeWSAPIResponse>;
   exchangeInfo: WSAPIResponse<FuturesExchangeInfo | ExchangeInfo>;
 
   /**
    * Market data responses
+   * - Spot:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/market-data-requests
+   * - Futures:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/websocket-api
    */
-  depth: WSAPIResponse<{
-    lastUpdateId: number;
-    // [price, quantity]
-    bids: [numberInString, numberInString][];
-    asks: [numberInString, numberInString][];
-  }>;
-
-  // TODO:
+  depth: WSAPIResponse<DepthWSAPIResponse | FuturesDepthWSAPIResponse>;
+  'trades.recent': WSAPIResponse<TradeWSAPIResponse[]>;
+  'trades.historical': WSAPIResponse<TradeWSAPIResponse[]>;
+  'trades.aggregate': WSAPIResponse<AggregateTradeWSAPIResponse[]>;
+  klines: WSAPIResponse<KlineWSAPIResponse[]>;
+  uiKlines: WSAPIResponse<KlineWSAPIResponse[]>;
+  avgPrice: WSAPIResponse<AvgPriceWSAPIResponse>;
+  'ticker.24hr': WSAPIResponse<
+    | TickerFullWSAPIResponse
+    | TickerMiniWSAPIResponse
+    | TickerFullWSAPIResponse[]
+    | TickerMiniWSAPIResponse[]
+  >;
+  'ticker.tradingDay': WSAPIResponse<
+    | TickerFullWSAPIResponse
+    | TickerMiniWSAPIResponse
+    | TickerFullWSAPIResponse[]
+    | TickerMiniWSAPIResponse[]
+  >;
+  ticker: WSAPIResponse<
+    | TickerFullWSAPIResponse
+    | TickerMiniWSAPIResponse
+    | TickerFullWSAPIResponse[]
+    | TickerMiniWSAPIResponse[]
+  >;
+  'ticker.price': WSAPIResponse<
+    | TickerPriceWSAPIResponse
+    | TickerPriceWSAPIResponse[]
+    | FuturesTickerPriceWSAPIResponse
+    | FuturesTickerPriceWSAPIResponse[]
+  >;
+  'ticker.book': WSAPIResponse<
+    | TickerBookWSAPIResponse
+    | TickerBookWSAPIResponse[]
+    | FuturesTickerBookWSAPIResponse
+    | FuturesTickerBookWSAPIResponse[]
+  >;
 
   /**
-   * Account requests & parameters:
-   * - Spot:
+   * Account responses:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/account-requests
-   *
-   * - Futures:
+   */
+
+  'account.status': WSAPIResponse<
+    AccountStatusWSAPIResponse | FuturesAccountStatusWSAPIResponse
+  >;
+  'account.commission': WSAPIResponse<AccountCommissionWSAPIResponse>;
+  'account.rateLimits.orders': WSAPIResponse<RateLimitWSAPIResponse[]>;
+  allOrders: WSAPIResponse<OrderWSAPIResponse[]>;
+  allOrderLists: WSAPIResponse<OrderListStatusWSAPIResponse[]>;
+  myTrades: WSAPIResponse<TradeWSAPIResponse[]>;
+  myPreventedMatches: WSAPIResponse<PreventedMatchWSAPIResponse[]>;
+  myAllocations: WSAPIResponse<AllocationWSAPIResponse[]>;
+
+  /**
+   * Futures account responses:
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
-
-  /**
-   * Spot:
-   */
-  // TODO: spot commands
-
-  /**
-   * Futures:
-   */
-  'v2/account.balance': WSAPIResponse<FuturesAccountBalance>;
-  'account.balance': WSAPIResponse<FuturesAccountBalance>;
-  'v2/account.status': WSAPIResponse<FuturesAccountInformation>;
-  'account.status': WSAPIResponse<FuturesAccountInformation>;
+  'account.position': WSAPIResponse<FuturesPositionWSAPIResponse[]>;
+  'v2/account.position': WSAPIResponse<FuturesPositionV2WSAPIResponse[]>;
+  'account.balance': WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>;
+  'v2/account.balance': WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>;
+  'v2/account.status': WSAPIResponse<FuturesAccountStatusWSAPIResponse>;
 
   /**
    * Trading responses
+   * - Spot:
    * https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/trading-requests
+   * - Futures:
+   * https://developers.binance.com/docs/derivatives/usds-margined-futures/trading/websocket-api
    */
+  'order.place': WSAPIResponse<OrderResponse | FuturesOrderWSAPIResponse>;
+  'order.test': WSAPIResponse<
+    OrderTestWSAPIResponse | OrderTestWithCommissionWSAPIResponse
+  >;
+  'order.status': WSAPIResponse<OrderWSAPIResponse | FuturesOrderWSAPIResponse>;
+  'order.cancel': WSAPIResponse<
+    OrderCancelWSAPIResponse | FuturesOrderWSAPIResponse
+  >;
+  'order.modify': WSAPIResponse<FuturesOrderWSAPIResponse>;
+  'order.cancelReplace': WSAPIResponse<OrderCancelReplaceWSAPIResponse>;
+  'openOrders.status': WSAPIResponse<
+    OrderWSAPIResponse[] | FuturesOrderWSAPIResponse[]
+  >;
+  'openOrders.cancelAll': WSAPIResponse<
+    (OrderCancelWSAPIResponse | OrderListCancelWSAPIResponse)[]
+  >;
 
-  'order.place': WSAPIResponse<OrderResponse>;
-  'orderList.place': WSAPIResponse<any>;
-  'sor.order.place': WSAPIResponse<any>;
+  /**
+   * Order list responses
+   */
+  'orderList.place': WSAPIResponse<OrderListPlaceWSAPIResponse>;
+  'orderList.place.oco': WSAPIResponse<OrderListPlaceWSAPIResponse>;
+  'orderList.place.oto': WSAPIResponse<OrderListPlaceWSAPIResponse>;
+  'orderList.place.otoco': WSAPIResponse<OrderListPlaceWSAPIResponse>;
+  'orderList.status': WSAPIResponse<OrderListStatusWSAPIResponse>;
+  'orderList.cancel': WSAPIResponse<OrderListCancelWSAPIResponse>;
+  'openOrderLists.status': WSAPIResponse<OrderListStatusWSAPIResponse[]>;
 
-  // TODO:
+  /**
+   * SOR responses
+   */
+  'sor.order.place': WSAPIResponse<SOROrderPlaceWSAPIResponse>;
+  'sor.order.test': WSAPIResponse<
+    SOROrderTestWSAPIResponse | SOROrderTestWithCommissionWSAPIResponse
+  >;
 }
