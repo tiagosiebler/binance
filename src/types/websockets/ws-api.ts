@@ -9,23 +9,16 @@ import {
   AvgPriceWSAPIRequest,
   DepthWSAPIRequest,
   ExchangeInfoWSAPIRequest,
-  FuturesAccountBalanceV2WSAPIRequest,
-  FuturesAccountBalanceWSAPIRequest,
-  FuturesAccountStatusV2WSAPIRequest,
-  FuturesAccountStatusWSAPIRequest,
   FuturesDepthWSAPIRequest,
   FuturesOrderCancelWSAPIRequest,
   FuturesOrderModifyWSAPIRequest,
   FuturesOrderStatusWSAPIRequest,
-  FuturesPositionV2WSAPIRequest,
-  FuturesPositionWSAPIRequest,
   FuturesTickerBookWSAPIRequest,
   FuturesTickerPriceWSAPIRequest,
   KlinesWSAPIRequest,
   MyAllocationsWSAPIRequest,
   MyPreventedMatchesWSAPIRequest,
   MyTradesWSAPIRequest,
-  OpenOrderListsStatusWSAPIRequest,
   OpenOrdersCancelAllWSAPIRequest,
   OpenOrdersStatusWSAPIRequest,
   OrderCancelReplaceWSAPIRequest,
@@ -50,6 +43,7 @@ import {
   TradesHistoricalWSAPIRequest,
   TradesRecentWSAPIRequest,
   UIKlinesWSAPIRequest,
+  WSAPIRecvWindowtimestamp,
 } from './ws-api-requests';
 import {
   AccountCommissionWSAPIResponse,
@@ -226,6 +220,8 @@ export interface WsAPIWsKeyTopicMap {
 
   [WS_KEY_MAP.usdmWSAPI]: WsAPIOperation;
   [WS_KEY_MAP.usdmWSAPITestnet]: WsAPIOperation;
+
+  //  TODO: Add coinmWSAPI
 }
 
 export type WsAPIFuturesWsKey =
@@ -271,30 +267,24 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * - Futures:
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/websocket-api
    */
-  depth:
-    | void
-    | (TWSKey extends WsAPIFuturesWsKey
-        ? FuturesDepthWSAPIRequest
-        : DepthWSAPIRequest);
-  'trades.recent': void | TradesRecentWSAPIRequest;
-  'trades.historical': void | TradesHistoricalWSAPIRequest;
-  'trades.aggregate': void | TradesAggregateWSAPIRequest;
-  klines: void | KlinesWSAPIRequest;
-  uiKlines: void | UIKlinesWSAPIRequest;
-  avgPrice: void | AvgPriceWSAPIRequest;
+  depth: TWSKey extends WsAPIFuturesWsKey
+    ? FuturesDepthWSAPIRequest
+    : DepthWSAPIRequest;
+  'trades.recent': TradesRecentWSAPIRequest;
+  'trades.historical': TradesHistoricalWSAPIRequest;
+  'trades.aggregate': TradesAggregateWSAPIRequest;
+  klines: KlinesWSAPIRequest;
+  uiKlines: UIKlinesWSAPIRequest;
+  avgPrice: AvgPriceWSAPIRequest;
   'ticker.24hr': void | Ticker24hrWSAPIRequest;
-  'ticker.tradingDay': void | TickerTradingDayWSAPIRequest;
-  ticker: void | TickerWSAPIRequest;
-  'ticker.price':
-    | void
-    | (TWSKey extends WsAPIFuturesWsKey
-        ? FuturesTickerPriceWSAPIRequest
-        : TickerPriceWSAPIRequest);
-  'ticker.book':
-    | void
-    | (TWSKey extends WsAPIFuturesWsKey
-        ? FuturesTickerBookWSAPIRequest
-        : TickerBookWSAPIRequest);
+  'ticker.tradingDay': TickerTradingDayWSAPIRequest;
+  ticker: TickerWSAPIRequest;
+  'ticker.price': void | TWSKey extends WsAPIFuturesWsKey
+    ? FuturesTickerPriceWSAPIRequest
+    : TickerPriceWSAPIRequest;
+  'ticker.book': void | TWSKey extends WsAPIFuturesWsKey
+    ? FuturesTickerBookWSAPIRequest
+    : TickerBookWSAPIRequest;
 
   /**
    * Account requests & parameters:
@@ -304,47 +294,37 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
 
-  'account.status': TWSKey extends WsAPIFuturesWsKey
-    ? FuturesAccountStatusWSAPIRequest
+  'account.status': void | TWSKey extends WsAPIFuturesWsKey
+    ? WSAPIRecvWindowtimestamp
     : AccountStatusWSAPIRequest;
-
-  'account.commission': void | AccountCommissionWSAPIRequest;
 
   'account.rateLimits.orders': void;
 
-  allOrders: void | AllOrdersWSAPIRequest;
+  allOrders: AllOrdersWSAPIRequest;
 
   allOrderLists: void | AllOrderListsWSAPIRequest;
 
-  myTrades: void | MyTradesWSAPIRequest;
+  myTrades: MyTradesWSAPIRequest;
 
-  myPreventedMatches: void | MyPreventedMatchesWSAPIRequest;
+  myPreventedMatches: MyPreventedMatchesWSAPIRequest;
 
-  myAllocations: void | MyAllocationsWSAPIRequest;
+  myAllocations: MyAllocationsWSAPIRequest;
+
+  'account.commission': AccountCommissionWSAPIRequest;
 
   /**
    * Futures account requests & parameters:
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
-  'account.position': TWSKey extends WsAPIFuturesWsKey
-    ? FuturesPositionWSAPIRequest
-    : never;
+  'account.position': WSAPIRecvWindowtimestamp;
 
-  'v2/account.position': TWSKey extends WsAPIFuturesWsKey
-    ? FuturesPositionV2WSAPIRequest
-    : never;
+  'v2/account.position': WSAPIRecvWindowtimestamp;
 
-  'account.balance': TWSKey extends WsAPIFuturesWsKey
-    ? FuturesAccountBalanceWSAPIRequest
-    : never;
+  'account.balance': WSAPIRecvWindowtimestamp;
 
-  'v2/account.balance': TWSKey extends WsAPIFuturesWsKey
-    ? FuturesAccountBalanceV2WSAPIRequest
-    : never;
+  'v2/account.balance': WSAPIRecvWindowtimestamp;
 
-  'v2/account.status': TWSKey extends WsAPIFuturesWsKey
-    ? FuturesAccountStatusV2WSAPIRequest
-    : never;
+  'v2/account.status': WSAPIRecvWindowtimestamp;
 
   /**
    * Trading requests & parameters:
@@ -365,9 +345,7 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   'order.cancel': TWSKey extends WsAPIFuturesWsKey
     ? FuturesOrderCancelWSAPIRequest
     : OrderCancelWSAPIRequest;
-  'order.modify': TWSKey extends WsAPIFuturesWsKey
-    ? FuturesOrderModifyWSAPIRequest
-    : never;
+  'order.modify': FuturesOrderModifyWSAPIRequest; // order.modify only futures
   'order.cancelReplace': OrderCancelReplaceWSAPIRequest;
   'openOrders.status': OpenOrdersStatusWSAPIRequest;
   'openOrders.cancelAll': OpenOrdersCancelAllWSAPIRequest;
@@ -381,7 +359,7 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   'orderList.place.otoco': OrderListPlaceOTOCOWSAPIRequest;
   'orderList.status': OrderListStatusWSAPIRequest;
   'orderList.cancel': OrderListCancelWSAPIRequest;
-  'openOrderLists.status': OpenOrderListsStatusWSAPIRequest;
+  'openOrderLists.status': void | WSAPIRecvWindowtimestamp;
 
   /**
    * SOR requests & parameters:

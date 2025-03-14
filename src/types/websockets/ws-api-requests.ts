@@ -1,7 +1,9 @@
+import { KlineInterval } from '../shared';
+
 /**
- * Simple request params with timestamp & recv window optional
+ * Simple request params with timestamp? & recv window optional
  */
-export type WSAPIRecvWindowTimestamp = {
+export type WSAPIRecvWindowtimestamp = {
   recvWindow?: number;
   timestamp?: number;
 } | void;
@@ -10,8 +12,6 @@ export type WSAPIRecvWindowTimestamp = {
  * Authentication request types
  */
 export interface SessionLogonWSAPIRequest {
-  apiKey: string;
-  signature: string;
   timestamp: number;
 }
 
@@ -55,7 +55,7 @@ export interface TradesAggregateWSAPIRequest {
 
 export interface KlinesWSAPIRequest {
   symbol: string;
-  interval: string; // '1s'|'1m'|'3m'|'5m'|'15m'|'30m'|'1h'|'2h'|'4h'|'6h'|'8h'|'12h'|'1d'|'3d'|'1w'|'1M'
+  interval: KlineInterval;
   startTime?: number;
   endTime?: number;
   timeZone?: string;
@@ -64,7 +64,7 @@ export interface KlinesWSAPIRequest {
 
 export interface UIKlinesWSAPIRequest {
   symbol: string;
-  interval: string; // '1s'|'1m'|'3m'|'5m'|'15m'|'30m'|'1h'|'2h'|'4h'|'6h'|'8h'|'12h'|'1d'|'3d'|'1w'|'1M'
+  interval: KlineInterval;
   startTime?: number;
   endTime?: number;
   timeZone?: string;
@@ -176,9 +176,7 @@ export interface OrderTestWSAPIRequest {
   strategyType?: number;
   selfTradePreventionMode?: string;
   computeCommissionRates?: boolean;
-  timestamp: number;
-  signature: string;
-  apiKey: string;
+  timestamp?: number;
   recvWindow?: number;
 }
 
@@ -186,10 +184,8 @@ export interface OrderStatusWSAPIRequest {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface OrderCancelWSAPIRequest {
@@ -198,10 +194,8 @@ export interface OrderCancelWSAPIRequest {
   origClientOrderId?: string;
   newClientOrderId?: string;
   cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface OrderCancelReplaceWSAPIRequest {
@@ -225,27 +219,21 @@ export interface OrderCancelReplaceWSAPIRequest {
   strategyType?: number;
   selfTradePreventionMode?: string;
   cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
-  apiKey: string;
   orderRateLimitExceededMode?: 'DO_NOTHING' | 'CANCEL_ONLY';
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface OpenOrdersStatusWSAPIRequest {
   symbol?: string;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface OpenOrdersCancelAllWSAPIRequest {
   symbol: string;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 /**
@@ -271,10 +259,8 @@ export interface OrderListPlaceWSAPIRequest {
   stopStrategyType?: number;
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
   selfTradePreventionMode?: string;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface OrderListPlaceOCOWSAPIRequest {
@@ -312,10 +298,8 @@ export interface OrderListPlaceOCOWSAPIRequest {
   belowStrategyType?: number;
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
   selfTradePreventionMode?: string;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface OrderListPlaceOTOWSAPIRequest {
@@ -343,10 +327,8 @@ export interface OrderListPlaceOTOWSAPIRequest {
   pendingTimeInForce?: string;
   pendingStrategyId?: number;
   pendingStrategyType?: number;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface OrderListPlaceOTOCOWSAPIRequest {
@@ -393,19 +375,15 @@ export interface OrderListPlaceOTOCOWSAPIRequest {
   pendingBelowTimeInForce?: string;
   pendingBelowStrategyId?: number;
   pendingBelowStrategyType?: number;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface OrderListStatusWSAPIRequest {
   origClientOrderId?: string;
   orderListId?: number;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface OrderListCancelWSAPIRequest {
@@ -413,17 +391,8 @@ export interface OrderListCancelWSAPIRequest {
   orderListId?: number;
   listClientOrderId?: string;
   newClientOrderId?: string;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
-}
-
-export interface OpenOrderListsStatusWSAPIRequest {
-  apiKey: string;
-  recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 /**
@@ -442,10 +411,8 @@ export interface SOROrderPlaceWSAPIRequest {
   strategyId?: number;
   strategyType?: number;
   selfTradePreventionMode?: string;
-  apiKey: string;
-  timestamp: number;
+  timestamp?: number;
   recvWindow?: number;
-  signature: string;
 }
 
 export interface SOROrderTestWSAPIRequest extends SOROrderPlaceWSAPIRequest {
@@ -492,75 +459,34 @@ export interface FuturesOrderModifyWSAPIRequest {
     | 'QUEUE_20';
   origType?: string;
   positionSide?: 'BOTH' | 'LONG' | 'SHORT';
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface FuturesOrderCancelWSAPIRequest {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface FuturesOrderStatusWSAPIRequest {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface FuturesPositionWSAPIRequest {
   symbol?: string;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
 
 export interface FuturesPositionV2WSAPIRequest {
   symbol?: string;
-  apiKey: string;
   recvWindow?: number;
-  timestamp: number;
-  signature: string;
-}
-
-/**
- * Futures account request types
- */
-export interface FuturesAccountBalanceWSAPIRequest {
-  apiKey: string;
-  recvWindow?: number;
-  timestamp: number;
-  signature: string;
-}
-
-export interface FuturesAccountBalanceV2WSAPIRequest {
-  apiKey: string;
-  recvWindow?: number;
-  timestamp: number;
-  signature: string;
-}
-
-export interface FuturesAccountStatusWSAPIRequest {
-  apiKey: string;
-  recvWindow?: number;
-  timestamp: number;
-  signature: string;
-}
-
-export interface FuturesAccountStatusV2WSAPIRequest {
-  apiKey: string;
-  recvWindow?: number;
-  timestamp: number;
-  signature: string;
+  timestamp?: number;
 }
