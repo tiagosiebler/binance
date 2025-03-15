@@ -70,9 +70,6 @@ async function getSymbolInfo(exchangeInfo: any, symbol: string) {
 
 /**
  * Rounds a price to the correct number of decimal places based on the symbol's tick size
- * @param price - The price to round
- * @param tickSize - The minimum price movement (from symbol info)
- * @returns The rounded price as a string
  */
 function roundToTickSize(price: number, tickSize: string): string {
   if (!tickSize) return price.toString();
@@ -91,9 +88,6 @@ function roundToTickSize(price: number, tickSize: string): string {
 
 /**
  * Rounds a quantity to the correct step size
- * @param quantity - The quantity to round
- * @param stepSize - The minimum quantity movement (from symbol info)
- * @returns The rounded quantity as a string
  */
 function roundToStepSize(quantity: number, stepSize: string): string {
   if (!stepSize) return quantity.toString();
@@ -112,11 +106,6 @@ function roundToStepSize(quantity: number, stepSize: string): string {
 
 /**
  * Validates and formats an order based on symbol constraints
- * @param symbol - The trading symbol
- * @param price - The desired price
- * @param quantity - The desired quantity
- * @param symbolInfo - The symbol information from exchange
- * @returns Formatted order parameters or error
  */
 function formatOrderParams(
   symbol: string,
