@@ -1,4 +1,5 @@
-import { MainClient } from '../src/index';
+import { numberInString } from '../lib';
+import { ExchangeInfo, MainClient } from '../src/index';
 
 // or
 // import { MainClient } from 'binance';
@@ -8,20 +9,36 @@ const client = new MainClient({
   // beautifyResponses: true,
 });
 
+interface SymbolInfo {
+  tickSize: numberInString;
+  qtyStepSize: numberInString;
+  minOrderQty: numberInString;
+  maxOrderQty: numberInString;
+  maxMarketQty: numberInString;
+  maxNumOfOrders: number;
+  minNotional: numberInString;
+  maxNotional: numberInString;
+  maxBasePrecisionDecimals: number;
+  maxQuotePrecisionDecimals: number;
+}
+
 // Get full exchange info so we can cache it and use it for other functions without making request every time
 async function getExchangeInfo() {
   try {
     const exchangeInfo = await client.getExchangeInfo();
     return exchangeInfo;
   } catch (error) {
-    console.error(error);
+    throw new Error(`Failed to get exchange info: ${error.message}`);
   }
 }
 
 const symbol = 'SOLUSDT';
 const exchangeInfo = getExchangeInfo();
 
-async function getSymbolInfo(exchangeInfo: any, symbol: string) {
+async function getSymbolInfo(
+  exchangeInfo: ExchangeInfo,
+  symbol: string,
+): Promise<SymbolInfo> {
   try {
     // Find the symbol information once
     const symbolInfo = exchangeInfo.symbols.find((s) => s.symbol === symbol);
@@ -64,7 +81,7 @@ async function getSymbolInfo(exchangeInfo: any, symbol: string) {
 
     return symbolFilters;
   } catch (error) {
-    console.error(error);
+    throw new Error(`Failed to get symbol info: ${error.message}`);
   }
 }
 
@@ -117,7 +134,7 @@ function formatOrderParams(
     // Check if price is within allowed range
     const minPrice = parseFloat(symbolInfo.tickSize || '0');
     if (price < minPrice) {
-      return { error: `Price ${price} is below minimum ${minPrice}` };
+      throw new Error(`Price ${price} is below minimum ${minPrice}`);
     }
 
     // Check if quantity is within allowed range
@@ -125,11 +142,11 @@ function formatOrderParams(
     const maxQty = parseFloat(symbolInfo.maxOrderQty || Infinity);
 
     if (quantity < minQty) {
-      return { error: `Quantity ${quantity} is below minimum ${minQty}` };
+      throw new Error(`Quantity ${quantity} is below minimum ${minQty}`);
     }
 
     if (quantity > maxQty) {
-      return { error: `Quantity ${quantity} exceeds maximum ${maxQty}` };
+      throw new Error(`Quantity ${quantity} exceeds maximum ${maxQty}`);
     }
 
     // Check notional value (price * quantity)
@@ -137,9 +154,9 @@ function formatOrderParams(
     const minNotional = parseFloat(symbolInfo.minNotional || '0');
 
     if (notional < minNotional) {
-      return {
-        error: `Order value ${notional} is below minimum ${minNotional}`,
-      };
+      throw new Error(
+        `Order value ${notional} is below minimum ${minNotional}`,
+      );
     }
 
     // Format price and quantity according to exchange requirements
@@ -152,7 +169,7 @@ function formatOrderParams(
       quantity: formattedQty,
     };
   } catch (error) {
-    return { error: `Failed to format order: ${error.message}` };
+    throw new Error(`Failed to format order: ${error.message}`);
   }
 }
 
@@ -168,14 +185,17 @@ async function testSymbolUtils() {
   const testPrice = 23.45678;
   console.log(`Original price: ${testPrice}`);
   console.log(
-    `Formatted price: ${roundToTickSize(testPrice, symbolFilters.tickSize)}`,
+    `Formatted price: ${roundToTickSize(testPrice, symbolFilters.tickSize.toString())}`,
   );
 
   // Test quantity formatting
   const testQty = 1.23456;
   console.log(`Original quantity: ${testQty}`);
   console.log(
-    `Formatted quantity: ${roundToStepSize(testQty, symbolFilters.qtyStepSize)}`,
+    `Formatted quantity: ${roundToStepSize(
+      testQty,
+      symbolFilters.qtyStepSize.toString(),
+    )}`,
   );
 
   // Test full order formatting
