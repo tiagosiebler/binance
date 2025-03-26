@@ -97,33 +97,6 @@ export function generateNewOrderId(network: BinanceBaseUrlKey): string {
 
   return prefixedId;
 }
-
-export function requiresWSAPINewClientOID(
-  request: WsRequestOperationBinance<string>,
-  wsKey: WsKey,
-): boolean {
-  switch (wsKey) {
-    case WS_KEY_MAP.mainWSAPI:
-    case WS_KEY_MAP.mainWSAPI2:
-    case WS_KEY_MAP.mainWSAPITestnet:
-    case WS_KEY_MAP.usdmWSAPI:
-    case WS_KEY_MAP.usdmWSAPITestnet: {
-      switch (request.method) {
-        case 'order.place': {
-          return true;
-        }
-        default: {
-          return false;
-        }
-      }
-    }
-
-    default: {
-      return false;
-    }
-  }
-}
-
 export function getBaseURLKeyForWsKey(wsKey: WsKey): BinanceBaseUrlKey {
   switch (wsKey) {
     case WS_KEY_MAP.mainWSAPI:
@@ -163,6 +136,32 @@ function getWSAPINewOrderIdProperties(
     }
     default: {
       return [];
+    }
+  }
+}
+
+export function requiresWSAPINewClientOID(
+  request: WsRequestOperationBinance<string>,
+  wsKey: WsKey,
+): boolean {
+  switch (wsKey) {
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2:
+    case WS_KEY_MAP.mainWSAPITestnet:
+    case WS_KEY_MAP.usdmWSAPI:
+    case WS_KEY_MAP.usdmWSAPITestnet: {
+      switch (request.method) {
+        case 'order.place': {
+          return true;
+        }
+        default: {
+          return false;
+        }
+      }
+    }
+
+    default: {
+      return false;
     }
   }
 }

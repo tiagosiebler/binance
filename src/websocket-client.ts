@@ -319,6 +319,8 @@ export class WebsocketClient extends BaseWebsocketClient<
 
     /**
      * Spot: https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
+     * USDM Futures: https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
+     * COINM Futures: https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-api-general-info
      */
 
     // this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
@@ -954,7 +956,6 @@ export class WebsocketClient extends BaseWebsocketClient<
           });
           return results;
         }
-
         this.logger.error(
           `!! Unhandled string operation type "${eventType}". Defaulting to "update" channel...`,
           parsed,

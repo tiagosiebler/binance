@@ -351,6 +351,26 @@ export const BEAUTIFIER_EVENT_MAP = {
     ac: 'assetConfiguration',
     ai: 'accountConfiguration',
   },
+  COIN_SWAP_ORDEREvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    T: 'transactionTime',
+    c: 'coinSwapOrder',
+  },
+  coinSwapOrder: {
+    o: 'orderCreationTime',
+    a: 'asset',
+    qa: 'quoteAsset',
+    // M: '0.16851104',
+    // m: '100',
+    // p: '0',
+    // ma: '0',
+    // sp: '',
+    // bp: '0',
+    // t: 1741998542188,
+    // T: 1741998542189,
+    // s: true
+  },
   assetConfiguration: {
     s: 'symbol',
     l: 'leverage',

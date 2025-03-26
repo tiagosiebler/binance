@@ -240,7 +240,7 @@ export default class Beautifier {
             data,
           },
         );
-        process.exit(-1);
+        // process.exit(-1);
       }
       if (Array.isArray(data)) {
         return this.beautifyArrayValues(data);
