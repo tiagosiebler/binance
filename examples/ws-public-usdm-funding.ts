@@ -1,7 +1,7 @@
 import {
-  WebsocketClient,
   DefaultLogger,
   isWsFormattedMarkPriceUpdateArray,
+  WebsocketClientV1,
 } from '../src';
 
 // or, with the npm package
@@ -19,13 +19,13 @@ import {
     // silly: () => {},
   };
 
-  const wsClient = new WebsocketClient(
+  const wsClient = new WebsocketClientV1(
     {
       // api_key: key,
       // api_secret: secret,
       beautify: true,
     },
-    logger
+    logger,
   );
 
   wsClient.on('formattedMessage', (data) => {

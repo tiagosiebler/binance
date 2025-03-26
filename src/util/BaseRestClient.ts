@@ -93,7 +93,7 @@ export default abstract class BaseRestClient {
     }
 
     if (this.options.beautifyResponses) {
-      this.beautifier = new Beautifier();
+      this.beautifier = new Beautifier({ warnKeyMissingInMap: false });
     }
 
     this.syncTimePromise = null;

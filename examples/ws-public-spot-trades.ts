@@ -1,4 +1,4 @@
-import { WebsocketClient, DefaultLogger, isWsFormattedTrade } from '../src';
+import { DefaultLogger, isWsFormattedTrade, WebsocketClientV1 } from '../src';
 
 // or, with the npm package
 /*
@@ -15,11 +15,11 @@ import {
     // silly: () => {},
   };
 
-  const wsClient = new WebsocketClient(
+  const wsClient = new WebsocketClientV1(
     {
       beautify: true,
     },
-    logger
+    logger,
   );
 
   wsClient.on('formattedMessage', (data) => {
