@@ -11,7 +11,6 @@ import {
   FuturesTransactionHistoryDownloadLink,
   GetClassicPortfolioMarginNotionalLimitParams,
   PositionRisk,
-  SymbolOrPair,
 } from './types/coin';
 import {
   AggregateFuturesTrade,
@@ -62,7 +61,6 @@ import {
 } from './types/futures';
 import {
   BasicSymbolPaginatedParams,
-  BasicSymbolParam,
   BinanceBaseUrlKey,
   CancelOCOParams,
   CancelOrderParams,
@@ -152,9 +150,7 @@ export class CoinMClient extends BaseRestClient {
   /**
    * Index Price and Mark Price
    */
-  getMarkPrice(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<MarkPrice | MarkPrice[]> {
+  getMarkPrice(params?: { symbol?: string }): Promise<MarkPrice | MarkPrice[]> {
     return this.get('dapi/v1/premiumIndex', params);
   }
 
@@ -193,27 +189,30 @@ export class CoinMClient extends BaseRestClient {
   /**
    * @deprecated use get24hrChangeStatistics() instead (method without the typo)
    */
-  get24hrChangeStatististics(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
+  get24hrChangeStatististics(params?: {
+    symbol?: string;
+  }): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get24hrChangeStatistics(params);
   }
 
-  get24hrChangeStatistics(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
+  get24hrChangeStatistics(params?: {
+    symbol?: string;
+    pair?: string;
+  }): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get('dapi/v1/ticker/24hr', params);
   }
 
-  getSymbolPriceTicker(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<SymbolPrice | SymbolPrice[]> {
+  getSymbolPriceTicker(params?: {
+    symbol?: string;
+    pair?: string;
+  }): Promise<SymbolPrice | SymbolPrice[]> {
     return this.get('dapi/v1/ticker/price', params);
   }
 
-  getSymbolOrderBookTicker(
-    params?: SymbolOrPair,
-  ): Promise<CoinMSymbolOrderBookTicker[]> {
+  getSymbolOrderBookTicker(params?: {
+    symbol?: string;
+    pair?: string;
+  }): Promise<CoinMSymbolOrderBookTicker[]> {
     return this.get('dapi/v1/ticker/bookTicker', params).then((e) =>
       asArray(e),
     );
@@ -234,7 +233,7 @@ export class CoinMClient extends BaseRestClient {
   }
 
   getTopTradersLongShortPositionRatio(
-    params: FuturesDataPaginatedParams,
+    params: FuturesDataPaginatedParams & { pair?: string },
   ): Promise<any> {
     return this.get('futures/data/topLongShortPositionRatio', params);
   }
@@ -360,9 +359,9 @@ export class CoinMClient extends BaseRestClient {
     return this.deletePrivate('dapi/v1/batchOrders', requestParams);
   }
 
-  cancelAllOpenOrders(
-    params: BasicSymbolParam,
-  ): Promise<CancelAllOpenOrdersResult> {
+  cancelAllOpenOrders(params: {
+    symbol?: string;
+  }): Promise<CancelAllOpenOrdersResult> {
     return this.deletePrivate('dapi/v1/allOpenOrders', params);
   }
 
@@ -381,7 +380,7 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/allOrders', params);
   }
 
-  getAllOpenOrders(params?: Partial<BasicSymbolParam>): Promise<OrderResult[]> {
+  getAllOpenOrders(params?: { symbol?: string }): Promise<OrderResult[]> {
     return this.getPrivate('dapi/v1/openOrders', params);
   }
 
@@ -399,8 +398,11 @@ export class CoinMClient extends BaseRestClient {
     return this.getPrivate('dapi/v1/userTrades', params);
   }
 
-  getPositions(): Promise<PositionRisk[]> {
-    return this.getPrivate('dapi/v1/positionRisk');
+  getPositions(params?: {
+    marginAsset?: string;
+    pair?: string;
+  }): Promise<PositionRisk[]> {
+    return this.getPrivate('dapi/v1/positionRisk', params);
   }
 
   setPositionMode(params: PositionModeParams): Promise<ModeChangeResult> {
@@ -415,7 +417,7 @@ export class CoinMClient extends BaseRestClient {
     return this.postPrivate('dapi/v1/leverage', params);
   }
 
-  getADLQuantileEstimation(params?: Partial<BasicSymbolParam>): Promise<any> {
+  getADLQuantileEstimation(params?: { symbol?: string }): Promise<any> {
     return this.getPrivate('dapi/v1/adlQuantile', params);
   }
 
@@ -443,15 +445,15 @@ export class CoinMClient extends BaseRestClient {
   /**
    * @deprecated Please use `getAccountCommissionRate()` instead. This will be removed in the next major release.
    */
-  getAccountComissionRate(
-    params: BasicSymbolParam,
-  ): Promise<UserCommissionRate> {
+  getAccountComissionRate(params: {
+    symbol?: string;
+  }): Promise<UserCommissionRate> {
     return this.getPrivate('dapi/v1/commissionRate', params);
   }
 
-  getAccountCommissionRate(
-    params: BasicSymbolParam,
-  ): Promise<UserCommissionRate> {
+  getAccountCommissionRate(params: {
+    symbol?: string;
+  }): Promise<UserCommissionRate> {
     return this.getPrivate('dapi/v1/commissionRate', params);
   }
 
@@ -462,9 +464,9 @@ export class CoinMClient extends BaseRestClient {
   /**
    * Notional Bracket for Symbol (NOT "pair")
    */
-  getNotionalAndLeverageBrackets(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<SymbolLeverageBracketsResult[] | SymbolLeverageBracketsResult> {
+  getNotionalAndLeverageBrackets(params?: {
+    symbol?: string;
+  }): Promise<SymbolLeverageBracketsResult[] | SymbolLeverageBracketsResult> {
     return this.getPrivate('dapi/v2/leverageBracket', params);
   }
 

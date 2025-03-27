@@ -22,7 +22,6 @@ import {
   OrderType,
   RecentTradesParams,
   RowsWithTotal,
-  SymbolArrayParam,
   SymbolFromPaginatedRequestFromId,
   SymbolPrice,
 } from './types/shared';
@@ -39,6 +38,7 @@ import {
   AggregateTrade,
   AlgoOrder,
   AllCoinsInformationResponse,
+  Allocation,
   AllocationsParams,
   ApiKeyBrokerSubAccount,
   APIPermissions,
@@ -123,7 +123,6 @@ import {
   CustomizeMarginCallParams,
   DailyAccountSnapshot,
   DailyAccountSnapshotParams,
-  DailyChangeStatistic,
   DelegationHistory,
   DelegationHistoryParams,
   DeleteApiKeyBrokerSubAccountParams,
@@ -517,10 +516,13 @@ import {
   SymbolTradeFee,
   SystemStatusResponse,
   TargetAssetROI,
+  Ticker24hrResponse,
   ToggleBNBBurnParams,
+  TradingDayTickerArray,
   TradingDayTickerFull,
   TradingDayTickerMini,
   TradingDayTickerParams,
+  TradingDayTickerSingle,
   TransferBrokerSubAccount,
   TransferBrokerSubAccountParams,
   TravelRuleDepositHistoryRecord,
@@ -698,50 +700,120 @@ export class MainClient extends BaseRestClient {
     return this.get('api/v3/uiKlines', params);
   }
 
-  getAvgPrice(params: BasicSymbolParam): Promise<CurrentAvgPrice> {
+  getAvgPrice(params: { symbol: string }): Promise<CurrentAvgPrice> {
     return this.get('api/v3/avgPrice', params);
   }
 
-  get24hrChangeStatististics(
-    params: BasicSymbolParam,
-  ): Promise<DailyChangeStatistic>;
+  /**
+   * @deprecated due to invalid naming
+   * Use get24hrChangeStatistics instead
+   */
+  get24hrChangeStatististics(params?: {
+    symbols?: string[]; // use for multiple symbols
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse[]>;
 
-  get24hrChangeStatististics(
-    params?: SymbolArrayParam,
-  ): Promise<DailyChangeStatistic[]>;
+  /**
+   * @deprecated due to invalid naming
+   * Use get24hrChangeStatistics instead
+   */
+  get24hrChangeStatististics(params: {
+    symbol: string; // use for single symbol
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse>;
 
-  get24hrChangeStatististics(
-    params?: Partial<BasicSymbolParam> | Partial<SymbolArrayParam>,
-  ): Promise<DailyChangeStatistic | DailyChangeStatistic[]> {
-    if (params && typeof params['symbol'] === 'string') {
-      return this.get('api/v3/ticker/24hr', params);
-    }
-
+  /**
+   * @deprecated due to invalid naming
+   * Use get24hrChangeStatistics instead
+   */
+  get24hrChangeStatististics(params?: {
+    symbol?: string; // use for single symbol
+    symbols?: string[]; // use for multiple symbols
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse | Ticker24hrResponse[]> {
     if (params && params['symbols'] && Array.isArray(params['symbols'])) {
-      const symbols = (params as SymbolArrayParam).symbols;
+      const { symbols, ...otherParams } = params;
       const symbolsQueryParam = JSON.stringify(symbols);
 
-      return this.get('api/v3/ticker/24hr?symbols=' + symbolsQueryParam);
+      return this.get(
+        'api/v3/ticker/24hr?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
     }
+    return this.get('api/v3/ticker/24hr', params);
+  }
 
-    return this.get('api/v3/ticker/24hr');
+  get24hrChangeStatistics(params?: {
+    symbols?: string[]; // use for multiple symbols
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse[]>;
+
+  get24hrChangeStatistics(params: {
+    symbol: string; // use for single symbol
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse>;
+
+  get24hrChangeStatistics(params?: {
+    symbol?: string; // use for single symbol
+    symbols?: string[]; // use for multiple symbols
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse | Ticker24hrResponse[]> {
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const { symbols, ...otherParams } = params;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get(
+        'api/v3/ticker/24hr?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
+    }
+    return this.get('api/v3/ticker/24hr', params);
   }
 
   getTradingDayTicker(
     params: TradingDayTickerParams,
-  ): Promise<TradingDayTickerFull[] | TradingDayTickerMini[]> {
+  ): Promise<TradingDayTickerSingle | TradingDayTickerArray[]> {
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const { symbols, ...otherParams } = params;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get(
+        'api/v3/ticker/tradingDay?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
+    }
     return this.get('api/v3/ticker/tradingDay', params);
   }
 
-  getSymbolPriceTicker(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<SymbolPrice | SymbolPrice[]> {
+  getSymbolPriceTicker(params?: {
+    symbol?: string; // use for single symbol
+    symbols?: string[]; // use for multiple symbols
+  }): Promise<SymbolPrice | SymbolPrice[]> {
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const { symbols, ...otherParams } = params;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get(
+        'api/v3/ticker/price?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
+    }
     return this.get('api/v3/ticker/price', params);
   }
 
-  getSymbolOrderBookTicker(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<SymbolOrderBookTicker | SymbolOrderBookTicker[]> {
+  getSymbolOrderBookTicker(params?: {
+    symbol?: string; // use for single symbol
+    symbols?: string[]; // use for multiple symbols
+  }): Promise<SymbolOrderBookTicker | SymbolOrderBookTicker[]> {
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const { symbols, ...otherParams } = params;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get(
+        'api/v3/ticker/bookTicker?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
+    }
     return this.get('api/v3/ticker/bookTicker', params);
   }
 
@@ -791,9 +863,9 @@ export class MainClient extends BaseRestClient {
     return this.deletePrivate('api/v3/order', params);
   }
 
-  cancelAllSymbolOrders(
-    params: BasicSymbolParam,
-  ): Promise<CancelSpotOrderResult[]> {
+  cancelAllSymbolOrders(params: {
+    symbol: string;
+  }): Promise<CancelSpotOrderResult[]> {
     return this.deletePrivate('api/v3/openOrders', params);
   }
 
@@ -806,7 +878,7 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('api/v3/order/cancelReplace', params);
   }
 
-  getOpenOrders(params?: Partial<BasicSymbolParam>): Promise<SpotOrder[]> {
+  getOpenOrders(params?: { symbol?: string }): Promise<SpotOrder[]> {
     return this.getPrivate('api/v3/openOrders', params);
   }
 
@@ -833,7 +905,6 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('api/v3/orderList/oco', params);
   }
 
-  // TO CHECK!!
   submitNewOrderListOTO(
     params: NewOrderListOTOParams,
   ): Promise<NewOrderListOTOResponse> {
@@ -843,7 +914,6 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('api/v3/orderList/oto', params);
   }
 
-  // TO CHECK!!
   submitNewOrderListOTOCO(
     params: NewOrderListOTOCOParams,
   ): Promise<NewOrderListOTOCOResponse> {
@@ -904,8 +974,10 @@ export class MainClient extends BaseRestClient {
   /**
    * Get current account information
    */
-  getAccountInformation(): Promise<AccountInformation> {
-    return this.getPrivate('api/v3/account');
+  getAccountInformation(params?: {
+    omitZeroBalances?: boolean;
+  }): Promise<AccountInformation> {
+    return this.getPrivate('api/v3/account', params);
   }
 
   getAccountTradeList(
@@ -924,7 +996,7 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('api/v3/myPreventedMatches', params);
   }
 
-  getAllocations(params: AllocationsParams): Promise<any> {
+  getAllocations(params: AllocationsParams): Promise<Allocation[]> {
     return this.getPrivate('api/v3/myAllocations', params);
   }
 
@@ -1415,8 +1487,10 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/asset/assetDetail', params);
   }
 
-  getWalletBalances(): Promise<WalletBalance[]> {
-    return this.getPrivate('sapi/v1/asset/wallet/balance');
+  getWalletBalances(params?: {
+    quoteAsset?: string;
+  }): Promise<WalletBalance[]> {
+    return this.getPrivate('sapi/v1/asset/wallet/balance', params);
   }
 
   getUserAsset(params: GetAssetParams): Promise<UserAsset[]> {
@@ -1435,8 +1509,8 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/asset/transfer', params);
   }
 
-  getDust(): Promise<DustInfo> {
-    return this.postPrivate('sapi/v1/asset/dust-btc');
+  getDust(params: { accountType?: 'SPOT' | 'MARGIN' }): Promise<DustInfo> {
+    return this.postPrivate('sapi/v1/asset/dust-btc', params);
   }
 
   convertDustToBnb(params: ConvertDustParams): Promise<DustConversion> {
@@ -1451,7 +1525,7 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/asset/assetDividend', params);
   }
 
-  getTradeFee(params?: Partial<BasicSymbolParam>): Promise<SymbolTradeFee[]> {
+  getTradeFee(params?: { symbol?: string }): Promise<SymbolTradeFee[]> {
     return this.getPrivate('sapi/v1/asset/tradeFee', params);
   }
 
