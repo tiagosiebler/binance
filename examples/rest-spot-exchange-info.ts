@@ -129,7 +129,7 @@ function formatOrderParams(
   price: number,
   quantity: number,
   symbolInfo: any,
-): { symbol: string; price: string; quantity: string } | { error: string } {
+): { symbol: string; price: string; quantity: string } {
   try {
     // Check if price is within allowed range
     const minPrice = parseFloat(symbolInfo.tickSize || '0');
@@ -207,6 +207,17 @@ async function testSymbolUtils() {
   );
   console.log('Formatted order parameters:');
   console.log(orderParams);
+
+  const order = await client.submitNewOrder({
+    symbol: orderParams.symbol,
+    side: 'BUY',
+    type: 'LIMIT',
+    quantity: Number(orderParams.quantity),
+    price: Number(orderParams.price),
+    timeInForce: 'GTC',
+  });
+
+  console.log(order);
 }
 
 testSymbolUtils();
