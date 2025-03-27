@@ -207,7 +207,7 @@ async function testSymbolUtils() {
   );
   console.log('Formatted order parameters:');
   console.log(orderParams);
-
+  // example how to use the order params
   const order = await client.submitNewOrder({
     symbol: orderParams.symbol,
     side: 'BUY',
