@@ -194,6 +194,15 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/fundingInfo');
   }
 
+  /**
+   * @deprecated use get24hrChangeStatistics() instead (method without the typo)
+   */
+  get24hrChangeStatististics(
+    params?: Partial<BasicSymbolParam>,
+  ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
+    return this.get('fapi/v1/ticker/24hr', params);
+  }
+
   get24hrChangeStatistics(params: { symbol: string }): Promise<ChangeStats24hr>;
 
   get24hrChangeStatistics(): Promise<ChangeStats24hr[]>;
