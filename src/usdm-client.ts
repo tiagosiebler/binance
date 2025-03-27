@@ -176,6 +176,10 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/premiumIndexKlines', params);
   }
 
+  getMarkPrice(params: { symbol: string }): Promise<MarkPrice>;
+
+  getMarkPrice(): Promise<MarkPrice[]>;
+
   getMarkPrice(params?: { symbol?: string }): Promise<MarkPrice | MarkPrice[]> {
     return this.get('fapi/v1/premiumIndex', params);
   }
@@ -190,11 +194,19 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/fundingInfo');
   }
 
+  get24hrChangeStatistics(params: { symbol: string }): Promise<ChangeStats24hr>;
+
+  get24hrChangeStatistics(): Promise<ChangeStats24hr[]>;
+
   get24hrChangeStatistics(params?: {
     symbol?: string;
   }): Promise<ChangeStats24hr | ChangeStats24hr[]> {
     return this.get('fapi/v1/ticker/24hr', params);
   }
+
+  getSymbolPriceTicker(params: { symbol: string }): Promise<SymbolPrice>;
+
+  getSymbolPriceTicker(): Promise<SymbolPrice[]>;
 
   getSymbolPriceTicker(params?: {
     symbol?: string;
@@ -202,11 +214,21 @@ export class USDMClient extends BaseRestClient {
     return this.get('fapi/v1/ticker/price', params);
   }
 
+  getSymbolPriceTickerV2(params: { symbol: string }): Promise<SymbolPrice>;
+
+  getSymbolPriceTickerV2(): Promise<SymbolPrice[]>;
+
   getSymbolPriceTickerV2(params?: {
     symbol?: string;
   }): Promise<SymbolPrice | SymbolPrice[]> {
     return this.get('fapi/v2/ticker/price', params);
   }
+
+  getSymbolOrderBookTicker(params: {
+    symbol: string;
+  }): Promise<FuturesSymbolOrderBookTicker>;
+
+  getSymbolOrderBookTicker(): Promise<FuturesSymbolOrderBookTicker[]>;
 
   getSymbolOrderBookTicker(params?: {
     symbol?: string;

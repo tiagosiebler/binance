@@ -704,7 +704,56 @@ export class MainClient extends BaseRestClient {
     return this.get('api/v3/avgPrice', params);
   }
 
+  /**
+   * @deprecated due to invalid naming
+   * Use get24hrChangeStatistics instead
+   */
   get24hrChangeStatististics(params?: {
+    symbols?: string[]; // use for multiple symbols
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse[]>;
+
+  /**
+   * @deprecated due to invalid naming
+   * Use get24hrChangeStatistics instead
+   */
+  get24hrChangeStatististics(params: {
+    symbol: string; // use for single symbol
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse>;
+
+  /**
+   * @deprecated due to invalid naming
+   * Use get24hrChangeStatistics instead
+   */
+  get24hrChangeStatististics(params?: {
+    symbol?: string; // use for single symbol
+    symbols?: string[]; // use for multiple symbols
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse | Ticker24hrResponse[]> {
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const { symbols, ...otherParams } = params;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get(
+        'api/v3/ticker/24hr?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
+    }
+    return this.get('api/v3/ticker/24hr', params);
+  }
+
+  get24hrChangeStatistics(params?: {
+    symbols?: string[]; // use for multiple symbols
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse[]>;
+
+  get24hrChangeStatistics(params: {
+    symbol: string; // use for single symbol
+    type?: 'FULL' | 'MINI'; // default is FULL
+  }): Promise<Ticker24hrResponse>;
+
+  get24hrChangeStatistics(params?: {
     symbol?: string; // use for single symbol
     symbols?: string[]; // use for multiple symbols
     type?: 'FULL' | 'MINI'; // default is FULL
