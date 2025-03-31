@@ -276,11 +276,13 @@ export class WebsocketClient extends BaseWebsocketClient<
     TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
     // if this throws a type error, probably forgot to add a new operation to WsAPITopicRequestParamMap
     TWSParams extends Exact<WsAPITopicRequestParamMap<TWSKey>[TWSOperation]>,
+    TWSAPIResponse extends
+      WsAPIOperationResponseMap[TWSOperation] = WsAPIOperationResponseMap[TWSOperation],
   >(
     wsKey: TWSKey,
     operation: TWSOperation,
     ...params: TWSParams extends undefined | void | never ? [] : [TWSParams]
-  ): Promise<WsAPIOperationResponseMap[TWSOperation]>;
+  ): Promise<TWSAPIResponse>;
 
   // These overloads give stricter types than mapped generics, since generic constraints
   // do not trigger excess property checks

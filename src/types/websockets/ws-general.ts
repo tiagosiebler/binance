@@ -114,18 +114,6 @@ export type WsPrivateTopic =
 
 export type WsTopic = WsPublicTopics | WsPrivateTopic;
 
-/** This is used to differentiate product groups on a connection */
-// export type WsMarket =
-//   | 'spot'
-//   | 'margin'
-//   | 'isolatedMargin'
-//   | 'usdm'
-//   | 'usdmTestnet'
-//   | 'coinm'
-//   | 'coinmTestnet'
-//   | 'options'
-//   | 'optionsTestnet';
-
 export interface WSClientConfigurableOptions {
   /** Your API key */
   api_key?: string;
@@ -136,21 +124,13 @@ export interface WSClientConfigurableOptions {
   beautify?: boolean;
 
   /**
-   * Set to `true` to connect to Bybit's testnet environment.
+   * Set to `true` to connect to Binance's testnet environment.
    *
    * Notes:
-   *
-   * - If demo trading, `testnet` should be set to false!
-   * - If testing a strategy, use demo trading instead. Testnet market data is very different from real market conditions.
+   * - Not all WebSocket categories support testnet.
+   * - If testing a strategy, this is not recommended. Testnet market data is very different from real market conditions. More guidance here: https://github.com/tiagosiebler/awesome-crypto-examples/wiki/CEX-Testnets
    */
   testnet?: boolean;
-
-  /**
-   * Set to `true` to connect to Bybit's V5 demo trading: https://bybit-exchange.github.io/docs/v5/demo
-   *
-   * Only the "V5" "market" is supported here.
-   */
-  demoTrading?: boolean;
 
   /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
   recvWindow?: number;
@@ -177,14 +157,6 @@ export interface WSClientConfigurableOptions {
   };
 
   wsUrl?: string;
-
-  /**
-   * Default: true.
-   *
-   * When enabled, any calls to the subscribe method will return a promise.
-   * // TODO:
-   */
-  promiseSubscribe?: boolean;
 
   /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method

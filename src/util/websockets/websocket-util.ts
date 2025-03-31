@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import WebSocket from 'isomorphic-ws';
 
+import { WsRequestOperationBinance } from '../../types/websockets/ws-api';
 import {
   WebsocketClientOptions,
   WsMarket,
@@ -8,19 +9,15 @@ import {
 } from '../../types/websockets/ws-general';
 import { DefaultLogger } from '../logger';
 import { neverGuard } from '../typeGuards';
-import { WsRequestOperationBinance } from '../../types/websockets/ws-api';
 
 export const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
 /**
  * These WS Key values correspond to a WS API connection
  */
-export type WSAPIWsKey =
-  | 'mainWSAPI'
-  | 'mainWSAPI2'
-  | 'mainWSAPITestnet'
-  | 'usdmWSAPI'
-  | 'usdmWSAPITestnet';
+export type WSAPIWsKeyMain = 'mainWSAPI' | 'mainWSAPI2' | 'mainWSAPITestnet';
+export type WSAPIWsKeyFutures = 'usdmWSAPI' | 'usdmWSAPITestnet';
+export type WSAPIWsKey = WSAPIWsKeyMain | WSAPIWsKeyFutures;
 
 export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
@@ -82,7 +79,6 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443',
 
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
-  // TODO:
   mainWSAPI: 'wss://ws-api.binance.com:443',
   mainWSAPI2: 'wss://ws-api.binance.com:9443',
   mainWSAPITestnet: 'wss://testnet.binance.vision',
@@ -100,7 +96,6 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
   // ONLY WS API
-  // TODO:
   usdmWSAPI: 'wss://ws-fapi.binance.com',
   usdmWSAPITestnet: 'wss://testnet.binancefuture.com',
 
@@ -271,6 +266,49 @@ export function getWsKeyForTopic(
   }
 }
 
+function getTestnetWsKey(wsKey: WsKey): WsKey {
+  switch (wsKey) {
+    case WS_KEY_MAP.mainTestnetPublic:
+    case WS_KEY_MAP.mainTestnetUserData:
+    case WS_KEY_MAP.coinmTestnet:
+    case WS_KEY_MAP.usdmTestnet:
+    case WS_KEY_MAP.mainWSAPITestnet:
+    case WS_KEY_MAP.usdmWSAPITestnet: {
+      return wsKey;
+    }
+
+    case WS_KEY_MAP.main:
+    case WS_KEY_MAP.main2:
+    case WS_KEY_MAP.main3: {
+      return WS_KEY_MAP.mainTestnetUserData;
+    }
+
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2: {
+      return WS_KEY_MAP.mainWSAPITestnet;
+    }
+
+    case WS_KEY_MAP.usdm: {
+      return WS_KEY_MAP.usdmTestnet;
+    }
+    case WS_KEY_MAP.usdmWSAPI: {
+      return WS_KEY_MAP.usdmWSAPITestnet;
+    }
+
+    case WS_KEY_MAP.coinm:
+    case WS_KEY_MAP.coinm2: {
+      return WS_KEY_MAP.coinmTestnet;
+    }
+
+    case WS_KEY_MAP.marginRiskUserData:
+    case WS_KEY_MAP.eoptions:
+    case WS_KEY_MAP.portfolioMarginUserData:
+    case WS_KEY_MAP.portfolioMarginProUserData: {
+      throw new Error(`Testnet not supported for "${wsKey}"`);
+    }
+  }
+}
+
 export function getWsUrl(
   wsKey: WsKey,
   wsClientOptions: WebsocketClientOptions,
@@ -281,46 +319,11 @@ export function getWsUrl(
     return wsUrl;
   }
 
-  // https://bybit-exchange.github.io/docs/v5/demo
-  // const isDemoTrading = wsClientOptions.demoTrading;
-  // if (isDemoTrading) {
-  //   return 'wss://stream-demo.bybit.com/v5/private';
-  // }
+  const isTestnet = !!wsClientOptions.testnet;
 
-  // TODO:
-  // const isTestnet = wsClientOptions.testnet;
-  // const networkKey = isTestnet ? 'testnet' : 'livenet';
-
-  const resolvedUrl = WS_KEY_URL_MAP[wsKey];
+  const resolvedUrl =
+    WS_KEY_URL_MAP[isTestnet ? getTestnetWsKey(wsKey) : wsKey];
   return resolvedUrl;
-
-  // switch (wsKey) {
-  //   case WS_KEY_MAP.v5Private: {
-  //     return WS_BASE_URL_MAP.v5.private[networkKey];
-  //   }
-  //   case WS_KEY_MAP.v5PrivateTrade: {
-  //     return WS_BASE_URL_MAP[wsKey].private[networkKey];
-  //   }
-  //   case WS_KEY_MAP.v5SpotPublic: {
-  //     return WS_BASE_URL_MAP.v5SpotPublic.public[networkKey];
-  //   }
-  //   case WS_KEY_MAP.v5LinearPublic: {
-  //     return WS_BASE_URL_MAP.v5LinearPublic.public[networkKey];
-  //   }
-  //   case WS_KEY_MAP.v5InversePublic: {
-  //     return WS_BASE_URL_MAP.v5InversePublic.public[networkKey];
-  //   }
-  //   case WS_KEY_MAP.v5OptionPublic: {
-  //     return WS_BASE_URL_MAP.v5OptionPublic.public[networkKey];
-  //   }
-  //   default: {
-  //     logger.error('getWsUrl(): Unhandled wsKey: ', {
-  //       category: 'bybit-ws',
-  //       wsKey,
-  //     });
-  //     throw neverGuard(wsKey, 'getWsUrl(): Unhandled wsKey');
-  //   }
-  // }
 }
 
 export function getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {

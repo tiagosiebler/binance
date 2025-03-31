@@ -18,5 +18,6 @@ export * from './util/typeGuards';
 export * from './util/usdm';
 export * from './util/websockets/websocket-util';
 export * from './util/websockets/WsStore';
+export * from './websocket-api-client';
 export * from './websocket-client';
 export * from './websocket-client-legacy';
