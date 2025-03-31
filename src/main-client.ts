@@ -468,6 +468,10 @@ import {
   SubAccountListParams,
   SubAccountListResponse,
   SubAccountMarginAccountDetail,
+  SubAccountMovePosition,
+  SubAccountMovePositionHistory,
+  SubAccountMovePositionHistoryParams,
+  SubAccountMovePositionParams,
   SubAccountsMarginAccountSummary,
   SubAccountSpotAssetsSummary,
   SubAccountSpotAssetsSummaryParams,
@@ -2020,6 +2024,24 @@ export class MainClient extends BaseRestClient {
     params: SubAccountUniversalTransferParams,
   ): Promise<SubAccountUniversalTransfer> {
     return this.postPrivate('sapi/v1/sub-account/universalTransfer', params);
+  }
+
+  subAccountMovePosition(
+    params: SubAccountMovePositionParams,
+  ): Promise<{ movePositionOrders: SubAccountMovePosition[] }> {
+    return this.postPrivate(
+      'sapi/v1/sub-account/futures/move-position',
+      params,
+    );
+  }
+
+  getSubAccountFuturesPositionMoveHistory(
+    params: SubAccountMovePositionHistoryParams,
+  ): Promise<{
+    total: number;
+    futureMovePositionOrderVoList: SubAccountMovePositionHistory[];
+  }> {
+    return this.getPrivate('sapi/v1/sub-account/futures/move-position', params);
   }
 
   /**

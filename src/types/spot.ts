@@ -1572,8 +1572,51 @@ export interface SubAccountUniversalTransferParams {
   amount: number;
 }
 
+export interface SubAccountMovePositionParams {
+  fromUserEmail: string;
+  toUserEmail: string;
+  productType: string;
+  orderArgs: {
+    symbol: string;
+    quantity: number;
+    positionSide: 'BOTH' | 'LONG' | 'SHORT';
+  }[];
+}
 export interface SubAccountUniversalTransfer extends SubAccountTransfer {
   clientTranId?: string;
+}
+
+export interface SubAccountMovePosition {
+  fromUserEmail: string;
+  toUserEmail: string;
+  productType: string;
+  symbol: string;
+  priceType: string;
+  price: string;
+  quantity: string;
+  positionSide: string;
+  side: string;
+  success: boolean;
+}
+
+export interface SubAccountMovePositionHistoryParams {
+  symbol: string;
+  startTime?: number;
+  endTime?: number;
+  page: number;
+  row: number;
+}
+
+export interface SubAccountMovePositionHistory {
+  fromUserEmail: string;
+  toUserEmail: string;
+  productType: string;
+  symbol: string;
+  price: string;
+  quantity: string;
+  positionSide: string;
+  side: string;
+  timeStamp: number;
 }
 
 export interface SubAccountUniversalTransferHistoryParams {
@@ -3004,6 +3047,7 @@ export interface GetLockedRewardsHistory {
   asset: string;
   lockPeriod: string;
   amount: string;
+  type: string;
 }
 
 export interface SetAutoSubscribeParams {
@@ -3042,6 +3086,8 @@ export interface LockedSubscriptionPreview {
   rewardsEndDate: string;
   deliverDate: string;
   nextSubscriptionDate: string;
+  boostRewardAsset: string;
+  estDailyRewardAmt: string;
 }
 
 export interface GetRateHistoryParams {
@@ -4990,6 +5036,9 @@ export interface SimpleEarnLockedProduct {
     subscriptionStartTime: number;
     extraRewardAsset: string;
     extraRewardAPR: string;
+    boostRewardAsset: string;
+    boostApr: string;
+    boostEndTime: string;
   };
   quota: {
     totalPersonalQuota: string;
@@ -5055,6 +5104,9 @@ export interface SimpleEarnLockedProductPosition {
   isRenewable: boolean;
   isAutoRenew: boolean;
   redeemDate: string;
+  boostRewardAsset: string;
+  boostApr: string;
+  totalBoostRewardAmt: string;
 }
 
 export interface SimpleEarnAccountResponse {
