@@ -93,6 +93,7 @@ export interface FundingRate {
   adjustedFundingRateCap: string;
   adjustedFundingRateFloor: string;
   fundingIntervalHours: number;
+  disclaimer: boolean;
 }
 
 export interface GetClassicPortfolioMarginNotionalLimitParams {

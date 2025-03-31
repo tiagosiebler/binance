@@ -11,3 +11,4 @@ privaterepotracker
 restClientRegex.ts
 .DS_Store
 dist
+localtest.ts

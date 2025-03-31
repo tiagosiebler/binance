@@ -232,14 +232,15 @@ export enum EnumDepositStatus {
 export type DepositStatusCode = `${EnumDepositStatus}`;
 
 export interface DepositHistoryParams {
-  coin?: string;
-  status?: DepositStatusCode;
-  startTime?: number;
-  endTime?: number;
-  offset?: number;
-  limit?: number;
+  coin?: string; // Optional: Filter by coin
+  status?: DepositStatusCode; // Optional: Filter by status (0:pending, 6:credited but cannot withdraw, 7:Wrong Deposit, 8:Waiting User confirm, 1:success, 2:rejected)
+  startTime?: number; // Optional: Start time in milliseconds (Default: 90 days from current timestamp)
+  endTime?: number; // Optional: End time in milliseconds (Default: present timestamp)
+  offset?: number; // Optional: Pagination offset (Default: 0)
+  limit?: number; // Optional: Number of records to return (Default: 1000, Max: 1000)
+  txId?: string; // Optional: Filter by transaction ID
+  includeSource?: boolean; // Optional: Return sourceAddress field when set to true (Default: false)
 }
-
 export interface DepositHistory {
   amount: numberInString;
   coin: string;
@@ -266,13 +267,14 @@ export enum EnumWithdrawStatus {
 export type WithdrawStatusCode = `${EnumWithdrawStatus}`;
 
 export interface WithdrawHistoryParams {
-  coin?: string;
-  withdrawOrderId?: string;
-  status?: WithdrawStatusCode;
-  offset?: number;
-  limit?: number;
-  startTime?: number;
-  endTime?: number;
+  coin?: string; // Optional: Filter by coin
+  withdrawOrderId?: string; // Optional: Filter by withdraw order ID
+  status?: WithdrawStatusCode; // Optional: Filter by status (0:Email Sent, 2:Awaiting Approval, 3:Rejected, 4:Processing, 6:Completed)
+  offset?: number; // Optional: Pagination offset
+  limit?: number; // Optional: Number of records to return (Default: 1000, Max: 1000)
+  idList?: string; // Optional: Comma-separated list of withdrawal IDs
+  startTime?: number; // Optional: Start time in milliseconds (Default: 90 days from current timestamp)
+  endTime?: number; // Optional: End time in milliseconds (Default: present timestamp)
 }
 
 export enum EnumWithdrawTransferType {
@@ -299,6 +301,7 @@ export interface WithdrawHistory {
 export interface DepositAddressParams {
   coin: string;
   network?: string;
+  amount?: number;
 }
 
 export interface DepositAddressResponse {
@@ -310,6 +313,7 @@ export interface DepositAddressResponse {
 
 export interface ConvertDustParams {
   asset: string[];
+  accountType?: 'SPOT' | 'MARGIN';
 }
 
 export interface DustInfoDetail {
@@ -462,7 +466,6 @@ export interface ReplaceSpotOrderParams<
 
 export interface GetOCOParams {
   symbol?: string;
-  isIsolated?: StringBoolean;
   orderListId?: number;
   origClientOrderId?: string;
 }
@@ -609,6 +612,7 @@ export interface AggregateTrade {
 export interface CurrentAvgPrice {
   mins: number;
   price: numberInString;
+  closeTime: number;
 }
 
 export interface DailyChangeStatistic {
@@ -797,7 +801,6 @@ export interface CancelSpotOrderResult {
   timeInForce: OrderTimeInForce;
   type: OrderType;
   side: OrderSide;
-  isIsolated?: boolean;
   selfTradePreventionMode: SelfTradePreventionMode;
 }
 
@@ -880,7 +883,7 @@ export interface SpotOrder {
   updateTime: number;
   isWorking: boolean;
   origQuoteOrderQty: numberInString;
-  isIsolated?: boolean;
+  selfTradePreventionMode: SelfTradePreventionMode;
 }
 
 export interface SpotAssetBalance {
@@ -894,13 +897,22 @@ export interface AccountInformation {
   takerCommission: number;
   buyerCommission: number;
   sellerCommission: number;
+  commissionRates: {
+    maker: string;
+    taker: string;
+    buyer: string;
+    seller: string;
+  };
   canTrade: boolean;
   canWithdraw: boolean;
   canDeposit: boolean;
+  brokered: boolean;
+  requireSelfTradePrevention: boolean;
+  preventSor: boolean;
   updateTime: number;
   accoountType: string;
   balances: SpotAssetBalance[];
-  permissions: any[];
+  permissions: string[];
   uid: number;
 }
 
@@ -2058,7 +2070,6 @@ export interface SubmitDepositCreditResponse {
 export interface DepositAddressListParams {
   coin: string;
   network?: string;
-  timestamp: number;
 }
 
 export interface DepositAddress {
@@ -2297,6 +2308,47 @@ export interface UIKlinesParams {
   limit?: number;
 }
 
+export interface Ticker24hrFull {
+  symbol: string;
+  priceChange: string;
+  priceChangePercent: string;
+  weightedAvgPrice: string;
+  prevClosePrice: string;
+  lastPrice: string;
+  lastQty: string;
+  bidPrice: string;
+  bidQty: string;
+  askPrice: string;
+  askQty: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
+  volume: string;
+  quoteVolume: string;
+  openTime: number;
+  closeTime: number;
+  firstId: number;
+  lastId: number;
+  count: number;
+}
+
+export interface Ticker24hrMini {
+  symbol: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
+  lastPrice: string;
+  volume: string;
+  quoteVolume: string;
+  openTime: number;
+  closeTime: number;
+  firstId: number;
+  lastId: number;
+  count: number;
+}
+
+export type Ticker24hrResponse = Ticker24hrFull | Ticker24hrMini;
+
 export interface TradingDayTickerParams {
   symbol?: string;
   symbols?: string[];
@@ -2304,7 +2356,7 @@ export interface TradingDayTickerParams {
   type?: 'FULL' | 'MINI';
 }
 
-export type TradingDayTickerFull = {
+export interface TradingDayTickerFull {
   symbol: string;
   priceChange: string;
   priceChangePercent: string;
@@ -2320,7 +2372,7 @@ export type TradingDayTickerFull = {
   firstId: number;
   lastId: number;
   count: number;
-};
+}
 
 export interface TradingDayTickerMini {
   symbol: string;
@@ -2336,6 +2388,14 @@ export interface TradingDayTickerMini {
   lastId: number;
   count: number;
 }
+
+export type TradingDayTickerSingle =
+  | TradingDayTickerFull
+  | TradingDayTickerMini;
+
+export type TradingDayTickerArray =
+  | TradingDayTickerFull[]
+  | TradingDayTickerMini[];
 
 export interface RollingWindowTickerParams {
   symbol?: string;
@@ -2492,9 +2552,10 @@ export interface PreventedMatch {
   symbol: string;
   preventedMatchId: number;
   takerOrderId: number;
+  makerSymbol: string;
   makerOrderId: number;
   tradeGroupId: number;
-  selfTradePreventionMode: string;
+  selfTradePreventionMode: SelfTradePreventionMode;
   price: string;
   makerPreventedQuantity: string;
   transactTime: number;
@@ -2507,6 +2568,23 @@ export interface AllocationsParams {
   fromAllocationId?: number;
   limit?: number;
   orderId?: number;
+}
+
+export interface Allocation {
+  symbol: string;
+  allocationId: number;
+  allocationType: string;
+  orderId: number;
+  orderListId: number;
+  price: string;
+  qty: string;
+  quoteQty: string;
+  commission: string;
+  commissionAsset: string;
+  time: number;
+  isBuyer: boolean;
+  isMaker: boolean;
+  isAllocator: boolean;
 }
 
 export interface CommissionRates {

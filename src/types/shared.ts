@@ -132,6 +132,7 @@ export interface BasicSymbolPaginatedParams {
 export interface SymbolPrice {
   symbol: string;
   price: numberInString;
+  time?: number;
 }
 
 // used by spot and usdm
@@ -162,14 +163,12 @@ export interface GetOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  isIsolated?: StringBoolean;
 }
 
 export interface GetOrderModifyHistoryParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  isIsolated?: StringBoolean;
   startTime?: number;
   endTime?: number;
   limit?: number;
@@ -186,6 +185,7 @@ export interface KlinesParams {
   interval: KlineInterval;
   startTime?: number;
   endTime?: number;
+  timeZone?: string;
   limit?: number;
 }
 
@@ -215,16 +215,10 @@ export interface CancelOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  /** For isolated margin trading only */
-  newClientOrderId?: string;
-  /** For isolated margin trading only */
-  isIsolated?: StringBoolean;
 }
 
 export interface CancelOCOParams {
   symbol: string;
-  /** For isolated margin trading only */
-  isIsolated?: string;
   orderListId?: number;
   listClientOrderId?: string;
   newClientOrderId?: string;
@@ -298,8 +292,6 @@ export interface GetAllOrdersParams {
   startTime?: number;
   endTime?: number;
   limit?: number;
-  /** For isolated margin trading only */
-  isIsolated?: StringBoolean;
 }
 
 export interface RateLimiter {
@@ -331,9 +323,11 @@ export interface SymbolLotSizeFilter {
 }
 
 export interface SymbolMinNotionalFilter {
-  filterType: 'MIN_NOTIONAL';
+  filterType: 'NOTIONAL';
   minNotional: numberInString;
-  applyToMarket: boolean;
+  applyMinToMarket: boolean;
+  maxNotional: numberInString;
+  applyMaxToMarket: boolean;
   avgPriceMins: number;
 }
 
