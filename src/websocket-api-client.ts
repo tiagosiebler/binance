@@ -1,6 +1,12 @@
 import { NewFuturesOrderParams } from './types/futures';
 import { NewSpotOrderParams, OrderResponse } from './types/spot';
-import { WSAPIResponse, WsAPIWsKeyTopicMap } from './types/websockets/ws-api';
+import {
+  Exact,
+  WsAPIOperationResponseMap,
+  WSAPIResponse,
+  WsAPITopicRequestParamMap,
+  WsAPIWsKeyTopicMap,
+} from './types/websockets/ws-api';
 import {
   FuturesOrderWSAPIResponse,
   WsAPISessionStatus,
@@ -26,23 +32,10 @@ export class WebsocketAPIClient extends WebsocketClient {
     params?: undefined,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<WsAPISessionStatus>> {
-    const WS_API_WS_KEY: WSAPIWsKey = wsKey || WS_KEY_MAP.mainWSAPI;
-    const WS_API_OPERATION: WsAPIWsKeyTopicMap[typeof WS_API_WS_KEY] =
-      'session.status';
-
-    try {
-      const wsAPIResponse = await this.sendWSAPIRequest(
-        WS_API_WS_KEY,
-        WS_API_OPERATION,
-      );
-
-      return wsAPIResponse;
-    } catch (e) {
-      e.request = undefined;
-      e.wsKey = WS_API_WS_KEY;
-      e.operation = WS_API_OPERATION;
-      throw e;
-    }
+    return this.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'session.status',
+    );
   }
 
   /**
@@ -52,24 +45,11 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: NewSpotOrderParams,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderResponse>> {
-    const WS_API_WS_KEY: WSAPIWsKey = wsKey || WS_KEY_MAP.mainWSAPI;
-    const WS_API_OPERATION: WsAPIWsKeyTopicMap[typeof WS_API_WS_KEY] =
-      'order.place';
-
-    try {
-      const wsAPIResponse = await this.sendWSAPIRequest(
-        WS_API_WS_KEY,
-        WS_API_OPERATION,
-        params,
-      );
-
-      return wsAPIResponse as WSAPIResponse<OrderResponse>;
-    } catch (e) {
-      e.request = params;
-      e.wsKey = WS_API_WS_KEY;
-      e.operation = WS_API_OPERATION;
-      throw e;
-    }
+    return this.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'order.place',
+      params,
+    );
   }
 
   /**
@@ -77,25 +57,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    */
   async submitNewFuturesOrder(
     params: NewFuturesOrderParams,
-    wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
-    const WS_API_WS_KEY: WSAPIWsKey = wsKey || WS_KEY_MAP.usdmWSAPI;
-    const WS_API_OPERATION: WsAPIWsKeyTopicMap[typeof WS_API_WS_KEY] =
-      'order.place';
-
-    try {
-      const wsAPIResponse = await this.sendWSAPIRequest(
-        WS_API_WS_KEY,
-        WS_API_OPERATION,
-        params,
-      );
-
-      return wsAPIResponse as WSAPIResponse<FuturesOrderWSAPIResponse>;
-    } catch (e) {
-      e.request = params;
-      e.wsKey = WS_API_WS_KEY;
-      e.operation = WS_API_OPERATION;
-      throw e;
-    }
+    return this.sendWSAPIRequest(WS_KEY_MAP.usdmWSAPI, 'order.place', params);
   }
 }

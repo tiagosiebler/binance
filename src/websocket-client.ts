@@ -359,6 +359,15 @@ export class WebsocketClient extends BaseWebsocketClient<
         false,
       );
 
+    deferredPromise.promise?.catch((e) => {
+      e.request = {
+        wsKey,
+        operation,
+        params,
+      };
+      throw e;
+    });
+
     // this.logger.trace(
     //   `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,
     // );
@@ -732,10 +741,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       ];
 
       // WS API response
-      // TODO: after
       if (isWSAPIResponse) {
-        const retCode = parsed.status;
-
         /**
          * Responses to "subscribe" are quite basic, with no indication of errors (e.g. bad topic):
          *
@@ -748,27 +754,27 @@ export class WebsocketClient extends BaseWebsocketClient<
          *
          * Example wsapi error:
          *
-{
-  id: 1,
-  status: 400,
-  error: {
-    code: -1021,
-    msg: "Timestamp for this request was 1000ms ahead of the server's time."
-  },
-  rateLimits: [
-    {
-      rateLimitType: 'REQUEST_WEIGHT',
-      interval: 'MINUTE',
-      intervalNum: 1,
-      limit: 6000,
-      count: 4
-    }
-  ],
-  wsKey: 'mainWSAPI',
-  isWSAPIResponse: true
-}
+            {
+              id: 1,
+              status: 400,
+              error: {
+                code: -1021,
+                msg: "Timestamp for this request was 1000ms ahead of the server's time."
+              },
+              rateLimits: [
+                {
+                  rateLimitType: 'REQUEST_WEIGHT',
+                  interval: 'MINUTE',
+                  intervalNum: 1,
+                  limit: 6000,
+                  count: 4
+                }
+              ],
+              wsKey: 'mainWSAPI',
+              isWSAPIResponse: true
+            }
          */
-
+        // const wsAPIResponseStatus = parsed.status;
         const isError =
           typeof parsed.error?.code === 'number' && parsed.error?.code !== 0;
 

@@ -5,6 +5,11 @@ import WebSocket from 'isomorphic-ws';
 
 import { WsOperation } from '../types/websockets/ws-api';
 import {
+  WsFormattedMessage,
+  WsUserDataEvents,
+} from '../types/websockets/ws-events-formatted';
+import { WsRawMessage } from '../types/websockets/ws-events-raw';
+import {
   isMessageEvent,
   MessageEventLike,
   WebsocketClientOptions,
@@ -23,11 +28,6 @@ import {
   WSConnectedResult,
   WsConnectionStateEnum,
 } from './websockets/WsStore.types';
-import {
-  WsFormattedMessage,
-  WsUserDataEvents,
-} from '../types/websockets/ws-events-formatted';
-import { WsRawMessage } from '../types/websockets/ws-events-raw';
 
 type WsEventInternalSrc = 'event' | 'function';
 
@@ -1224,26 +1224,28 @@ export abstract class BaseWebsocketClient<
       wsKey,
       WsConnectionStateEnum.CONNECTED,
     );
-
-    if (!isConnected) {
-      const inProgressPromise =
-        this.getWsStore().getConnectionInProgressPromise(wsKey);
-
-      // Already in progress? Await shared promise and retry
-      if (inProgressPromise) {
-        this.logger.trace('assertIsConnected(): awaiting...');
-        await inProgressPromise.promise;
-        this.logger.trace('assertIsConnected(): connected!');
-        return inProgressPromise.promise;
-      }
-
-      // Start connection, it should automatically store/return a promise.
-      this.logger.trace('assertIsConnected(): connecting...');
-
-      await this.connect(wsKey);
-
-      this.logger.trace('assertIsConnected(): newly connected!');
+    if (isConnected) {
+      return true;
     }
+
+    const inProgressPromise =
+      this.getWsStore().getConnectionInProgressPromise(wsKey);
+
+    // Already in progress? Await shared promise and retry
+    if (inProgressPromise) {
+      this.logger.trace('assertIsConnected(): awaiting...');
+      await inProgressPromise.promise;
+      this.logger.trace('assertIsConnected(): awaiting...connected!');
+      return inProgressPromise.promise;
+    }
+
+    // Start connection, it should automatically store/return a promise.
+    this.logger.trace('assertIsConnected(): connecting...');
+
+    // TODO: what happens if this step fails, does it retry?
+    await this.connect(wsKey);
+
+    this.logger.trace('assertIsConnected(): connecting...newly connected!');
   }
 
   /**
