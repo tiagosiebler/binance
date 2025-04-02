@@ -25,7 +25,7 @@ import { WebsocketClient } from './websocket-client';
  * https://github.com/tiagosiebler/binance/blob/wsapi/examples/ws-api-promises.ts#L52-L61
  */
 export class WebsocketAPIClient extends WebsocketClient {
-  async getSessionStatus(
+  getSessionStatus(
     params?: undefined,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<WsAPISessionStatus>> {
@@ -38,7 +38,7 @@ export class WebsocketAPIClient extends WebsocketClient {
   /**
    * Submit a spot order
    */
-  async submitNewSpotOrder(
+  submitNewSpotOrder(
     params: NewSpotOrderParams,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderResponse>> {
