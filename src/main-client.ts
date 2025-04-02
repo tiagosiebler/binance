@@ -153,8 +153,8 @@ import {
   ETHRateHistory,
   EthRedemptionHistory,
   EthStakingHistory,
-  ExchangeInfo,
   ExchangeInfoParams,
+  ExchangeInfoSpot,
   FixedAndActivityProjectParams,
   FixedAndActivityProjectPositionParams,
   FlexibleCryptoLoanBorrowHistory,
@@ -658,7 +658,7 @@ export class MainClient extends BaseRestClient {
     return this.get('api/v3/ping');
   }
 
-  getExchangeInfo(params?: ExchangeInfoParams): Promise<ExchangeInfo> {
+  getExchangeInfo(params?: ExchangeInfoParams): Promise<ExchangeInfoSpot> {
     const symbols = params?.symbols && JSON.stringify(params.symbols);
     const symbol = params?.symbol;
 

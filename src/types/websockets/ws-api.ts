@@ -1,6 +1,6 @@
 import { WS_KEY_MAP, WsKey } from '../../util/websockets/websocket-util';
 import { FuturesExchangeInfo, NewFuturesOrderParams } from '../futures';
-import { ExchangeInfo, NewSpotOrderParams, OrderResponse } from '../spot';
+import { ExchangeInfoSpot, NewSpotOrderParams, OrderResponse } from '../spot';
 import {
   AccountCommissionWSAPIRequest,
   AccountStatusWSAPIRequest,
@@ -414,7 +414,7 @@ export interface WsAPIOperationResponseMap {
 
   ping: unknown;
   time: WSAPIResponse<TimeWSAPIResponse>;
-  exchangeInfo: WSAPIResponse<FuturesExchangeInfo | ExchangeInfo>;
+  exchangeInfo: WSAPIResponse<FuturesExchangeInfo | ExchangeInfoSpot>;
 
   /**
    * Market data responses

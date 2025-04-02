@@ -558,7 +558,7 @@ export interface SymbolExchangeInfo {
   allowedSelfTradePreventionModes: SelfTradePreventionMode[];
 }
 
-export interface ExchangeInfo {
+export interface ExchangeInfoSpot {
   timezone: string;
   serverTime: number;
   rateLimits: RateLimiter[];
