@@ -336,8 +336,8 @@ export class WebsocketClient extends BaseWebsocketClient<
       id: this.getNewRequestId(),
       method: operation,
       params: {
-        timestamp: Date.now(),
-        recvWindow: this.options.recvWindow,
+        // timestamp: Date.now(),
+        // recvWindow: this.options.recvWindow,
         ...params,
       },
     };

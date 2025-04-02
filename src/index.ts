@@ -14,6 +14,7 @@ export * from './types/websockets/ws-general';
 export * from './usdm-client';
 export * from './util/logger';
 export * from './util/requestUtils';
+export * from './util/rounding';
 export * from './util/typeGuards';
 export * from './util/usdm';
 export * from './util/websockets/websocket-util';

@@ -1102,10 +1102,6 @@ export abstract class BaseWebsocketClient<
             },
           );
 
-          // TODO: type guard refinement
-          // TODO: test book ticker, diff book depth and partial book depth (see appendEventIfMissing)
-          // TODO: append wsMarket?
-
           return this.emit('message', { ...(event as any), wsKey });
         }
 
@@ -1177,7 +1173,6 @@ export abstract class BaseWebsocketClient<
       wsKey,
     });
 
-    // todo:
     const wsState = this.wsStore.get(wsKey, true);
     wsState.isAuthenticated = false;
 
