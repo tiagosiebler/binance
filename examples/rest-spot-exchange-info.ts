@@ -1,5 +1,6 @@
 import { numberInString } from '../lib';
 import { ExchangeInfo, MainClient } from '../src/index';
+import { roundToStepSize, roundToTickSize } from '../src/util/rounding';
 
 // or
 // import { MainClient } from 'binance';
@@ -23,7 +24,7 @@ interface SymbolInfo {
 }
 
 // Get full exchange info so we can cache it and use it for other functions without making request every time
-async function getExchangeInfo() {
+async function fetchExchangeInfo() {
   try {
     const exchangeInfo = await client.getExchangeInfo();
     return exchangeInfo;
@@ -33,7 +34,6 @@ async function getExchangeInfo() {
 }
 
 const symbol = 'SOLUSDT';
-const exchangeInfo = getExchangeInfo();
 
 async function getSymbolInfo(
   exchangeInfo: ExchangeInfo,
@@ -86,42 +86,6 @@ async function getSymbolInfo(
 }
 
 /**
- * Rounds a price to the correct number of decimal places based on the symbol's tick size
- */
-function roundToTickSize(price: number, tickSize: string): string {
-  if (!tickSize) return price.toString();
-
-  // Calculate precision from tick size (e.g., 0.00010000 → 4 decimal places)
-  const precision = tickSize.indexOf('1') - 1;
-  if (precision < 0) return Math.floor(price).toString();
-
-  // Round to the nearest tick
-  const tickSizeNum = parseFloat(tickSize);
-  const rounded = Math.floor(price / tickSizeNum) * tickSizeNum;
-
-  // Format with correct precision
-  return rounded.toFixed(precision);
-}
-
-/**
- * Rounds a quantity to the correct step size
- */
-function roundToStepSize(quantity: number, stepSize: string): string {
-  if (!stepSize) return quantity.toString();
-
-  // Calculate precision from step size
-  const precision = stepSize.indexOf('1') - 1;
-  if (precision < 0) return Math.floor(quantity).toString();
-
-  // Round to the nearest step
-  const stepSizeNum = parseFloat(stepSize);
-  const rounded = Math.floor(quantity / stepSizeNum) * stepSizeNum;
-
-  // Format with correct precision
-  return rounded.toFixed(precision);
-}
-
-/**
  * Validates and formats an order based on symbol constraints
  */
 function formatOrderParams(
@@ -129,7 +93,7 @@ function formatOrderParams(
   price: number,
   quantity: number,
   symbolInfo: any,
-): { symbol: string; price: string; quantity: string } {
+): { symbol: string; price: number; quantity: number } {
   try {
     // Check if price is within allowed range
     const minPrice = parseFloat(symbolInfo.tickSize || '0');
@@ -175,23 +139,23 @@ function formatOrderParams(
 
 // Example usage
 async function testSymbolUtils() {
-  const info = await exchangeInfo;
-  if (!info) return;
+  const exchangeInfo = await fetchExchangeInfo();
+  if (!exchangeInfo) return;
 
-  const symbolFilters = await getSymbolInfo(info, symbol);
+  const symbolFilters = await getSymbolInfo(exchangeInfo, symbol);
   if (!symbolFilters) return;
 
   // Test price formatting
   const testPrice = 23.45678;
-  console.log(`Original price: ${testPrice}`);
   console.log(
+    `Original price: ${testPrice}`,
     `Formatted price: ${roundToTickSize(testPrice, symbolFilters.tickSize.toString())}`,
   );
 
   // Test quantity formatting
   const testQty = 1.23456;
-  console.log(`Original quantity: ${testQty}`);
   console.log(
+    `Original quantity: ${testQty}`,
     `Formatted quantity: ${roundToStepSize(
       testQty,
       symbolFilters.qtyStepSize.toString(),
@@ -205,8 +169,8 @@ async function testSymbolUtils() {
     testQty,
     symbolFilters,
   );
-  console.log('Formatted order parameters:');
-  console.log(orderParams);
+  console.log('Formatted order parameters:', orderParams);
+
   // example how to use the order params
   const order = await client.submitNewOrder({
     symbol: orderParams.symbol,

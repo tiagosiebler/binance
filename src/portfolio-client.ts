@@ -116,7 +116,7 @@ import {
   RestClientOptions,
 } from './util/requestUtils';
 
-const PORTFOLIO_MARGIN_BASE_URL_KEY = 'papi';
+const PORTFOLIO_MARGIN_BASE_URL_KEY: BinanceBaseUrlKey = 'papi';
 
 /**
  * REST client for Portfolio Margin APIs (papi)

@@ -28,8 +28,11 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
   - Automated end-to-end tests on most API calls, ensuring no breaking changes are released.
 - Extremely robust & performant JavaScript/Node.js Binance SDK with significant trading volume in production (livenet).
 - Actively maintained with a modern, promise-driven interface.
-- Support for seamless HMAC and RSA authentication for private Binance REST API and WebSocket calls.
-  - Passing a private key as a secret will automatically revert to RSA authentication.
+- Support for all authentication mechanisms:
+  - HMAC
+  - RSA
+  - Ed25519 (required for WS API).
+  - Passing a private key as a secret will automatically revert to RSA/Ed25519 authentication (depending on key format).
 - Supports Websockets for Binance Spot, Margin, Isolated Margin, USDM & CoinM Futures.
   - Event driven messaging.
   - Smart websocket persistence

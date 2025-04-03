@@ -1,18 +1,15 @@
 import { nanoid } from 'nanoid';
 
 import { MainClient } from '../main-client';
-import { NewFuturesOrderParams } from '../types/futures';
-import {
-  BinanceBaseUrlKey,
-  CancelOCOParams,
-  CancelOrderParams,
-  NewOCOParams,
-  OrderIdProperty,
-} from '../types/shared';
-import { WsMarket } from '../types/websockets';
+import { BinanceBaseUrlKey, OrderIdProperty } from '../types/shared';
+import { WsRequestOperationBinance } from '../types/websockets/ws-api';
 import { USDMClient } from '../usdm-client';
-import { WsKey } from '../websocket-client';
 import { signMessage } from './node-support';
+import {
+  parseEventTypeFromMessage,
+  WS_KEY_MAP,
+  WsKey,
+} from './websockets/websocket-util';
 
 export type RestClient = MainClient | USDMClient;
 
@@ -88,10 +85,109 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
 }
 
 export function generateNewOrderId(network: BinanceBaseUrlKey): string {
-  const id = nanoid(22);
+  const id = nanoid(22); // must pass ^[\.A-Z\:/a-z0-9_-]{1,32}$ with prefix
   const prefixedId = 'x-' + getOrderIdPrefix(network) + id;
 
   return prefixedId;
+}
+export function getBaseURLKeyForWsKey(wsKey: WsKey): BinanceBaseUrlKey {
+  switch (wsKey) {
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2:
+    case WS_KEY_MAP.mainWSAPITestnet: {
+      return 'spot';
+    }
+    case WS_KEY_MAP.usdmWSAPI:
+    case WS_KEY_MAP.usdmWSAPITestnet: {
+      return 'usdm';
+    }
+
+    default: {
+      return 'spot';
+    }
+  }
+}
+
+function getWSAPINewOrderIdProperties(
+  operation: WsRequestOperationBinance<string>['method'],
+  wsKey: WsKey,
+): OrderIdProperty[] {
+  //
+  switch (wsKey) {
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2:
+    case WS_KEY_MAP.mainWSAPITestnet:
+    case WS_KEY_MAP.usdmWSAPI:
+    case WS_KEY_MAP.usdmWSAPITestnet: {
+      if (operation === 'order.place' || operation === 'sor.order.place') {
+        return ['newClientOrderId'];
+      }
+      if (operation === 'orderList.place') {
+        return ['listClientOrderId', 'limitClientOrderId', 'stopClientOrderId'];
+      }
+      return [];
+    }
+    default: {
+      return [];
+    }
+  }
+}
+
+export function requiresWSAPINewClientOID(
+  request: WsRequestOperationBinance<string>,
+  wsKey: WsKey,
+): boolean {
+  switch (wsKey) {
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2:
+    case WS_KEY_MAP.mainWSAPITestnet:
+    case WS_KEY_MAP.usdmWSAPI:
+    case WS_KEY_MAP.usdmWSAPITestnet: {
+      switch (request.method) {
+        case 'order.place': {
+          return true;
+        }
+        default: {
+          return false;
+        }
+      }
+    }
+
+    default: {
+      return false;
+    }
+  }
+}
+
+export function validateWSAPINewClientOID(
+  request: WsRequestOperationBinance<string>,
+  wsKey: WsKey,
+): void {
+  if (!requiresWSAPINewClientOID(request, wsKey) || !request.params) {
+    return;
+  }
+
+  const newClientOIDProperties = getWSAPINewOrderIdProperties(
+    request.method,
+    wsKey,
+  );
+
+  if (!newClientOIDProperties.length) {
+    return;
+  }
+
+  const baseUrlKey = getBaseURLKeyForWsKey(wsKey);
+  for (const orderIdProperty of newClientOIDProperties) {
+    if (!request.params[orderIdProperty]) {
+      request.params[orderIdProperty] = generateNewOrderId(baseUrlKey);
+      continue;
+    }
+
+    const expectedOrderIdPrefix = `x-${getOrderIdPrefix(baseUrlKey)}`;
+    if (!request.params[orderIdProperty].startsWith(expectedOrderIdPrefix)) {
+      logInvalidOrderId(orderIdProperty, expectedOrderIdPrefix, request.params);
+    }
+  }
 }
 
 export function serialiseParams(
@@ -129,7 +225,7 @@ export interface SignedRequestState {
 }
 
 export async function getRequestSignature(
-  data: any,
+  data: object & { recvWindow?: number; signature?: string },
   key?: string,
   secret?: string,
   recvWindow?: number,
@@ -152,7 +248,14 @@ export async function getRequestSignature(
       true,
       filterUndefinedParams,
     );
-    const signature = await signMessage(serialisedParams, secret);
+
+    // TODO:
+    const signature = await signMessage(
+      serialisedParams,
+      secret,
+      'hex',
+      'SHA-256',
+    );
     requestParams.signature = signature;
 
     return {
@@ -252,11 +355,7 @@ export function isWsPong(response: any) {
 export function logInvalidOrderId(
   orderIdProperty: OrderIdProperty,
   expectedOrderIdPrefix: string,
-  params:
-    | NewFuturesOrderParams
-    | CancelOrderParams
-    | NewOCOParams
-    | CancelOCOParams,
+  params: object,
 ) {
   console.warn(
     `WARNING: '${orderIdProperty}' invalid - it should be prefixed with ${expectedOrderIdPrefix}. Use the 'client.generateNewOrderId()' REST client utility method to generate a fresh order ID on demand. Original request: ${JSON.stringify(
@@ -265,9 +364,37 @@ export function logInvalidOrderId(
   );
 }
 
+/**
+ * For some topics, the received event does not include any information on the topic the event is for (e.g. book tickers).
+ *
+ * This method extracts this using available context, to add an "eventType" property if missing.
+ *
+ * - For the old WebsocketClient, this is extracted using the WsKey.
+ * - For the new multiplex Websocketclient, this is extracted using the "stream" parameter.
+ */
 export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
   if (wsMsg.e) {
     return;
+  }
+
+  // Multiplex websockets include the eventType as the stream name
+  if (wsMsg.stream && wsMsg.data) {
+    const eventType = parseEventTypeFromMessage(wsKey, wsMsg);
+    if (eventType) {
+      if (Array.isArray(wsMsg.data)) {
+        for (const key in wsMsg.data) {
+          wsMsg.data[key].streamName = wsMsg.stream;
+          wsMsg.data[key].e = eventType;
+        }
+        return;
+      }
+
+      wsMsg.data = {
+        streamName: wsMsg.stream,
+        e: eventType,
+        ...wsMsg.data,
+      };
+    }
   }
 
   if (wsKey.indexOf('bookTicker') !== -1) {
@@ -289,46 +416,6 @@ export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
   }
 
   // console.warn('couldnt derive event type: ', wsKey);
-}
-
-interface WsContext {
-  symbol: string | undefined;
-  market: WsMarket;
-  isTestnet: boolean | undefined;
-  isUserData: boolean;
-  streamName: string;
-  listenKey: string | undefined;
-  otherParams: undefined | string[];
-}
-
-export function getContextFromWsKey(wsKey: WsKey): WsContext {
-  const [market, streamName, symbol, listenKey, ...otherParams] =
-    wsKey.split('_');
-  return {
-    symbol: symbol === 'undefined' ? undefined : symbol,
-    market: market as WsMarket,
-    isTestnet: market.includes('estnet'),
-    isUserData: wsKey.includes('userData'),
-    streamName,
-    listenKey: listenKey === 'undefined' ? undefined : listenKey,
-    otherParams,
-  };
-}
-
-export function getWsKeyWithContext(
-  market: WsMarket,
-  streamName: string,
-  symbol: string | undefined = undefined,
-  listenKey: string | undefined = undefined,
-  ...otherParams: (string | boolean)[]
-): WsKey {
-  return [market, streamName, symbol, listenKey, ...otherParams].join('_');
-}
-
-export function appendEventMarket(wsMsg: any, wsKey: WsKey) {
-  const { market } = getContextFromWsKey(wsKey);
-  wsMsg.wsMarket = market;
-  wsMsg.wsKey = wsKey;
 }
 
 export function asArray<T>(el: T[] | T): T[] {
