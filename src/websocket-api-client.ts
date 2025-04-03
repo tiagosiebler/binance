@@ -6,21 +6,14 @@ import {
 } from './types/spot';
 import { WSAPIResponse } from './types/websockets/ws-api';
 import {
-  AccountCommissionWSAPIRequest,
-  AccountStatusWSAPIRequest,
   AllOrderListsWSAPIRequest,
   AllOrdersWSAPIRequest,
-  AvgPriceWSAPIRequest,
-  DepthWSAPIRequest,
   ExchangeInfoWSAPIRequest,
-  FuturesDepthWSAPIRequest,
   FuturesOrderCancelWSAPIRequest,
   FuturesOrderModifyWSAPIRequest,
   FuturesOrderStatusWSAPIRequest,
   FuturesPositionV2WSAPIRequest,
   FuturesPositionWSAPIRequest,
-  FuturesTickerBookWSAPIRequest,
-  FuturesTickerPriceWSAPIRequest,
   KlinesWSAPIRequest,
   MyAllocationsWSAPIRequest,
   MyPreventedMatchesWSAPIRequest,
@@ -46,8 +39,6 @@ import {
   TickerWSAPIRequest,
   TradesAggregateWSAPIRequest,
   TradesHistoricalWSAPIRequest,
-  TradesRecentWSAPIRequest,
-  UIKlinesWSAPIRequest,
   WSAPIRecvWindowtimestamp,
 } from './types/websockets/ws-api-requests';
 import {
@@ -87,8 +78,19 @@ import {
   TradeWSAPIResponse,
   WsAPISessionStatus,
 } from './types/websockets/ws-api-responses';
-import { WS_KEY_MAP, WSAPIWsKeyMain } from './util/websockets/websocket-util';
+import {
+  WS_KEY_MAP,
+  WSAPIWsKeyFutures,
+  WSAPIWsKeyMain,
+} from './util/websockets/websocket-util';
 import { WebsocketClient } from './websocket-client';
+
+function getFuturesMarketWsKey(market: 'usdm' | 'coinm'): WSAPIWsKeyFutures {
+  if (market === 'usdm') {
+    return WS_KEY_MAP.usdmWSAPI;
+  }
+  return WS_KEY_MAP.coinmWSAPI;
+}
 
 /**
  * This is a minimal Websocket API wrapper around the WebsocketClient.
@@ -144,13 +146,11 @@ export class WebsocketAPIClient extends WebsocketClient {
   }
 
   getSpotSessionStatus(
-    params?: undefined,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<WsAPISessionStatus>> {
     return this.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'session.status',
-      params,
     );
   }
 
@@ -165,7 +165,10 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: If you need to continuously monitor order book updates, consider using WebSocket Streams
    */
   getSpotOrderBook(
-    params: DepthWSAPIRequest,
+    params: {
+      symbol: string;
+      limit?: number;
+    },
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<DepthWSAPIResponse>> {
     return this.sendWSAPIRequest(
@@ -180,7 +183,10 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: If you need access to real-time trading activity, consider using WebSocket Streams
    */
   getSpotRecentTrades(
-    params: TradesRecentWSAPIRequest,
+    params: {
+      symbol: string;
+      limit?: number;
+    },
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<TradeWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
@@ -240,7 +246,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: This request is similar to klines, having the same parameters and response
    */
   getSpotUIKlines(
-    params: UIKlinesWSAPIRequest,
+    params: KlinesWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<KlineWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
@@ -254,7 +260,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Get current average price for a symbol
    */
   getSpotAveragePrice(
-    params: AvgPriceWSAPIRequest,
+    params: {
+      symbol: string;
+    },
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AvgPriceWSAPIResponse>> {
     return this.sendWSAPIRequest(
@@ -450,7 +458,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: If you need to continuously monitor order status updates, consider using WebSocket Streams
    */
   getSpotOpenOrders(
-    params?: OpenOrdersStatusWSAPIRequest,
+    params: OpenOrdersStatusWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
@@ -572,7 +580,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: If you need to continuously monitor order status updates, consider using WebSocket Streams
    */
   getSpotOpenOrderLists(
-    params?: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowtimestamp,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListStatusWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
@@ -627,7 +635,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Weight: 20
    */
   getSpotAccountStatus(
-    params: AccountStatusWSAPIRequest,
+    params: {
+      omitZeroBalances?: boolean;
+    },
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AccountStatusWSAPIResponse>> {
     return this.sendWSAPIRequest(
@@ -671,7 +681,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Query information about all your order lists, filtered by time range
    * Note: Weight: 20
    */
-  getAllOrderLists(
+  getSpotAllOrderLists(
     params: AllOrderListsWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListStatusWSAPIResponse[]>> {
@@ -686,7 +696,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Query information about all your trades, filtered by time range
    * Note: Weight: 20
    */
-  getMyTrades(
+  getSpotMyTrades(
     params: MyTradesWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<TradeWSAPIResponse[]>> {
@@ -732,7 +742,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Weight: 20
    */
   getSpotAccountCommission(
-    params: AccountCommissionWSAPIRequest,
+    params: {
+      symbol: string;
+    },
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AccountCommissionWSAPIResponse>> {
     return this.sendWSAPIRequest(
@@ -752,9 +764,10 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Get current order book for futures
    * Note: If you need to continuously monitor order book updates, consider using WebSocket Streams
    */
-  getFuturesOrderBook(
-    params: FuturesDepthWSAPIRequest,
-  ): Promise<WSAPIResponse<FuturesDepthWSAPIResponse>> {
+  getFuturesOrderBook(params: {
+    symbol: string;
+    limit?: number;
+  }): Promise<WSAPIResponse<FuturesDepthWSAPIResponse>> {
     return this.sendWSAPIRequest(WS_KEY_MAP.usdmWSAPI, 'depth', params);
   }
 
@@ -762,9 +775,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Get latest price for a futures symbol or symbols
    * Note: If symbol is not provided, prices for all symbols will be returned
    */
-  getFuturesSymbolPriceTicker(
-    params?: FuturesTickerPriceWSAPIRequest,
-  ): Promise<
+  getFuturesSymbolPriceTicker(params?: {
+    symbol?: string;
+  }): Promise<
     WSAPIResponse<
       FuturesTickerPriceWSAPIResponse | FuturesTickerPriceWSAPIResponse[]
     >
@@ -776,9 +789,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Get best price/qty on the order book for a futures symbol or symbols
    * Note: If symbol is not provided, bookTickers for all symbols will be returned
    */
-  getFuturesSymbolOrderBookTicker(
-    params?: FuturesTickerBookWSAPIRequest,
-  ): Promise<
+  getFuturesSymbolOrderBookTicker(params?: {
+    symbol?: string;
+  }): Promise<
     WSAPIResponse<
       FuturesTickerBookWSAPIResponse | FuturesTickerBookWSAPIResponse[]
     >
@@ -794,39 +807,66 @@ export class WebsocketAPIClient extends WebsocketClient {
 
   /**
    * Submit a futures order
+   *
+   * This endpoint is used for both USDM and COINM futures.
    */
   submitNewFuturesOrder(
+    market: 'usdm' | 'coinm',
     params: NewFuturesOrderParams,
   ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
-    return this.sendWSAPIRequest(WS_KEY_MAP.usdmWSAPI, 'order.place', params);
+    return this.sendWSAPIRequest(
+      getFuturesMarketWsKey(market),
+      'order.place',
+      params,
+    );
   }
 
   /**
    * Modify an existing futures order
-   * Note: Currently only LIMIT order modification is supported
+   *
+   * This endpoint is used for both USDM and COINM futures.
    */
   modifyFuturesOrder(
+    market: 'usdm' | 'coinm',
     params: FuturesOrderModifyWSAPIRequest,
   ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
-    return this.sendWSAPIRequest(WS_KEY_MAP.usdmWSAPI, 'order.modify', params);
+    return this.sendWSAPIRequest(
+      getFuturesMarketWsKey(market),
+      'order.modify',
+      params,
+    );
   }
 
   /**
    * Cancel a futures order
+   *
+   * This endpoint is used for both USDM and COINM futures.
    */
   cancelFuturesOrder(
+    market: 'usdm' | 'coinm',
     params: FuturesOrderCancelWSAPIRequest,
   ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
-    return this.sendWSAPIRequest(WS_KEY_MAP.usdmWSAPI, 'order.cancel', params);
+    return this.sendWSAPIRequest(
+      getFuturesMarketWsKey(market),
+      'order.cancel',
+      params,
+    );
   }
 
   /**
    * Query futures order status
+   *
+   * This endpoint is used for both USDM and COINM futures.
    */
   getFuturesOrderStatus(
+    market: 'usdm' | 'coinm',
     params: FuturesOrderStatusWSAPIRequest,
   ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
-    return this.sendWSAPIRequest(WS_KEY_MAP.usdmWSAPI, 'order.status', params);
+    return this.sendWSAPIRequest(
+      getFuturesMarketWsKey(market),
+      'order.status',
+      params,
+    );
   }
 
   /**
@@ -834,7 +874,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Only symbols that have positions or open orders will be returned
    */
   getFuturesPositionV2(
-    params?: FuturesPositionV2WSAPIRequest,
+    params: FuturesPositionV2WSAPIRequest,
   ): Promise<WSAPIResponse<FuturesPositionV2WSAPIResponse[]>> {
     return this.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
@@ -846,12 +886,15 @@ export class WebsocketAPIClient extends WebsocketClient {
   /**
    * Get current position information
    * Note: Only symbols that have positions or open orders will be returned
+   *
+   * This endpoint is used for both USDM and COINM futures.
    */
   getFuturesPosition(
-    params?: FuturesPositionWSAPIRequest,
+    market: 'usdm' | 'coinm',
+    params: FuturesPositionWSAPIRequest,
   ): Promise<WSAPIResponse<FuturesPositionWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
-      WS_KEY_MAP.usdmWSAPI,
+      getFuturesMarketWsKey(market),
       'account.position',
       params,
     );
@@ -868,7 +911,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Returns balance information for all assets
    */
   getFuturesAccountBalanceV2(
-    params?: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowtimestamp,
   ): Promise<WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
@@ -880,12 +923,15 @@ export class WebsocketAPIClient extends WebsocketClient {
   /**
    * Get account balance information
    * Note: Returns balance information for all assets
+   *
+   * This endpoint is used for both USDM and COINM futures.
    */
   getFuturesAccountBalance(
-    params?: WSAPIRecvWindowtimestamp,
+    market: 'usdm' | 'coinm',
+    params: WSAPIRecvWindowtimestamp,
   ): Promise<WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
-      WS_KEY_MAP.usdmWSAPI,
+      getFuturesMarketWsKey(market),
       'account.balance',
       params,
     );
@@ -896,7 +942,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Returns detailed account information including positions and assets
    */
   getFuturesAccountStatusV2(
-    params?: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowtimestamp,
   ): Promise<WSAPIResponse<FuturesAccountStatusWSAPIResponse>> {
     return this.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
@@ -908,16 +954,17 @@ export class WebsocketAPIClient extends WebsocketClient {
   /**
    * Get account information
    * Note: Returns detailed account information including positions and assets
+   *
+   * This endpoint is used for both USDM and COINM futures.
    */
-  async getFuturesAccountStatus(
-    params?: WSAPIRecvWindowtimestamp,
+  getFuturesAccountStatus(
+    market: 'usdm' | 'coinm',
+    params: WSAPIRecvWindowtimestamp,
   ): Promise<WSAPIResponse<FuturesAccountStatusWSAPIResponse>> {
     return this.sendWSAPIRequest(
-      WS_KEY_MAP.usdmWSAPI,
+      getFuturesMarketWsKey(market),
       'account.status',
       params,
     );
   }
-
-  
 }
