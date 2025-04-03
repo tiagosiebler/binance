@@ -12,13 +12,6 @@ import { neverGuard } from '../typeGuards';
 
 export const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
-/**
- * These WS Key values correspond to a WS API connection
- */
-export type WSAPIWsKeyMain = 'mainWSAPI' | 'mainWSAPI2' | 'mainWSAPITestnet';
-export type WSAPIWsKeyFutures = 'usdmWSAPI' | 'usdmWSAPITestnet';
-export type WSAPIWsKey = WSAPIWsKeyMain | WSAPIWsKeyFutures;
-
 export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
   main: 'main', // spot, margin, isolated margin, user data
@@ -72,6 +65,22 @@ export const WS_KEY_MAP = {
 } as const;
 
 export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
+
+/**
+ * These WS Key values correspond to a WS API connection
+ */
+export type WSAPIWsKeyMain =
+  | typeof WS_KEY_MAP.mainWSAPI
+  | typeof WS_KEY_MAP.mainWSAPI2
+  | typeof WS_KEY_MAP.mainWSAPITestnet;
+
+export type WSAPIWsKeyFutures =
+  | typeof WS_KEY_MAP.usdmWSAPI
+  | typeof WS_KEY_MAP.usdmWSAPITestnet
+  | typeof WS_KEY_MAP.coinmWSAPI
+  | typeof WS_KEY_MAP.coinmWSAPITestnet;
+
+export type WSAPIWsKey = WSAPIWsKeyMain | WSAPIWsKeyFutures;
 
 export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
