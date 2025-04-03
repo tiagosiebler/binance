@@ -267,7 +267,9 @@ export class WebsocketClient extends BaseWebsocketClient<
   >(
     wsKey: TWSKey,
     operation: TWSOperation,
-    ...params: TWSParams extends undefined | void | never ? [] : [TWSParams]
+    ...params: TWSParams extends undefined | void | never
+      ? [] | [undefined]
+      : [TWSParams]
   ): Promise<TWSAPIResponse>;
 
   // These overloads give stricter types than mapped generics, since generic constraints
