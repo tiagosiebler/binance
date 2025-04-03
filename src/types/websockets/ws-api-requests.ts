@@ -1,22 +1,26 @@
-import { KlineInterval } from '../shared';
+import { KlineInterval, numberInString } from '../shared';
 
 /**
  * Simple request params with timestamp? & recv window optional
  */
 export type WSAPIRecvWindowtimestamp = {
   recvWindow?: number;
-  timestamp?: number;
-} | void;
+  timestamp: number;
+};
 
 /**
+ *
  * Authentication request types
+ *
  */
 export interface SessionLogonWSAPIRequest {
   timestamp: number;
 }
 
 /**
+ *
  * General request types
+ *
  */
 export interface ExchangeInfoWSAPIRequest {
   symbol?: string;
@@ -27,8 +31,11 @@ export interface ExchangeInfoWSAPIRequest {
 }
 
 /**
+ *
  * Market data request types
+ *
  */
+
 export interface DepthWSAPIRequest {
   symbol: string;
   limit?: number;
@@ -62,25 +69,22 @@ export interface KlinesWSAPIRequest {
   limit?: number;
 }
 
-export interface UIKlinesWSAPIRequest {
-  symbol: string;
-  interval: KlineInterval;
-  startTime?: number;
-  endTime?: number;
-  timeZone?: string;
-  limit?: number;
-}
-
 export interface AvgPriceWSAPIRequest {
   symbol: string;
 }
 
+/**
+ * Symbol for single symbol, or symbols for multiple symbols
+ */
 export interface Ticker24hrWSAPIRequest {
   symbol?: string;
   symbols?: string[];
   type?: 'FULL' | 'MINI';
 }
 
+/**
+ * Symbol for single symbol, or symbols for multiple symbols
+ */
 export interface TickerTradingDayWSAPIRequest {
   symbol?: string;
   symbols?: string[];
@@ -88,6 +92,9 @@ export interface TickerTradingDayWSAPIRequest {
   type?: 'FULL' | 'MINI';
 }
 
+/**
+ * Symbol for single symbol, or symbols for multiple symbols
+ */
 export interface TickerWSAPIRequest {
   symbol?: string;
   symbols?: string[];
@@ -95,26 +102,27 @@ export interface TickerWSAPIRequest {
   type?: 'FULL' | 'MINI';
 }
 
+/**
+ * Symbol for single symbol, or symbols for multiple symbols
+ */
 export interface TickerPriceWSAPIRequest {
   symbol?: string;
   symbols?: string[];
 }
 
+/**
+ * Symbol for single symbol, or symbols for multiple symbols
+ */
 export interface TickerBookWSAPIRequest {
   symbol?: string;
   symbols?: string[];
 }
 
 /**
+ *
  * Account request types - Spot
+ *
  */
-export interface AccountStatusWSAPIRequest {
-  omitZeroBalances?: boolean;
-}
-
-export interface AccountCommissionWSAPIRequest {
-  symbol: string;
-}
 
 export interface AllOrdersWSAPIRequest {
   symbol: string;
@@ -165,13 +173,13 @@ export interface OrderTestWSAPIRequest {
   side: 'BUY' | 'SELL';
   type: string;
   timeInForce?: string;
-  price?: string;
-  quantity?: string;
-  quoteOrderQty?: string;
+  price?: numberInString;
+  quantity?: numberInString;
+  quoteOrderQty?: numberInString;
   newClientOrderId?: string;
-  stopPrice?: string;
+  stopPrice?: numberInString;
   trailingDelta?: number;
-  icebergQty?: string;
+  icebergQty?: numberInString;
   strategyId?: number;
   strategyType?: number;
   selfTradePreventionMode?: string;
@@ -207,14 +215,14 @@ export interface OrderCancelReplaceWSAPIRequest {
   side: 'BUY' | 'SELL';
   type: string;
   timeInForce?: string;
-  price?: string;
-  quantity?: string;
-  quoteOrderQty?: string;
+  price?: numberInString;
+  quantity?: numberInString;
+  quoteOrderQty?: numberInString;
   newClientOrderId?: string;
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  stopPrice?: string;
+  stopPrice?: numberInString;
   trailingDelta?: number;
-  icebergQty?: string;
+  icebergQty?: numberInString;
   strategyId?: number;
   strategyType?: number;
   selfTradePreventionMode?: string;
@@ -242,19 +250,19 @@ export interface OpenOrdersCancelAllWSAPIRequest {
 export interface OrderListPlaceWSAPIRequest {
   symbol: string;
   side: 'BUY' | 'SELL';
-  price: string;
-  quantity: string;
+  price: numberInString;
+  quantity: numberInString;
   listClientOrderId?: string;
   limitClientOrderId?: string;
-  limitIcebergQty?: string;
+  limitIcebergQty?: numberInString;
   limitStrategyId?: number;
   limitStrategyType?: number;
-  stopPrice?: string;
+  stopPrice?: numberInString;
   trailingDelta?: number;
   stopClientOrderId?: string;
-  stopLimitPrice?: string;
+  stopLimitPrice?: numberInString;
   stopLimitTimeInForce?: string;
-  stopIcebergQty?: string;
+  stopIcebergQty?: numberInString;
   stopStrategyId?: number;
   stopStrategyType?: number;
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
@@ -266,7 +274,7 @@ export interface OrderListPlaceWSAPIRequest {
 export interface OrderListPlaceOCOWSAPIRequest {
   symbol: string;
   side: 'BUY' | 'SELL';
-  quantity: number | string;
+  quantity: numberInString;
   listClientOrderId?: string;
   aboveType:
     | 'STOP_LOSS_LIMIT'
@@ -275,9 +283,9 @@ export interface OrderListPlaceOCOWSAPIRequest {
     | 'TAKE_PROFIT'
     | 'TAKE_PROFIT_LIMIT';
   aboveClientOrderId?: string;
-  aboveIcebergQty?: number | string;
-  abovePrice?: number | string;
-  aboveStopPrice?: number | string;
+  aboveIcebergQty?: numberInString;
+  abovePrice?: numberInString;
+  aboveStopPrice?: numberInString;
   aboveTrailingDelta?: number;
   aboveTimeInForce?: string;
   aboveStrategyId?: number;
@@ -289,9 +297,9 @@ export interface OrderListPlaceOCOWSAPIRequest {
     | 'TAKE_PROFIT_LIMIT'
     | 'LIMIT_MAKER';
   belowClientOrderId?: string;
-  belowIcebergQty?: number | string;
-  belowPrice?: number | string;
-  belowStopPrice?: number | string;
+  belowIcebergQty?: numberInString;
+  belowPrice?: numberInString;
+  belowStopPrice?: numberInString;
   belowTrailingDelta?: number;
   belowTimeInForce?: string;
   belowStrategyId?: number;
@@ -310,20 +318,20 @@ export interface OrderListPlaceOTOWSAPIRequest {
   workingType: 'LIMIT' | 'LIMIT_MAKER';
   workingSide: 'BUY' | 'SELL';
   workingClientOrderId?: string;
-  workingPrice: number | string;
-  workingQuantity: number | string;
-  workingIcebergQty?: number | string;
+  workingPrice: numberInString;
+  workingQuantity: numberInString;
+  workingIcebergQty?: numberInString;
   workingTimeInForce?: string;
   workingStrategyId?: number;
   workingStrategyType?: number;
   pendingType: string;
   pendingSide: 'BUY' | 'SELL';
   pendingClientOrderId?: string;
-  pendingPrice?: number | string;
-  pendingStopPrice?: number | string;
-  pendingTrailingDelta?: number | string;
-  pendingQuantity: number | string;
-  pendingIcebergQty?: number | string;
+  pendingPrice?: numberInString;
+  pendingStopPrice?: numberInString;
+  pendingTrailingDelta?: numberInString;
+  pendingQuantity: numberInString;
+  pendingIcebergQty?: numberInString;
   pendingTimeInForce?: string;
   pendingStrategyId?: number;
   pendingStrategyType?: number;
@@ -339,9 +347,9 @@ export interface OrderListPlaceOTOCOWSAPIRequest {
   workingType: 'LIMIT' | 'LIMIT_MAKER';
   workingSide: 'BUY' | 'SELL';
   workingClientOrderId?: string;
-  workingPrice: number | string;
-  workingQuantity: number | string;
-  workingIcebergQty?: number | string;
+  workingPrice: numberInString;
+  workingQuantity: numberInString;
+  workingIcebergQty?: numberInString;
   workingTimeInForce?: string;
   workingStrategyId?: number;
   workingStrategyType?: number;
@@ -354,10 +362,10 @@ export interface OrderListPlaceOTOCOWSAPIRequest {
     | 'TAKE_PROFIT'
     | 'TAKE_PROFIT_LIMIT';
   pendingAboveClientOrderId?: string;
-  pendingAbovePrice?: number | string;
-  pendingAboveStopPrice?: number | string;
-  pendingAboveTrailingDelta?: number | string;
-  pendingAboveIcebergQty?: number | string;
+  pendingAbovePrice?: numberInString;
+  pendingAboveStopPrice?: numberInString;
+  pendingAboveTrailingDelta?: numberInString;
+  pendingAboveIcebergQty?: numberInString;
   pendingAboveTimeInForce?: string;
   pendingAboveStrategyId?: number;
   pendingAboveStrategyType?: number;
@@ -368,10 +376,10 @@ export interface OrderListPlaceOTOCOWSAPIRequest {
     | 'TAKE_PROFIT_LIMIT'
     | 'LIMIT_MAKER';
   pendingBelowClientOrderId?: string;
-  pendingBelowPrice?: number | string;
-  pendingBelowStopPrice?: number | string;
-  pendingBelowTrailingDelta?: number | string;
-  pendingBelowIcebergQty?: number | string;
+  pendingBelowPrice?: numberInString;
+  pendingBelowStopPrice?: numberInString;
+  pendingBelowTrailingDelta?: numberInString;
+  pendingBelowIcebergQty?: numberInString;
   pendingBelowTimeInForce?: string;
   pendingBelowStrategyId?: number;
   pendingBelowStrategyType?: number;
@@ -403,11 +411,11 @@ export interface SOROrderPlaceWSAPIRequest {
   side: 'BUY' | 'SELL';
   type: 'LIMIT' | 'MARKET';
   timeInForce?: string;
-  price?: number | string;
-  quantity: number | string;
+  price?: numberInString;
+  quantity: numberInString;
   newClientOrderId?: string;
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  icebergQty?: number | string;
+  icebergQty?: numberInString;
   strategyId?: number;
   strategyType?: number;
   selfTradePreventionMode?: string;
@@ -422,19 +430,18 @@ export interface SOROrderTestWSAPIRequest extends SOROrderPlaceWSAPIRequest {
 /**
  * Futures market data request types
  */
+
 export interface FuturesDepthWSAPIRequest {
   symbol: string;
-  limit?: number; // Default 500; Valid limits:[5, 10, 20, 50, 100, 500, 1000]
+  limit?: number;
 }
 
 export interface FuturesTickerPriceWSAPIRequest {
   symbol?: string;
-  // If the symbol is not sent, prices for all symbols will be returned in an array
 }
 
 export interface FuturesTickerBookWSAPIRequest {
   symbol?: string;
-  // If the symbol is not sent, bookTickers for all symbols will be returned in an array
 }
 
 /**
@@ -445,8 +452,8 @@ export interface FuturesOrderModifyWSAPIRequest {
   orderId?: number;
   origClientOrderId?: string;
   side: 'BUY' | 'SELL';
-  quantity: string | number;
-  price: string | number;
+  quantity: numberInString;
+  price: numberInString;
   priceMatch?:
     | 'NONE'
     | 'OPPONENT'
@@ -476,17 +483,27 @@ export interface FuturesOrderStatusWSAPIRequest {
   orderId?: number;
   origClientOrderId?: string;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface FuturesPositionWSAPIRequest {
   symbol?: string;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface FuturesPositionV2WSAPIRequest {
   symbol?: string;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
+}
+
+export interface AccountStatusWSAPIRequest {
+  omitZeroBalances?: boolean;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface AccountCommissionWSAPIRequest {
+  symbol: string;
 }
