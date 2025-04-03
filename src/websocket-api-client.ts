@@ -6,14 +6,21 @@ import {
 } from './types/spot';
 import { WSAPIResponse } from './types/websockets/ws-api';
 import {
+  AccountCommissionWSAPIRequest,
+  AccountStatusWSAPIRequest,
   AllOrderListsWSAPIRequest,
   AllOrdersWSAPIRequest,
+  AvgPriceWSAPIRequest,
+  DepthWSAPIRequest,
   ExchangeInfoWSAPIRequest,
+  FuturesDepthWSAPIRequest,
   FuturesOrderCancelWSAPIRequest,
   FuturesOrderModifyWSAPIRequest,
   FuturesOrderStatusWSAPIRequest,
   FuturesPositionV2WSAPIRequest,
   FuturesPositionWSAPIRequest,
+  FuturesTickerBookWSAPIRequest,
+  FuturesTickerPriceWSAPIRequest,
   KlinesWSAPIRequest,
   MyAllocationsWSAPIRequest,
   MyPreventedMatchesWSAPIRequest,
@@ -39,6 +46,7 @@ import {
   TickerWSAPIRequest,
   TradesAggregateWSAPIRequest,
   TradesHistoricalWSAPIRequest,
+  TradesRecentWSAPIRequest,
   WSAPIRecvWindowtimestamp,
 } from './types/websockets/ws-api-requests';
 import {
@@ -165,10 +173,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: If you need to continuously monitor order book updates, consider using WebSocket Streams
    */
   getSpotOrderBook(
-    params: {
-      symbol: string;
-      limit?: number;
-    },
+    params: DepthWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<DepthWSAPIResponse>> {
     return this.sendWSAPIRequest(
@@ -183,10 +188,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: If you need access to real-time trading activity, consider using WebSocket Streams
    */
   getSpotRecentTrades(
-    params: {
-      symbol: string;
-      limit?: number;
-    },
+    params: TradesRecentWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<TradeWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
@@ -260,9 +262,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Get current average price for a symbol
    */
   getSpotAveragePrice(
-    params: {
-      symbol: string;
-    },
+    params: AvgPriceWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AvgPriceWSAPIResponse>> {
     return this.sendWSAPIRequest(
@@ -635,9 +635,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Weight: 20
    */
   getSpotAccountStatus(
-    params: {
-      omitZeroBalances?: boolean;
-    },
+    params: AccountStatusWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AccountStatusWSAPIResponse>> {
     return this.sendWSAPIRequest(
@@ -742,9 +740,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Weight: 20
    */
   getSpotAccountCommission(
-    params: {
-      symbol: string;
-    },
+    params: AccountCommissionWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AccountCommissionWSAPIResponse>> {
     return this.sendWSAPIRequest(
@@ -764,10 +760,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Get current order book for futures
    * Note: If you need to continuously monitor order book updates, consider using WebSocket Streams
    */
-  getFuturesOrderBook(params: {
-    symbol: string;
-    limit?: number;
-  }): Promise<WSAPIResponse<FuturesDepthWSAPIResponse>> {
+  getFuturesOrderBook(
+    params: FuturesDepthWSAPIRequest,
+  ): Promise<WSAPIResponse<FuturesDepthWSAPIResponse>> {
     return this.sendWSAPIRequest(WS_KEY_MAP.usdmWSAPI, 'depth', params);
   }
 
@@ -775,9 +770,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Get latest price for a futures symbol or symbols
    * Note: If symbol is not provided, prices for all symbols will be returned
    */
-  getFuturesSymbolPriceTicker(params?: {
-    symbol?: string;
-  }): Promise<
+  getFuturesSymbolPriceTicker(
+    params?: FuturesTickerPriceWSAPIRequest,
+  ): Promise<
     WSAPIResponse<
       FuturesTickerPriceWSAPIResponse | FuturesTickerPriceWSAPIResponse[]
     >
@@ -789,9 +784,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Get best price/qty on the order book for a futures symbol or symbols
    * Note: If symbol is not provided, bookTickers for all symbols will be returned
    */
-  getFuturesSymbolOrderBookTicker(params?: {
-    symbol?: string;
-  }): Promise<
+  getFuturesSymbolOrderBookTicker(
+    params?: FuturesTickerBookWSAPIRequest,
+  ): Promise<
     WSAPIResponse<
       FuturesTickerBookWSAPIResponse | FuturesTickerBookWSAPIResponse[]
     >

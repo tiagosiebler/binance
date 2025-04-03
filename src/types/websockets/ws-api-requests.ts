@@ -38,6 +38,16 @@ export interface ExchangeInfoWSAPIRequest {
  *
  */
 
+export interface DepthWSAPIRequest {
+  symbol: string;
+  limit?: number;
+}
+
+export interface TradesRecentWSAPIRequest {
+  symbol: string;
+  limit?: number;
+}
+
 export interface TradesHistoricalWSAPIRequest {
   symbol: string;
   fromId?: number;
@@ -59,6 +69,10 @@ export interface KlinesWSAPIRequest {
   endTime?: number;
   timeZone?: string;
   limit?: number;
+}
+
+export interface AvgPriceWSAPIRequest {
+  symbol: string;
 }
 
 /**
@@ -416,6 +430,23 @@ export interface SOROrderTestWSAPIRequest extends SOROrderPlaceWSAPIRequest {
 }
 
 /**
+ * Futures market data request types
+ */
+
+export interface FuturesDepthWSAPIRequest {
+  symbol: string;
+  limit?: number;
+}
+
+export interface FuturesTickerPriceWSAPIRequest {
+  symbol?: string;
+}
+
+export interface FuturesTickerBookWSAPIRequest {
+  symbol?: string;
+}
+
+/**
  * Futures trading request types
  */
 export interface FuturesOrderModifyWSAPIRequest {
@@ -467,4 +498,14 @@ export interface FuturesPositionV2WSAPIRequest {
   symbol?: string;
   recvWindow?: number;
   timestamp: number;
+}
+
+export interface AccountStatusWSAPIRequest {
+  omitZeroBalances?: boolean;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface AccountCommissionWSAPIRequest {
+  symbol: string;
 }

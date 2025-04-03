@@ -42,7 +42,6 @@ import {
   TradesAggregateWSAPIRequest,
   TradesHistoricalWSAPIRequest,
   TradesRecentWSAPIRequest,
-  UIKlinesWSAPIRequest,
   WSAPIRecvWindowtimestamp,
 } from './ws-api-requests';
 import {
@@ -277,7 +276,7 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   'trades.historical': TradesHistoricalWSAPIRequest;
   'trades.aggregate': TradesAggregateWSAPIRequest;
   klines: KlinesWSAPIRequest;
-  uiKlines: UIKlinesWSAPIRequest;
+  uiKlines: KlinesWSAPIRequest;
   avgPrice: AvgPriceWSAPIRequest;
   'ticker.24hr': void | Ticker24hrWSAPIRequest;
   'ticker.tradingDay': TickerTradingDayWSAPIRequest;
