@@ -1,6 +1,4 @@
-import { numberInString } from 'binance';
-
-import { KlineInterval } from '../shared';
+import { KlineInterval, numberInString } from '../shared';
 
 /**
  * Simple request params with timestamp? & recv window optional
