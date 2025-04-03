@@ -1,9 +1,5 @@
 import { NewFuturesOrderParams } from './types/futures';
-import {
-  ExchangeInfoSpot,
-  NewSpotOrderParams,
-  OrderResponse,
-} from './types/spot';
+import { ExchangeInfo, NewSpotOrderParams, OrderResponse } from './types/spot';
 import { WSAPIResponse } from './types/websockets/ws-api';
 import {
   AccountCommissionWSAPIRequest,
@@ -145,7 +141,7 @@ export class WebsocketAPIClient extends WebsocketClient {
   getSpotExchangeInfo(
     params?: ExchangeInfoWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<ExchangeInfoSpot>> {
+  ): Promise<WSAPIResponse<ExchangeInfo>> {
     return this.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'exchangeInfo',
