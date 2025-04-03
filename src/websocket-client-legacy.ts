@@ -4,6 +4,11 @@ import WebSocket from 'isomorphic-ws';
 
 import { KlineInterval } from './types/shared';
 import {
+  WsFormattedMessage,
+  WsUserDataEvents,
+} from './types/websockets/ws-events-formatted';
+import { WsRawMessage } from './types/websockets/ws-events-raw';
+import {
   WebsocketClientOptions,
   WSClientConfigurableOptions,
   WsMarket,
@@ -27,11 +32,6 @@ import {
 } from './util/websockets/websocket-util';
 import { WsStore } from './util/websockets/WsStore';
 import { WsConnectionStateEnum } from './util/websockets/WsStore.types';
-import {
-  WsFormattedMessage,
-  WsUserDataEvents,
-} from './types/websockets/ws-events-formatted';
-import { WsRawMessage } from './types/websockets/ws-events-raw';
 
 const wsBaseEndpoints: Record<WsMarket, string> = {
   spot: 'wss://stream.binance.com:9443',
@@ -123,7 +123,6 @@ export class WebsocketClientV1 extends EventEmitter {
 
     this.options = {
       // Some defaults:
-      testnet: false,
       pongTimeout: 7500,
       pingInterval: 10000,
       reconnectTimeout: 500,

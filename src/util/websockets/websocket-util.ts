@@ -56,6 +56,11 @@ export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
   coinmTestnet: 'coinmTestnet',
 
+  // https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-api-general-info
+  // ONLY WS API | NO USER DATA
+  coinmWSAPI: 'coinmWSAPI',
+  coinmWSAPITestnet: 'coinmWSAPITestnet',
+
   eoptions: 'eoptions',
   // optionsTestnet: 'optionsTestnet',
 
@@ -96,6 +101,7 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
   // ONLY WS API
+  // Suffix is handled in getWsURLSuffix
   usdmWSAPI: 'wss://ws-fapi.binance.com',
   usdmWSAPITestnet: 'wss://testnet.binancefuture.com',
 
@@ -105,6 +111,12 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   coinm2: 'wss://dstream-auth.binance.com', // Warning, coinm2 requires a listenkey
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
   coinmTestnet: 'wss://dstream.binancefuture.com',
+
+  // https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-api-general-info
+  // ONLY WS API | NO USER DATA
+  // Suffix is handled in getWsURLSuffix
+  coinmWSAPI: 'wss://ws-dapi.binance.com',
+  coinmWSAPITestnet: 'coinmWSAPITestnet',
 
   // https://developers.binance.com/docs/derivatives/option/websocket-market-streams
   // https://developers.binance.com/docs/derivatives/option/user-data-streams
@@ -169,6 +181,10 @@ export function getWsURLSuffix(
     case 'usdmWSAPI':
     case 'usdmWSAPITestnet': {
       return '/ws-fapi/v1';
+    }
+    case 'coinmWSAPI':
+    case 'coinmWSAPITestnet': {
+      return '/ws-dapi/v1';
     }
     case 'coinm':
     case 'coinmTestnet':
@@ -273,7 +289,8 @@ function getTestnetWsKey(wsKey: WsKey): WsKey {
     case WS_KEY_MAP.coinmTestnet:
     case WS_KEY_MAP.usdmTestnet:
     case WS_KEY_MAP.mainWSAPITestnet:
-    case WS_KEY_MAP.usdmWSAPITestnet: {
+    case WS_KEY_MAP.usdmWSAPITestnet:
+    case WS_KEY_MAP.coinmWSAPITestnet: {
       return wsKey;
     }
 
@@ -299,6 +316,9 @@ function getTestnetWsKey(wsKey: WsKey): WsKey {
     case WS_KEY_MAP.coinm2: {
       return WS_KEY_MAP.coinmTestnet;
     }
+    case WS_KEY_MAP.coinmWSAPI: {
+      return WS_KEY_MAP.coinmWSAPITestnet;
+    }
 
     case WS_KEY_MAP.marginRiskUserData:
     case WS_KEY_MAP.eoptions:
@@ -319,7 +339,7 @@ export function getWsUrl(
     return wsUrl;
   }
 
-  const isTestnet = !!wsClientOptions.testnet;
+  const isTestnet = !!wsClientOptions.useTestnet;
 
   const resolvedUrl =
     WS_KEY_URL_MAP[isTestnet ? getTestnetWsKey(wsKey) : wsKey];
@@ -514,8 +534,10 @@ export function resolveUserDataMarketForWsKey(wsKey: WsKey): WsMarket {
       return 'usdmTestnet';
     case 'coinm':
     case 'coinm2':
+    case 'coinmWSAPI':
       return 'coinm';
     case 'coinmTestnet':
+    case 'coinmWSAPITestnet':
       return 'coinmTestnet';
     case 'eoptions':
       return 'options';

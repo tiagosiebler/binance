@@ -28,22 +28,13 @@ import Beautifier from './util/beautifier';
 import { DefaultLogger } from './util/logger';
 import {
   appendEventIfMissing,
-  generateNewOrderId,
-  getOrderIdPrefix,
-  getRequestSignature,
-  logInvalidOrderId,
   requiresWSAPINewClientOID,
   RestClientOptions,
   serialiseParams,
   validateWSAPINewClientOID,
 } from './util/requestUtils';
-import {
-  isTopicSubscriptionConfirmation,
-  isTopicSubscriptionSuccess,
-  neverGuard,
-} from './util/typeGuards';
+import { neverGuard } from './util/typeGuards';
 import { SignAlgorithm, signMessage } from './util/webCryptoAPI';
-import { ListenKeyStateCache } from './util/websockets/listen-key-state-cache';
 import { RestClientCache } from './util/websockets/rest-client-cache';
 import { UserDataStreamManager } from './util/websockets/user-data-stream-manager';
 import {
@@ -59,19 +50,14 @@ import {
   MiscUserDataConnectionState,
   parseEventTypeFromMessage,
   parseRawWsMessage,
-  resolveUserDataMarketForWsKey,
   resolveWsKeyForLegacyMarket,
-  safeTerminateWs,
   WS_AUTH_ON_CONNECT_KEYS,
   WS_KEY_MAP,
   WSAPIWsKey,
   WsKey,
   WsTopicRequest,
 } from './util/websockets/websocket-util';
-import {
-  WSConnectedResult,
-  WsConnectionStateEnum,
-} from './util/websockets/WsStore.types';
+import { WSConnectedResult } from './util/websockets/WsStore.types';
 
 const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 

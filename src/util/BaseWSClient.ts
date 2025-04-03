@@ -190,9 +190,6 @@ export abstract class BaseWebsocketClient<
     this.wsStore = new WsStore(this.logger);
 
     this.options = {
-      // Some defaults:
-      testnet: false,
-
       pongTimeout: 5000,
       pingInterval: 10000,
       reconnectTimeout: 500,
@@ -500,8 +497,6 @@ export abstract class BaseWebsocketClient<
       const ws = this.connectToWsUrl(url, wsKey);
 
       this.wsStore.setWs(wsKey, ws);
-
-      return this.wsStore.getConnectionInProgressPromise(wsKey)?.promise;
     } catch (err) {
       this.parseWsError('Connection failed', err, wsKey);
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
@@ -510,6 +505,8 @@ export abstract class BaseWebsocketClient<
         throw err;
       }
     }
+
+    return this.wsStore.getConnectionInProgressPromise(wsKey)?.promise;
   }
 
   private connectToWsUrl(url: string, wsKey: TWSKey): WebSocket {
@@ -949,7 +946,6 @@ export abstract class BaseWebsocketClient<
       this.logger.info('Websocket connected', {
         ...WS_LOGGER_CATEGORY,
         wsKey,
-        testnet: this.options.testnet === true,
       });
 
       this.emit('open', { wsKey, event, wsUrl: url, ws });
@@ -957,7 +953,6 @@ export abstract class BaseWebsocketClient<
       this.logger.info('Websocket reconnected', {
         ...WS_LOGGER_CATEGORY,
         wsKey,
-        testnet: this.options.testnet === true,
       });
 
       this.emit('reconnected', { wsKey, event, wsUrl: url, ws });

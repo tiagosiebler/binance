@@ -1,14 +1,8 @@
 import { nanoid } from 'nanoid';
 
 import { MainClient } from '../main-client';
-import { NewFuturesOrderParams } from '../types/futures';
-import {
-  BinanceBaseUrlKey,
-  CancelOCOParams,
-  CancelOrderParams,
-  NewOCOParams,
-  OrderIdProperty,
-} from '../types/shared';
+import { BinanceBaseUrlKey, OrderIdProperty } from '../types/shared';
+import { WsRequestOperationBinance } from '../types/websockets/ws-api';
 import { USDMClient } from '../usdm-client';
 import { signMessage } from './node-support';
 import {
@@ -16,7 +10,6 @@ import {
   WS_KEY_MAP,
   WsKey,
 } from './websockets/websocket-util';
-import { WsRequestOperationBinance } from '../types/websockets/ws-api';
 
 export type RestClient = MainClient | USDMClient;
 
