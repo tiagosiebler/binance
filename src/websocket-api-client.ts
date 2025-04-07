@@ -1,6 +1,9 @@
 import { NewFuturesOrderParams } from './types/futures';
 import { ExchangeInfo, NewSpotOrderParams, OrderResponse } from './types/spot';
-import { WSAPIResponse } from './types/websockets/ws-api';
+import {
+  WSAPIResponse,
+  WSAPIUserDataListenKeyRequest,
+} from './types/websockets/ws-api';
 import {
   AccountCommissionWSAPIRequest,
   AccountStatusWSAPIRequest,
@@ -82,8 +85,13 @@ import {
   TradeWSAPIResponse,
   WsAPISessionStatus,
 } from './types/websockets/ws-api-responses';
+import { WSClientConfigurableOptions } from './types/websockets/ws-general';
+import { DefaultLogger } from './util/logger';
+import { isWSAPIWsKey } from './util/typeGuards';
 import {
   WS_KEY_MAP,
+  WS_LOGGER_CATEGORY,
+  WSAPIWsKey,
   WSAPIWsKeyFutures,
   WSAPIWsKeyMain,
 } from './util/websockets/websocket-util';
@@ -94,6 +102,17 @@ function getFuturesMarketWsKey(market: 'usdm' | 'coinm'): WSAPIWsKeyFutures {
     return WS_KEY_MAP.usdmWSAPI;
   }
   return WS_KEY_MAP.coinmWSAPI;
+}
+
+/**
+ * Configurable options specific to only the REST-like WebsocketAPIClient
+ */
+export interface WSAPIClientConfigurableOptions {
+  /**
+   * If requestSubscribeUserDataStream() was used, automatically resubscribe if reconnected
+   */
+  onReconnectResubscribeUserDataStream: boolean;
+  resubscribeUserDataStreamDelaySeconds: number;
 }
 
 /**
@@ -113,6 +132,140 @@ function getFuturesMarketWsKey(market: 'usdm' | 'coinm'): WSAPIWsKeyFutures {
  * https://github.com/tiagosiebler/binance/blob/wsapi/examples/ws-api-promises.ts#L52-L61
  */
 export class WebsocketAPIClient extends WebsocketClient {
+  /**
+   * Minimal state store around automating sticky "userDataStream.subscribe" sessions
+   */
+  private subscribedUserDataStreamState: Record<
+    WSAPIWsKey | string,
+    | {
+        subscribedAt: Date;
+        subscribeAttempt: number;
+        respawnTimeout?: ReturnType<typeof setTimeout>;
+      }
+    | undefined
+  > = {};
+
+  private wsAPIClientOptions: WSClientConfigurableOptions &
+    WSAPIClientConfigurableOptions;
+
+  constructor(
+    options?: WSClientConfigurableOptions &
+      Partial<WSAPIClientConfigurableOptions>,
+    logger?: DefaultLogger,
+  ) {
+    super(options, logger);
+
+    this.wsAPIClientOptions = {
+      onReconnectResubscribeUserDataStream: false,
+      resubscribeUserDataStreamDelaySeconds: 2,
+      ...this.options,
+    };
+
+    this.on('reconnected', ({ wsKey }) => {
+      // Delay existing timer, if exists
+      if (
+        this.wsAPIClientOptions.onReconnectResubscribeUserDataStream &&
+        isWSAPIWsKey(wsKey) &&
+        this.subscribedUserDataStreamState[wsKey]
+      ) {
+        if (this.subscribedUserDataStreamState[wsKey]?.respawnTimeout) {
+          clearTimeout(
+            this.subscribedUserDataStreamState[wsKey].respawnTimeout,
+          );
+          delete this.subscribedUserDataStreamState[wsKey].respawnTimeout;
+
+          this.logger.error(
+            'tryResubscribeUserDataStream(): Respawn timer already active while trying to queue respawn...delaying existing timer further...',
+            {
+              ...WS_LOGGER_CATEGORY,
+              wsKey,
+            },
+          );
+        }
+
+        this.logger.error(
+          'tryResubscribeUserDataStream(): queued resubscribe for wsKey user data stream',
+          {
+            ...WS_LOGGER_CATEGORY,
+            wsKey,
+          },
+        );
+
+        // Queue resubscribe workflow
+        this.subscribedUserDataStreamState[wsKey].respawnTimeout = setTimeout(
+          () => {
+            this.tryResubscribeUserDataStream(wsKey);
+          },
+          1000 * this.wsAPIClientOptions.resubscribeUserDataStreamDelaySeconds,
+        );
+        return;
+      }
+    });
+  }
+
+  private async tryResubscribeUserDataStream(wsKey: WSAPIWsKey) {
+    const subscribeState = this.getSubscribedUserDataStreamState(wsKey);
+
+    const respawnDelayInSeconds =
+      this.wsAPIClientOptions.resubscribeUserDataStreamDelaySeconds;
+
+    this.logger.error(
+      'tryResubscribeUserDataStream(): resubscribing to user data stream....',
+      {
+        ...WS_LOGGER_CATEGORY,
+        wsKey,
+      },
+    );
+
+    try {
+      if (this.subscribedUserDataStreamState[wsKey]?.respawnTimeout) {
+        clearTimeout(this.subscribedUserDataStreamState[wsKey].respawnTimeout);
+        delete this.subscribedUserDataStreamState[wsKey].respawnTimeout;
+      }
+
+      subscribeState.subscribeAttempt++;
+      await this.requestSubscribeUserDataStream(wsKey);
+
+      this.subscribedUserDataStreamState[wsKey] = {
+        ...subscribeState,
+        subscribedAt: new Date(),
+        subscribeAttempt: 0,
+      };
+
+      this.logger.info('tryResubscribeUserDataStream()->ok', {
+        ...WS_LOGGER_CATEGORY,
+        ...subscribeState,
+        wsKey,
+      });
+    } catch (e) {
+      this.logger.error(
+        'tryResubscribeUserDataStream() exception - retry after timeout',
+        {
+          ...WS_LOGGER_CATEGORY,
+          wsKey,
+          exception: e,
+          subscribeState,
+        },
+      );
+
+      subscribeState.respawnTimeout = setTimeout(() => {
+        this.tryResubscribeUserDataStream(wsKey);
+      }, 1000 * respawnDelayInSeconds);
+
+      this.subscribedUserDataStreamState[wsKey] = {
+        ...subscribeState,
+      };
+    }
+  }
+
+  private getSubscribedUserDataStreamState(wsKey: WSAPIWsKey) {
+    const subscribedState = this.subscribedUserDataStreamState[wsKey] || {
+      subscribedAt: new Date(),
+      subscribeAttempt: 0,
+    };
+    return subscribedState;
+  }
+
   /*
    *
    * SPOT - General requests
@@ -957,5 +1110,66 @@ export class WebsocketAPIClient extends WebsocketClient {
       'account.status',
       params,
     );
+  }
+
+  /*
+   *
+   * User data stream requests
+   *
+   */
+
+  startSpotUserDataStream(
+    params: { apiKey: string },
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<{ listenKey: string }>> {
+    return this.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'userDataStream.start',
+      params,
+    );
+  }
+
+  pingSpotUserDataStream(
+    params: WSAPIUserDataListenKeyRequest,
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<object>> {
+    return this.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'userDataStream.ping',
+      params,
+    );
+  }
+
+  stopSpotUserDataStream(
+    params: WSAPIUserDataListenKeyRequest,
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<object>> {
+    return this.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'userDataStream.stop',
+      params,
+    );
+  }
+
+  /**
+   * Request user data stream subscription on the currently authenticated connection
+   */
+  async requestSubscribeUserDataStream(
+    wsKey: WSAPIWsKey,
+  ): Promise<WSAPIResponse<object>> {
+    const res = await this.sendWSAPIRequest(wsKey, 'userDataStream.subscribe');
+
+    this.subscribedUserDataStreamState[wsKey] = {
+      subscribedAt: new Date(),
+      subscribeAttempt: 0,
+    };
+    return res;
+  }
+
+  requestUnsubscribeUserDataStream(
+    wsKey: WSAPIWsKey,
+  ): Promise<WSAPIResponse<{ listenKey: string }>> {
+    delete this.subscribedUserDataStreamState[wsKey];
+    return this.sendWSAPIRequest(wsKey, 'userDataStream.unsubscribe');
   }
 }

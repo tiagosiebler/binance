@@ -31,6 +31,7 @@ import {
   WsMessageRollingWindowTickerRaw,
   WsRawMessage,
 } from '../types/websockets/ws-events-raw';
+import { WSAPIWsKey, WsKey } from './websockets/websocket-util';
 
 export function neverGuard(x: never, msg: string): Error {
   return new Error(`Unhandled value exception "${x}", ${msg}`);
@@ -326,4 +327,37 @@ export function isTopicSubscriptionSuccess(
 ): msg is WebsocketTopicSubscriptionConfirmationEvent {
   if (!isTopicSubscriptionConfirmation(msg)) return false;
   return msg.result === true;
+}
+
+export function isWSAPIWsKey(wsKey: WsKey): wsKey is WSAPIWsKey {
+  switch (wsKey) {
+    case 'mainWSAPITestnet':
+    case 'mainWSAPI':
+    case 'mainWSAPI2':
+    case 'usdmWSAPI':
+    case 'usdmWSAPITestnet':
+    case 'coinmWSAPI':
+    case 'coinmWSAPITestnet': {
+      return true;
+    }
+    case 'main':
+    case 'main2':
+    case 'main3':
+    case 'marginRiskUserData':
+    case 'mainTestnetPublic':
+    case 'mainTestnetUserData':
+    case 'usdm':
+    case 'usdmTestnet':
+    case 'coinm':
+    case 'coinmTestnet':
+    case 'eoptions':
+    case 'coinm2':
+    case 'portfolioMarginUserData':
+    case 'portfolioMarginProUserData': {
+      return false;
+    }
+    default: {
+      throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
+    }
+  }
 }

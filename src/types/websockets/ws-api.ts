@@ -152,7 +152,18 @@ export const WS_API_Operations = [
   // SOR commands
   'sor.order.place',
   'sor.order.test',
+  // user data stream
+  'userDataStream.start',
+  'userDataStream.ping',
+  'userDataStream.stop',
+  'userDataStream.subscribe',
+  'userDataStream.unsubscribe',
 ] as const;
+
+export interface WSAPIUserDataListenKeyRequest {
+  apiKey: string;
+  listenKey: string;
+}
 
 export type WsAPIOperation = (typeof WS_API_Operations)[number];
 
@@ -382,8 +393,12 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    *
    * Note: for the user data stream, use the subscribe*UserDataStream() methods from the WS Client.
    */
+  'userDataStream.start': { apiKey: string };
+  'userDataStream.ping': WSAPIUserDataListenKeyRequest;
+  'userDataStream.stop': WSAPIUserDataListenKeyRequest;
+  'userDataStream.subscribe': void;
+  'userDataStream.unsubscribe': void;
 }
-
 /**
  * Response structure expected for each operation
  *
@@ -530,4 +545,10 @@ export interface WsAPIOperationResponseMap {
   'sor.order.test': WSAPIResponse<
     SOROrderTestWSAPIResponse | SOROrderTestWithCommissionWSAPIResponse
   >;
+
+  'userDataStream.start': WSAPIResponse<{ listenKey: string }>;
+  'userDataStream.ping': WSAPIResponse<object>;
+  'userDataStream.stop': WSAPIResponse<object>;
+  'userDataStream.subscribe': WSAPIResponse<object>;
+  'userDataStream.unsubscribe': WSAPIResponse<object>;
 }

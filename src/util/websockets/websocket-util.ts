@@ -291,7 +291,7 @@ export function getWsKeyForTopic(
   }
 }
 
-function getTestnetWsKey(wsKey: WsKey): WsKey {
+export function getTestnetWsKey(wsKey: WsKey): WsKey {
   switch (wsKey) {
     case WS_KEY_MAP.mainTestnetPublic:
     case WS_KEY_MAP.mainTestnetUserData:
@@ -335,6 +335,8 @@ function getTestnetWsKey(wsKey: WsKey): WsKey {
     case WS_KEY_MAP.portfolioMarginProUserData: {
       throw new Error(`Testnet not supported for "${wsKey}"`);
     }
+    default:
+      throw neverGuard(wsKey, `Unhandled wsKey "${wsKey}"`);
   }
 }
 

@@ -44,6 +44,7 @@ import {
   getNormalisedTopicRequests,
   getPromiseRefForWSAPIRequest,
   getRealWsKeyFromDerivedWsKey,
+  getTestnetWsKey,
   getWsUrl,
   getWsURLSuffix,
   isPrivateWsTopic,
@@ -310,12 +311,18 @@ export class WebsocketClient extends BaseWebsocketClient<
      * COINM Futures: https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-api-general-info
      */
 
-    // this.logger.trace(`sendWSAPIRequest(): assert "${wsKey}" is connected`);
-    await this.assertIsConnected(wsKey);
-    // this.logger.trace('sendWSAPIRequest()->assertIsConnected() ok');
+    // If useTestnet, enforce testnet wskey for WS API calls
+    const resolvedWsKey = this.options.useTestnet
+      ? getTestnetWsKey(wsKey)
+      : wsKey;
 
-    await this.assertIsAuthenticated(wsKey);
-    // this.logger.trace('sendWSAPIRequest()->assertIsAuthenticated() ok');
+    // this.logger.trace(`sendWSAPIRequest(): assertIsConnected("${wsKey}")...`);
+    await this.assertIsConnected(resolvedWsKey);
+    // this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
+
+    // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
+    await this.assertIsAuthenticated(resolvedWsKey);
+    // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
 
     const request: WsRequestOperationBinance<string> = {
       id: this.getNewRequestId(),
@@ -325,38 +332,38 @@ export class WebsocketClient extends BaseWebsocketClient<
       },
     };
 
-    if (requiresWSAPINewClientOID(request, wsKey)) {
-      validateWSAPINewClientOID(request, wsKey);
+    if (requiresWSAPINewClientOID(request, resolvedWsKey)) {
+      validateWSAPINewClientOID(request, resolvedWsKey);
     }
 
     // Sign, if needed
     const signedEvent = await this.signWSAPIRequest(request);
 
     // Store deferred promise, resolved within the "resolveEmittableEvents" method while parsing incoming events
-    const promiseRef = getPromiseRefForWSAPIRequest(wsKey, signedEvent);
+    const promiseRef = getPromiseRefForWSAPIRequest(resolvedWsKey, signedEvent);
 
     const deferredPromise =
       this.getWsStore().createDeferredPromise<TWSAPIResponse>(
-        wsKey,
+        resolvedWsKey,
         promiseRef,
         false,
       );
 
     deferredPromise.promise?.catch((e) => {
       e.request = {
-        wsKey,
+        wsKey: resolvedWsKey,
         operation,
         params,
       };
       // throw e;
     });
 
-    // this.logger.trace(
-    //   `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,
-    // );
+    this.logger.trace(
+      `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,
+    );
 
     // Send event
-    this.tryWsSend(wsKey, JSON.stringify(signedEvent));
+    this.tryWsSend(resolvedWsKey, JSON.stringify(signedEvent));
 
     this.logger.trace(
       `sendWSAPIRequest(): sent "${operation}" event with promiseRef(${promiseRef})`,
