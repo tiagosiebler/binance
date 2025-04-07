@@ -1,6 +1,10 @@
-import { numberInString } from '../lib';
-import { ExchangeInfo, MainClient } from '../src/index';
-import { roundToStepSize, roundToTickSize } from '../src/util/rounding';
+import {
+  ExchangeInfo,
+  MainClient,
+  numberInString,
+  roundToStepSize,
+  roundToTickSize,
+} from '../src'; // from 'binance';
 
 // or
 // import { MainClient } from 'binance';
