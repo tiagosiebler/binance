@@ -348,7 +348,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         operation,
         params,
       };
-      throw e;
+      // throw e;
     });
 
     // this.logger.trace(

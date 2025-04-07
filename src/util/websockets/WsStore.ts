@@ -210,7 +210,8 @@ export class WsStore<
 
     if (promise?.reject) {
       this.logger.trace(
-        `rejectDeferredPromise(): rejecting ${wsKey}/${promiseRef}/${value}`,
+        `rejectDeferredPromise(): rejecting ${wsKey}/${promiseRef}`,
+        value,
       );
       promise.reject(value);
     }

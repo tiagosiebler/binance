@@ -71,6 +71,8 @@ async function main() {
    * - mainWSAPITestnet: "main" testnet
    * - usdmWSAPI: usdm futures
    * - usdmWSAPITestnet: usdm futures testnet
+   * - coinmWSAPI: coinm futures
+   * - coinmWSAPITestnet: coinm futures testnet
    */
 
   const WS_API_WS_KEY: WSAPIWsKey = WS_KEY_MAP.mainWSAPI;
