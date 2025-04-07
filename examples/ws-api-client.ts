@@ -6,16 +6,30 @@
 //   WS_KEY_MAP,
 // } from 'binance';
 
-import { WebsocketAPIClient, WebsocketClient, WS_KEY_MAP } from '../src';
+import {
+  DefaultLogger,
+  WebsocketAPIClient,
+  WebsocketClient,
+  WS_KEY_MAP,
+} from '../src';
 
-const key = process.env.API_KEY_COM;
-const secret = process.env.API_SECRET_COM;
+/**
+ * Check the rest-private-ed25519.md in this folder for more guidance
+ * on preparing this Ed25519 API key.
+ */
 
-const wsClient = new WebsocketAPIClient({
-  api_key: key,
-  api_secret: secret,
-  beautify: true,
-});
+const publicKey = `-----BEGIN PUBLIC KEY-----
+MCexampleQTxwLU9o=
+-----END PUBLIC KEY-----
+`;
+
+const privateKey = `-----BEGIN PRIVATE KEY-----
+MC4CAQAexamplewqj5CzUuTy1
+-----END PRIVATE KEY-----
+`;
+
+// return by binance, generated using the publicKey (above)
+const key = 'TQpJexamplerobdG';
 
 function attachEventHandlers<TWSClient extends WebsocketClient>(
   wsClient: TWSClient,
@@ -47,17 +61,67 @@ function attachEventHandlers<TWSClient extends WebsocketClient>(
 }
 
 async function main() {
+  const customLogger = {
+    ...DefaultLogger,
+    // For a more detailed view of the WebsocketClient, enable the `trace` level by uncommenting the below line:
+    // trace: (...params) => console.log(new Date(), 'trace', ...params),
+  };
+
+  const wsClient = new WebsocketAPIClient(
+    {
+      api_key: key,
+      api_secret: privateKey,
+      beautify: true,
+
+      // Enforce testnet ws connections, regardless of supplied wsKey
+      // useTestnet: true,
+
+      // If true, if you used requestSubscribeUserDataStream(), it will
+      // automatically call this method again if you're reconnected
+      onReconnectResubscribeUserDataStream: true,
+    },
+    customLogger,
+  );
+
   // Attach basic event handlers, so nothing is left unhandled
   attachEventHandlers(wsClient);
+
+  // Optional, if you see RECV Window errors, you can use this to manage time issues. However, make sure you sync your system clock first!
+  // https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow
+  wsClient.setTimeOffsetMs(-5000);
 
   // Optional, see above. Can be used to prepare a connection before sending commands
   // await wsClient.connectWSAPI(WS_KEY_MAP.mainWSAPI);
 
   try {
-    const result = await wsClient.getSessionStatus();
-    console.log('getSessionStatus result: ', result);
+    const response = await wsClient.getSpotSessionStatus();
+    console.log('getSessionStatus response: ', response);
   } catch (e) {
     console.log('getSessionStatus error: ', e);
+  }
+
+  // try {
+  //   const response = await wsClient.startSpotUserDataStream({
+  //     apiKey: key,
+  //   });
+
+  //   const listenKey = response.result.listenKey;
+
+  //   console.log('startSpotUserDataStream response: ', listenKey);
+  // } catch (e) {
+  //   console.log('startSpotUserDataStream error: ', e);
+  // }
+
+  // Note: unless you use onReconnectResubscribeUserDataStream, you
+  // will need to call this again after being reconnected
+  try {
+    const response = await wsClient.requestSubscribeUserDataStream(
+      WS_KEY_MAP.mainWSAPITestnet,
+    );
+
+    console.log('requestSubscribeUserDataStream response: ', response);
+  } catch (e) {
+    console.log('requestSubscribeUserDataStream error: ', e);
   }
 
   // TODO: add all the other endpoints here, once done

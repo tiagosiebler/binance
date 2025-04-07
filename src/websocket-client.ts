@@ -358,9 +358,9 @@ export class WebsocketClient extends BaseWebsocketClient<
       // throw e;
     });
 
-    this.logger.trace(
-      `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,
-    );
+    // this.logger.trace(
+    //   `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,
+    // );
 
     // Send event
     this.tryWsSend(resolvedWsKey, JSON.stringify(signedEvent));
