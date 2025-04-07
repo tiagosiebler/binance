@@ -144,6 +144,7 @@ export class WebsocketClientV1 extends EventEmitter {
     return {
       ...this.options,
       ...this.options.restOptions,
+      useTestnet: this.options.useTestnet,
       api_key: this.options.api_key,
       api_secret: this.options.api_secret,
     };
@@ -857,17 +858,15 @@ export class WebsocketClientV1 extends EventEmitter {
       case 'usdmTestnet':
         return this.restClientCache
           .getUSDMRestClient(
-            this.getRestClientOptions(),
+            { ...this.getRestClientOptions(), useTestnet: isTestnet },
             this.options.requestOptions,
-            isTestnet,
           )
           .keepAliveFuturesUserDataListenKey();
       case 'coinmTestnet':
         return this.restClientCache
           .getCOINMRestClient(
-            this.getRestClientOptions(),
+            { ...this.getRestClientOptions(), useTestnet: isTestnet },
             this.options.requestOptions,
-            isTestnet,
           )
           .keepAliveFuturesUserDataListenKey();
       case 'portfoliom':
@@ -1956,9 +1955,8 @@ export class WebsocketClientV1 extends EventEmitter {
   ): Promise<WebSocket> {
     try {
       const restClient = this.restClientCache.getUSDMRestClient(
-        this.getRestClientOptions(),
+        { ...this.getRestClientOptions(), useTestnet: isTestnet },
         this.options.requestOptions,
-        isTestnet,
       );
 
       const { listenKey } = await restClient.getFuturesUserDataListenKey();
@@ -2025,9 +2023,8 @@ export class WebsocketClientV1 extends EventEmitter {
     try {
       const { listenKey } = await this.restClientCache
         .getCOINMRestClient(
-          this.getRestClientOptions(),
+          { ...this.getRestClientOptions(), useTestnet: isTestnet },
           this.options.requestOptions,
-          isTestnet,
         )
         .getFuturesUserDataListenKey();
 

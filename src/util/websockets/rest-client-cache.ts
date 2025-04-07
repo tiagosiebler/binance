@@ -44,14 +44,12 @@ export class RestClientCache {
   public getUSDMRestClient(
     restOptions: RestClientOptions,
     requestOptions?: AxiosRequestConfig,
-    isTestnet?: boolean,
   ): USDMClient {
-    if (isTestnet) {
+    if (restOptions.useTestnet) {
       if (!this.restClients.usdmFuturesTestnet) {
         this.restClients.usdmFuturesTestnet = new USDMClient(
           restOptions,
           requestOptions,
-          isTestnet, // TODO: migrate to using restOptions param instead, deprecate this flag
         );
       }
       return this.restClients.usdmFuturesTestnet;
@@ -69,14 +67,12 @@ export class RestClientCache {
   public getCOINMRestClient(
     restOptions: RestClientOptions,
     requestOptions?: AxiosRequestConfig,
-    isTestnet?: boolean,
   ): CoinMClient {
-    if (isTestnet) {
+    if (restOptions.useTestnet) {
       if (!this.restClients.coinmFuturesTestnet) {
         this.restClients.coinmFuturesTestnet = new CoinMClient(
           restOptions,
           requestOptions,
-          isTestnet, // TODO: migrate to using restOptions param instead, deprecate this flag
         );
       }
       return this.restClients.coinmFuturesTestnet;

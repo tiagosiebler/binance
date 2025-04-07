@@ -43,7 +43,7 @@ import {
   TradesAggregateWSAPIRequest,
   TradesHistoricalWSAPIRequest,
   TradesRecentWSAPIRequest,
-  WSAPIRecvWindowtimestamp,
+  WSAPIRecvWindowTimestamp,
 } from './types/websockets/ws-api-requests';
 import {
   AccountCommissionWSAPIResponse,
@@ -576,7 +576,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: If you need to continuously monitor order status updates, consider using WebSocket Streams
    */
   getSpotOpenOrderLists(
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListStatusWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
@@ -646,7 +646,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Weight: 40
    */
   getSpotOrderRateLimits(
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<RateLimitWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
@@ -902,7 +902,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Returns balance information for all assets
    */
   getFuturesAccountBalanceV2(
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
   ): Promise<WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
@@ -919,7 +919,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    */
   getFuturesAccountBalance(
     market: 'usdm' | 'coinm',
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
   ): Promise<WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>> {
     return this.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
@@ -933,7 +933,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Returns detailed account information including positions and assets
    */
   getFuturesAccountStatusV2(
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
   ): Promise<WSAPIResponse<FuturesAccountStatusWSAPIResponse>> {
     return this.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
@@ -950,7 +950,7 @@ export class WebsocketAPIClient extends WebsocketClient {
    */
   getFuturesAccountStatus(
     market: 'usdm' | 'coinm',
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
   ): Promise<WSAPIResponse<FuturesAccountStatusWSAPIResponse>> {
     return this.sendWSAPIRequest(
       getFuturesMarketWsKey(market),

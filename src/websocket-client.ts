@@ -111,10 +111,8 @@ export class WebsocketClient extends BaseWebsocketClient<
           respawnAttempt?: number;
         } = {},
       ) => this.respawnUserDataStream(wsKey, market, context),
-      getWsUrlFn: (
-        wsKey: WsKey,
-        connectionType: 'market' | 'userData' | 'wsAPI',
-      ) => this.getWsUrl(wsKey, connectionType),
+      getWsUrlFn: (wsKey: WsKey, connectionType: 'market' | 'userData') =>
+        this.getWsUrl(wsKey, connectionType),
       getRestClientOptionsFn: () => this.getRestClientOptions(),
       getWsClientOptionsfn: () => this.options,
       closeWsFn: (wsKey: WsKey, force?: boolean) => this.close(wsKey, force),
@@ -134,6 +132,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     return {
       ...this.options,
       ...this.options.restOptions,
+      useTestnet: this.options.useTestnet,
       api_key: this.options.api_key,
       api_secret: this.options.api_secret,
     };
@@ -267,9 +266,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   >(
     wsKey: TWSKey,
     operation: TWSOperation,
-    ...params: TWSParams extends undefined | void | never
-      ? [] | [undefined]
-      : [TWSParams]
+    ...params: TWSParams extends void | never ? [] | [undefined] : [TWSParams]
   ): Promise<TWSAPIResponse>;
 
   // These overloads give stricter types than mapped generics, since generic constraints
@@ -324,8 +321,6 @@ export class WebsocketClient extends BaseWebsocketClient<
       id: this.getNewRequestId(),
       method: operation,
       params: {
-        // timestamp: Date.now(),
-        // recvWindow: this.options.recvWindow,
         ...params,
       },
     };
@@ -384,7 +379,7 @@ export class WebsocketClient extends BaseWebsocketClient<
    */
   async getWsUrl(
     wsKey: WsKey,
-    connectionType: 'market' | 'userData' | 'wsAPI' = 'market',
+    connectionType: 'market' | 'userData' = 'market',
   ): Promise<string> {
     const wsBaseURL =
       getWsUrl(wsKey, this.options, this.logger) +
@@ -1394,9 +1389,8 @@ export class WebsocketClient extends BaseWebsocketClient<
     try {
       const isTestnet = wsKey === WS_KEY_MAP.usdmTestnet;
       const restClient = this.restClientCache.getUSDMRestClient(
-        this.getRestClientOptions(),
+        { ...this.getRestClientOptions(), useTestnet: isTestnet },
         this.options.requestOptions,
-        isTestnet,
       );
 
       const { listenKey } = await restClient.getFuturesUserDataListenKey();
@@ -1437,9 +1431,8 @@ export class WebsocketClient extends BaseWebsocketClient<
       const isTestnet = wsKey === WS_KEY_MAP.coinmTestnet;
       const { listenKey } = await this.restClientCache
         .getCOINMRestClient(
-          this.getRestClientOptions(),
+          { ...this.getRestClientOptions(), useTestnet: isTestnet },
           this.options.requestOptions,
-          isTestnet,
         )
         .getFuturesUserDataListenKey();
 

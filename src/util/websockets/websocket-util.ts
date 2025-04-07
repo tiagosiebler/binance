@@ -141,7 +141,7 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
 export function getWsURLSuffix(
   wsKey: WsKey,
-  connectionType: 'market' | 'userData' | 'wsAPI',
+  connectionType: 'market' | 'userData' | 'wsAPI', // TODO: dreprecate the connectiontype and use wskey instead
 ): string {
   switch (wsKey) {
     case 'main':
@@ -149,8 +149,7 @@ export function getWsURLSuffix(
     case 'main3':
     case 'marginRiskUserData':
     case 'mainTestnetPublic':
-    case 'mainTestnetUserData':
-    case 'mainWSAPITestnet': {
+    case 'mainTestnetUserData': {
       switch (connectionType) {
         case 'market':
           return '/stream';
@@ -166,6 +165,7 @@ export function getWsURLSuffix(
         }
       }
     }
+    case 'mainWSAPITestnet':
     case 'mainWSAPI':
     case 'mainWSAPI2': {
       return '/ws-api/v3';

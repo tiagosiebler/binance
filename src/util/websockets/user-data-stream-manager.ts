@@ -282,7 +282,6 @@ export class UserDataStreamManager {
         wsKey,
         derivedWsKey,
         symbol,
-        isTestnet,
       );
 
       listenKeyState.lastKeepAlive = Date.now();
@@ -439,7 +438,6 @@ export class UserDataStreamManager {
     wsKey: WsKey,
     deriedWsKey: string,
     symbol?: string,
-    isTestnet?: boolean,
   ) {
     switch (market) {
       case 'spot':
@@ -496,7 +494,6 @@ export class UserDataStreamManager {
           .getUSDMRestClient(
             this.getRestClientOptionsFn(),
             this.getWsClientOptionsfn().requestOptions,
-            isTestnet,
           )
           .keepAliveFuturesUserDataListenKey();
       case 'coinmTestnet':
@@ -504,7 +501,6 @@ export class UserDataStreamManager {
           .getCOINMRestClient(
             this.getRestClientOptionsFn(),
             this.getWsClientOptionsfn().requestOptions,
-            isTestnet,
           )
           .keepAliveFuturesUserDataListenKey();
       case 'portfoliom':
