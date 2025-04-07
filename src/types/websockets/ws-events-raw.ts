@@ -1,23 +1,21 @@
 import {
-  FuturesContractType,
-  PositionSide,
-  MarginType,
   FuturesOrderType,
+  MarginType,
+  PositionSide,
   WorkingType,
 } from '../futures';
 import {
   KlineInterval,
   numberInString,
-  OrderBookRow,
-  OrderBookRowFormatted,
-  OrderSide,
-  OrderType,
-  OrderTimeInForce,
-  OrderExecutionType,
-  OrderStatus,
-  SelfTradePreventionMode,
-  OCOStatus,
   OCOOrderStatus,
+  OCOStatus,
+  OrderBookRow,
+  OrderExecutionType,
+  OrderSide,
+  OrderStatus,
+  OrderTimeInForce,
+  OrderType,
+  SelfTradePreventionMode,
 } from '../shared';
 import { WsSharedBase } from './ws-general';
 

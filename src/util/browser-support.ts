@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
-  SignEncodeMethod,
   SignAlgorithm,
+  SignEncodeMethod,
   signMessage as signMessageWebCryptoAPI,
 } from './webCryptoAPI';
 
