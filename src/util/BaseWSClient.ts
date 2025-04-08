@@ -172,7 +172,7 @@ export abstract class BaseWebsocketClient<
    */
   private wsStore: WsStore<TWSKey, WsTopicRequest<string>>;
 
-  protected logger: typeof DefaultLogger;
+  public logger: typeof DefaultLogger;
 
   protected options: WebsocketClientOptions;
 

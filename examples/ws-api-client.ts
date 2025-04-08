@@ -38,7 +38,7 @@ function attachEventHandlers<TWSClient extends WebsocketClient>(
    * General event handlers for monitoring the WebsocketClient
    */
   wsClient.on('message', (data) => {
-    console.log('raw message received ', JSON.stringify(data));
+    // console.log('raw message received ', JSON.stringify(data));
   });
   wsClient.on('response', (data) => {
     // console.log('ws response: ', JSON.stringify(data));
@@ -78,13 +78,15 @@ async function main() {
 
       // If true, if you used requestSubscribeUserDataStream(), it will
       // automatically call this method again if you're reconnected
-      onReconnectResubscribeUserDataStream: true,
+      resubscribeUserDataStreamAfterReconnect: true,
+      // TODO:
+      automaticallyPingListenKeyEveryMinutes: 0.1,
     },
     customLogger,
   );
 
   // Attach basic event handlers, so nothing is left unhandled
-  attachEventHandlers(wsClient);
+  attachEventHandlers(wsClient.getWSClient());
 
   // Optional, if you see RECV Window errors, you can use this to manage time issues. However, make sure you sync your system clock first!
   // https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow
@@ -100,29 +102,29 @@ async function main() {
     console.log('getSessionStatus error: ', e);
   }
 
-  // try {
-  //   const response = await wsClient.startSpotUserDataStream({
-  //     apiKey: key,
-  //   });
-
-  //   const listenKey = response.result.listenKey;
-
-  //   console.log('startSpotUserDataStream response: ', listenKey);
-  // } catch (e) {
-  //   console.log('startSpotUserDataStream error: ', e);
-  // }
-
-  // Note: unless you use onReconnectResubscribeUserDataStream, you
-  // will need to call this again after being reconnected
   try {
-    const response = await wsClient.requestSubscribeUserDataStream(
-      WS_KEY_MAP.mainWSAPITestnet,
-    );
+    const response = await wsClient.startUserDataStreamForKey({
+      apiKey: key,
+    });
 
-    console.log('requestSubscribeUserDataStream response: ', response);
+    const listenKey = response.result.listenKey;
+
+    console.log('startSpotUserDataStream response: ', listenKey);
   } catch (e) {
-    console.log('requestSubscribeUserDataStream error: ', e);
+    console.log('startSpotUserDataStream error: ', e);
   }
+
+  // // Note: unless you use onReconnectResubscribeUserDataStream, you
+  // // will need to call this again after being reconnected
+  // try {
+  //   const response = await wsClient.subscribeUserDataStream(
+  //     WS_KEY_MAP.mainWSAPITestnet,
+  //   );
+
+  //   console.log('requestSubscribeUserDataStream response: ', response);
+  // } catch (e) {
+  //   console.log('requestSubscribeUserDataStream error: ', e);
+  // }
 
   // TODO: add all the other endpoints here, once done
 }

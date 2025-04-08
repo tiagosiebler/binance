@@ -213,7 +213,12 @@ export class WsStore<
         `rejectDeferredPromise(): rejecting ${wsKey}/${promiseRef}`,
         value,
       );
-      promise.reject(value);
+
+      if (typeof value === 'string') {
+        promise.reject(new Error(value));
+      } else {
+        promise.reject(value);
+      }
     }
 
     if (removeAfter) {

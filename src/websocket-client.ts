@@ -350,6 +350,10 @@ export class WebsocketClient extends BaseWebsocketClient<
       );
 
     deferredPromise.promise?.catch((e) => {
+      if (typeof e === 'string') {
+        this.logger.error('unexpcted string', { e });
+        throw e;
+      }
       e.request = {
         wsKey: resolvedWsKey,
         operation,
