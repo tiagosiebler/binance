@@ -1,4 +1,4 @@
-import { DefaultLogger, isWsFormattedTrade, WebsocketClientV1 } from '../src';
+import { DefaultLogger, isWsFormattedTrade, WebsocketClient } from '../src';
 
 // or, with the npm package
 /*
@@ -15,7 +15,7 @@ import {
     // trace: () => {},
   };
 
-  const wsClient = new WebsocketClientV1(
+  const wsClient = new WebsocketClient(
     {
       beautify: true,
     },
@@ -34,8 +34,8 @@ import {
   wsClient.on('open', (data) => {
     console.log('connection opened open:', data.wsKey, data.wsUrl);
   });
-  wsClient.on('reply', (data) => {
-    console.log('log reply: ', JSON.stringify(data, null, 2));
+  wsClient.on('response', (data) => {
+    console.log('log response: ', JSON.stringify(data, null, 2));
   });
   wsClient.on('reconnecting', (data) => {
     console.log('ws automatically reconnecting.... ', data?.wsKey);

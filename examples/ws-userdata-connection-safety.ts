@@ -4,9 +4,9 @@ import {
   isWsFormattedSpotUserDataEvent,
   isWsFormattedSpotUserDataExecutionReport,
   isWsFormattedUserDataEvent,
+  WebsocketClient,
   WsUserDataEvents,
 } from '../src';
-import { WebsocketClientV1 } from '../src/websocket-client-legacy';
 
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';
@@ -37,7 +37,7 @@ import { WebsocketClientV1 } from '../src/websocket-client-legacy';
     },
   };
 
-  const wsClient = new WebsocketClientV1(
+  const wsClient = new WebsocketClient(
     {
       api_key: key,
       api_secret: secret,
@@ -46,9 +46,9 @@ import { WebsocketClientV1 } from '../src/websocket-client-legacy';
     logger,
   );
 
-  wsClient.on('message', (data) => {
-    // console.log('raw message received ', JSON.stringify(data, null, 2));
-  });
+  // wsClient.on('message', (data) => {
+  //   console.log('raw message received ', JSON.stringify(data, null, 2));
+  // });
 
   function onUserDataEvent(data: WsUserDataEvents) {
     // the market denotes which API category it came from
@@ -107,7 +107,7 @@ import { WebsocketClientV1 } from '../src/websocket-client-legacy';
   });
 
   // response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
-  wsClient.on('reply', (data) => {
+  wsClient.on('response', (data) => {
     console.log('log reply: ', JSON.stringify(data, null, 2));
   });
   wsClient.on('reconnecting', (data) => {
@@ -116,7 +116,7 @@ import { WebsocketClientV1 } from '../src/websocket-client-legacy';
   wsClient.on('reconnected', (data) => {
     console.log('ws has reconnected ', data?.wsKey);
   });
-  wsClient.on('error', (data) => {
+  wsClient.on('exception', (data) => {
     console.error('ws saw error: ', data);
 
     // Note: manually re-subscribing like this may only be needed if the FIRST user data connection attempt failed

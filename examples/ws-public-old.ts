@@ -11,7 +11,7 @@ import {
 // or, with the npm package
 /*
 import {
-  WebsocketClient,
+  WebsocketClientV1,
   DefaultLogger,
   isWsFormatted24hrTicker,
   isWsFormattedKline,
@@ -81,12 +81,12 @@ import {
   });
 
   wsClient.on('open', (data) => {
-    console.log('connection opened open:', data.wsKey, data.wsUrl);
+    console.log('connection opened open:', data.wsKey, data.ws?.url);
   });
 
   // response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
   wsClient.on('reply', (data) => {
-    console.log('log reply: ', JSON.stringify(data, null, 2));
+    console.log('log response: ', JSON.stringify(data, null, 2));
   });
   wsClient.on('reconnecting', (data) => {
     console.log('ws automatically reconnecting.... ', data?.wsKey);

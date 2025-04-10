@@ -4,9 +4,9 @@ import {
   isWsFormattedSpotUserDataEvent,
   isWsFormattedSpotUserDataExecutionReport,
   isWsFormattedUserDataEvent,
+  WebsocketClient,
   WsUserDataEvents,
 } from '../src';
-import { WebsocketClientV1 } from '../src';
 
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';
@@ -27,14 +27,14 @@ import { WebsocketClientV1 } from '../src';
   const logger = {
     ...DefaultLogger,
     trace: (msg, context) => {
-      // if (ignoredTraceLogMsgs.includes(msg)) {
-      //   return;
-      // }
+      if (ignoredTraceLogMsgs.includes(msg)) {
+        return;
+      }
       console.log(JSON.stringify({ msg, context }));
     },
   };
 
-  const wsClient = new WebsocketClientV1(
+  const wsClient = new WebsocketClient(
     {
       api_key: key,
       api_secret: secret,
@@ -43,9 +43,9 @@ import { WebsocketClientV1 } from '../src';
     logger,
   );
 
-  wsClient.on('message', (data) => {
-    // console.log('raw message received ', JSON.stringify(data, null, 2));
-  });
+  // wsClient.on('message', (data) => {
+  //   console.log('raw message received ', JSON.stringify(data, null, 2));
+  // });
 
   function onUserDataEvent(data: WsUserDataEvents) {
     // the market denotes which API category it came from
@@ -100,8 +100,8 @@ import { WebsocketClientV1 } from '../src';
   });
 
   // response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
-  wsClient.on('reply', (data) => {
-    console.log('log reply: ', JSON.stringify(data, null, 2));
+  wsClient.on('response', (data) => {
+    console.log('log response: ', JSON.stringify(data, null, 2));
   });
 
   wsClient.on('reconnecting', (data) => {
@@ -123,7 +123,7 @@ import { WebsocketClientV1 } from '../src';
     }
   });
 
-  wsClient.on('error', (data) => {
+  wsClient.on('exception', (data) => {
     console.error('ws saw error: ', data);
   });
 

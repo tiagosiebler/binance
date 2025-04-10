@@ -270,8 +270,8 @@ wsClient.on('formattedMessage', (data) => {
 });
 
 // read response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
-wsClient.on('reply', (data) => {
-  console.log('log reply: ', JSON.stringify(data, null, 2));
+wsClient.on('response', (data) => {
+  console.log('log response: ', JSON.stringify(data, null, 2));
 });
 
 // receive notification when a ws connection is reconnecting automatically
@@ -285,7 +285,7 @@ wsClient.on('reconnected', (data) => {
 });
 
 // Recommended: receive error events (e.g. first reconnection failed)
-wsClient.on('error', (data) => {
+wsClient.on('exception', (data) => {
   console.log('ws saw error ', data?.wsKey);
 });
 

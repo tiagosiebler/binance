@@ -610,6 +610,9 @@ export class WebsocketClient extends BaseWebsocketClient<
           id: req_id,
         };
 
+        // Cache midflight subs on the req ID
+        // Enrich response with subs for that req ID
+
         const midflightWsEvent: MidflightWsRequestEvent<
           WsRequestOperationBinance<WsTopic>
         > = {
@@ -847,9 +850,13 @@ export class WebsocketClient extends BaseWebsocketClient<
 
         results.push({
           eventType: 'response',
-          event: parsed,
+          event: {
+            ...parsed,
+            request: this.getCachedMidFlightRequest(wsKey, reqId),
+          },
           isWSAPIResponse: isWSAPIResponse,
         });
+        this.removeCachedMidFlightRequest(wsKey, reqId);
 
         return results;
       }
