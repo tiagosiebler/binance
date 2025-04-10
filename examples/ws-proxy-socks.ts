@@ -20,7 +20,7 @@ wsClient.on('formattedMessage', (data) => {
   console.log('log formattedMessage: ', data);
 });
 wsClient.on('open', (data) => {
-  console.log('connection opened open:', data.wsKey, data.ws.target.url);
+  console.log('connection opened open:', data.wsKey, data.wsUrl);
 });
 
 wsClient.on('reply', (data) => {

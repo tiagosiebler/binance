@@ -297,7 +297,7 @@ wsClient.on('formattedMessage', (data) => {
 });
 
 wsClient.on('open', async (data) => {
-  console.log('connection opened open:', data.wsKey, data.ws.target.url);
+  console.log('connection opened open:', data.wsKey, data.wsUrl);
 
   const wsKey = data.wsKey;
   const wsKeyContext = wsKeyContextStore[wsKey];

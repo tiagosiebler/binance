@@ -24,12 +24,11 @@ export class RestClientCache {
   public getSpotRestClient(
     restOptions: RestClientOptions,
     requestOptions?: AxiosRequestConfig,
-    isTestnet?: boolean,
   ): MainClient {
-    if (isTestnet) {
+    if (restOptions.useTestnet) {
       if (!this.restClients.spotTestnet) {
         this.restClients.spotTestnet = new MainClient(
-          { ...restOptions, useTestnet: true },
+          { ...restOptions },
           requestOptions,
         );
       }

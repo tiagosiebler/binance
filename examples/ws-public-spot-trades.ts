@@ -32,7 +32,7 @@ import {
   });
 
   wsClient.on('open', (data) => {
-    console.log('connection opened open:', data.wsKey, data.ws.target.url);
+    console.log('connection opened open:', data.wsKey, data.wsUrl);
   });
   wsClient.on('reply', (data) => {
     console.log('log reply: ', JSON.stringify(data, null, 2));

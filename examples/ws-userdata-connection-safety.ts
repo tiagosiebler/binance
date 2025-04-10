@@ -103,7 +103,7 @@ import { WebsocketClientV1 } from '../src/websocket-client-legacy';
     if (data.wsKey.includes('userData')) {
       didConnectUserDataSuccessfully = true;
     }
-    console.log('connection opened open:', data.wsKey, data.ws.target.url);
+    console.log('connection opened open:', data.wsKey, data.wsUrl);
   });
 
   // response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)

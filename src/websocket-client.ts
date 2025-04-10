@@ -1207,7 +1207,6 @@ export class WebsocketClient extends BaseWebsocketClient<
   protected async triggerCustomReconnectionWorkflow(
     legacyWsKey: string,
   ): Promise<void> {
-    console.log(`triggerCustomReconnectionWorkflow(${legacyWsKey})`);
     if (legacyWsKey.includes('userData')) {
       return this.getUserDataStreamManager().triggerUserDataReconnectionWorkflow(
         legacyWsKey,
@@ -1400,7 +1399,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     try {
       const isTestnet = wsKey === WS_KEY_MAP.usdmTestnet;
       const restClient = this.restClientCache.getUSDMRestClient(
-        { ...this.getRestClientOptions(), useTestnet: isTestnet },
+        this.getRestClientOptions(),
         this.options.requestOptions,
       );
 
@@ -1443,7 +1442,6 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
 
     this.close(userDataWsKey);
-    console.log('wsKey: ', userDataWsKey);
   }
 
   /**
@@ -1458,7 +1456,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       const isTestnet = wsKey === WS_KEY_MAP.coinmTestnet;
       const { listenKey } = await this.restClientCache
         .getCOINMRestClient(
-          { ...this.getRestClientOptions(), useTestnet: isTestnet },
+          this.getRestClientOptions(),
           this.options.requestOptions,
         )
         .getFuturesUserDataListenKey();

@@ -6,6 +6,7 @@ import {
   GenericAPIResponse,
   getRequestSignature,
   getRestBaseUrl,
+  getTestnetBaseUrlKey,
   RestClientOptions,
   serialiseParams,
 } from './requestUtils';
@@ -78,7 +79,11 @@ export default abstract class BaseRestClient {
       this.globalRequestOptions.headers['X-MBX-APIKEY'] = this.key;
     }
 
-    this.baseUrlKey = this.options.baseUrlKey || baseUrlKey;
+    const derivedBaseUrlKey = this.options.baseUrlKey || baseUrlKey;
+    this.baseUrlKey = options.useTestnet
+      ? getTestnetBaseUrlKey(derivedBaseUrlKey)
+      : derivedBaseUrlKey;
+
     this.baseUrl = getRestBaseUrl(this.baseUrlKey, this.options);
 
     if (this.key && !this.secret) {

@@ -825,7 +825,6 @@ export class WebsocketClientV1 extends EventEmitter {
           .getSpotRestClient(
             this.getRestClientOptions(),
             this.options.requestOptions,
-            true,
           )
           .keepAliveSpotUserDataListenKey(listenKey);
       case 'crossMargin':

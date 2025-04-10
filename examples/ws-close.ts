@@ -1,4 +1,4 @@
-import { DefaultLogger, WebsocketClient, WebsocketClientV1 } from '../src';
+import { DefaultLogger, WebsocketClient } from '../src';
 
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';
@@ -23,7 +23,6 @@ import { DefaultLogger, WebsocketClient, WebsocketClientV1 } from '../src';
 
   wsClient.on('open', (data) => {
     console.log('connection opened open:', data.wsKey, data.wsUrl);
-    wsKey = data.wsKey;
   });
 
   wsClient.on('reconnecting', (data) => {

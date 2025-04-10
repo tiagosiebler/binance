@@ -277,6 +277,7 @@ const BINANCE_BASE_URLS: Record<BinanceBaseUrlKey, string> = {
   spot2: 'https://api1.binance.com',
   spot3: 'https://api2.binance.com',
   spot4: 'https://api3.binance.com',
+  spottest: 'https://testnet.binance.vision',
 
   // USDM Futures
   usdm: 'https://fapi.binance.com',
@@ -301,6 +302,7 @@ export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
     case 'spot2':
     case 'spot3':
     case 'spot4':
+    case 'spottest':
     default:
       return 'api/v3/time';
 
@@ -315,6 +317,33 @@ export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
     case 'voptions':
     case 'voptionstest':
       return 'vapi/v1/time';
+  }
+}
+
+export function getTestnetBaseUrlKey(
+  urlKey: BinanceBaseUrlKey,
+): BinanceBaseUrlKey {
+  switch (urlKey) {
+    case 'spot':
+    case 'spot1':
+    case 'spot2':
+    case 'spot3':
+    case 'spot4':
+    case 'spottest':
+    default:
+      return 'spottest';
+
+    case 'usdm':
+    case 'usdmtest':
+      return 'usdmtest';
+
+    case 'coinm':
+    case 'coinmtest':
+      return 'coinmtest';
+
+    case 'voptions':
+    case 'voptionstest':
+      return 'voptionstest';
   }
 }
 
