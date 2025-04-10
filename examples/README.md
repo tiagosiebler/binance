@@ -10,7 +10,7 @@ Found something difficult to implement? Contribute to these examples and help ot
 - Edit the sample as needed (some samples require edits, e.g APi keys or import statements).
 - Execute the sample using ts-node: `ts-node examples/rest-spot-public.ts`.
 
-Samples that API credentials using `process.env.APIKEY` can be spawned with environment variables. Unix/macOS example:
+Samples that API credentials using `process.env.API_KEY_COM` can be spawned with environment variables. Unix/macOS example:
 ```
 APIKEY="apikeypastedhere" APISECRET="apisecretpastedhere" ts-node examples/ws-userdata.ts
 ```

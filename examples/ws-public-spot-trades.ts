@@ -12,7 +12,7 @@ import {
 (async () => {
   const logger = {
     ...DefaultLogger,
-    // silly: () => {},
+    // trace: () => {},
   };
 
   const wsClient = new WebsocketClientV1(

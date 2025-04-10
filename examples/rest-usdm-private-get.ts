@@ -4,8 +4,8 @@ import { USDMClient } from '../src/index';
 // or
 // import { USDMClient } from 'binance';
 
-const key = process.env.APIKEY || 'APIKEY';
-const secret = process.env.APISECRET || 'APISECRET';
+const key = process.env.API_KEY_COM || 'APIKEY';
+const secret = process.env.API_SECRET_COM || 'APISECRET';
 
 const client = new USDMClient({
   api_key: key,

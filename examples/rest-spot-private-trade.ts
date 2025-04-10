@@ -1,15 +1,15 @@
 import {
+  MainClient,
   NewSpotOrderParams,
   OrderResponseFull,
-  MainClient,
   SymbolPrice,
 } from '../src/index';
 
 // or
 // import { MainClient } from 'binance';
 
-const key = process.env.APIKEY || 'APIKEY';
-const secret = process.env.APISECRET || 'APISECRET';
+const key = process.env.API_KEY_COM || 'APIKEY';
+const secret = process.env.API_SECRET_COM || 'APISECRET';
 
 const client = new MainClient({
   api_key: key,
@@ -89,13 +89,13 @@ function trimToDecimalPlaces(number: number, precision: number): number {
       newOrderRespType: 'FULL',
     };
 
-    console.log(`Submitting buy order: `, buyOrderRequest);
+    console.log('Submitting buy order: ', buyOrderRequest);
     await client.testNewOrder(buyOrderRequest);
     const buyOrderResult = (await client.submitNewOrder(
       buyOrderRequest,
     )) as OrderResponseFull;
     console.log(
-      `Order result: `,
+      'Order result: ',
       JSON.stringify(
         { request: buyOrderRequest, response: buyOrderResult },
         null,
@@ -126,14 +126,14 @@ function trimToDecimalPlaces(number: number, precision: number): number {
       newOrderRespType: 'FULL',
     };
 
-    console.log(`Submitting sell order: `, sellOrderRequest);
+    console.log('Submitting sell order: ', sellOrderRequest);
     await client.testNewOrder(sellOrderRequest);
     const sellOrderResult = (await client.submitNewOrder(
       sellOrderRequest,
     )) as OrderResponseFull;
 
     console.log(
-      `Order result: `,
+      'Order result: ',
       JSON.stringify(
         { request: sellOrderRequest, response: sellOrderResult },
         null,

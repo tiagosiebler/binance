@@ -17,7 +17,7 @@ import { WebsocketClientV1 } from '../src';
 
   console.log({ key, secret });
 
-  const ignoredSillyLogMsgs = [
+  const ignoredTraceLogMsgs = [
     'Sending ping',
     'Received pong, clearing pong timer',
     'Received ping, sending pong frame',
@@ -26,8 +26,8 @@ import { WebsocketClientV1 } from '../src';
   // Optional, hook and customise logging behavior
   const logger = {
     ...DefaultLogger,
-    silly: (msg, context) => {
-      // if (ignoredSillyLogMsgs.includes(msg)) {
+    trace: (msg, context) => {
+      // if (ignoredTraceLogMsgs.includes(msg)) {
       //   return;
       // }
       console.log(JSON.stringify({ msg, context }));

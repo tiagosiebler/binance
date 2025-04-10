@@ -16,11 +16,11 @@ import { WebsocketClientV1 } from '../src/websocket-client-legacy';
  * In most cases this is overkill!
  */
 (async () => {
-  const key = process.env.APIKEY || 'APIKEY';
-  const secret = process.env.APISECRET || 'APISECRET';
+  const key = process.env.API_KEY_COM || 'APIKEY';
+  const secret = process.env.API_SECRET_COM || 'APISECRET';
 
   // optionally block some silly logs from showing in the logger
-  const ignoredSillyLogMsgs = [
+  const ignoredTraceLogMsgs = [
     'Sending ping',
     'Received pong, clearing pong timer',
     'Received ping, sending pong frame',
@@ -29,8 +29,8 @@ import { WebsocketClientV1 } from '../src/websocket-client-legacy';
   // Optional, hook and customise logging behavior
   const logger = {
     ...DefaultLogger,
-    silly: (msg, context) => {
-      if (ignoredSillyLogMsgs.includes(msg)) {
+    trace: (msg, context) => {
+      if (ignoredTraceLogMsgs.includes(msg)) {
         return;
       }
       console.log(JSON.stringify({ msg, context }));

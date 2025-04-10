@@ -27,7 +27,7 @@ import {
 
   const logger = {
     ...DefaultLogger,
-    silly: (...params) => {
+    trace: (...params) => {
       console.log(new Date(), 'sillyLog', ...params);
     },
   };

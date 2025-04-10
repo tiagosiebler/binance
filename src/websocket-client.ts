@@ -1430,6 +1430,22 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
   }
 
+  public async closeUserDataStream(wsKey: WsKey = 'usdm'): Promise<void> {
+    const wsKeys = this.getWsStore().getKeys();
+    const userDataWsKey = wsKeys.find((key) => {
+      return key === wsKey || key.startsWith(wsKey + '_userData');
+    });
+
+    if (!userDataWsKey) {
+      throw new Error(
+        `No matching connection found with wsKey "${wsKey}". Active connections: [${JSON.stringify(wsKey)}]`,
+      );
+    }
+
+    this.close(userDataWsKey);
+    console.log('wsKey: ', userDataWsKey);
+  }
+
   /**
    * Subscribe to COIN-M Futures user data stream - listen key is automatically generated.
    */

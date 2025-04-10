@@ -240,7 +240,7 @@ const API_SECRET = 'yyy';
 // optionally override the logger
 const logger = {
   ...DefaultLogger,
-  silly: (...params) => {},
+  trace: (...params) => {},
 };
 
 const wsClient = new WebsocketClient(
