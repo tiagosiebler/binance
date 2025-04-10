@@ -88,7 +88,6 @@ import {
 import { WSClientConfigurableOptions } from './types/websockets/ws-general';
 import { DefaultLogger } from './util/logger';
 import { isWSAPIWsKey } from './util/typeGuards';
-import { isFatalWSError, WS_ERROR_CODE } from './util/websockets/enum';
 import {
   getTestnetWsKey,
   WS_KEY_MAP,
@@ -118,23 +117,11 @@ export interface WSAPIClientConfigurableOptions {
    */
   resubscribeUserDataStreamAfterReconnect: boolean;
   /**
-   * Default: true
-   *
-   * Same as `resubscribeUserDataStreamAfterReconnect`, but for the "listenKey" workflow.
-   */
-  resubscribeUserDataListenKeyAfterReconnect: boolean;
-  /**
    * Default: 2 seconds
    *
    * Delay automatic userdata resubscribe by x seconds.
    */
   resubscribeUserDataStreamDelaySeconds: number;
-
-  automaticallyPingListenKey: boolean;
-  automaticallyPingListenKeyEveryMinutes: number;
-
-  retryListenKeyResubscribeAfterSeconds: number;
-  retryListenKeyPingAfterSeconds: number;
 
   /**
    * Default: true
@@ -148,18 +135,12 @@ export interface WSAPIClientConfigurableOptions {
   attachEventListeners: boolean;
 }
 
-interface ActiveWSAPIListenKeyState {
-  wsKey: WSAPIWsKey;
-  apiKey: string;
-  listenKey: string;
-  lastPingedAtMs?: number; // Used to prevent premature ping at a frequency higher than configured
-}
-
 /**
  * Used to track that a connection had an active user data stream before it disconnected.
  *
- * Note: This is not the same as the "listenKey" WS API workflow. This does not return a
- * listen key. This also does not require a regular "ping" on the listen key.
+ * Note: This is not the same as the "listenKey" WS API workflow (the listenKey workflow is deprecated).
+ *
+ * This does not return a listen key. This also does not require a regular "ping" on the listen key.
  */
 interface ActiveUserDataStreamState {
   subscribedAt: Date;
@@ -192,29 +173,11 @@ export class WebsocketAPIClient {
     ActiveUserDataStreamState | undefined
   > = {};
 
-  /**
-   * Simple store of active listen keys. If automatic ping is enabled, every x
-   * minutes we will automatically send a ping for each listen key in this array.
-   *
-   * Failed ping, if not fatal, will trigger a retry for all pings
-   */
-  private activeListenKeys: ActiveWSAPIListenKeyState[] = [];
-
   private wsClient: WebsocketClient;
 
   private logger: DefaultLogger;
 
   private options: WSClientConfigurableOptions & WSAPIClientConfigurableOptions;
-
-  private listenKeyPingInterval: ReturnType<typeof setInterval> | undefined;
-
-  // { [wsKey]: { [APIKey]: resubTimeout }}
-  private listenKeyResubscribeTimers: Record<
-    WSAPIWsKey | string,
-    Record<string, ReturnType<typeof setTimeout>>
-  > = {};
-
-  private listenKeyPingRetryTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor(
     options?: WSClientConfigurableOptions &
@@ -225,13 +188,7 @@ export class WebsocketAPIClient {
 
     this.options = {
       resubscribeUserDataStreamAfterReconnect: true,
-      resubscribeUserDataListenKeyAfterReconnect: true,
       resubscribeUserDataStreamDelaySeconds: 2,
-      automaticallyPingListenKey: true,
-      automaticallyPingListenKeyEveryMinutes: 30,
-
-      retryListenKeyResubscribeAfterSeconds: 1,
-      retryListenKeyPingAfterSeconds: 1,
       attachEventListeners: true,
       ...options,
     };
@@ -239,7 +196,6 @@ export class WebsocketAPIClient {
     this.logger = this.wsClient.logger;
 
     this.setupDefaultEventListeners();
-    this.setupListenKeyPingTimer();
 
     this.wsClient.on('reconnected', ({ wsKey }) => {
       this.handleWSReconnectedEvent({ wsKey });
@@ -1125,117 +1081,59 @@ export class WebsocketAPIClient {
    */
 
   /**
-   * Start the user data stream for an apiKey (passed as param). By default, this will
-   * automatically ping the active listen key every 30 minutes. It will also respawn a replacement,
-   * if the ping attempt is rejected with "invalid listen key" as the error.
+   * Start the user data stream for an apiKey (passed as param).
+   *
+   * Note: for "Spot" markets, the listenKey workflow is deprecated, use `subscribeUserDataStream()` instead.
    *
    * @param params
    * @param wsKey
    * @returns listenKey
    */
-  async startUserDataStreamForKey(
-    // TODO: also futures?
+  startUserDataStreamForKey(
     params: { apiKey: string },
     wsKey: WSAPIWsKey = WS_KEY_MAP.mainWSAPI,
   ): Promise<WSAPIResponse<{ listenKey: string }>> {
-    const resolvedWsKey = this.options.useTestnet
-      ? getTestnetWsKey(wsKey)
-      : wsKey;
-
-    const res = await this.wsClient.sendWSAPIRequest(
-      resolvedWsKey,
+    return this.wsClient.sendWSAPIRequest(
+      wsKey,
       'userDataStream.start',
       params,
     );
-
-    if (
-      this.options.automaticallyPingListenKey &&
-      isWSAPIWsKey(resolvedWsKey) &&
-      res?.result?.listenKey
-    ) {
-      this.startWSAPIKeepAliveListenKey({
-        wsKey: resolvedWsKey,
-        listenKey: res.result.listenKey,
-        apiKey: params.apiKey,
-      });
-    }
-
-    return res;
   }
 
   /**
-   * Attempt to "ping" a listen key. This will automatically remove it from the "keep alive" timer, if
-   * the response suggests the listen key does not exist.
+   * Attempt to "ping" a listen key.
+   *
+   * Note: for "Spot" markets, the listenKey workflow is deprecated, use `subscribeUserDataStream()` instead.
    *
    * @param params
    * @param wsKey
    * @returns
    */
-  async pingUserDataStreamForKey(
+  pingUserDataStreamForKey(
     params: WSAPIUserDataListenKeyRequest,
     wsKey: WSAPIWsKey = WS_KEY_MAP.mainWSAPI,
   ): Promise<WSAPIResponse<object>> {
-    const resolvedWsKey = this.options.useTestnet
-      ? (getTestnetWsKey(wsKey) as WSAPIWsKey)
-      : wsKey;
-
-    try {
-      return await this.wsClient.sendWSAPIRequest(
-        resolvedWsKey,
-        'userDataStream.ping',
-        params,
-      );
-    } catch (e) {
-      //   error: { code: -1125, msg: 'This listenKey does not exist.' },
-      if (e.error?.code === WS_ERROR_CODE.LISTEN_KEY_NOT_FOUND) {
-        this.logger.error(
-          'pingUserDataStreamForKey(): -> Sending ping...error! Invalid listen key! Removing from keepAlive list...',
-          params,
-          e,
-        );
-
-        // It's no longer valid, so remove it from the store (so we don't keep checking an invalid key)
-        this.stopWSAPIKeepAliveListenKey({
-          apiKey: params.apiKey,
-          listenKey: params.listenKey,
-          wsKey: resolvedWsKey,
-        });
-      }
-
-      throw e;
-    }
-  }
-
-  async stopUserDataStreamForKey(
-    params: WSAPIUserDataListenKeyRequest,
-    wsKey: WSAPIWsKey = WS_KEY_MAP.mainWSAPI,
-  ): Promise<WSAPIResponse<object>> {
-    const resolvedWsKey = this.options.useTestnet
-      ? getTestnetWsKey(wsKey)
-      : wsKey;
-
-    const res = await this.wsClient.sendWSAPIRequest(
-      resolvedWsKey,
-      'userDataStream.stop',
-      params,
-    );
-
-    if (
-      this.options.automaticallyPingListenKey &&
-      isWSAPIWsKey(resolvedWsKey)
-    ) {
-      this.stopWSAPIKeepAliveListenKey({
-        wsKey: resolvedWsKey,
-        listenKey: params.listenKey,
-        apiKey: params.apiKey,
-      });
-    }
-
-    return res;
+    return this.wsClient.sendWSAPIRequest(wsKey, 'userDataStream.ping', params);
   }
 
   /**
-   * Request user data stream subscription on the currently authenticated connection
+   * Stop the user data stream listen key.
+   *
+   * @param params
+   * @param wsKey
+   * @returns
+   */
+  stopUserDataStreamForKey(
+    params: WSAPIUserDataListenKeyRequest,
+    wsKey: WSAPIWsKey = WS_KEY_MAP.mainWSAPI,
+  ): Promise<WSAPIResponse<object>> {
+    return this.wsClient.sendWSAPIRequest(wsKey, 'userDataStream.stop', params);
+  }
+
+  /**
+   * Request user data stream subscription on the currently authenticated connection.
+   *
+   * If reconnected, this will automatically resubscribe unless you unsubscribe manually.
    */
   async subscribeUserDataStream(
     wsKey: WSAPIWsKey,
@@ -1259,6 +1157,11 @@ export class WebsocketAPIClient {
     return res;
   }
 
+  /**
+   * Unsubscribe from the user data stream subscription on the currently authenticated connection.
+   *
+   * If reconnected, this will also stop it from automatically resubscribing after reconnect.
+   */
   unsubscribeUserDataStream(
     wsKey: WSAPIWsKey,
   ): Promise<WSAPIResponse<{ listenKey: string }>> {
@@ -1288,6 +1191,7 @@ export class WebsocketAPIClient {
    *
    *
    *
+   *
    */
 
   private setupDefaultEventListeners() {
@@ -1311,15 +1215,6 @@ export class WebsocketAPIClient {
         .on('exception', (data) => {
           console.error(new Date(), 'ws exception: ', JSON.stringify(data));
         });
-    }
-  }
-
-  private setupListenKeyPingTimer() {
-    if (this.options.automaticallyPingListenKey) {
-      this.listenKeyPingInterval = setInterval(
-        () => this.pingActiveListenKeys(),
-        this.options.automaticallyPingListenKeyEveryMinutes * (1000 * 60),
-      );
     }
   }
 
@@ -1378,107 +1273,12 @@ export class WebsocketAPIClient {
     }
   }
 
-  private async tryResubscribeUserDataStreamForKey(
-    params: Omit<ActiveWSAPIListenKeyState, 'listenKey'>,
-    attemptNumber = 1,
-  ) {
-    const fnName = 'tryResubscribeUserDataStreamForKey()';
-
-    this.logger.trace(
-      `${fnName}: Attempting to fetch new listen key...`,
-      params,
-    );
-
-    try {
-      const result = await this.startUserDataStreamForKey(
-        {
-          apiKey: params.apiKey,
-        },
-        params.wsKey,
-      );
-      this.logger.trace(`${fnName}: -> success!`, params, result);
-    } catch (e) {
-      if (isFatalWSError(e)) {
-        // Fatal error, e.g API key invalid (or permissions denied). Not much we can do here but throw.
-        this.logger.error(
-          `${fnName}: -> ..fatal error! Cannot recover.`,
-          params,
-          e,
-        );
-
-        return;
-      }
-
-      this.logger.error(
-        `${fnName}: -> ..error! Attempt number (${attemptNumber}), retrying after delay...`,
-        params,
-        e,
-      );
-
-      if (!this.listenKeyResubscribeTimers[params.wsKey]) {
-        this.listenKeyResubscribeTimers[params.wsKey] = {};
-      }
-
-      // Prevent many queued attempts on the same key.
-      // Repeated calls just delay the next queued attempt.
-      if (this.listenKeyResubscribeTimers[params.wsKey][params.apiKey]) {
-        clearTimeout(
-          this.listenKeyResubscribeTimers[params.wsKey][params.apiKey],
-        );
-      }
-
-      // Re-queue after short delay, keep retrying, as long as API key is still valid?
-      this.listenKeyResubscribeTimers[params.wsKey][params.apiKey] = setTimeout(
-        () => {
-          clearTimeout(
-            this.listenKeyResubscribeTimers[params.wsKey][params.apiKey],
-          );
-
-          this.tryResubscribeUserDataStreamForKey(params, ++attemptNumber);
-        },
-        this.options.retryListenKeyResubscribeAfterSeconds * 1000,
-      );
-    }
-
-    //
-  }
-
   private getSubscribedUserDataStreamState(wsKey: WSAPIWsKey) {
     const subscribedState = this.subscribedUserDataStreamState[wsKey] || {
       subscribedAt: new Date(),
       subscribeAttempt: 0,
     };
     return subscribedState;
-  }
-
-  private startWSAPIKeepAliveListenKey(params: ActiveWSAPIListenKeyState) {
-    const matchingKeyIndex = this.activeListenKeys.findIndex((val) => {
-      return Object.keys(params).every((key) => params[key] === val[key]);
-    });
-
-    if (matchingKeyIndex !== -1) {
-      return;
-    }
-
-    this.logger.trace(
-      'startWSAPIKeepAliveListenKey(): Added listen key to keep alive store',
-      params,
-    );
-    this.activeListenKeys.push(params);
-  }
-
-  private stopWSAPIKeepAliveListenKey(params: ActiveWSAPIListenKeyState) {
-    const matchingKeyIndex = this.activeListenKeys.findIndex((val) => {
-      return Object.keys(params).every((key) => params[key] === val[key]);
-    });
-
-    if (matchingKeyIndex !== -1) {
-      this.logger.trace(
-        'stopWSAPIKeepAliveListenKey(): Removed listen key from keep alive store',
-        params,
-      );
-      this.activeListenKeys.splice(matchingKeyIndex, 1);
-    }
   }
 
   private handleWSReconnectedEvent(params: { wsKey: WsKey }) {
@@ -1527,132 +1327,6 @@ export class WebsocketAPIClient {
         },
         1000 * this.options.resubscribeUserDataStreamDelaySeconds,
       );
-    }
-
-    // For the apiKey workflow that gives a listen key
-    if (this.options.resubscribeUserDataListenKeyAfterReconnect) {
-      if (!this.activeListenKeys.length) {
-        return;
-      }
-
-      this.logger.trace(
-        `${fnName} -> resubListenKey(): ${this.activeListenKeys.length} to check...`,
-      );
-
-      for (const keyState of this.activeListenKeys) {
-        if (keyState.wsKey !== wsKey) {
-          continue;
-        }
-
-        this.tryResubscribeUserDataStreamForKey(keyState);
-      }
-    }
-  }
-
-  private async pingActiveListenKeys(pingAttempt = 1) {
-    // No keys to check
-    if (!this.activeListenKeys.length) {
-      return;
-    }
-
-    const fnName = `pingActiveListenKeys(attempt:${pingAttempt})`;
-
-    this.logger.trace(
-      `${fnName}: Checking active listen keys... ${this.activeListenKeys.length} to check...`,
-    );
-
-    for (const keyState of this.activeListenKeys) {
-      try {
-        // Simple mechanism to prevent ping spam, if one of the active keys triggers
-        // a "retry ping" workflow for all active listen keys.
-        const lastPingedAtMs = keyState.lastPingedAtMs;
-        if (lastPingedAtMs) {
-          const nowMs = Date.now();
-          const diffMs = nowMs - lastPingedAtMs;
-          const diffSeconds = diffMs / 1000;
-          const diffMinutes = diffSeconds / 60;
-
-          // Skip keys pinged recently...
-          if (
-            diffMinutes <
-            this.options.automaticallyPingListenKeyEveryMinutes * 0.9 // Some wiggle room
-          ) {
-            this.logger.trace(
-              `${fnName}: -> Skipping ping... last ping was more recent than required interval`,
-              keyState,
-              {
-                pingedMinutesAgo: +diffMinutes.toFixed(2),
-                pingedSecondsAgo: +diffSeconds.toFixed(2),
-              },
-            );
-            continue;
-          }
-        }
-
-        this.logger.trace(`${fnName}: -> Sending ping... `, keyState);
-        const result = await this.pingUserDataStreamForKey(
-          {
-            apiKey: keyState.apiKey,
-            listenKey: keyState.listenKey,
-          },
-          keyState.wsKey,
-        );
-
-        keyState.lastPingedAtMs = Date.now();
-
-        this.logger.trace(`${fnName}: -> Success!`, keyState, result);
-      } catch (e) {
-        //   error: { code: -1125, msg: 'This listenKey does not exist.' },
-        if (e.error?.code === WS_ERROR_CODE.LISTEN_KEY_NOT_FOUND) {
-          this.logger.error(
-            `${fnName}: -> Error! Invalid listen key! Removing & resubscribing...`,
-            keyState,
-            e,
-          );
-
-          // Listen key invalid/expired, stop monitoring it and request a new one
-          this.stopWSAPIKeepAliveListenKey(keyState);
-
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { listenKey, ...otherParams } = keyState;
-
-          // Request a new key
-          this.tryResubscribeUserDataStreamForKey(otherParams);
-
-          return;
-        }
-
-        if (isFatalWSError(e)) {
-          this.logger.error(
-            `${fnName}: -> FATAL error! Giving up.`,
-            keyState,
-            e,
-          );
-
-          this.stopWSAPIKeepAliveListenKey(keyState);
-          return;
-        }
-
-        // For now, simply queue a singleton request to ping all active keys sooner rather than later.
-        // Might need smarter mechanism for failed ping-handling.
-        this.logger.error(
-          `${fnName}: -> Sending ping...error! Might not be fatal, will retry after delay...`,
-          keyState,
-          e,
-        );
-
-        if (this.listenKeyPingRetryTimer) {
-          clearTimeout(this.listenKeyPingRetryTimer);
-        }
-
-        this.listenKeyPingRetryTimer = setTimeout(
-          () => {
-            this.pingActiveListenKeys(++pingAttempt);
-          },
-          // Very dumb backoff delay
-          1000 * this.options.retryListenKeyPingAfterSeconds * pingAttempt,
-        );
-      }
     }
   }
 }
