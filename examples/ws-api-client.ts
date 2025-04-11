@@ -14,6 +14,8 @@ import {
 } from '../src';
 
 /**
+ * The WS API only works with an Ed25519 API key.
+ *
  * Check the rest-private-ed25519.md in this folder for more guidance
  * on preparing this Ed25519 API key.
  */
@@ -79,8 +81,6 @@ async function main() {
       // If true, if you used requestSubscribeUserDataStream(), it will
       // automatically call this method again if you're reconnected
       resubscribeUserDataStreamAfterReconnect: true,
-      // TODO:
-      automaticallyPingListenKeyEveryMinutes: 0.1,
     },
     customLogger,
   );

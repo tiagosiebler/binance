@@ -22,7 +22,7 @@ export const WS_KEY_MAP = {
   mainTestnetPublic: 'mainTestnetPublic',
   mainTestnetUserData: 'mainTestnetUserData',
 
-  // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
+  // https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
   mainWSAPI: 'mainWSAPI', // trading over WS in spot, margin, isolated margin. User data supported too.
   mainWSAPI2: 'mainWSAPI2', // trading over WS in spot, margin, isolated margin. User data supported too.
   mainWSAPITestnet: 'mainWSAPITestnet', // trading over WS in spot, margin, isolated margin | TESTNET
@@ -92,7 +92,7 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   mainTestnetPublic: 'wss://testnet.binance.vision',
   mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443',
 
-  // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
+  // https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
   mainWSAPI: 'wss://ws-api.binance.com:443',
   mainWSAPI2: 'wss://ws-api.binance.com:9443',
   mainWSAPITestnet: 'wss://testnet.binance.vision',

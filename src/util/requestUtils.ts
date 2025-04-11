@@ -249,7 +249,6 @@ export async function getRequestSignature(
       filterUndefinedParams,
     );
 
-    // TODO:
     const signature = await signMessage(
       serialisedParams,
       secret,

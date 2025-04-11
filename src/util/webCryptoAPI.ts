@@ -48,54 +48,22 @@ type KeyType = 'HMAC' | 'RSASSA-PKCS1-v1_5' | 'Ed25519';
 
 export function getSignKeyType(secret: string): KeyType {
   if (secret.includes('PRIVATE KEY')) {
+    // Sometimes, not always, RSA keys include "RSA" in the header. That's a definite RSA key.
     if (secret.includes('RSA PRIVATE KEY')) {
+      console.log('RSA web crpyto api');
       return 'RSASSA-PKCS1-v1_5';
     }
 
-    return 'Ed25519';
+    // RSA keys are significantly longer than Ed25519 keys. 150 accounts for length of header & footer
+    if (secret.length <= 150) {
+      // console.log('Ed25519 key, due to length', secret.length);
+      return 'Ed25519';
+    }
+
+    return 'RSASSA-PKCS1-v1_5';
   }
   return 'HMAC';
 }
-
-// async function importEd25519PrivateKey(
-//   pem: string,
-//   algorithm: SignAlgorithm,
-// ): Promise<CryptoKey> {
-//   const base64Key = pem
-//     .replace(/-----BEGIN PRIVATE KEY-----/, '')
-//     .replace(/-----END PRIVATE KEY-----/, '')
-//     .replace(/\s+/g, ''); // Remove spaces and newlines
-
-//   const binaryKey = Uint8Array.from(atob(base64Key), (c) => c.charCodeAt(0));
-
-//   return crypto.subtle.importKey(
-//     'pkcs8',
-//     binaryKey.buffer,
-//     { name: 'Ed25519', hash: { name: algorithm } },
-//     false,
-//     ['sign'],
-//   );
-// }
-
-// async function importRSAPrivateKey(
-//   pem: string,
-//   algorithm: SignAlgorithm,
-// ): Promise<CryptoKey> {
-//   const base64Key = pem
-//     .replace(/-----BEGIN RSA PRIVATE KEY-----/, '')
-//     .replace(/-----END RSA PRIVATE KEY-----/, '')
-//     .replace(/\s+/g, ''); // Remove spaces and newlines
-
-//   const binaryKey = Uint8Array.from(atob(base64Key), (c) => c.charCodeAt(0));
-
-//   return crypto.subtle.importKey(
-//     'pkcs8',
-//     binaryKey.buffer,
-//     { name: 'RSASSA-PKCS1-v1_5', hash: { name: algorithm } },
-//     false,
-//     ['sign'],
-//   );
-// }
 
 async function importKey(
   pem: string,
@@ -106,20 +74,23 @@ async function importKey(
   switch (type) {
     case 'Ed25519':
     case 'RSASSA-PKCS1-v1_5': {
-      const prefix =
-        type === 'Ed25519'
-          ? /-----BEGIN PRIVATE KEY-----/
-          : /-----BEGIN RSA PRIVATE KEY-----/;
+      // const prefixRSA = /-----BEGIN RSA PRIVATE KEY-----/;
+      // const prefixEd25519 = /-----BEGIN PRIVATE KEY-----/;
 
-      const suffix =
-        type === 'Ed25519'
-          ? /-----END PRIVATE KEY-----/
-          : /-----END RSA PRIVATE KEY-----/;
+      // const suffixRSA = /-----END RSA PRIVATE KEY-----/;
+      // const suffixEd25519 = /-----END PRIVATE KEY-----/;
 
-      const base64Key = pem
-        .replace(prefix, '')
-        .replace(suffix, '')
-        .replace(/\s+/g, ''); // Remove spaces and newlines
+      // const base64Key = pem
+      //   .replace(prefixEd25519, '')
+      //   .replace(prefixRSA, '')
+      //   .replace(suffixEd25519, '')
+      //   .replace(suffixRSA, '')
+      //   .replace(/\s+/g, ''); // Remove spaces and newlines
+
+      const base64Key = pem.replace(
+        /(?:-----BEGIN RSA PRIVATE KEY-----|-----BEGIN PRIVATE KEY-----|-----END RSA PRIVATE KEY-----|-----END PRIVATE KEY-----|\s+)/g,
+        '',
+      );
 
       const binaryKey = Uint8Array.from(atob(base64Key), (c) =>
         c.charCodeAt(0),
