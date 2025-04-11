@@ -451,7 +451,6 @@ export class UserDataStreamManager {
           .getSpotRestClient(
             this.getRestClientOptionsFn(),
             this.getWsClientOptionsfn().requestOptions,
-            true,
           )
           .keepAliveSpotUserDataListenKey(listenKey);
       case 'crossMargin':
