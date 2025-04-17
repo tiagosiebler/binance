@@ -141,6 +141,8 @@ const API_SECRET = 'yyy';
 const client = new MainClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
+  // Connect to testnet environment
+  // useTestnet: true,
 });
 
 client
@@ -177,6 +179,8 @@ const API_SECRET = 'yyy';
 const client = new USDMClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
+  // Connect to testnet environment
+  // useTestnet: true,
 });
 
 client
@@ -213,6 +217,8 @@ const API_SECRET = 'yyy';
 const client = new CoinMClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
+  // Connect to testnet environment
+  // useTestnet: true,
 });
 
 client
@@ -237,21 +243,33 @@ const { WebsocketClient } = require('binance');
 const API_KEY = 'xxx';
 const API_SECRET = 'yyy';
 
-// optionally override the logger
-const logger = {
+// optionally override the logger.
+// This example replaces only the "trace" level logger function to enable the trace log.
+const customLogger = {
   ...DefaultLogger,
-  trace: (...params) => {},
+  trace: (...params) => {
+    console.log('\n', new Date(), 'trace ', ...params);
+  },
 };
 
+/**
+ * The WebsocketClient will manage individual connections for you, under the hood.
+ * Just make an instance of the WS Client and subscribe to topics. It'll handle the rest.
+ */
 const wsClient = new WebsocketClient(
   {
     api_key: key,
     api_secret: secret,
+    // Optional: when enabled, the SDK will try to format incoming data into more readable objects.
+    // Beautified data is emitted via the "formattedMessage" event
     beautify: true,
     // Disable ping/pong ws heartbeat mechanism (not recommended)
-    // disableHeartbeat: true
+    // disableHeartbeat: true,
+    // Connect to testnet environment
+    // useTestnet: true,
   },
-  logger,
+  // Optional: customise logging behaviour by extending or overwriting the default logger implementation
+  // customLogger,
 );
 
 // receive raw events
@@ -289,33 +307,63 @@ wsClient.on('exception', (data) => {
   console.log('ws saw error ', data?.wsKey);
 });
 
-// Call methods to subcribe to as many websockets as you want.
-// Each method spawns a new connection, unless a websocket already exists for that particular request topic.
-// wsClient.subscribeSpotAggregateTrades(market);
-// wsClient.subscribeSpotTrades(market);
-// wsClient.subscribeSpotKline(market, interval);
-// wsClient.subscribeSpotSymbolMini24hrTicker(market);
-// wsClient.subscribeSpotAllMini24hrTickers();
-// wsClient.subscribeSpotSymbol24hrTicker(market);
-// wsClient.subscribeSpotAll24hrTickers();
-// wsClient.subscribeSpotSymbolBookTicker(market);
-// wsClient.subscribeSpotAllBookTickers();
-// wsClient.subscribeSpotPartialBookDepth(market, 5);
-// wsClient.subscribeSpotDiffBookDepth(market);
+/**
+ * Subscribe to public topics either one at a time or many in an array
+ */
+
+// E.g. one at a time, routed to the coinm futures websockets:
+wsClient.subscribe('btcusd@indexPrice', 'coinm');
+wsClient.subscribe('btcusd@miniTicker', 'coinm');
+
+// Or send many topics at once to a stream, e.g. the usdm futures stream:
+wsClient.subscribe(
+  [
+    'btcusdt@aggTrade',
+    'btcusdt@markPrice',
+    '!ticker@arr',
+    '!miniTicker@arr',
+  ],
+  'usdm',
+);
+
+// spot & margin topics should go to "main"
+// (similar how the MainClient is for REST APIs in that product group)
+wsClient.subscribe(
+  [
+    // All Market Rolling Window Statistics Streams
+    // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-rolling-window-statistics-streams
+    '!ticker_1h@arr',
+    // Individual Symbol Book Ticker Streams
+    // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams
+    'btcusdt@bookTicker',
+    // Average Price
+    // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#average-price
+    'btcusdt@avgPrice',
+    // Partial Book Depth Streams
+    // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#partial-book-depth-streams
+    'btcusdt@depth10@100ms',
+    // Diff. Depth Stream
+    // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#diff-depth-stream
+    'btcusdt@depth',
+  ],
+  // Look at the `WS_KEY_URL_MAP` for a list of values here:
+  // https://github.com/tiagosiebler/binance/blob/master/src/util/websockets/websocket-util.ts
+  // "main" connects to wss://stream.binance.com:9443/stream
+  // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
+  'main',
+);
+
+/**
+ * For the user data stream, these convenient subscribe methods open a dedicated
+ * connection with the listen key workflow:
+ */
 
 wsClient.subscribeSpotUserDataStream();
 wsClient.subscribeMarginUserDataStream();
 wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
-
 wsClient.subscribeUsdFuturesUserDataStream();
 
-// each method also restores the WebSocket object, which can be interacted with for more control
-// const ws1 = wsClient.subscribeSpotSymbolBookTicker(market);
-// const ws2 = wsClient.subscribeSpotAllBookTickers();
-// const ws3 = wsClient.subscribeSpotUserDataStream(listenKey);
 
-// optionally directly open a connection to a URL. Not recommended for production use.
-// const ws4 = wsClient.connectToWsUrl(`wss://stream.binance.com:9443/ws/${listenKey}`, 'customDirectWsConnection1');
 ```
 
 See [websocket-client.ts](./src/websocket-client.ts) for further information. Also see [ws-userdata.ts](./examples/ws-userdata.ts) for user data examples.

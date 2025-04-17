@@ -127,9 +127,22 @@ import {
     console.error('ws saw error: ', data);
   });
 
+  /**
+   * This example demonstrates subscribing to the user data stream via the
+   * listen key workflow.
+   *
+   * Note: the listen key workflow is deprecated for "spot" markets. Use the
+   * WebSocket API `userDataStream.subscribe` workflow instead (only available
+   * in spot right now). See `subscribeUserDataStream()` in the WebsocketAPIClient.
+   *
+   * Each method below opens a dedicated WS connection attached to an automatically
+   * fetched listen key (a session for your user data stream).
+   *
+   * Once subscribed, you don't need to do anything else. Listen-key keep-alive, refresh, reconnects, etc are all automatically handled by the SDK.
+   */
   wsClient.subscribeSpotUserDataStream();
-  // wsClient.subscribeMarginUserDataStream();
-  // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
+  wsClient.subscribeCrossMarginUserDataStream();
+  wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
   wsClient.subscribeUsdFuturesUserDataStream();
 
   // setTimeout(() => {
