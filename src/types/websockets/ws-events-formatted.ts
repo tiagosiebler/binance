@@ -162,6 +162,8 @@ export interface WsMessageRollingWindowTickerFormatted extends WsSharedBase {
 export interface WsMessageBookTickerEventFormatted extends WsSharedBase {
   eventType: 'bookTicker';
   updateId: number;
+  eventTime: number;
+  transactionTime: number;
   symbol: string;
   bidPrice: number;
   bidQty: number;

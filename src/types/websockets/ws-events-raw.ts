@@ -132,6 +132,8 @@ export interface WsMessageRollingWindowTickerRaw extends WsSharedBase {
 export interface WsMessageBookTickerEventRaw extends WsSharedBase {
   e: 'bookTicker';
   u: number;
+  E: number; // futures only - event time
+  T: number; // futures only - transaction time
   s: string;
   b: numberInString;
   B: numberInString;
