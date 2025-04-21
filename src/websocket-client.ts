@@ -45,6 +45,8 @@ import {
   getWsUrl,
   getWsURLSuffix,
   isPrivateWsTopic,
+  isWSPingFrameAvailable,
+  isWSPongFrameAvailable,
   MiscUserDataConnectionState,
   parseEventTypeFromMessage,
   parseRawWsMessage,
@@ -94,6 +96,22 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger) {
     super(options, logger);
+
+    /**
+     * Binance uses native WebSocket ping/pong frames, which cannot be directly used in
+     * some environents (e.g. most browsers do not support sending raw ping/pong frames).
+     *
+     * This disables heartbeats in those environments, if ping/pong frames are unavailable.
+     *
+     * Some browsers may still handle these automatically. Some discussion around this can
+     * be found here: https://stackoverflow.com/questions/10585355/sending-websocket-ping-pong-frame-from-browser
+     */
+    if (!isWSPingFrameAvailable()) {
+      this.logger.trace(
+        'Disabled WS heartbeats. WS.ping() is not available in your environment.',
+      );
+      this.options.disableHeartbeat = true;
+    }
 
     this.userDataStreamManager = new UserDataStreamManager({
       logger: this.logger,
@@ -457,6 +475,14 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   protected sendPingEvent(wsKey: WsKey) {
     try {
+      if (!isWSPingFrameAvailable()) {
+        this.logger.trace(
+          'Unable to send WS ping frame. Not available in this environment.',
+          { ...WS_LOGGER_CATEGORY, wsKey },
+        );
+        return;
+      }
+
       // this.logger.trace(`Sending upstream ping: `, { ...loggerCategory, wsKey });
       if (!wsKey) {
         throw new Error('No wsKey provided');
@@ -490,6 +516,14 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   protected sendPongEvent(wsKey: WsKey) {
     try {
+      if (!isWSPongFrameAvailable()) {
+        this.logger.trace(
+          'Unable to send WS pong frame. Not available in this environment.',
+          { ...WS_LOGGER_CATEGORY, wsKey },
+        );
+        return;
+      }
+
       // this.logger.trace(`Sending upstream ping: `, { ...loggerCategory, wsKey });
       if (!wsKey) {
         throw new Error('No wsKey provided');

@@ -676,3 +676,19 @@ export function appendEventMarket(wsMsg: any, wsKey: WsKey) {
   wsMsg.wsMarket = market;
   wsMsg.wsKey = wsKey;
 }
+
+/**
+ * WebSocket.ping() is not available in browsers. This is a simple check used to
+ * disable heartbeats in browers, for exchanges that use native WebSocket ping/pong frames.
+ */
+export function isWSPingFrameAvailable(): boolean {
+  return typeof WebSocket.prototype['ping'] === 'function';
+}
+
+/**
+ * WebSocket.pong() is not available in browsers. This is a simple check used to
+ * disable heartbeats in browers, for exchanges that use native WebSocket ping/pong frames.
+ */
+export function isWSPongFrameAvailable(): boolean {
+  return typeof WebSocket.prototype['pong'] === 'function';
+}
