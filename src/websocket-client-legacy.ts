@@ -48,19 +48,6 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
   portfoliom: '',
 };
 
-// export const wsKeySpot = 'spot';
-// export const wsKeyLinearPrivate = 'linearPrivate';
-// export const wsKeyLinearPublic = 'linearPublic';
-
-// This is used to differentiate between each of the available websocket streams (as binance has multiple websockets)
-// export type WsKey =
-//   | string
-//   | 'spot'
-//   | 'margin'
-//   | 'usdmfutures'
-//   | 'coinmfutures'
-//   | 'options';
-
 type WsEventInternalSrc = 'event' | 'function';
 
 export declare interface WebsocketClientV1 {

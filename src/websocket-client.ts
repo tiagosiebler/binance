@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unnecessary-type-constraint */
 import WebSocket from 'isomorphic-ws';
 
 import { KlineInterval } from './types/shared';
@@ -34,7 +32,6 @@ import {
 } from './util/requestUtils';
 import { neverGuard } from './util/typeGuards';
 import { SignAlgorithm } from './util/webCryptoAPI';
-// import { signMessage as signMessageWebCryptoAPI } from './util/webCryptoAPI';
 import { RestClientCache } from './util/websockets/rest-client-cache';
 import { UserDataStreamManager } from './util/websockets/user-data-stream-manager';
 import {

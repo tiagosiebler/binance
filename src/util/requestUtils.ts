@@ -50,6 +50,31 @@ export interface RestClientOptions {
    * Default: false. If true, use testnet when available
    */
   useTestnet?: boolean;
+
+  // /**
+  //  * Default: true.
+  //  *
+  //  * API exceptions (any response with an error code) are thrown (including response headers).
+  //  * If false, they are returned.
+  //  *
+  //  * // TODO: Thrown exceptions include response headers. If we force a return instead of throw,
+  //  * // what's the handling of headers? If we return the parent object (incl headers), we're returning
+  //  * // a schema different from the healthy return (data only excluding headers). Not adding this yet.
+  //  */
+  // throwExceptions?: boolean;
+
+  /**
+   * Enable keep alive for REST API requests (via axios).
+   * See: https://github.com/tiagosiebler/bybit-api/issues/368
+   */
+  keepAlive?: boolean;
+
+  /**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+  keepAliveMsecs?: number;
 }
 
 export type GenericAPIResponse<T = any> = Promise<T>;
