@@ -57,6 +57,8 @@ export default abstract class BaseRestClient {
       strictParamValidation: false,
       // disable the time sync mechanism by default
       disableTimeSync: true,
+      // throw exceptions by default. If this is set to false, they are simply returned
+      // throwExceptions: true,
       ...options,
     };
 
