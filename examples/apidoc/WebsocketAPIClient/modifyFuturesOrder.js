@@ -26,5 +26,3 @@ client.modifyFuturesOrder(params)
     console.error(error);
   });
 
-// To properly clean up resources when done:
-// client.close();
