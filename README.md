@@ -52,6 +52,33 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
 - Proxy support via axios integration.
 - Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Examples](#examples)
+  - [REST API Examples](./examples/REST)
+  - [WebSocket Examples](./examples/WebSockets)
+    - [WebSocket Consumers](./examples/WebSockets/todo:)
+    - [WebSocket API](./examples/WebSockets/wsapitodo:)
+- [Issues & Discussion](#issues--discussion)
+- [Related Projects](#related-projects)
+- [Documentation Links](#documentation)
+- [Usage](#usage)
+  - [REST API Clients](#rest-api-clients)
+    - [REST Main Client](#rest-main-client)
+    - [REST USD-M Futures](#rest-usd-m-futures)
+    - [REST COIN-M Futures](#rest-coin-m-futures)
+  - [WebSockets](#websockets)
+    - [WebSocket Consumers](#websocket-consumers)
+    - [WebSocket API](#websocket-api)
+      - [Event Driven API](#event-driven-api)
+      - [Promise Driven API](#async-await-api)
+  - [Customise Logging](#customise-logging)
+  - [Frontend Usage](#browserfrontend-usage)
+    - [Import](#import)
+    - [Webpack](#webpack)
+- [Contributions & Thanks](#contributions--thanks)
+
 ## Installation
 
 `npm install binance --save`
@@ -413,7 +440,7 @@ The WebSocket API is available in the [WebsocketClient](./src/websocket-client.t
 
 Each call to this method is wrapped in a promise, which you can async await for a response, or handle it in a raw event-driven design.
 
-#### REST-Like Await API
+#### Async Await API
 
 The WebSocket API is also available in a promise-wrapped REST-like format. Either, as above, await any calls to `sendWSAPIRequest(...)`, or directly use the convenient WebsocketAPIClient. This class is very similar to existing REST API classes (such as the MainClient or USDMClient).
 
