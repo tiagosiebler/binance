@@ -21,28 +21,31 @@
 
 Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebSockets:
 
-- Extensive integration with Binance REST APIs and WebSockets.
-- TypeScript support (with type declarations for most API requests & responses).
-- Supports Binance REST APIs for Binance Spot, Margin, Isolated Margin, USDM & CoinM Futures.
-  - Strongly typed on most requests and responses.
-  - Automated end-to-end tests on most API calls, ensuring no breaking changes are released.
-- Extremely robust & performant JavaScript/Node.js Binance SDK with significant trading volume in production (livenet).
+- Professional, robust & performant Binance SDK with leading trading volume in production (livenet).
+- Extensive integration with Binance REST APIs, WebSockets & WebSocket APIs.
+- Complete TypeScript support (with type declarations for all API requests & responses).
+- Supports Binance REST APIs for Binance Spot, Margin, Isolated Margin, Options, USDM & CoinM Futures.
+  - Strongly typed requests and responses.
+  - Automated end-to-end tests on most API calls, ensuring no breaking changes are released to npm.
 - Actively maintained with a modern, promise-driven interface.
-- Support for all authentication mechanisms:
+- Support for all authentication mechanisms available on Binance:
   - HMAC
   - RSA
   - Ed25519 (required for WS API).
-  - Passing a private key as a secret will automatically revert to RSA/Ed25519 authentication (depending on key format).
-- Supports Websockets for Binance Spot, Margin, Isolated Margin, USDM & CoinM Futures.
+  - Passing a private key as a secret will automatically detect whether to switch to RSA or Ed25519 authentication.
+- Supports WebSockets for all available product groups on Binance, including Spot, Margin, Isolated Margin, Portfolio, Options, USDM & CoinM Futures.
   - Event driven messaging.
-  - Smart websocket persistence
-    - Automatically handle silent websocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
+  - Smart WebSocket persistence
+    - Automatically handle silent WebSocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
     - Automatically handle listenKey persistence and expiration/refresh.
     - Emit `reconnected` event when dropped connection is restored.
-  - Strongly typed on most websocket events, with typeguards available for TypeScript users.
+  - Strongly typed on most WebSocket events, with typeguards available for TypeScript users.
   - Optional:
-    - Automatic beautification of Websocket events (from one-letter keys to descriptive words, and strings with floats to numbers).
+    - Automatic beautification of WebSocket events (from one-letter keys to descriptive words, and strings with floats to numbers).
     - Automatic beautification of REST responses (parsing numbers in strings to numbers).
+- Supports WebSocket API on all available product groups, including Spot & Futures:
+  - Use the WebsocketClient's event-driven `sendWSAPIRequest()` method, or;
+  - Use the WebsocketAPIClient for a REST-like experience. Use the WebSocket API like a REST API! See [examples/ws-api-client.ts](./examples/ws-api-client.ts) for a demonstration.
 - Heavy automated end-to-end testing with real API calls.
   - End-to-end testing before any release.
   - Real API calls in e2e tests.
@@ -117,6 +120,7 @@ This project uses typescript. Resources are stored in 3 key structures:
 Create API credentials at Binance
 
 - [Livenet](https://www.binance.com/en/support/faq/360002502072?ref=IVRLUZJO)
+- [Testnet](https://testnet.binance.vision/).
 
 ## REST API Clients
 
@@ -125,15 +129,19 @@ There are several REST API modules as there are some differences in each API gro
 1. `MainClient` for most APIs, including: spot, margin, isolated margin, mining, BLVT, BSwap, Fiat & sub-account management.
 2. `USDMClient` for USD-M futures APIs.
 3. `CoinMClient` for COIN-M futures APIs.
+4. `PortfolioClient` for Portfolio Margin APIs.
 
-Vanilla Options connectors are not yet available, though contributions are welcome!
+Vanilla Options is not yet available. Please get in touch if you're looking for this.
 
 ### REST Spot/Margin/etc
 
-Start by importing the spot client. API credentials are optional, though an error is thrown when attempting any private API calls without credentials.
+Start by importing the spot client. API credentials are optional, unless you plan on making private API calls.
 
 ```javascript
-const { MainClient } = require('binance');
+import { MainClient } from 'binance';
+
+// or, if you prefer `require()`:
+// const { MainClient } = require('binance');
 
 const API_KEY = 'xxx';
 const API_SECRET = 'yyy';
@@ -164,14 +172,17 @@ client
   });
 ```
 
-See [spot-client.ts](./src/main-client.ts) for further information.
+See [main-client.ts](./src/main-client.ts) for further information on the available REST API endpoints for spot/margin/etc.
 
 ### REST USD-M Futures
 
-Start by importing the usd-m client. API credentials are optional, though an error is thrown when attempting any private API calls without credentials.
+Start by importing the USDM client. API credentials are optional, unless you plan on making private API calls.
 
 ```javascript
-const { USDMClient } = require('binance');
+import { USDMClient } from 'binance';
+
+// or, if you prefer `require()`:
+// const { USDMClient } = require('binance');
 
 const API_KEY = 'xxx';
 const API_SECRET = 'yyy';
@@ -193,13 +204,19 @@ client
   });
 
 client
-  .get24hrChangeStatististics()
+  .submitNewOrder({
+    side: 'SELL',
+    symbol: 'BTCUSDT',
+    type: 'MARKET',
+    quantity: 0.001,
+  })
   .then((result) => {
-    console.log('get24hrChangeStatististics inverse futures result: ', result);
+    console.log('submitNewOrder result: ', result);
   })
   .catch((err) => {
-    console.error('get24hrChangeStatististics inverse futures error: ', err);
+    console.error('submitNewOrder error: ', err);
   });
+
 ```
 
 See [usdm-client.ts](./src/usdm-client.ts) for further information.
@@ -209,7 +226,10 @@ See [usdm-client.ts](./src/usdm-client.ts) for further information.
 Start by importing the coin-m client. API credentials are optional, though an error is thrown when attempting any private API calls without credentials.
 
 ```javascript
-const { CoinMClient } = require('binance');
+import { CoinMClient } from 'binance';
+
+// or, if you prefer `require()`:
+// const { CoinMClient } = require('binance');
 
 const API_KEY = 'xxx';
 const API_SECRET = 'yyy';
@@ -235,22 +255,20 @@ See [coinm-client.ts](./src/coinm-client.ts) for further information.
 
 ## WebSockets
 
+### WebSocket Consumers
+
 All websockets are accessible via the shared `WebsocketClient`. As before, API credentials are optional unless the user data stream is required.
 
+The below example demonstrates connecting as a consumer, to receive WebSocket events from Binance:
+
 ```javascript
-const { WebsocketClient } = require('binance');
+import { WebsocketClient } from 'binance';
+
+// or, if you prefer `require()`:
+// const { WebsocketClient } = require('binance');
 
 const API_KEY = 'xxx';
 const API_SECRET = 'yyy';
-
-// optionally override the logger.
-// This example replaces only the "trace" level logger function to enable the trace log.
-const customLogger = {
-  ...DefaultLogger,
-  trace: (...params) => {
-    console.log('\n', new Date(), 'trace ', ...params);
-  },
-};
 
 /**
  * The WebsocketClient will manage individual connections for you, under the hood.
@@ -268,8 +286,6 @@ const wsClient = new WebsocketClient(
     // Connect to testnet environment
     // useTestnet: true,
   },
-  // Optional: customise logging behaviour by extending or overwriting the default logger implementation
-  // customLogger,
 );
 
 // receive raw events
@@ -362,30 +378,152 @@ wsClient.subscribeSpotUserDataStream();
 wsClient.subscribeMarginUserDataStream();
 wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
 wsClient.subscribeUsdFuturesUserDataStream();
-
-
 ```
 
 See [websocket-client.ts](./src/websocket-client.ts) for further information. Also see [ws-userdata.ts](./examples/ws-userdata.ts) for user data examples.
+
+### WebSocket API
+
+Some of the product groups available on Binance also support sending requests (commands) over an active WebSocket connection. This is called the WebSocket API.
+
+Note: the WebSocket API requires the use of Ed25519 keys. HMAC & RSA keys are not supported by Binance for the WebSocket API (as of Apr 2025).
+
+#### Event Driven API
+
+The WebSocket API is available in the [WebsocketClient](./src/websocket-client.ts) via the `sendWSAPIRequest(wsKey, command, commandParameters)` method.
+
+Each call to this method is wrapped in a promise, which you can async await for a response, or handle it in a raw event-driven design.
+
+#### REST-Like Await API
+
+The WebSocket API is also available in a promise-wrapped REST-like format. Either, as above, await any calls to `sendWSAPIRequest(...)`, or directly use the convenient WebsocketAPIClient. This class is very similar to existing REST API classes (such as the MainClient or USDMClient).
+
+It provides one function per endpoint, feels like a REST API and will automatically route your request via a an automatically persisted, authenticated and health-checked WebSocket API connection.
+
+Below is an example showing how easy it is to use the WebSocket API without any concern for the complexity of managing WebSockets.
+
+```typescript
+import { WebsocketAPIClient } from 'binance';
+
+// or, if you prefer `require()`:
+// const { WebsocketAPIClient } = require('binance');
+
+/**
+ * The WS API only works with an Ed25519 API key.
+ *
+ * Check the rest-private-ed25519.md in this folder for more guidance
+ * on preparing this Ed25519 API key.
+ */
+
+const publicKey = `-----BEGIN PUBLIC KEY-----
+MCexampleQTxwLU9o=
+-----END PUBLIC KEY-----
+`;
+
+const privateKey = `-----BEGIN PRIVATE KEY-----
+MC4CAQAexamplewqj5CzUuTy1
+-----END PRIVATE KEY-----
+`;
+
+// API Key returned by binance, generated using the publicKey (above) via Binance's website
+const apiKey = 'TQpJexamplerobdG';
+
+// Make an instance of the WS API Client
+const wsClient = new WebsocketAPIClient({
+  api_key: apiKey,
+  api_secret: privateKey,
+  beautify: true,
+
+  // Enforce testnet ws connections, regardless of supplied wsKey
+  // useTestnet: true,
+});
+
+// Optional, if you see RECV Window errors, you can use this to manage time issues. However, make sure you sync your system clock first!
+// https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow
+// wsClient.setTimeOffsetMs(-5000);
+
+// Optional, see above. Can be used to prepare a connection before sending commands
+// await wsClient.connectWSAPI(WS_KEY_MAP.mainWSAPI);
+
+// Make WebSocket API calls, very similar to a REST API:
+
+wsClient
+  .getFuturesAccountBalanceV2({
+    timestamp: Date.now(),
+    recvWindow: 5000,
+  })
+  .then((result) => {
+    console.log('getFuturesAccountBalanceV2 result: ', result);
+  })
+  .catch((err) => {
+    console.error('getFuturesAccountBalanceV2 error: ', err);
+  });
+
+wsClient
+  .submitNewFuturesOrder('usdm', {
+    side: 'SELL',
+    symbol: 'BTCUSDT',
+    type: 'MARKET',
+    quantity: 0.001,
+    timestamp: Date.now(),
+    // recvWindow: 5000,
+  })
+  .then((result) => {
+    console.log('getFuturesAccountBalanceV2 result: ', result);
+  })
+  .catch((err) => {
+    console.error('getFuturesAccountBalanceV2 error: ', err);
+  });
+```
 
 ---
 
 ## Customise Logging
 
-Pass a custom logger which supports the log methods `silly`, `debug`, `notice`, `info`, `warning` and `error`, or override methods from the default logger as desired.
+Pass a custom logger which supports the log methods `trace`, `info` and `error`, or override methods from the default logger as desired.
 
 ```javascript
-const { WebsocketClient, DefaultLogger } = require('binance');
+import { WebsocketClient, DefaultLogger } from 'binance';
 
-// Enable all logging on the silly level
-DefaultLogger.silly = (...params) => {
-  console.log('sillyLog: ', params);
+// or, if you prefer `require()`:
+// const { WebsocketClient, DefaultLogger } = require('binance');
+
+// Enable all logging on the trace level (disabled by default)
+DefaultLogger.trace = (...params) => {
+  console.trace('trace: ', params);
 };
 
+// Pass the updated logger as the 2nd parameter
 const ws = new WebsocketClient(
-  api_key: 'xxx',
-  api_secret: 'yyyy',
+  {
+    api_key: key,
+    api_secret: secret,
+    beautify: true,
+  },
   DefaultLogger
+);
+
+// Or, create a completely custom logger with the 3 available functions
+const customLogger = {
+  trace: (...params: LogParams): void => {
+    console.trace(new Date(), params);
+  },
+  info: (...params: LogParams): void => {
+    console.info(new Date(), params);
+  },
+  error: (...params: LogParams): void => {
+    console.error(new Date(), params);
+  },
+}
+
+// Pass the custom logger as the 2nd parameter
+const ws = new WebsocketClient(
+  {
+    api_key: key,
+    api_secret: secret,
+    beautify: true,
+  },
+  customLogger
 );
 ```
 
@@ -428,8 +566,6 @@ Build a bundle using webpack:
 - `npm pack`
 
 The bundle can be found in `dist/`. Altough usage should be largely consistent, smaller differences will exist. Documentation is still TODO.
-
-However, note that browser usage will lead to CORS errors due to Binance.
 
 ---
 

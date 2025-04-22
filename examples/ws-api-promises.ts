@@ -138,4 +138,6 @@ async function main() {
 }
 
 // Start executing the example workflow
-main();
+main().catch((e) => {
+  console.log('mainError', e);
+});
