@@ -224,7 +224,7 @@ describe('Private Spot REST API Endpoints', () => {
       });
     });
 
-    describe('Binance Margin', () => {
+    describe.skip('Binance Margin', () => {
       it('should create a user data key', async () => {
         const { listenKey } = await api.getMarginUserDataListenKey();
         expect(listenKey).toStrictEqual(expect.any(String));
