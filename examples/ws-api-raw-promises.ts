@@ -31,7 +31,7 @@ const wsClient = new WebsocketClient(
     api_key: key,
     api_secret: secret,
     beautify: true,
-    // useTestnet: true,
+    // testnet: true,
   },
   logger, // Optional: inject a custom logger
 );

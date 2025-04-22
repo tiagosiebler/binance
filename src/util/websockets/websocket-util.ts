@@ -344,7 +344,7 @@ export function getWsUrl(
     return wsUrl;
   }
 
-  const isTestnet = !!wsClientOptions.useTestnet;
+  const isTestnet = !!wsClientOptions.testnet;
 
   const resolvedUrl =
     WS_KEY_URL_MAP[isTestnet ? getTestnetWsKey(wsKey) : wsKey];

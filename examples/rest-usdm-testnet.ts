@@ -16,7 +16,7 @@ const client = new USDMClient({
    * For more information and guidance, refer to:
    * https://github.com/tiagosiebler/awesome-crypto-examples/wiki/CEX-Testnets
    */
-  useTestnet: true,
+  testnet: true,
 });
 
 async function start() {

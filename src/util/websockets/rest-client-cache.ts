@@ -25,7 +25,7 @@ export class RestClientCache {
     restOptions: RestClientOptions,
     requestOptions?: AxiosRequestConfig,
   ): MainClient {
-    if (restOptions.useTestnet) {
+    if (restOptions.testnet) {
       if (!this.restClients.spotTestnet) {
         this.restClients.spotTestnet = new MainClient(
           { ...restOptions },
@@ -44,7 +44,7 @@ export class RestClientCache {
     restOptions: RestClientOptions,
     requestOptions?: AxiosRequestConfig,
   ): USDMClient {
-    if (restOptions.useTestnet) {
+    if (restOptions.testnet) {
       if (!this.restClients.usdmFuturesTestnet) {
         this.restClients.usdmFuturesTestnet = new USDMClient(
           restOptions,
@@ -67,7 +67,7 @@ export class RestClientCache {
     restOptions: RestClientOptions,
     requestOptions?: AxiosRequestConfig,
   ): CoinMClient {
-    if (restOptions.useTestnet) {
+    if (restOptions.testnet) {
       if (!this.restClients.coinmFuturesTestnet) {
         this.restClients.coinmFuturesTestnet = new CoinMClient(
           restOptions,

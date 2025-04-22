@@ -95,7 +95,7 @@ export class CoinMClient extends BaseRestClient {
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
   ) {
-    const clientId = restClientOptions.useTestnet ? 'coinmtest' : 'coinm';
+    const clientId = restClientOptions.testnet ? 'coinmtest' : 'coinm';
 
     super(clientId, restClientOptions, requestOptions);
 

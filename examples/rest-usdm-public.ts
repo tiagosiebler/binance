@@ -1,7 +1,7 @@
 import { USDMClient } from '../src';
 
 const client = new USDMClient({
-  useTestnet: true,
+  testnet: true,
   // keepAlive: true,
   // ... any other params,
 });

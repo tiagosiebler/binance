@@ -1138,9 +1138,7 @@ export class WebsocketAPIClient {
   async subscribeUserDataStream(
     wsKey: WSAPIWsKey,
   ): Promise<WSAPIResponse<object>> {
-    const resolvedWsKey = this.options.useTestnet
-      ? getTestnetWsKey(wsKey)
-      : wsKey;
+    const resolvedWsKey = this.options.testnet ? getTestnetWsKey(wsKey) : wsKey;
 
     const res = await this.wsClient.sendWSAPIRequest(
       resolvedWsKey,
@@ -1165,9 +1163,7 @@ export class WebsocketAPIClient {
   unsubscribeUserDataStream(
     wsKey: WSAPIWsKey,
   ): Promise<WSAPIResponse<{ listenKey: string }>> {
-    const resolvedWsKey = this.options.useTestnet
-      ? getTestnetWsKey(wsKey)
-      : wsKey;
+    const resolvedWsKey = this.options.testnet ? getTestnetWsKey(wsKey) : wsKey;
 
     delete this.subscribedUserDataStreamState[resolvedWsKey];
     return this.wsClient.sendWSAPIRequest(

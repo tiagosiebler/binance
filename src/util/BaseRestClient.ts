@@ -96,7 +96,7 @@ export default abstract class BaseRestClient {
     }
 
     const derivedBaseUrlKey = this.options.baseUrlKey || baseUrlKey;
-    this.baseUrlKey = options.useTestnet
+    this.baseUrlKey = options.testnet
       ? getTestnetBaseUrlKey(derivedBaseUrlKey)
       : derivedBaseUrlKey;
 

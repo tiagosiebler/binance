@@ -169,7 +169,7 @@ const client = new MainClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
   // Connect to testnet environment
-  // useTestnet: true,
+  // testnet: true,
 });
 
 client
@@ -210,7 +210,7 @@ const client = new USDMClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
   // Connect to testnet environment
-  // useTestnet: true,
+  // testnet: true,
 });
 
 client
@@ -257,7 +257,7 @@ const client = new CoinMClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
   // Connect to testnet environment
-  // useTestnet: true,
+  // testnet: true,
 });
 
 client
@@ -303,7 +303,7 @@ const wsClient = new WebsocketClient(
     // Disable ping/pong ws heartbeat mechanism (not recommended)
     // disableHeartbeat: true,
     // Connect to testnet environment
-    // useTestnet: true,
+    // testnet: true,
   },
 );
 
@@ -454,7 +454,7 @@ const wsClient = new WebsocketAPIClient({
   beautify: true,
 
   // Enforce testnet ws connections, regardless of supplied wsKey
-  // useTestnet: true,
+  // testnet: true,
 });
 
 // Optional, if you see RECV Window errors, you can use this to manage time issues. However, make sure you sync your system clock first!

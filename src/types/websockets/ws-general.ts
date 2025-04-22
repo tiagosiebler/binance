@@ -130,7 +130,7 @@ export interface WSClientConfigurableOptions {
    * - Not all WebSocket categories support testnet.
    * - If testing a strategy, this is not recommended. Testnet market data is very different from real market conditions. More guidance here: https://github.com/tiagosiebler/awesome-crypto-examples/wiki/CEX-Testnets
    */
-  useTestnet?: boolean;
+  testnet?: boolean;
 
   /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
   recvWindow?: number;

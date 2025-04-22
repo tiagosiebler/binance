@@ -49,7 +49,7 @@ export interface RestClientOptions {
   /**
    * Default: false. If true, use testnet when available
    */
-  useTestnet?: boolean;
+  testnet?: boolean;
 
   // /**
   //  * Default: true.

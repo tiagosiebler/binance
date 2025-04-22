@@ -148,7 +148,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     return {
       ...this.options,
       ...this.options.restOptions,
-      useTestnet: this.options.useTestnet,
+      testnet: this.options.testnet,
       api_key: this.options.api_key,
       api_secret: this.options.api_secret,
     };
@@ -306,10 +306,8 @@ export class WebsocketClient extends BaseWebsocketClient<
      * COINM Futures: https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-api-general-info
      */
 
-    // If useTestnet, enforce testnet wskey for WS API calls
-    const resolvedWsKey = this.options.useTestnet
-      ? getTestnetWsKey(wsKey)
-      : wsKey;
+    // If testnet, enforce testnet wskey for WS API calls
+    const resolvedWsKey = this.options.testnet ? getTestnetWsKey(wsKey) : wsKey;
 
     // this.logger.trace(`sendWSAPIRequest(): assertIsConnected("${wsKey}")...`);
     await this.assertIsConnected(resolvedWsKey);

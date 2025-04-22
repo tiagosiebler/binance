@@ -39,7 +39,7 @@ import {
       api_key: key,
       api_secret: secret,
       beautify: true,
-      useTestnet: true,
+      testnet: true,
     },
     logger,
   );

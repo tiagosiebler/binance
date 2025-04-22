@@ -74,7 +74,7 @@ async function main() {
       beautify: true,
 
       // Enforce testnet ws connections, regardless of supplied wsKey
-      // useTestnet: true,
+      // testnet: true,
 
       // If true, if you used requestSubscribeUserDataStream(), it will
       // automatically call this method again if you're reconnected

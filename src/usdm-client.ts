@@ -103,7 +103,7 @@ export class USDMClient extends BaseRestClient {
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
   ) {
-    const baseUrlKey = restClientOptions.useTestnet ? 'usdmtest' : 'usdm';
+    const baseUrlKey = restClientOptions.testnet ? 'usdmtest' : 'usdm';
     super(baseUrlKey, restClientOptions, requestOptions);
 
     this.clientId = baseUrlKey;
