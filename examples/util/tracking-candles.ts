@@ -6,7 +6,7 @@ import {
   KlineInterval,
   USDMClient,
   WebsocketClient,
-} from '../src';
+} from '../../src';
 
 // or, with the npm package
 /*

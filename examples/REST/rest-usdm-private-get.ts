@@ -1,4 +1,4 @@
-import { USDMClient } from '../src/index';
+import { USDMClient } from '../../src/index';
 // import axios from 'axios';
 
 // or

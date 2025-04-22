@@ -1,10 +1,10 @@
 import {
-  ExchangeInfo,
-  MainClient,
-  numberInString,
-  roundToStepSize,
-  roundToTickSize,
-} from '../src'; // from 'binance';
+    ExchangeInfo,
+    MainClient,
+    numberInString,
+    roundToStepSize,
+    roundToTickSize,
+} from '../../src'; // from 'binance';
 
 // or
 // import { MainClient } from 'binance';

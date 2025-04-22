@@ -1,9 +1,9 @@
 import {
-  MainClient,
-  NewSpotOrderParams,
-  OrderResponseFull,
-  SymbolPrice,
-} from '../src/index';
+    MainClient,
+    NewSpotOrderParams,
+    OrderResponseFull,
+    SymbolPrice,
+} from '../../src/index';
 
 // or
 // import { MainClient } from 'binance';
