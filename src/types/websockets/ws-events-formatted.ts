@@ -504,7 +504,6 @@ export type WsMessageSpotUserDataEventFormatted =
   | WsMessageSpotBalanceUpdateFormatted
   | WsMessageSpotUserDataListStatusEventFormatted;
 
-// TODO: consistent across USDM vs COINM?
 export type WsMessageFuturesUserDataEventFormatted =
   | WsMessageFuturesUserDataAccountUpdateFormatted
   | WsMessageFuturesUserDataListenKeyExpiredFormatted

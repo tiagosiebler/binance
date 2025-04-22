@@ -131,7 +131,9 @@ export function isWsPartialBookDepthEventFormatted(
   return !Array.isArray(data) && data.eventType === 'partialBookDepth';
 }
 
-// TODO: this won't work on multiplex! Can we make one that doesn't use wsKey?
+/**
+ * Note: this won't work on multiplex connections, since it uses the wsKey to resolve the event as a user data event
+ */
 export function isWsFormattedUserDataEvent(
   data: WsFormattedMessage,
 ): data is WsUserDataEvents {

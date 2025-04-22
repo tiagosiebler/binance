@@ -57,7 +57,7 @@ export interface RestClientOptions {
   //  * API exceptions (any response with an error code) are thrown (including response headers).
   //  * If false, they are returned.
   //  *
-  //  * // TODO: Thrown exceptions include response headers. If we force a return instead of throw,
+  //  * // Thrown exceptions include response headers. If we force a return instead of throw,
   //  * // what's the handling of headers? If we return the parent object (incl headers), we're returning
   //  * // a schema different from the healthy return (data only excluding headers). Not adding this yet.
   //  */

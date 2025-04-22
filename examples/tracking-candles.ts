@@ -399,15 +399,9 @@ symbolsToMonitor.forEach((symbol) => {
 
   timeframes.forEach(async (interval) => {
     // Open a websocket to start consuming candle events
-    const result = (await wsClient.subscribeKlines(
-      symbol,
-      interval,
-      'usdm',
-    )) as any;
+    await wsClient.subscribeKlines(symbol, interval, 'usdm');
 
-    const wsKey = result.wsKey;
-
-    console.log(`Opening connection for key: ${wsKey}`);
+    console.log(`Requested subscription to ${symbol} & ${interval}`);
   });
 });
 

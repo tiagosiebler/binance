@@ -65,7 +65,6 @@ export declare interface WebsocketClientV1 {
     listener: (event: WsUserDataEvents) => void,
   ): this;
 
-  // TODO: make consistent with new client, at least?
   on(
     event: 'error',
     listener: (event: { wsKey: WsKey; error: any; rawEvent?: string }) => void,
@@ -974,7 +973,6 @@ export class WebsocketClientV1 extends EventEmitter {
     }
   }
 
-  // TODO: Used in the close() fn in the legacy client. Still needed?
   private teardownUserDataListenKey(listenKey: string, ws: WebSocket) {
     if (listenKey) {
       this.listenKeyStateCache.clearAllListenKeyState(listenKey);
@@ -1082,7 +1080,7 @@ export class WebsocketClientV1 extends EventEmitter {
         },
       );
 
-      // TODO: this timer should probably be tracked/singleton
+      // This timer should probably be tracked/singleton
       setTimeout(
         () =>
           this.respawnUserDataStream(

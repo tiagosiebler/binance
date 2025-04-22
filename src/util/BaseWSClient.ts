@@ -1288,7 +1288,6 @@ export abstract class BaseWebsocketClient<
     // Start connection, it should automatically store/return a promise.
     this.logger.trace('assertIsConnected(): connecting...');
 
-    // TODO: what happens if this step fails, does it retry?
     await this.connect(wsKey);
 
     this.logger.trace('assertIsConnected(): connecting...newly connected!');

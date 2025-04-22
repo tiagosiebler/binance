@@ -361,8 +361,9 @@ export class WebsocketClient extends BaseWebsocketClient<
     //   `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,
     // );
 
-    // Send event. TODO: Should this throw? It could...
-    this.tryWsSend(resolvedWsKey, JSON.stringify(signedEvent));
+    // Send event.
+    const throwExceptions = true;
+    this.tryWsSend(resolvedWsKey, JSON.stringify(signedEvent), throwExceptions);
 
     this.logger.trace(
       `sendWSAPIRequest(): sent "${operation}" event with promiseRef(${promiseRef})`,

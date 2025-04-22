@@ -233,8 +233,6 @@ export interface WsAPIWsKeyTopicMap {
 
   [WS_KEY_MAP.coinmWSAPI]: WsAPIOperation;
   [WS_KEY_MAP.coinmWSAPITestnet]: WsAPIOperation;
-
-  //  TODO: Add coinmWSAPI
 }
 
 export type WsAPIFuturesWsKey =

@@ -141,7 +141,7 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
 export function getWsURLSuffix(
   wsKey: WsKey,
-  connectionType: 'market' | 'userData' | 'wsAPI', // TODO: dreprecate the connectiontype and use wskey instead
+  connectionType: 'market' | 'userData',
 ): string {
   switch (wsKey) {
     case 'main':
@@ -155,8 +155,6 @@ export function getWsURLSuffix(
           return '/stream';
         case 'userData':
           return '/ws';
-        case 'wsAPI':
-          return '/ws-api/v3';
         default: {
           throw neverGuard(
             connectionType,
@@ -177,8 +175,6 @@ export function getWsURLSuffix(
           return '/stream';
         case 'userData':
           return '/ws';
-        case 'wsAPI':
-          return '/ws-fapi/v1';
         default: {
           throw neverGuard(
             connectionType,
@@ -203,8 +199,6 @@ export function getWsURLSuffix(
           return '/stream';
         case 'userData':
           return '/ws';
-        case 'wsAPI':
-          return '/ws-capi/v1';
         default: {
           throw neverGuard(
             connectionType,
