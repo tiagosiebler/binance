@@ -23,8 +23,13 @@ MC4CAQAexamplewqj5CzUuTy1
 -----END PRIVATE KEY-----
 `;
 
-// return by binance, generated using the publicKey (above)
-const key = 'TQpJexamplerobdG';
+const key = process.env.API_KEY_COM;
+const secret = process.env.API_SECRET_COM;
+
+// returned by binance, generated using the publicKey (above)
+// const key = 'BVv39ATnIme5TTZRcC3I04C3FqLVM7vCw3Hf7mMT7uu61nEZK8xV1V5dmhf9kifm';
+// Your Ed25519 private key is passed as the "secret"
+// const secret = privateKey;
 
 // function attachEventHandlers<TWSClient extends WebsocketClient>(
 //   wsClient: TWSClient,
@@ -65,7 +70,7 @@ async function main() {
   const wsClient = new WebsocketAPIClient(
     {
       api_key: key,
-      api_secret: privateKey,
+      api_secret: secret,
       beautify: true,
 
       // Enforce testnet ws connections, regardless of supplied wsKey

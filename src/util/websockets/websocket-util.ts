@@ -89,13 +89,13 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   main3: 'wss://data-stream.binance.vision', // spot, margin, isolated margin | alternative | MARKET DATA ONLY | NO USER DATA
 
   // https://developers.binance.com/docs/binance-spot-api-docs/testnet/web-socket-streams#general-wss-information
-  mainTestnetPublic: 'wss://testnet.binance.vision',
+  mainTestnetPublic: 'wss://stream.testnet.binance.vision',
   mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443',
 
   // https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
   mainWSAPI: 'wss://ws-api.binance.com:443',
   mainWSAPI2: 'wss://ws-api.binance.com:9443',
-  mainWSAPITestnet: 'wss://testnet.binance.vision',
+  mainWSAPITestnet: 'wss://ws-api.testnet.binance.vision',
 
   // https://developers.binance.com/docs/margin_trading/risk-data-stream
   // Margin websocket only support Cross Margin Accounts

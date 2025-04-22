@@ -121,6 +121,7 @@ Create API credentials at Binance
 
 - [Livenet](https://www.binance.com/en/support/faq/360002502072?ref=IVRLUZJO)
 - [Testnet](https://testnet.binance.vision/).
+- [Testnet Futures](testnet.binancefuture.com).
 
 ## REST API Clients
 

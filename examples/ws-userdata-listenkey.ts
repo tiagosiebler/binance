@@ -1,3 +1,14 @@
+// or
+// import {
+//   DefaultLogger,
+//   isWsFormattedFuturesUserDataEvent,
+//   isWsFormattedSpotUserDataEvent,
+//   isWsFormattedSpotUserDataExecutionReport,
+//   isWsFormattedUserDataEvent,
+//   WebsocketClient,
+//   WsUserDataEvents,
+// } from 'binance';
+
 import {
   DefaultLogger,
   isWsFormattedFuturesUserDataEvent,
@@ -7,9 +18,6 @@ import {
   WebsocketClient,
   WsUserDataEvents,
 } from '../src';
-
-// or
-// import { DefaultLogger, WebsocketClient } from 'binance';
 
 (async () => {
   const key = process.env.API_KEY_COM || 'APIKEY';
@@ -39,6 +47,7 @@ import {
       api_key: key,
       api_secret: secret,
       beautify: true,
+      // useTestnet: true,
     },
     logger,
   );
@@ -141,9 +150,9 @@ import {
    * Once subscribed, you don't need to do anything else. Listen-key keep-alive, refresh, reconnects, etc are all automatically handled by the SDK.
    */
   wsClient.subscribeSpotUserDataStream();
-  wsClient.subscribeCrossMarginUserDataStream();
-  wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
-  wsClient.subscribeUsdFuturesUserDataStream();
+  // wsClient.subscribeCrossMarginUserDataStream();
+  // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
+  // wsClient.subscribeUsdFuturesUserDataStream();
 
   // setTimeout(() => {
   //   console.log('killing all connections');

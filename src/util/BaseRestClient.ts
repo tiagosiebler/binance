@@ -60,6 +60,9 @@ export default abstract class BaseRestClient {
       // throw exceptions by default. If this is set to false, they are simply returned
       // throwExceptions: true,
       ...options,
+
+      api_key: options?.api_key?.replace(/\\n/g, '\n'),
+      api_secret: options?.api_secret?.replace(/\\n/g, '\n'),
     };
 
     this.globalRequestOptions = {
@@ -82,8 +85,8 @@ export default abstract class BaseRestClient {
       });
     }
 
-    this.key = options.api_key;
-    this.secret = options.api_secret;
+    this.key = this.options.api_key;
+    this.secret = this.options.api_secret;
 
     if (this.key) {
       if (!this.globalRequestOptions.headers) {

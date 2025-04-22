@@ -213,6 +213,9 @@ export abstract class BaseWebsocketClient<
       // Individual requests do not require a signature, so this is disabled.
       authPrivateRequests: false,
       ...options,
+
+      api_key: options?.api_key?.replace(/\\n/g, '\n'),
+      api_secret: options?.api_secret?.replace(/\\n/g, '\n'),
     };
   }
 
