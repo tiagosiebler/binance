@@ -1,15 +1,15 @@
 import {
   DefaultLogger,
-  isWsFormattedMarkPriceUpdateArray,
+  isWsFormattedTrade,
   WebsocketClient,
-} from '../src';
+} from '../../src/index';
 
 // or, with the npm package
 /*
 import {
   WebsocketClient,
   DefaultLogger,
-  isWsFormattedMarkPriceUpdateArray,
+  isWsFormattedTrade,
 } from 'binance';
 */
 
@@ -21,40 +21,23 @@ import {
 
   const wsClient = new WebsocketClient(
     {
-      // api_key: key,
-      // api_secret: secret,
       beautify: true,
     },
     logger,
   );
 
   wsClient.on('formattedMessage', (data) => {
-    if (isWsFormattedMarkPriceUpdateArray(data)) {
-      console.log('all mark price evt received ');
-
-      const mapped = data
-        .map((r) => {
-          return {
-            ...r,
-            // value is in decimal, multiply by 100 to get percent value
-            fundingRate: (Number(r.fundingRate) * 100).toFixed(2),
-          };
-        })
-        .sort((a, b) => a.symbol.localeCompare(b.symbol));
-
-      // log table sorted alphabetically by symbol
-      console.table(mapped);
+    if (isWsFormattedTrade(data)) {
+      console.log('trade event ', data);
       return;
     }
 
-    console.log('log unhandled formatted msg: ', data);
+    console.log('log formattedMessage: ', data);
   });
 
   wsClient.on('open', (data) => {
     console.log('connection opened open:', data.wsKey, data.wsUrl);
   });
-
-  // response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
   wsClient.on('response', (data) => {
     console.log('log response: ', JSON.stringify(data, null, 2));
   });
@@ -65,5 +48,12 @@ import {
     console.log('ws has reconnected ', data?.wsKey);
   });
 
-  wsClient.subscribeAllMarketMarkPrice('usdm', 1000);
+  // Request subscription to the following symbol trade events:
+  const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT'];
+
+  // Loop through symbols
+  for (const symbol of symbols) {
+    console.log('subscribing to trades for: ', symbol);
+    wsClient.subscribeSpotTrades(symbol);
+  }
 })();

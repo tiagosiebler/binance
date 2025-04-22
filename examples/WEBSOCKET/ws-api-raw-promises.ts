@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DefaultLogger, WebsocketClient, WS_KEY_MAP, WSAPIWsKey } from '../src';
+import {
+  DefaultLogger,
+  WebsocketClient,
+  WS_KEY_MAP,
+  WSAPIWsKey,
+} from '../../src/index';
 
 // or
 // import { DefaultLogger, WS_KEY_MAP, WebsocketClient, WSAPIWsKey } from 'binance';

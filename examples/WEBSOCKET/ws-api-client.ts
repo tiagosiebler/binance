@@ -4,7 +4,7 @@
 //   WebsocketAPIClient,
 // } from 'binance';
 
-import { DefaultLogger, WebsocketAPIClient } from '../src';
+import { DefaultLogger, WebsocketAPIClient } from '../../src/index';
 
 /**
  * The WS API only works with an Ed25519 API key.

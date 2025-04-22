@@ -1,4 +1,4 @@
-import { NewFuturesOrderParams, USDMClient } from '../src/index';
+import { NewFuturesOrderParams, USDMClient } from '../../src/index';
 
 const key = process.env.API_KEY_COM || 'APIKEY';
 const secret = process.env.API_SECRET_COM || 'APISECRET';

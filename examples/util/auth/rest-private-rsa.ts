@@ -1,4 +1,4 @@
-import { MainClient } from '../src/index';
+import { MainClient } from '../../../src/index';
 
 // or
 // import { MainClient } from 'binance';

@@ -1,4 +1,4 @@
-import { PortfolioClient } from '../src/index';
+import { PortfolioClient } from '../../src/index';
 
 // or
 // import { PortfolioClient } from 'binance';
