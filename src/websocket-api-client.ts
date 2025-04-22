@@ -918,7 +918,7 @@ export class WebsocketAPIClient {
    */
   submitNewFuturesOrder(
     market: 'usdm' | 'coinm',
-    params: NewFuturesOrderParams & { timestamp: number; recvWindow?: number },
+    params: NewFuturesOrderParams & WSAPIRecvWindowTimestamp,
   ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
     return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),

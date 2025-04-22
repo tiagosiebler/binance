@@ -1,7 +1,7 @@
 import { KlineInterval, numberInString } from '../shared';
 
 /**
- * Simple request params with timestamp? & recv window optional
+ * Simple request params with timestamp (required) & recv window (optional)
  */
 export type WSAPIRecvWindowTimestamp = {
   recvWindow?: number;

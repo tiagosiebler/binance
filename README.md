@@ -58,8 +58,8 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
 - [Examples](#examples)
   - [REST API Examples](./examples/REST)
   - [WebSocket Examples](./examples/WebSockets)
-    - [WebSocket Consumers](./examples/WebSockets/todo:)
-    - [WebSocket API](./examples/WebSockets/wsapitodo:)
+    - [WebSocket Consumers](./examples/WebSockets/)
+    - [WebSocket API](./examples/WebSockets/ws-api-client.ts)
 - [Issues & Discussion](#issues--discussion)
 - [Related Projects](#related-projects)
 - [Documentation Links](#documentation)
@@ -444,7 +444,7 @@ Each call to this method is wrapped in a promise, which you can async await for 
 
 The WebSocket API is also available in a promise-wrapped REST-like format. Either, as above, await any calls to `sendWSAPIRequest(...)`, or directly use the convenient WebsocketAPIClient. This class is very similar to existing REST API classes (such as the MainClient or USDMClient).
 
-It provides one function per endpoint, feels like a REST API and will automatically route your request via a an automatically persisted, authenticated and health-checked WebSocket API connection.
+It provides one function per endpoint, feels like a REST API and will automatically route your request via an automatically persisted, authenticated and health-checked WebSocket API connection.
 
 Below is an example showing how easy it is to use the WebSocket API without any concern for the complexity of managing WebSockets.
 
