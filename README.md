@@ -52,6 +52,30 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
 - Proxy support via axios integration.
 - Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Examples](#examples)
+- [Issues & Discussion](#issues--discussion)
+- [Related Projects](#related-projects)
+- [Documentation](#documentation)
+- [Structure](#structure)
+- [Usage](#usage)
+  - [REST API Clients](#rest-api-clients)
+    - [REST Main Client](#rest-main-client)
+    - [REST USD-M Futures](#rest-usd-m-futures)
+    - [REST COIN-M Futures](#rest-coin-m-futures)
+  - [WebSockets](#websockets)
+    - [WebSocket Consumers](#websocket-consumers)
+    - [WebSocket API](#websocket-api)
+      - [Event Driven API](#event-driven-api)
+      - [REST-Like Await API](#rest-like-await-api)
+  - [Customise Logging](#customise-logging)
+  - [Browser/Frontend Usage](#browserfrontend-usage)
+    - [Import](#import)
+    - [Webpack](#webpack)
+- [Contributions & Thanks](#contributions--thanks)
+
 ## Installation
 
 `npm install binance --save`
@@ -66,8 +90,6 @@ Refer to the [examples](./examples) folder for implementation demos.
 - Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
 - Questions about Binance APIs & WebSockets? Ask in the official [Binance API](https://t.me/binance_api_english) group on telegram.
 - Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/QuantSDKs)
-
-<!-- template_related_projects -->
 
 ## Related projects
 
@@ -87,7 +109,6 @@ Check out my related JavaScript/TypeScript/Node.js projects:
   - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
 - Check out my examples:
   - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
-  <!-- template_related_projects_end -->
 
 ## Documentation
 
@@ -588,9 +609,7 @@ The bundle can be found in `dist/`. Altough usage should be largely consistent, 
 
 ---
 
-<!-- template_contributions -->
-
-### Contributions & Thanks
+## Contributions & Thanks
 
 Have my projects helped you? Share the love, there are many ways you can show your thanks:
 
@@ -600,23 +619,10 @@ Have my projects helped you? Share the love, there are many ways you can show yo
 - Or buy me all the coffee:
   - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
 
-<!---
-old ones:
-  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
-  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
-  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
-  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
--->
-<!-- template_contributions_end -->
-
-### Contributions & Pull Requests
+## Contributions & Pull Requests
 
 Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
-
-<!-- template_star_history -->
 
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
-
-<!-- template_star_history_end -->
