@@ -33,7 +33,7 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
   - RSA
   - Ed25519 (required for WS API).
   - Passing a private key as a secret will automatically detect whether to switch to RSA or Ed25519 authentication.
-- Supports WebSockets for all available product groups on Binance, including Spot, Margin, Isolated Margin, Portfolio, Options, USDM & CoinM Futures.
+- Supports WebSockets for all available product groups on Binance including Spot, Margin, Isolated Margin, Portfolio, Options, USDM & CoinM Futures.
   - Event driven messaging.
   - Smart WebSocket persistence
     - Automatically handle silent WebSocket disconnections through timed heartbeats, including the scheduled 24hr disconnect.
@@ -133,9 +133,30 @@ There are several REST API modules as there are some differences in each API gro
 
 Vanilla Options is not yet available. Please get in touch if you're looking for this.
 
-### REST Spot/Margin/etc
+### REST Main Client
 
-Start by importing the spot client. API credentials are optional, unless you plan on making private API calls.
+The MainClient covers all endpoints under the main "api*.binance.com" subdomains, including but not limited to endpoints in the following product groups:
+- Spot
+- Cross & isolated margin
+- Convert
+- Wallet
+- Futures management (transfers & history)
+- Sub account management
+- Misc transfers
+- Auto & dual invest
+- Staking
+- Mining
+- Loans & VIP loans
+- Simple Earn
+- NFTs
+- C2C
+- Exchange Link
+
+Refer to the following links for a complete list of available endpoints:
+- [Binance Node.js & JavaScript SDK Endpoint Map](https://github.com/tiagosiebler/binance/blob/master/docs/endpointFunctionList.md)
+- [Binance Spot API Docs](https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-endpoints)
+
+Start by importing the `MainClient` class. API credentials are optional, unless you plan on making private API calls. More Node.js & JavaScript examples for Binance's REST APIs & WebSockets can be found in the [examples](./examples) folder on GitHub.
 
 ```javascript
 import { MainClient } from 'binance';
