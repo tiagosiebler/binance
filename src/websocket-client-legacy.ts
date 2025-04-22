@@ -48,19 +48,6 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
   portfoliom: '',
 };
 
-// export const wsKeySpot = 'spot';
-// export const wsKeyLinearPrivate = 'linearPrivate';
-// export const wsKeyLinearPublic = 'linearPublic';
-
-// This is used to differentiate between each of the available websocket streams (as binance has multiple websockets)
-// export type WsKey =
-//   | string
-//   | 'spot'
-//   | 'margin'
-//   | 'usdmfutures'
-//   | 'coinmfutures'
-//   | 'options';
-
 type WsEventInternalSrc = 'event' | 'function';
 
 export declare interface WebsocketClientV1 {
@@ -78,7 +65,6 @@ export declare interface WebsocketClientV1 {
     listener: (event: WsUserDataEvents) => void,
   ): this;
 
-  // TODO: make consistent with new client, at least?
   on(
     event: 'error',
     listener: (event: { wsKey: WsKey; error: any; rawEvent?: string }) => void,
@@ -144,6 +130,7 @@ export class WebsocketClientV1 extends EventEmitter {
     return {
       ...this.options,
       ...this.options.restOptions,
+      testnet: this.options.testnet,
       api_key: this.options.api_key,
       api_secret: this.options.api_secret,
     };
@@ -824,7 +811,6 @@ export class WebsocketClientV1 extends EventEmitter {
           .getSpotRestClient(
             this.getRestClientOptions(),
             this.options.requestOptions,
-            true,
           )
           .keepAliveSpotUserDataListenKey(listenKey);
       case 'crossMargin':
@@ -857,17 +843,15 @@ export class WebsocketClientV1 extends EventEmitter {
       case 'usdmTestnet':
         return this.restClientCache
           .getUSDMRestClient(
-            this.getRestClientOptions(),
+            { ...this.getRestClientOptions(), testnet: isTestnet },
             this.options.requestOptions,
-            isTestnet,
           )
           .keepAliveFuturesUserDataListenKey();
       case 'coinmTestnet':
         return this.restClientCache
           .getCOINMRestClient(
-            this.getRestClientOptions(),
+            { ...this.getRestClientOptions(), testnet: isTestnet },
             this.options.requestOptions,
-            isTestnet,
           )
           .keepAliveFuturesUserDataListenKey();
       case 'portfoliom':
@@ -989,7 +973,6 @@ export class WebsocketClientV1 extends EventEmitter {
     }
   }
 
-  // TODO: Used in the close() fn in the legacy client. Still needed?
   private teardownUserDataListenKey(listenKey: string, ws: WebSocket) {
     if (listenKey) {
       this.listenKeyStateCache.clearAllListenKeyState(listenKey);
@@ -1097,7 +1080,7 @@ export class WebsocketClientV1 extends EventEmitter {
         },
       );
 
-      // TODO: this timer should probably be tracked/singleton
+      // This timer should probably be tracked/singleton
       setTimeout(
         () =>
           this.respawnUserDataStream(
@@ -1956,9 +1939,8 @@ export class WebsocketClientV1 extends EventEmitter {
   ): Promise<WebSocket> {
     try {
       const restClient = this.restClientCache.getUSDMRestClient(
-        this.getRestClientOptions(),
+        { ...this.getRestClientOptions(), testnet: isTestnet },
         this.options.requestOptions,
-        isTestnet,
       );
 
       const { listenKey } = await restClient.getFuturesUserDataListenKey();
@@ -2025,9 +2007,8 @@ export class WebsocketClientV1 extends EventEmitter {
     try {
       const { listenKey } = await this.restClientCache
         .getCOINMRestClient(
-          this.getRestClientOptions(),
+          { ...this.getRestClientOptions(), testnet: isTestnet },
           this.options.requestOptions,
-          isTestnet,
         )
         .getFuturesUserDataListenKey();
 

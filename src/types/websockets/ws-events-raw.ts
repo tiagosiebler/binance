@@ -1,23 +1,21 @@
 import {
-  FuturesContractType,
-  PositionSide,
-  MarginType,
   FuturesOrderType,
+  MarginType,
+  PositionSide,
   WorkingType,
 } from '../futures';
 import {
   KlineInterval,
   numberInString,
-  OrderBookRow,
-  OrderBookRowFormatted,
-  OrderSide,
-  OrderType,
-  OrderTimeInForce,
-  OrderExecutionType,
-  OrderStatus,
-  SelfTradePreventionMode,
-  OCOStatus,
   OCOOrderStatus,
+  OCOStatus,
+  OrderBookRow,
+  OrderExecutionType,
+  OrderSide,
+  OrderStatus,
+  OrderTimeInForce,
+  OrderType,
+  SelfTradePreventionMode,
 } from '../shared';
 import { WsSharedBase } from './ws-general';
 
@@ -134,6 +132,8 @@ export interface WsMessageRollingWindowTickerRaw extends WsSharedBase {
 export interface WsMessageBookTickerEventRaw extends WsSharedBase {
   e: 'bookTicker';
   u: number;
+  E: number; // futures only - event time
+  T: number; // futures only - transaction time
   s: string;
   b: numberInString;
   B: numberInString;

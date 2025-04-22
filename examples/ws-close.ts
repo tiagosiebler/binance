@@ -1,19 +1,18 @@
-import { DefaultLogger, WebsocketClientV1 } from '../src';
+import { DefaultLogger, WebsocketClient } from '../src';
 
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';
 
 (async () => {
-  const key = process.env.APIKEY || 'APIKEY';
-  const secret = process.env.APISECRET || 'APISECRET';
-  let wsKey;
+  const key = process.env.API_KEY_COM || 'APIKEY';
+  const secret = process.env.API_SECRET_COM || 'APISECRET';
 
   const logger = {
     ...DefaultLogger,
-    silly: () => {},
+    trace: () => {},
   };
 
-  const wsClient = new WebsocketClientV1(
+  const wsClient = new WebsocketClient(
     {
       api_key: key,
       api_secret: secret,
@@ -23,8 +22,7 @@ import { DefaultLogger, WebsocketClientV1 } from '../src';
   );
 
   wsClient.on('open', (data) => {
-    console.log('connection opened open:', data.wsKey, data.ws.target.url);
-    wsKey = data.wsKey;
+    console.log('connection opened open:', data.wsKey, data.wsUrl);
   });
 
   wsClient.on('reconnecting', (data) => {
@@ -34,7 +32,28 @@ import { DefaultLogger, WebsocketClientV1 } from '../src';
     console.log('ws has reconnected ', data?.wsKey);
   });
 
+  wsClient.on('message', (data) => {
+    console.log('data received: ', data);
+  });
+  wsClient.on('response', (data) => {
+    console.log('response received: ', data);
+  });
+
   wsClient.subscribeUsdFuturesUserDataStream();
 
-  setTimeout(() => wsClient.close(wsKey, false), 5000);
+  wsClient.subscribe(
+    ['!miniTicker@arr', 'btcusdt@avgPrice', 'btcusdt@kline_5m'],
+    'main',
+  );
+
+  setTimeout(() => {
+    // unsubscribe from user data stream
+    wsClient.closeUserDataStream('usdm');
+
+    // unsubscribe from individual topics on a connection, one at a time:
+    // wsClient.unsubscribe('!miniTicker@arr', 'main');
+
+    // arrays also supported:
+    wsClient.unsubscribe(['!miniTicker@arr', 'btcusdt@avgPrice'], 'main');
+  }, 5000);
 })();

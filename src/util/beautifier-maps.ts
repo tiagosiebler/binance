@@ -68,6 +68,14 @@ export const BEAUTIFIER_EVENT_MAP = {
       2: 'ignored',
     },
   ],
+  avgPriceEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    s: 'symbol',
+    i: 'interval',
+    w: 'averagePrice',
+    T: 'lastTradeTime',
+  },
   depthUpdateEvent: {
     e: 'eventType',
     E: 'eventTime',

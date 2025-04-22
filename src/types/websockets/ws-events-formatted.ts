@@ -1,23 +1,22 @@
 import {
   FuturesContractType,
-  PositionSide,
-  MarginType,
   FuturesOrderType,
+  MarginType,
+  PositionSide,
   WorkingType,
 } from '../futures';
 import {
   KlineInterval,
   numberInString,
-  OrderBookRow,
-  OrderBookRowFormatted,
-  OrderSide,
-  OrderType,
-  OrderTimeInForce,
-  OrderExecutionType,
-  OrderStatus,
-  SelfTradePreventionMode,
-  OCOStatus,
   OCOOrderStatus,
+  OCOStatus,
+  OrderBookRowFormatted,
+  OrderExecutionType,
+  OrderSide,
+  OrderStatus,
+  OrderTimeInForce,
+  OrderType,
+  SelfTradePreventionMode,
 } from '../shared';
 import { AccountUpdateEventType } from './ws-events-raw';
 import { WsSharedBase } from './ws-general';
@@ -163,6 +162,8 @@ export interface WsMessageRollingWindowTickerFormatted extends WsSharedBase {
 export interface WsMessageBookTickerEventFormatted extends WsSharedBase {
   eventType: 'bookTicker';
   updateId: number;
+  eventTime: number;
+  transactionTime: number;
   symbol: string;
   bidPrice: number;
   bidQty: number;
@@ -503,7 +504,6 @@ export type WsMessageSpotUserDataEventFormatted =
   | WsMessageSpotBalanceUpdateFormatted
   | WsMessageSpotUserDataListStatusEventFormatted;
 
-// TODO: consistent across USDM vs COINM?
 export type WsMessageFuturesUserDataEventFormatted =
   | WsMessageFuturesUserDataAccountUpdateFormatted
   | WsMessageFuturesUserDataListenKeyExpiredFormatted

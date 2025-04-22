@@ -22,7 +22,7 @@ export const WS_KEY_MAP = {
   mainTestnetPublic: 'mainTestnetPublic',
   mainTestnetUserData: 'mainTestnetUserData',
 
-  // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
+  // https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
   mainWSAPI: 'mainWSAPI', // trading over WS in spot, margin, isolated margin. User data supported too.
   mainWSAPI2: 'mainWSAPI2', // trading over WS in spot, margin, isolated margin. User data supported too.
   mainWSAPITestnet: 'mainWSAPITestnet', // trading over WS in spot, margin, isolated margin | TESTNET
@@ -89,13 +89,13 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   main3: 'wss://data-stream.binance.vision', // spot, margin, isolated margin | alternative | MARKET DATA ONLY | NO USER DATA
 
   // https://developers.binance.com/docs/binance-spot-api-docs/testnet/web-socket-streams#general-wss-information
-  mainTestnetPublic: 'wss://testnet.binance.vision',
+  mainTestnetPublic: 'wss://stream.testnet.binance.vision',
   mainTestnetUserData: 'wss://stream.testnet.binance.vision:9443',
 
-  // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-api/general-api-information
+  // https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
   mainWSAPI: 'wss://ws-api.binance.com:443',
   mainWSAPI2: 'wss://ws-api.binance.com:9443',
-  mainWSAPITestnet: 'wss://testnet.binance.vision',
+  mainWSAPITestnet: 'wss://ws-api.testnet.binance.vision',
 
   // https://developers.binance.com/docs/margin_trading/risk-data-stream
   // Margin websocket only support Cross Margin Accounts
@@ -141,7 +141,7 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
 export function getWsURLSuffix(
   wsKey: WsKey,
-  connectionType: 'market' | 'userData' | 'wsAPI',
+  connectionType: 'market' | 'userData',
 ): string {
   switch (wsKey) {
     case 'main':
@@ -149,15 +149,12 @@ export function getWsURLSuffix(
     case 'main3':
     case 'marginRiskUserData':
     case 'mainTestnetPublic':
-    case 'mainTestnetUserData':
-    case 'mainWSAPITestnet': {
+    case 'mainTestnetUserData': {
       switch (connectionType) {
         case 'market':
           return '/stream';
         case 'userData':
           return '/ws';
-        case 'wsAPI':
-          return '/ws-api/v3';
         default: {
           throw neverGuard(
             connectionType,
@@ -166,6 +163,7 @@ export function getWsURLSuffix(
         }
       }
     }
+    case 'mainWSAPITestnet':
     case 'mainWSAPI':
     case 'mainWSAPI2': {
       return '/ws-api/v3';
@@ -177,8 +175,6 @@ export function getWsURLSuffix(
           return '/stream';
         case 'userData':
           return '/ws';
-        case 'wsAPI':
-          return '/ws-fapi/v1';
         default: {
           throw neverGuard(
             connectionType,
@@ -203,8 +199,6 @@ export function getWsURLSuffix(
           return '/stream';
         case 'userData':
           return '/ws';
-        case 'wsAPI':
-          return '/ws-capi/v1';
         default: {
           throw neverGuard(
             connectionType,
@@ -291,7 +285,7 @@ export function getWsKeyForTopic(
   }
 }
 
-function getTestnetWsKey(wsKey: WsKey): WsKey {
+export function getTestnetWsKey(wsKey: WsKey): WsKey {
   switch (wsKey) {
     case WS_KEY_MAP.mainTestnetPublic:
     case WS_KEY_MAP.mainTestnetUserData:
@@ -335,6 +329,8 @@ function getTestnetWsKey(wsKey: WsKey): WsKey {
     case WS_KEY_MAP.portfolioMarginProUserData: {
       throw new Error(`Testnet not supported for "${wsKey}"`);
     }
+    default:
+      throw neverGuard(wsKey, `Unhandled wsKey "${wsKey}"`);
   }
 }
 
@@ -348,7 +344,7 @@ export function getWsUrl(
     return wsUrl;
   }
 
-  const isTestnet = !!wsClientOptions.useTestnet;
+  const isTestnet = !!wsClientOptions.testnet;
 
   const resolvedUrl =
     WS_KEY_URL_MAP[isTestnet ? getTestnetWsKey(wsKey) : wsKey];
@@ -673,4 +669,20 @@ export function appendEventMarket(wsMsg: any, wsKey: WsKey) {
   const { market } = getContextFromWsKey(wsKey);
   wsMsg.wsMarket = market;
   wsMsg.wsKey = wsKey;
+}
+
+/**
+ * WebSocket.ping() is not available in browsers. This is a simple check used to
+ * disable heartbeats in browers, for exchanges that use native WebSocket ping/pong frames.
+ */
+export function isWSPingFrameAvailable(): boolean {
+  return typeof WebSocket.prototype['ping'] === 'function';
+}
+
+/**
+ * WebSocket.pong() is not available in browsers. This is a simple check used to
+ * disable heartbeats in browers, for exchanges that use native WebSocket ping/pong frames.
+ */
+export function isWSPongFrameAvailable(): boolean {
+  return typeof WebSocket.prototype['pong'] === 'function';
 }

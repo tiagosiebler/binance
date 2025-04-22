@@ -1,7 +1,7 @@
 /**
  * Minimal example for using a socks proxy with the ws client, extracted from https://github.com/tiagosiebler/binance/pull/319
  */
-import { WebsocketClientV1 } from '../src';
+import { WebsocketClient } from '../src';
 
 // or
 // import { WebsocketClient } from 'binance';
@@ -9,7 +9,7 @@ import { WebsocketClientV1 } from '../src';
 const { SocksProxyAgent } = require('socks-proxy-agent');
 
 const agent = new SocksProxyAgent(process.env.http_proxy);
-const wsClient = new WebsocketClientV1({
+const wsClient = new WebsocketClient({
   beautify: true,
   wsOptions: {
     agent: agent,
@@ -20,11 +20,11 @@ wsClient.on('formattedMessage', (data) => {
   console.log('log formattedMessage: ', data);
 });
 wsClient.on('open', (data) => {
-  console.log('connection opened open:', data.wsKey, data.ws.target.url);
+  console.log('connection opened open:', data.wsKey, data.wsUrl);
 });
 
-wsClient.on('reply', (data) => {
-  console.log('log reply: ', JSON.stringify(data, null, 2));
+wsClient.on('response', (data) => {
+  console.log('log response: ', JSON.stringify(data, null, 2));
 });
 wsClient.on('reconnecting', (data) => {
   console.log('ws automatically reconnecting.... ', data?.wsKey);

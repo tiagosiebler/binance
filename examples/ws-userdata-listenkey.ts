@@ -1,15 +1,23 @@
+// or
+// import {
+//   DefaultLogger,
+//   isWsFormattedFuturesUserDataEvent,
+//   isWsFormattedSpotUserDataEvent,
+//   isWsFormattedSpotUserDataExecutionReport,
+//   isWsFormattedUserDataEvent,
+//   WebsocketClient,
+//   WsUserDataEvents,
+// } from 'binance';
+
 import {
   DefaultLogger,
   isWsFormattedFuturesUserDataEvent,
   isWsFormattedSpotUserDataEvent,
   isWsFormattedSpotUserDataExecutionReport,
   isWsFormattedUserDataEvent,
+  WebsocketClient,
   WsUserDataEvents,
 } from '../src';
-import { WebsocketClientV1 } from '../src';
-
-// or
-// import { DefaultLogger, WebsocketClient } from 'binance';
 
 (async () => {
   const key = process.env.API_KEY_COM || 'APIKEY';
@@ -17,7 +25,7 @@ import { WebsocketClientV1 } from '../src';
 
   console.log({ key, secret });
 
-  const ignoredSillyLogMsgs = [
+  const ignoredTraceLogMsgs = [
     'Sending ping',
     'Received pong, clearing pong timer',
     'Received ping, sending pong frame',
@@ -26,26 +34,27 @@ import { WebsocketClientV1 } from '../src';
   // Optional, hook and customise logging behavior
   const logger = {
     ...DefaultLogger,
-    silly: (msg, context) => {
-      // if (ignoredSillyLogMsgs.includes(msg)) {
-      //   return;
-      // }
+    trace: (msg, context) => {
+      if (ignoredTraceLogMsgs.includes(msg)) {
+        return;
+      }
       console.log(JSON.stringify({ msg, context }));
     },
   };
 
-  const wsClient = new WebsocketClientV1(
+  const wsClient = new WebsocketClient(
     {
       api_key: key,
       api_secret: secret,
       beautify: true,
+      // testnet: true,
     },
     logger,
   );
 
-  wsClient.on('message', (data) => {
-    // console.log('raw message received ', JSON.stringify(data, null, 2));
-  });
+  // wsClient.on('message', (data) => {
+  //   console.log('raw message received ', JSON.stringify(data, null, 2));
+  // });
 
   function onUserDataEvent(data: WsUserDataEvents) {
     // the market denotes which API category it came from
@@ -96,12 +105,12 @@ import { WebsocketClientV1 } from '../src';
   });
 
   wsClient.on('open', (data) => {
-    console.log('connection opened open:', data.wsKey, data.ws.target.url);
+    console.log('connection opened open:', data.wsKey, data.wsUrl);
   });
 
   // response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
-  wsClient.on('reply', (data) => {
-    console.log('log reply: ', JSON.stringify(data, null, 2));
+  wsClient.on('response', (data) => {
+    console.log('log response: ', JSON.stringify(data, null, 2));
   });
 
   wsClient.on('reconnecting', (data) => {
@@ -123,14 +132,27 @@ import { WebsocketClientV1 } from '../src';
     }
   });
 
-  wsClient.on('error', (data) => {
+  wsClient.on('exception', (data) => {
     console.error('ws saw error: ', data);
   });
 
+  /**
+   * This example demonstrates subscribing to the user data stream via the
+   * listen key workflow.
+   *
+   * Note: the listen key workflow is deprecated for "spot" markets. Use the
+   * WebSocket API `userDataStream.subscribe` workflow instead (only available
+   * in spot right now). See `subscribeUserDataStream()` in the WebsocketAPIClient.
+   *
+   * Each method below opens a dedicated WS connection attached to an automatically
+   * fetched listen key (a session for your user data stream).
+   *
+   * Once subscribed, you don't need to do anything else. Listen-key keep-alive, refresh, reconnects, etc are all automatically handled by the SDK.
+   */
   wsClient.subscribeSpotUserDataStream();
-  // wsClient.subscribeMarginUserDataStream();
+  // wsClient.subscribeCrossMarginUserDataStream();
   // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
-  wsClient.subscribeUsdFuturesUserDataStream();
+  // wsClient.subscribeUsdFuturesUserDataStream();
 
   // setTimeout(() => {
   //   console.log('killing all connections');

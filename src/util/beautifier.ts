@@ -196,7 +196,6 @@ export default class Beautifier {
     return beautifedObject;
   }
 
-  // TODO: if not matched return original object....
   beautifyArrayValues(data: any[], parentKey?: string | number) {
     const beautifedArray: any[] = [];
     for (const [key, val] of data.entries()) {

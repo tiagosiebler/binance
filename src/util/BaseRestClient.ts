@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, Method } from 'axios';
+import https from 'https';
 
 import { BinanceBaseUrlKey } from '../types/shared';
 import Beautifier from './beautifier';
@@ -6,6 +7,7 @@ import {
   GenericAPIResponse,
   getRequestSignature,
   getRestBaseUrl,
+  getTestnetBaseUrlKey,
   RestClientOptions,
   serialiseParams,
 } from './requestUtils';
@@ -55,7 +57,12 @@ export default abstract class BaseRestClient {
       strictParamValidation: false,
       // disable the time sync mechanism by default
       disableTimeSync: true,
+      // throw exceptions by default. If this is set to false, they are simply returned
+      // throwExceptions: true,
       ...options,
+
+      api_key: options?.api_key?.replace(/\\n/g, '\n'),
+      api_secret: options?.api_secret?.replace(/\\n/g, '\n'),
     };
 
     this.globalRequestOptions = {
@@ -68,8 +75,18 @@ export default abstract class BaseRestClient {
       ...requestOptions,
     };
 
-    this.key = options.api_key;
-    this.secret = options.api_secret;
+    // If enabled, configure a https agent with keepAlive enabled
+    if (this.options.keepAlive) {
+      // For more advanced configuration, raise an issue on GitHub or use the "networkOptions"
+      // parameter to define a custom httpsAgent with the desired properties
+      this.globalRequestOptions.httpsAgent = new https.Agent({
+        keepAlive: true,
+        keepAliveMsecs: this.options.keepAliveMsecs,
+      });
+    }
+
+    this.key = this.options.api_key;
+    this.secret = this.options.api_secret;
 
     if (this.key) {
       if (!this.globalRequestOptions.headers) {
@@ -78,7 +95,11 @@ export default abstract class BaseRestClient {
       this.globalRequestOptions.headers['X-MBX-APIKEY'] = this.key;
     }
 
-    this.baseUrlKey = this.options.baseUrlKey || baseUrlKey;
+    const derivedBaseUrlKey = this.options.baseUrlKey || baseUrlKey;
+    this.baseUrlKey = options.testnet
+      ? getTestnetBaseUrlKey(derivedBaseUrlKey)
+      : derivedBaseUrlKey;
+
     this.baseUrl = getRestBaseUrl(this.baseUrlKey, this.options);
 
     if (this.key && !this.secret) {

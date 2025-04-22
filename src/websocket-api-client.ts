@@ -1,6 +1,9 @@
 import { NewFuturesOrderParams } from './types/futures';
 import { ExchangeInfo, NewSpotOrderParams, OrderResponse } from './types/spot';
-import { WSAPIResponse } from './types/websockets/ws-api';
+import {
+  WSAPIResponse,
+  WSAPIUserDataListenKeyRequest,
+} from './types/websockets/ws-api';
 import {
   AccountCommissionWSAPIRequest,
   AccountStatusWSAPIRequest,
@@ -43,7 +46,7 @@ import {
   TradesAggregateWSAPIRequest,
   TradesHistoricalWSAPIRequest,
   TradesRecentWSAPIRequest,
-  WSAPIRecvWindowtimestamp,
+  WSAPIRecvWindowTimestamp,
 } from './types/websockets/ws-api-requests';
 import {
   AccountCommissionWSAPIResponse,
@@ -82,10 +85,17 @@ import {
   TradeWSAPIResponse,
   WsAPISessionStatus,
 } from './types/websockets/ws-api-responses';
+import { WSClientConfigurableOptions } from './types/websockets/ws-general';
+import { DefaultLogger } from './util/logger';
+import { isWSAPIWsKey } from './util/typeGuards';
 import {
+  getTestnetWsKey,
   WS_KEY_MAP,
+  WS_LOGGER_CATEGORY,
+  WSAPIWsKey,
   WSAPIWsKeyFutures,
   WSAPIWsKeyMain,
+  WsKey,
 } from './util/websockets/websocket-util';
 import { WebsocketClient } from './websocket-client';
 
@@ -94,6 +104,48 @@ function getFuturesMarketWsKey(market: 'usdm' | 'coinm'): WSAPIWsKeyFutures {
     return WS_KEY_MAP.usdmWSAPI;
   }
   return WS_KEY_MAP.coinmWSAPI;
+}
+
+/**
+ * Configurable options specific to only the REST-like WebsocketAPIClient
+ */
+export interface WSAPIClientConfigurableOptions {
+  /**
+   * Default: true
+   *
+   * If requestSubscribeUserDataStream() was used, automatically resubscribe if reconnected
+   */
+  resubscribeUserDataStreamAfterReconnect: boolean;
+  /**
+   * Default: 2 seconds
+   *
+   * Delay automatic userdata resubscribe by x seconds.
+   */
+  resubscribeUserDataStreamDelaySeconds: number;
+
+  /**
+   * Default: true
+   *
+   * Attach default event listeners, which will console log any high level
+   * events (opened/reconnecting/reconnected/etc).
+   *
+   * If you disable this, you should set your own event listeners
+   * on the embedded WS Client `wsApiClient.getWSClient().on(....)`.
+   */
+  attachEventListeners: boolean;
+}
+
+/**
+ * Used to track that a connection had an active user data stream before it disconnected.
+ *
+ * Note: This is not the same as the "listenKey" WS API workflow (the listenKey workflow is deprecated).
+ *
+ * This does not return a listen key. This also does not require a regular "ping" on the listen key.
+ */
+interface ActiveUserDataStreamState {
+  subscribedAt: Date;
+  subscribeAttempt: number;
+  respawnTimeout?: ReturnType<typeof setTimeout>;
 }
 
 /**
@@ -112,7 +164,52 @@ function getFuturesMarketWsKey(market: 'usdm' | 'coinm'): WSAPIWsKeyFutures {
  * Refer to the WS API promises example for a more detailed example on using sendWSAPIRequest() directly:
  * https://github.com/tiagosiebler/binance/blob/wsapi/examples/ws-api-promises.ts#L52-L61
  */
-export class WebsocketAPIClient extends WebsocketClient {
+export class WebsocketAPIClient {
+  /**
+   * Minimal state store around automating sticky "userDataStream.subscribe" sessions
+   */
+  private subscribedUserDataStreamState: Record<
+    WSAPIWsKey | string,
+    ActiveUserDataStreamState | undefined
+  > = {};
+
+  private wsClient: WebsocketClient;
+
+  private logger: DefaultLogger;
+
+  private options: WSClientConfigurableOptions & WSAPIClientConfigurableOptions;
+
+  constructor(
+    options?: WSClientConfigurableOptions &
+      Partial<WSAPIClientConfigurableOptions>,
+    logger?: DefaultLogger,
+  ) {
+    this.wsClient = new WebsocketClient(options, logger);
+
+    this.options = {
+      resubscribeUserDataStreamAfterReconnect: true,
+      resubscribeUserDataStreamDelaySeconds: 2,
+      attachEventListeners: true,
+      ...options,
+    };
+
+    this.logger = this.wsClient.logger;
+
+    this.setupDefaultEventListeners();
+
+    this.wsClient.on('reconnected', ({ wsKey }) => {
+      this.handleWSReconnectedEvent({ wsKey });
+    });
+  }
+
+  public getWSClient(): WebsocketClient {
+    return this.wsClient;
+  }
+
+  public setTimeOffsetMs(newOffset: number): void {
+    return this.getWSClient().setTimeOffsetMs(newOffset);
+  }
+
   /*
    *
    * SPOT - General requests
@@ -123,7 +220,10 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Test connectivity to the WebSocket API
    */
   testSpotConnectivity(wsKey?: WSAPIWsKeyMain): Promise<WSAPIResponse<object>> {
-    return this.sendWSAPIRequest(wsKey || WS_KEY_MAP.mainWSAPI, 'ping');
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'ping',
+    );
   }
 
   /**
@@ -132,7 +232,10 @@ export class WebsocketAPIClient extends WebsocketClient {
   getSpotServerTime(
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<TimeWSAPIResponse>> {
-    return this.sendWSAPIRequest(wsKey || WS_KEY_MAP.mainWSAPI, 'time');
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'time',
+    );
   }
 
   /**
@@ -142,7 +245,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params?: ExchangeInfoWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<ExchangeInfo>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'exchangeInfo',
       params,
@@ -152,7 +255,7 @@ export class WebsocketAPIClient extends WebsocketClient {
   getSpotSessionStatus(
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<WsAPISessionStatus>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'session.status',
     );
@@ -172,7 +275,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: DepthWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<DepthWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'depth',
       params,
@@ -187,7 +290,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: TradesRecentWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<TradeWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'trades.recent',
       params,
@@ -202,7 +305,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: TradesHistoricalWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<TradeWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'trades.historical',
       params,
@@ -217,7 +320,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: TradesAggregateWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AggregateTradeWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'trades.aggregate',
       params,
@@ -232,7 +335,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: KlinesWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<KlineWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'klines',
       params,
@@ -247,7 +350,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: KlinesWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<KlineWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'uiKlines',
       params,
@@ -261,7 +364,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: AvgPriceWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AvgPriceWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'avgPrice',
       params,
@@ -283,7 +386,7 @@ export class WebsocketAPIClient extends WebsocketClient {
       | TickerMiniWSAPIResponse[]
     >
   > {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker.24hr',
       params,
@@ -304,7 +407,7 @@ export class WebsocketAPIClient extends WebsocketClient {
       | TickerMiniWSAPIResponse[]
     >
   > {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker.tradingDay',
       params,
@@ -326,7 +429,7 @@ export class WebsocketAPIClient extends WebsocketClient {
       | TickerMiniWSAPIResponse[]
     >
   > {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker',
       params,
@@ -343,7 +446,7 @@ export class WebsocketAPIClient extends WebsocketClient {
   ): Promise<
     WSAPIResponse<TickerPriceWSAPIResponse | TickerPriceWSAPIResponse[]>
   > {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker.price',
       params,
@@ -360,7 +463,7 @@ export class WebsocketAPIClient extends WebsocketClient {
   ): Promise<
     WSAPIResponse<TickerBookWSAPIResponse | TickerBookWSAPIResponse[]>
   > {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker.book',
       params,
@@ -380,7 +483,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: NewSpotOrderParams,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.place',
       params,
@@ -397,7 +500,7 @@ export class WebsocketAPIClient extends WebsocketClient {
   ): Promise<
     WSAPIResponse<OrderTestWSAPIResponse | OrderTestWithCommissionWSAPIResponse>
   > {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.test',
       params,
@@ -412,7 +515,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: OrderStatusWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.status',
       params,
@@ -427,7 +530,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: OrderCancelWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderCancelWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.cancel',
       params,
@@ -442,7 +545,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: OrderCancelReplaceWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderCancelReplaceWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.cancelReplace',
       params,
@@ -457,7 +560,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: OpenOrdersStatusWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'openOrders.status',
       params,
@@ -474,7 +577,7 @@ export class WebsocketAPIClient extends WebsocketClient {
   ): Promise<
     WSAPIResponse<(OrderCancelWSAPIResponse | OrderListCancelWSAPIResponse)[]>
   > {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'openOrders.cancelAll',
       params,
@@ -489,7 +592,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: OrderListPlaceWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListPlaceWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.place',
       params,
@@ -504,7 +607,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: OrderListPlaceOCOWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListPlaceWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.place.oco',
       params,
@@ -519,7 +622,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: OrderListPlaceOTOWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListPlaceWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.place.oto',
       params,
@@ -534,7 +637,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: OrderListPlaceOTOCOWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListPlaceWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.place.otoco',
       params,
@@ -549,7 +652,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: OrderListStatusWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListStatusWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.status',
       params,
@@ -564,7 +667,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: OrderListCancelWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListCancelWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.cancel',
       params,
@@ -576,10 +679,10 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: If you need to continuously monitor order status updates, consider using WebSocket Streams
    */
   getSpotOpenOrderLists(
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListStatusWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'openOrderLists.status',
       params,
@@ -594,7 +697,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: SOROrderPlaceWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<SOROrderPlaceWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'sor.order.place',
       params,
@@ -613,7 +716,7 @@ export class WebsocketAPIClient extends WebsocketClient {
       SOROrderTestWSAPIResponse | SOROrderTestWithCommissionWSAPIResponse
     >
   > {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'sor.order.test',
       params,
@@ -634,7 +737,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: AccountStatusWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AccountStatusWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'account.status',
       params,
@@ -646,10 +749,10 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Weight: 40
    */
   getSpotOrderRateLimits(
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<RateLimitWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'account.rateLimits.orders',
       params,
@@ -664,7 +767,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: AllOrdersWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'allOrders',
       params,
@@ -679,7 +782,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: AllOrderListsWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderListStatusWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'allOrderLists',
       params,
@@ -694,7 +797,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: MyTradesWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<TradeWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'myTrades',
       params,
@@ -709,7 +812,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: MyPreventedMatchesWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<PreventedMatchWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'myPreventedMatches',
       params,
@@ -724,7 +827,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: MyAllocationsWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AllocationWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'myAllocations',
       params,
@@ -739,7 +842,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     params: AccountCommissionWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<AccountCommissionWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'account.commission',
       params,
@@ -759,7 +862,11 @@ export class WebsocketAPIClient extends WebsocketClient {
   getFuturesOrderBook(
     params: FuturesDepthWSAPIRequest,
   ): Promise<WSAPIResponse<FuturesDepthWSAPIResponse>> {
-    return this.sendWSAPIRequest(WS_KEY_MAP.usdmWSAPI, 'depth', params);
+    return this.wsClient.sendWSAPIRequest(
+      WS_KEY_MAP.usdmWSAPI,
+      'depth',
+      params,
+    );
   }
 
   /**
@@ -773,7 +880,11 @@ export class WebsocketAPIClient extends WebsocketClient {
       FuturesTickerPriceWSAPIResponse | FuturesTickerPriceWSAPIResponse[]
     >
   > {
-    return this.sendWSAPIRequest(WS_KEY_MAP.usdmWSAPI, 'ticker.price', params);
+    return this.wsClient.sendWSAPIRequest(
+      WS_KEY_MAP.usdmWSAPI,
+      'ticker.price',
+      params,
+    );
   }
 
   /**
@@ -787,7 +898,11 @@ export class WebsocketAPIClient extends WebsocketClient {
       FuturesTickerBookWSAPIResponse | FuturesTickerBookWSAPIResponse[]
     >
   > {
-    return this.sendWSAPIRequest(WS_KEY_MAP.usdmWSAPI, 'ticker.book', params);
+    return this.wsClient.sendWSAPIRequest(
+      WS_KEY_MAP.usdmWSAPI,
+      'ticker.book',
+      params,
+    );
   }
 
   /*
@@ -803,9 +918,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    */
   submitNewFuturesOrder(
     market: 'usdm' | 'coinm',
-    params: NewFuturesOrderParams,
+    params: NewFuturesOrderParams & { timestamp: number; recvWindow?: number },
   ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'order.place',
       params,
@@ -821,7 +936,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     market: 'usdm' | 'coinm',
     params: FuturesOrderModifyWSAPIRequest,
   ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'order.modify',
       params,
@@ -837,7 +952,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     market: 'usdm' | 'coinm',
     params: FuturesOrderCancelWSAPIRequest,
   ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'order.cancel',
       params,
@@ -853,7 +968,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     market: 'usdm' | 'coinm',
     params: FuturesOrderStatusWSAPIRequest,
   ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'order.status',
       params,
@@ -867,7 +982,7 @@ export class WebsocketAPIClient extends WebsocketClient {
   getFuturesPositionV2(
     params: FuturesPositionV2WSAPIRequest,
   ): Promise<WSAPIResponse<FuturesPositionV2WSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
       'v2/account.position',
       params,
@@ -884,7 +999,7 @@ export class WebsocketAPIClient extends WebsocketClient {
     market: 'usdm' | 'coinm',
     params: FuturesPositionWSAPIRequest,
   ): Promise<WSAPIResponse<FuturesPositionWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'account.position',
       params,
@@ -902,9 +1017,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Returns balance information for all assets
    */
   getFuturesAccountBalanceV2(
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
   ): Promise<WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
       'v2/account.balance',
       params,
@@ -919,9 +1034,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    */
   getFuturesAccountBalance(
     market: 'usdm' | 'coinm',
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
   ): Promise<WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'account.balance',
       params,
@@ -933,9 +1048,9 @@ export class WebsocketAPIClient extends WebsocketClient {
    * Note: Returns detailed account information including positions and assets
    */
   getFuturesAccountStatusV2(
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
   ): Promise<WSAPIResponse<FuturesAccountStatusWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
       'v2/account.status',
       params,
@@ -950,12 +1065,264 @@ export class WebsocketAPIClient extends WebsocketClient {
    */
   getFuturesAccountStatus(
     market: 'usdm' | 'coinm',
-    params: WSAPIRecvWindowtimestamp,
+    params: WSAPIRecvWindowTimestamp,
   ): Promise<WSAPIResponse<FuturesAccountStatusWSAPIResponse>> {
-    return this.sendWSAPIRequest(
+    return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'account.status',
       params,
     );
+  }
+
+  /*
+   *
+   * User data stream requests
+   *
+   */
+
+  /**
+   * Start the user data stream for an apiKey (passed as param).
+   *
+   * Note: for "Spot" markets, the listenKey workflow is deprecated, use `subscribeUserDataStream()` instead.
+   *
+   * @param params
+   * @param wsKey
+   * @returns listenKey
+   */
+  startUserDataStreamForKey(
+    params: { apiKey: string },
+    wsKey: WSAPIWsKey = WS_KEY_MAP.mainWSAPI,
+  ): Promise<WSAPIResponse<{ listenKey: string }>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey,
+      'userDataStream.start',
+      params,
+    );
+  }
+
+  /**
+   * Attempt to "ping" a listen key.
+   *
+   * Note: for "Spot" markets, the listenKey workflow is deprecated, use `subscribeUserDataStream()` instead.
+   *
+   * @param params
+   * @param wsKey
+   * @returns
+   */
+  pingUserDataStreamForKey(
+    params: WSAPIUserDataListenKeyRequest,
+    wsKey: WSAPIWsKey = WS_KEY_MAP.mainWSAPI,
+  ): Promise<WSAPIResponse<object>> {
+    return this.wsClient.sendWSAPIRequest(wsKey, 'userDataStream.ping', params);
+  }
+
+  /**
+   * Stop the user data stream listen key.
+   *
+   * @param params
+   * @param wsKey
+   * @returns
+   */
+  stopUserDataStreamForKey(
+    params: WSAPIUserDataListenKeyRequest,
+    wsKey: WSAPIWsKey = WS_KEY_MAP.mainWSAPI,
+  ): Promise<WSAPIResponse<object>> {
+    return this.wsClient.sendWSAPIRequest(wsKey, 'userDataStream.stop', params);
+  }
+
+  /**
+   * Request user data stream subscription on the currently authenticated connection.
+   *
+   * If reconnected, this will automatically resubscribe unless you unsubscribe manually.
+   */
+  async subscribeUserDataStream(
+    wsKey: WSAPIWsKey,
+  ): Promise<WSAPIResponse<object>> {
+    const resolvedWsKey = this.options.testnet ? getTestnetWsKey(wsKey) : wsKey;
+
+    const res = await this.wsClient.sendWSAPIRequest(
+      resolvedWsKey,
+      'userDataStream.subscribe',
+    );
+
+    // Used to track whether this connection had the general "userDataStream.subscribe" called.
+    // Used as part of `resubscribeUserDataStreamAfterReconnect` to know which connections to resub.
+    this.subscribedUserDataStreamState[resolvedWsKey] = {
+      subscribedAt: new Date(),
+      subscribeAttempt: 0,
+    };
+
+    return res;
+  }
+
+  /**
+   * Unsubscribe from the user data stream subscription on the currently authenticated connection.
+   *
+   * If reconnected, this will also stop it from automatically resubscribing after reconnect.
+   */
+  unsubscribeUserDataStream(
+    wsKey: WSAPIWsKey,
+  ): Promise<WSAPIResponse<{ listenKey: string }>> {
+    const resolvedWsKey = this.options.testnet ? getTestnetWsKey(wsKey) : wsKey;
+
+    delete this.subscribedUserDataStreamState[resolvedWsKey];
+    return this.wsClient.sendWSAPIRequest(
+      resolvedWsKey,
+      'userDataStream.unsubscribe',
+    );
+  }
+
+  /**
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   * Private methods for handling some of the convenience/automation provided by the WS API Client
+   *
+   *
+   *
+   *
+   *
+   *
+   *
+   */
+
+  private setupDefaultEventListeners() {
+    if (this.options.attachEventListeners) {
+      /**
+       * General event handlers for monitoring the WebsocketClient
+       */
+      this.wsClient
+        .on('open', (data) => {
+          console.log(new Date(), 'ws connected', data.wsKey);
+        })
+        .on('reconnecting', ({ wsKey }) => {
+          console.log(new Date(), 'ws automatically reconnecting.... ', wsKey);
+        })
+        .on('reconnected', (data) => {
+          console.log(new Date(), 'ws has reconnected ', data?.wsKey);
+        })
+        .on('authenticated', (data) => {
+          console.info(new Date(), 'ws has authenticated ', data?.wsKey);
+        })
+        .on('exception', (data) => {
+          console.error(new Date(), 'ws exception: ', JSON.stringify(data));
+        });
+    }
+  }
+
+  private async tryResubscribeUserDataStream(wsKey: WSAPIWsKey) {
+    const subscribeState = this.getSubscribedUserDataStreamState(wsKey);
+
+    const respawnDelayInSeconds =
+      this.options.resubscribeUserDataStreamDelaySeconds;
+
+    this.logger.error(
+      'tryResubscribeUserDataStream(): resubscribing to user data stream....',
+      {
+        ...WS_LOGGER_CATEGORY,
+        wsKey,
+      },
+    );
+
+    try {
+      if (this.subscribedUserDataStreamState[wsKey]?.respawnTimeout) {
+        clearTimeout(this.subscribedUserDataStreamState[wsKey].respawnTimeout);
+        delete this.subscribedUserDataStreamState[wsKey].respawnTimeout;
+      }
+
+      subscribeState.subscribeAttempt++;
+      await this.subscribeUserDataStream(wsKey);
+
+      this.subscribedUserDataStreamState[wsKey] = {
+        ...subscribeState,
+        subscribedAt: new Date(),
+        subscribeAttempt: 0,
+      };
+
+      this.logger.info('tryResubscribeUserDataStream()->ok', {
+        ...WS_LOGGER_CATEGORY,
+        ...subscribeState,
+        wsKey,
+      });
+    } catch (e) {
+      this.logger.error(
+        'tryResubscribeUserDataStream() exception - retry after timeout',
+        {
+          ...WS_LOGGER_CATEGORY,
+          wsKey,
+          exception: e,
+          subscribeState,
+        },
+      );
+
+      subscribeState.respawnTimeout = setTimeout(() => {
+        this.tryResubscribeUserDataStream(wsKey);
+      }, 1000 * respawnDelayInSeconds);
+
+      this.subscribedUserDataStreamState[wsKey] = {
+        ...subscribeState,
+      };
+    }
+  }
+
+  private getSubscribedUserDataStreamState(wsKey: WSAPIWsKey) {
+    const subscribedState = this.subscribedUserDataStreamState[wsKey] || {
+      subscribedAt: new Date(),
+      subscribeAttempt: 0,
+    };
+    return subscribedState;
+  }
+
+  private handleWSReconnectedEvent(params: { wsKey: WsKey }) {
+    const wsKey = params.wsKey;
+
+    // Not a WS API connection
+    if (!isWSAPIWsKey(wsKey)) {
+      return;
+    }
+
+    const fnName = 'handleWSReconnectedEvent()';
+
+    // For the workflow without the listen key
+    if (
+      // Feature enabled
+      this.options.resubscribeUserDataStreamAfterReconnect &&
+      // Was subscribed to user data stream (without listen key)
+      this.subscribedUserDataStreamState[wsKey]
+    ) {
+      // Delay existing timer, if exists
+      if (this.subscribedUserDataStreamState[wsKey]?.respawnTimeout) {
+        clearTimeout(this.subscribedUserDataStreamState[wsKey].respawnTimeout);
+        delete this.subscribedUserDataStreamState[wsKey].respawnTimeout;
+
+        this.logger.error(
+          `${fnName} -> resubUserData(): Respawn timer already active while trying to queue respawn...delaying existing timer further...`,
+          {
+            ...WS_LOGGER_CATEGORY,
+            wsKey,
+          },
+        );
+      }
+
+      this.logger.trace(
+        `${fnName} -> resubUserData():: queued resubscribe for wsKey user data stream`,
+        {
+          ...WS_LOGGER_CATEGORY,
+          wsKey,
+        },
+      );
+
+      // Queue resubscribe workflow
+      this.subscribedUserDataStreamState[wsKey].respawnTimeout = setTimeout(
+        () => {
+          this.tryResubscribeUserDataStream(wsKey);
+        },
+        1000 * this.options.resubscribeUserDataStreamDelaySeconds,
+      );
+    }
   }
 }

@@ -42,7 +42,7 @@ import {
   TradesAggregateWSAPIRequest,
   TradesHistoricalWSAPIRequest,
   TradesRecentWSAPIRequest,
-  WSAPIRecvWindowtimestamp,
+  WSAPIRecvWindowTimestamp,
 } from './ws-api-requests';
 import {
   AccountCommissionWSAPIResponse,
@@ -152,7 +152,18 @@ export const WS_API_Operations = [
   // SOR commands
   'sor.order.place',
   'sor.order.test',
+  // user data stream
+  'userDataStream.start',
+  'userDataStream.ping',
+  'userDataStream.stop',
+  'userDataStream.subscribe',
+  'userDataStream.unsubscribe',
 ] as const;
+
+export interface WSAPIUserDataListenKeyRequest {
+  apiKey: string;
+  listenKey: string;
+}
 
 export type WsAPIOperation = (typeof WS_API_Operations)[number];
 
@@ -222,8 +233,6 @@ export interface WsAPIWsKeyTopicMap {
 
   [WS_KEY_MAP.coinmWSAPI]: WsAPIOperation;
   [WS_KEY_MAP.coinmWSAPITestnet]: WsAPIOperation;
-
-  //  TODO: Add coinmWSAPI
 }
 
 export type WsAPIFuturesWsKey =
@@ -282,11 +291,11 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   'ticker.tradingDay': TickerTradingDayWSAPIRequest;
   ticker: TickerWSAPIRequest;
   'ticker.price': void | TWSKey extends WsAPIFuturesWsKey
-    ? FuturesTickerPriceWSAPIRequest
-    : TickerPriceWSAPIRequest;
+    ? FuturesTickerPriceWSAPIRequest | undefined
+    : TickerPriceWSAPIRequest | undefined;
   'ticker.book': void | TWSKey extends WsAPIFuturesWsKey
-    ? FuturesTickerBookWSAPIRequest
-    : TickerBookWSAPIRequest;
+    ? FuturesTickerBookWSAPIRequest | undefined
+    : TickerBookWSAPIRequest | undefined;
 
   /**
    * Account requests & parameters:
@@ -297,10 +306,10 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    */
 
   'account.status': void | TWSKey extends WsAPIFuturesWsKey
-    ? WSAPIRecvWindowtimestamp
+    ? WSAPIRecvWindowTimestamp
     : AccountStatusWSAPIRequest;
 
-  'account.rateLimits.orders': void;
+  'account.rateLimits.orders': void | WSAPIRecvWindowTimestamp;
 
   allOrders: AllOrdersWSAPIRequest;
 
@@ -318,15 +327,15 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * Futures account requests & parameters:
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
-  'account.position': WSAPIRecvWindowtimestamp;
+  'account.position': WSAPIRecvWindowTimestamp;
 
-  'v2/account.position': WSAPIRecvWindowtimestamp;
+  'v2/account.position': WSAPIRecvWindowTimestamp;
 
-  'account.balance': WSAPIRecvWindowtimestamp;
+  'account.balance': WSAPIRecvWindowTimestamp;
 
-  'v2/account.balance': WSAPIRecvWindowtimestamp;
+  'v2/account.balance': WSAPIRecvWindowTimestamp;
 
-  'v2/account.status': WSAPIRecvWindowtimestamp;
+  'v2/account.status': WSAPIRecvWindowTimestamp;
 
   /**
    * Trading requests & parameters:
@@ -349,6 +358,7 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
     : OrderCancelWSAPIRequest;
   'order.modify': FuturesOrderModifyWSAPIRequest; // order.modify only futures
   'order.cancelReplace': OrderCancelReplaceWSAPIRequest;
+
   'openOrders.status': OpenOrdersStatusWSAPIRequest;
   'openOrders.cancelAll': OpenOrdersCancelAllWSAPIRequest;
 
@@ -361,7 +371,8 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   'orderList.place.otoco': OrderListPlaceOTOCOWSAPIRequest;
   'orderList.status': OrderListStatusWSAPIRequest;
   'orderList.cancel': OrderListCancelWSAPIRequest;
-  'openOrderLists.status': void | WSAPIRecvWindowtimestamp;
+
+  'openOrderLists.status': WSAPIRecvWindowTimestamp;
 
   /**
    * SOR requests & parameters:
@@ -380,8 +391,12 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    *
    * Note: for the user data stream, use the subscribe*UserDataStream() methods from the WS Client.
    */
+  'userDataStream.start': { apiKey: string };
+  'userDataStream.ping': WSAPIUserDataListenKeyRequest;
+  'userDataStream.stop': WSAPIUserDataListenKeyRequest;
+  'userDataStream.subscribe': void;
+  'userDataStream.unsubscribe': void;
 }
-
 /**
  * Response structure expected for each operation
  *
@@ -528,4 +543,10 @@ export interface WsAPIOperationResponseMap {
   'sor.order.test': WSAPIResponse<
     SOROrderTestWSAPIResponse | SOROrderTestWithCommissionWSAPIResponse
   >;
+
+  'userDataStream.start': WSAPIResponse<{ listenKey: string }>;
+  'userDataStream.ping': WSAPIResponse<object>;
+  'userDataStream.stop': WSAPIResponse<object>;
+  'userDataStream.subscribe': WSAPIResponse<object>;
+  'userDataStream.unsubscribe': WSAPIResponse<object>;
 }

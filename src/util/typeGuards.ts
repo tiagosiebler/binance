@@ -1,36 +1,37 @@
 import {
   WsFormattedMessage,
-  WsMessageMarkPriceUpdateEventFormatted,
-  WsMessageTradeFormatted,
-  WsMessageKlineFormatted,
   WsMessage24hrTickerFormatted,
-  WsMessageForceOrderFormatted,
-  WsMessageRollingWindowTickerFormatted,
   WsMessageAggTradeFormatted,
-  WsMessagePartialBookDepthEventFormatted,
-  WsUserDataEvents,
-  WsMessageSpotUserDataEventFormatted,
-  WsMessageFuturesUserDataEventFormatted,
-  WsMessageSpotUserDataExecutionReportEventFormatted,
-  WsMessageSpotOutboundAccountPositionFormatted,
-  WsMessageSpotBalanceUpdateFormatted,
-  WsMessageSpotUserDataListStatusEventFormatted,
+  WsMessageForceOrderFormatted,
+  WsMessageFuturesUserDataAccountConfigUpdateEventFormatted,
   WsMessageFuturesUserDataAccountUpdateFormatted,
+  WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted,
+  WsMessageFuturesUserDataEventFormatted,
+  WsMessageFuturesUserDataListenKeyExpiredFormatted,
   WsMessageFuturesUserDataMarginCallFormatted,
   WsMessageFuturesUserDataTradeUpdateEventFormatted,
-  WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted,
-  WsMessageFuturesUserDataAccountConfigUpdateEventFormatted,
-  WsMessageFuturesUserDataListenKeyExpiredFormatted,
+  WsMessageKlineFormatted,
+  WsMessageMarkPriceUpdateEventFormatted,
+  WsMessagePartialBookDepthEventFormatted,
+  WsMessageRollingWindowTickerFormatted,
+  WsMessageSpotBalanceUpdateFormatted,
+  WsMessageSpotOutboundAccountPositionFormatted,
+  WsMessageSpotUserDataEventFormatted,
+  WsMessageSpotUserDataExecutionReportEventFormatted,
+  WsMessageSpotUserDataListStatusEventFormatted,
+  WsMessageTradeFormatted,
+  WsUserDataEvents,
 } from '../types/websockets/ws-events-formatted';
 import {
-  WsRawMessage,
   WsMessage24hrMiniTickerRaw,
-  WsMessageRollingWindowTickerRaw,
-  WsMessageKlineRaw,
-  WsMessageFuturesUserDataOrderTradeUpdateEventRaw,
   WsMessageFuturesUserDataAccountConfigUpdateEventRaw,
   WsMessageFuturesUserDataAccountUpdateRaw,
+  WsMessageFuturesUserDataOrderTradeUpdateEventRaw,
+  WsMessageKlineRaw,
+  WsMessageRollingWindowTickerRaw,
+  WsRawMessage,
 } from '../types/websockets/ws-events-raw';
+import { WSAPIWsKey, WsKey } from './websockets/websocket-util';
 
 export function neverGuard(x: never, msg: string): Error {
   return new Error(`Unhandled value exception "${x}", ${msg}`);
@@ -130,7 +131,9 @@ export function isWsPartialBookDepthEventFormatted(
   return !Array.isArray(data) && data.eventType === 'partialBookDepth';
 }
 
-// TODO: this won't work on multiplex! Can we make one that doesn't use wsKey?
+/**
+ * Note: this won't work on multiplex connections, since it uses the wsKey to resolve the event as a user data event
+ */
 export function isWsFormattedUserDataEvent(
   data: WsFormattedMessage,
 ): data is WsUserDataEvents {
@@ -326,4 +329,37 @@ export function isTopicSubscriptionSuccess(
 ): msg is WebsocketTopicSubscriptionConfirmationEvent {
   if (!isTopicSubscriptionConfirmation(msg)) return false;
   return msg.result === true;
+}
+
+export function isWSAPIWsKey(wsKey: WsKey): wsKey is WSAPIWsKey {
+  switch (wsKey) {
+    case 'mainWSAPITestnet':
+    case 'mainWSAPI':
+    case 'mainWSAPI2':
+    case 'usdmWSAPI':
+    case 'usdmWSAPITestnet':
+    case 'coinmWSAPI':
+    case 'coinmWSAPITestnet': {
+      return true;
+    }
+    case 'main':
+    case 'main2':
+    case 'main3':
+    case 'marginRiskUserData':
+    case 'mainTestnetPublic':
+    case 'mainTestnetUserData':
+    case 'usdm':
+    case 'usdmTestnet':
+    case 'coinm':
+    case 'coinmTestnet':
+    case 'eoptions':
+    case 'coinm2':
+    case 'portfolioMarginUserData':
+    case 'portfolioMarginProUserData': {
+      return false;
+    }
+    default: {
+      throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
+    }
+  }
 }

@@ -5,6 +5,7 @@ import {
 import { DefaultLogger } from '../logger';
 import { RestClientOptions } from '../requestUtils';
 import { neverGuard } from '../typeGuards';
+import { WS_ERROR_CODE } from './enum';
 import { ListenKeyStateCache } from './listen-key-state-cache';
 import { RestClientCache } from './rest-client-cache';
 import {
@@ -282,7 +283,6 @@ export class UserDataStreamManager {
         wsKey,
         derivedWsKey,
         symbol,
-        isTestnet,
       );
 
       listenKeyState.lastKeepAlive = Date.now();
@@ -299,10 +299,8 @@ export class UserDataStreamManager {
       // - Then respawn a connection with a potentially new listen key (since the old one may be invalid now)
       const shouldReconnectAfterClose = false;
 
-      // code: -1125,
-      // message: 'This listenKey does not exist.',
       const errorCode = e?.code;
-      if (errorCode === -1125) {
+      if (errorCode === WS_ERROR_CODE.LISTEN_KEY_NOT_FOUND) {
         this.logger.error(
           'FATAL: Failed to keep WS alive for listen key - listen key expired/invalid. Respawning with fresh listen key...',
           {
@@ -439,7 +437,6 @@ export class UserDataStreamManager {
     wsKey: WsKey,
     deriedWsKey: string,
     symbol?: string,
-    isTestnet?: boolean,
   ) {
     switch (market) {
       case 'spot':
@@ -454,7 +451,6 @@ export class UserDataStreamManager {
           .getSpotRestClient(
             this.getRestClientOptionsFn(),
             this.getWsClientOptionsfn().requestOptions,
-            true,
           )
           .keepAliveSpotUserDataListenKey(listenKey);
       case 'crossMargin':
@@ -496,7 +492,6 @@ export class UserDataStreamManager {
           .getUSDMRestClient(
             this.getRestClientOptionsFn(),
             this.getWsClientOptionsfn().requestOptions,
-            isTestnet,
           )
           .keepAliveFuturesUserDataListenKey();
       case 'coinmTestnet':
@@ -504,7 +499,6 @@ export class UserDataStreamManager {
           .getCOINMRestClient(
             this.getRestClientOptionsFn(),
             this.getWsClientOptionsfn().requestOptions,
-            isTestnet,
           )
           .keepAliveFuturesUserDataListenKey();
       case 'portfoliom':

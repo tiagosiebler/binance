@@ -13,11 +13,25 @@ const logger = {
 let key = process.env.API_KEY_COM;
 let secret = process.env.API_SECRET_COM;
 
+const privateKey = `-----BEGIN PRIVATE KEY-----
+MC4CAQAwasdfasfasf4VI6HF5a1mmn6Xwbbwqj5CzUuTy1
+-----END PRIVATE KEY-----
+`;
+
+const publicKey = `-----BEGIN PUBLIC KEY-----
+MCowBQYDK2Vasdfasfasfasfasfn38QTxwLU9o=
+-----END PUBLIC KEY-----
+`;
+
+key = 'TQpJN8MYasdfdasfadsfasf7DoCxTjQEbrobdG';
+secret = privateKey;
+
 const wsClient = new WebsocketClient(
   {
     api_key: key,
     api_secret: secret,
     beautify: true,
+    // testnet: true,
   },
   logger, // Optional: inject a custom logger
 );
@@ -71,9 +85,12 @@ async function main() {
    * - mainWSAPITestnet: "main" testnet
    * - usdmWSAPI: usdm futures
    * - usdmWSAPITestnet: usdm futures testnet
+   * - coinmWSAPI: coinm futures
+   * - coinmWSAPITestnet: coinm futures testnet
    */
 
-  const WS_API_WS_KEY: WSAPIWsKey = WS_KEY_MAP.mainWSAPI;
+  // const WS_API_WS_KEY: WSAPIWsKey = WS_KEY_MAP.mainWSAPI;
+  const WS_API_WS_KEY: WSAPIWsKey = WS_KEY_MAP.mainWSAPITestnet;
 
   // Optional, if you see RECV Window errors, you can use this to manage time issues. However, make sure you sync your system clock first!
   // https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow
@@ -136,4 +153,6 @@ async function main() {
 }
 
 // Start executing the example workflow
-main();
+main().catch((e) => {
+  console.log('mainError', e);
+});

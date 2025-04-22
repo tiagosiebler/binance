@@ -32,6 +32,7 @@ import {
 type WsEventInternalSrc = 'event' | 'function';
 
 type UseTheExceptionEventInstead = never;
+type UseTheResponseEventInstead = never;
 
 interface WSClientEventMap<WsKey extends string> {
   /** Connection opened. If this connection was previously opened and reconnected, expect the reconnected event instead */
@@ -52,6 +53,10 @@ interface WSClientEventMap<WsKey extends string> {
   }) => void;
   /** Connection closed */
   close: (evt: { wsKey: WsKey; event: any }) => void;
+  /**
+   * @deprecated Use the 'response' event instead.
+   */
+  reply: UseTheResponseEventInstead;
   /** Received reply to websocket command (e.g. after subscribing to topics) */
   response: (
     response: any & { wsKey: WsKey; isWSAPIResponse?: boolean },
@@ -172,13 +177,21 @@ export abstract class BaseWebsocketClient<
    */
   private wsStore: WsStore<TWSKey, WsTopicRequest<string>>;
 
-  protected logger: typeof DefaultLogger;
+  public logger: typeof DefaultLogger;
 
   protected options: WebsocketClientOptions;
 
   private wsApiRequestId: number = 0;
 
   private timeOffsetMs: number = 0;
+
+  /**
+   * { [wsKey]: { [requestId]: request } }
+   */
+  private midflightRequestCache: Record<
+    string,
+    Record<string, TWSRequestEvent>
+  > = {};
 
   constructor(
     options?: WSClientConfigurableOptions,
@@ -200,6 +213,9 @@ export abstract class BaseWebsocketClient<
       // Individual requests do not require a signature, so this is disabled.
       authPrivateRequests: false,
       ...options,
+
+      api_key: options?.api_key?.replace(/\\n/g, '\n'),
+      api_secret: options?.api_secret?.replace(/\\n/g, '\n'),
     };
   }
 
@@ -841,10 +857,24 @@ export abstract class BaseWebsocketClient<
     for (const midflightRequest of subscribeWsMessages) {
       const wsMessage = midflightRequest.requestEvent;
 
+      if (!this.midflightRequestCache[wsKey]) {
+        this.midflightRequestCache[wsKey] = {};
+      }
+
+      // Cache the request for this call, so we can enrich the response with request info
+      this.midflightRequestCache[wsKey][midflightRequest.requestKey] =
+        midflightRequest.requestEvent;
+
       this.logger.trace(
-        `Sending batch via message: "${JSON.stringify(wsMessage)}"`,
+        `Sending batch via message: "${JSON.stringify(wsMessage)}", cached with key "${midflightRequest.requestKey}"`,
       );
-      this.tryWsSend(wsKey, JSON.stringify(wsMessage));
+
+      try {
+        this.tryWsSend(wsKey, JSON.stringify(wsMessage), true);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (e) {
+        delete this.midflightRequestCache[wsKey][midflightRequest.requestKey];
+      }
     }
 
     this.logger.trace(
@@ -878,13 +908,42 @@ export abstract class BaseWebsocketClient<
     for (const midflightRequest of subscribeWsMessages) {
       const wsMessage = midflightRequest.requestEvent;
 
+      if (!this.midflightRequestCache[wsKey]) {
+        this.midflightRequestCache[wsKey] = {};
+      }
+
+      // Cache the request for this call, so we can enrich the response with request info
+      this.midflightRequestCache[wsKey][midflightRequest.requestKey] =
+        midflightRequest.requestEvent;
+
       this.logger.trace(`Sending batch via message: "${wsMessage}"`);
-      this.tryWsSend(wsKey, JSON.stringify(wsMessage));
+      try {
+        this.tryWsSend(wsKey, JSON.stringify(wsMessage));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (e) {
+        delete this.midflightRequestCache[wsKey][midflightRequest.requestKey];
+      }
     }
 
     this.logger.trace(
       `Finished unsubscribing to ${wsTopicRequests.length} "${wsKey}" topics in ${subscribeWsMessages.length} batches.`,
     );
+  }
+
+  getCachedMidFlightRequest(
+    wsKey: TWSKey,
+    requestKey: string,
+  ): TWSRequestEvent | undefined {
+    if (!this.midflightRequestCache[wsKey]) {
+      this.midflightRequestCache[wsKey] = {};
+    }
+    return this.midflightRequestCache[wsKey][requestKey];
+  }
+
+  removeCachedMidFlightRequest(wsKey: TWSKey, requestKey: string) {
+    if (this.getCachedMidFlightRequest(wsKey, requestKey)) {
+      delete this.midflightRequestCache[wsKey][requestKey];
+    }
   }
 
   /**
@@ -1232,7 +1291,6 @@ export abstract class BaseWebsocketClient<
     // Start connection, it should automatically store/return a promise.
     this.logger.trace('assertIsConnected(): connecting...');
 
-    // TODO: what happens if this step fails, does it retry?
     await this.connect(wsKey);
 
     this.logger.trace('assertIsConnected(): connecting...newly connected!');

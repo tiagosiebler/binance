@@ -49,7 +49,32 @@ export interface RestClientOptions {
   /**
    * Default: false. If true, use testnet when available
    */
-  useTestnet?: boolean;
+  testnet?: boolean;
+
+  // /**
+  //  * Default: true.
+  //  *
+  //  * API exceptions (any response with an error code) are thrown (including response headers).
+  //  * If false, they are returned.
+  //  *
+  //  * // Thrown exceptions include response headers. If we force a return instead of throw,
+  //  * // what's the handling of headers? If we return the parent object (incl headers), we're returning
+  //  * // a schema different from the healthy return (data only excluding headers). Not adding this yet.
+  //  */
+  // throwExceptions?: boolean;
+
+  /**
+   * Enable keep alive for REST API requests (via axios).
+   * See: https://github.com/tiagosiebler/bybit-api/issues/368
+   */
+  keepAlive?: boolean;
+
+  /**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+  keepAliveMsecs?: number;
 }
 
 export type GenericAPIResponse<T = any> = Promise<T>;
@@ -249,7 +274,6 @@ export async function getRequestSignature(
       filterUndefinedParams,
     );
 
-    // TODO:
     const signature = await signMessage(
       serialisedParams,
       secret,
@@ -277,6 +301,7 @@ const BINANCE_BASE_URLS: Record<BinanceBaseUrlKey, string> = {
   spot2: 'https://api1.binance.com',
   spot3: 'https://api2.binance.com',
   spot4: 'https://api3.binance.com',
+  spottest: 'https://testnet.binance.vision',
 
   // USDM Futures
   usdm: 'https://fapi.binance.com',
@@ -301,6 +326,7 @@ export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
     case 'spot2':
     case 'spot3':
     case 'spot4':
+    case 'spottest':
     default:
       return 'api/v3/time';
 
@@ -315,6 +341,33 @@ export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
     case 'voptions':
     case 'voptionstest':
       return 'vapi/v1/time';
+  }
+}
+
+export function getTestnetBaseUrlKey(
+  urlKey: BinanceBaseUrlKey,
+): BinanceBaseUrlKey {
+  switch (urlKey) {
+    case 'spot':
+    case 'spot1':
+    case 'spot2':
+    case 'spot3':
+    case 'spot4':
+    case 'spottest':
+    default:
+      return 'spottest';
+
+    case 'usdm':
+    case 'usdmtest':
+      return 'usdmtest';
+
+    case 'coinm':
+    case 'coinmtest':
+      return 'coinmtest';
+
+    case 'voptions':
+    case 'voptionstest':
+      return 'voptionstest';
   }
 }
 

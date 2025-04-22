@@ -10,6 +10,13 @@ const client = new USDMClient({
   api_secret: secret,
   api_key: key,
   beautifyResponses: true,
+  /**
+   * Note: testnet is NOT a good place to test strategy performance.
+   *
+   * For more information and guidance, refer to:
+   * https://github.com/tiagosiebler/awesome-crypto-examples/wiki/CEX-Testnets
+   */
+  testnet: true,
 });
 
 async function start() {

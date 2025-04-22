@@ -19,16 +19,16 @@ const client = new MainClient({
     //   JSON.stringify(await client.getExchangeInfo(), null, 2),
     // );
 
-    const oneTicker = await client.get24hrChangeStatististics({
+    const oneTicker = await client.get24hrChangeStatistics({
       symbol: 'BTCUSDT',
     });
     console.log('getTickers', oneTicker);
 
-    const manyTickers = await client.get24hrChangeStatististics({
+    const manyTickers = await client.get24hrChangeStatistics({
       symbols: ['BTCUSDT', 'ETHUSDT'],
     });
     console.log('getTickers many', manyTickers);
-    const allTickers = await client.get24hrChangeStatististics();
+    const allTickers = await client.get24hrChangeStatistics();
     console.log('getTickers all', allTickers);
   } catch (e) {
     console.error('request failed: ', e);

@@ -95,7 +95,7 @@ export class CoinMClient extends BaseRestClient {
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
   ) {
-    const clientId = restClientOptions.useTestnet ? 'coinmtest' : 'coinm';
+    const clientId = restClientOptions.testnet ? 'coinmtest' : 'coinm';
 
     super(clientId, restClientOptions, requestOptions);
 
@@ -183,15 +183,6 @@ export class CoinMClient extends BaseRestClient {
 
   getPremiumIndexKlines(params: KlinesParams): Promise<Kline[]> {
     return this.get('dapi/v1/premiumIndexKlines', params);
-  }
-
-  /**
-   * @deprecated use get24hrChangeStatistics() instead (method without the typo)
-   */
-  get24hrChangeStatististics(params?: {
-    symbol?: string;
-  }): Promise<ChangeStats24hr | ChangeStats24hr[]> {
-    return this.get24hrChangeStatistics(params);
   }
 
   get24hrChangeStatistics(params?: {
@@ -439,15 +430,6 @@ export class CoinMClient extends BaseRestClient {
 
   getBalance(): Promise<FuturesCoinMAccountBalance[]> {
     return this.getPrivate('dapi/v1/balance');
-  }
-
-  /**
-   * @deprecated Please use `getAccountCommissionRate()` instead. This will be removed in the next major release.
-   */
-  getAccountComissionRate(params: {
-    symbol?: string;
-  }): Promise<UserCommissionRate> {
-    return this.getPrivate('dapi/v1/commissionRate', params);
   }
 
   getAccountCommissionRate(params: {
