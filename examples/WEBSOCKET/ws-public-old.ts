@@ -6,7 +6,7 @@ import {
   isWsFormattedKline,
   isWsFormattedRollingWindowTickerArray,
   WebsocketClientV1,
-} from '../src';
+} from '../../src/index';
 
 // or, with the npm package
 /*

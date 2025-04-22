@@ -3,7 +3,7 @@ import {
   NewSpotOrderParams,
   OrderResponseFull,
   SymbolPrice,
-} from '../src/index';
+} from '../../src/index';
 
 // or
 // import { MainClient } from 'binance';

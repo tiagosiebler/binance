@@ -1,4 +1,4 @@
-import { DefaultLogger, WebsocketClient } from '../src';
+import { DefaultLogger, WebsocketClient } from '../../src/index';
 
 // or
 // import { DefaultLogger, WebsocketClient } from 'binance';

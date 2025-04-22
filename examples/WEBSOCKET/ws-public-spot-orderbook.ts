@@ -3,7 +3,7 @@ import {
   getContextFromWsKey,
   isWsPartialBookDepthEventFormatted,
   WebsocketClient,
-} from '../src';
+} from '../../src/index';
 
 // or, with the npm package
 /*

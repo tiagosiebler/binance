@@ -1,14 +1,3 @@
-// or
-// import {
-//   DefaultLogger,
-//   isWsFormattedFuturesUserDataEvent,
-//   isWsFormattedSpotUserDataEvent,
-//   isWsFormattedSpotUserDataExecutionReport,
-//   isWsFormattedUserDataEvent,
-//   WebsocketClient,
-//   WsUserDataEvents,
-// } from 'binance';
-
 import {
   DefaultLogger,
   isWsFormattedFuturesUserDataEvent,
@@ -17,14 +6,20 @@ import {
   isWsFormattedUserDataEvent,
   WebsocketClient,
   WsUserDataEvents,
-} from '../src';
+} from '../../src/index';
 
+// or
+// import { DefaultLogger, WebsocketClient } from 'binance';
+
+/**
+ * This extended example for using the user data stream demonstrates one way to handle failures in the first connection attempt of the user data stream.
+ * In most cases this is overkill!
+ */
 (async () => {
   const key = process.env.API_KEY_COM || 'APIKEY';
   const secret = process.env.API_SECRET_COM || 'APISECRET';
 
-  console.log({ key, secret });
-
+  // optionally block some silly logs from showing in the logger
   const ignoredTraceLogMsgs = [
     'Sending ping',
     'Received pong, clearing pong timer',
@@ -47,7 +42,6 @@ import {
       api_key: key,
       api_secret: secret,
       beautify: true,
-      // testnet: true,
     },
     logger,
   );
@@ -104,58 +98,45 @@ import {
     console.log('formattedMsg: ', JSON.stringify(data, null, 2));
   });
 
+  let didConnectUserDataSuccessfully = false;
   wsClient.on('open', (data) => {
+    if (data.wsKey.includes('userData')) {
+      didConnectUserDataSuccessfully = true;
+    }
     console.log('connection opened open:', data.wsKey, data.wsUrl);
   });
 
   // response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
   wsClient.on('response', (data) => {
-    console.log('log response: ', JSON.stringify(data, null, 2));
+    console.log('log reply: ', JSON.stringify(data, null, 2));
   });
-
   wsClient.on('reconnecting', (data) => {
     console.log('ws automatically reconnecting.... ', data?.wsKey);
   });
-
   wsClient.on('reconnected', (data) => {
-    if (
-      typeof data?.wsKey === 'string' &&
-      data.wsKey.toLowerCase().includes('userdata')
-    ) {
-      console.log('ws for user data stream has reconnected ', data?.wsKey);
-      // This is a good place to check your own state is still in sync with the account state on the exchange, in case any events were missed while the library was reconnecting:
-      // - fetch balances
-      // - fetch positions
-      // - fetch orders
-    } else {
-      console.log('ws has reconnected ', data?.wsKey);
+    console.log('ws has reconnected ', data?.wsKey);
+  });
+  wsClient.on('exception', (data) => {
+    console.error('ws saw error: ', data);
+
+    // Note: manually re-subscribing like this may only be needed if the FIRST user data connection attempt failed
+    // Capture exceptions using the error event, and handle this.
+    if (!didConnectUserDataSuccessfully && data.wsKey.includes('userData')) {
+      setTimeout(() => {
+        console.warn(
+          `Retrying connection to userdata ws ${data.wsKey} in 1 second...`,
+        );
+        if (data.wsKey.includes('spot')) {
+          wsClient.subscribeSpotUserDataStream();
+        } else if (data.wsKey.includes('usdm')) {
+          wsClient.subscribeUsdFuturesUserDataStream();
+        }
+      }, 1000);
     }
   });
 
-  wsClient.on('exception', (data) => {
-    console.error('ws saw error: ', data);
-  });
-
-  /**
-   * This example demonstrates subscribing to the user data stream via the
-   * listen key workflow.
-   *
-   * Note: the listen key workflow is deprecated for "spot" markets. Use the
-   * WebSocket API `userDataStream.subscribe` workflow instead (only available
-   * in spot right now). See `subscribeUserDataStream()` in the WebsocketAPIClient.
-   *
-   * Each method below opens a dedicated WS connection attached to an automatically
-   * fetched listen key (a session for your user data stream).
-   *
-   * Once subscribed, you don't need to do anything else. Listen-key keep-alive, refresh, reconnects, etc are all automatically handled by the SDK.
-   */
   wsClient.subscribeSpotUserDataStream();
-  // wsClient.subscribeCrossMarginUserDataStream();
+  // wsClient.subscribeMarginUserDataStream();
   // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
-  // wsClient.subscribeUsdFuturesUserDataStream();
-
-  // setTimeout(() => {
-  //   console.log('killing all connections');
-  //   wsClient.closeAll();
-  // }, 1000 * 15);
+  wsClient.subscribeUsdFuturesUserDataStream();
 })();

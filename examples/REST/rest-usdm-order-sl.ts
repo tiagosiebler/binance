@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { USDMClient } from '../src/index';
+import { USDMClient } from '../../src/index';
 
 // or
 // import { USDMClient } from 'binance';

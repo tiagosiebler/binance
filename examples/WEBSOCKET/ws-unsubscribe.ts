@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DefaultLogger, WebsocketClient } from '../src';
+import { WebsocketClient } from '../../src/index';
 
 // or, with the npm package
 /*
