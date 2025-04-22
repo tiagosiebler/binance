@@ -58,7 +58,7 @@ const wsClient = new WebsocketClient(
 
 const symbolsToMonitor: string[] = ['BTCUSDT', 'ETHUSDT'];
 const timeframes: KlineInterval[] = ['1m'];
-const maxStoredCandles = 15;
+const maxStoredCandles = 3;
 
 /**
  * Data stores
@@ -240,12 +240,6 @@ export class CandleStore {
  */
 const allCandleStores: Record<string, CandleStore> = {};
 
-// Util store to track which symbol/interval a wskey represents (instead of dismantling the wskey)
-const wsKeyContextStore: Record<
-  string,
-  { symbol: string; interval: KlineInterval }
-> = {};
-
 /**
  * Get a candle store for a symbol.
  * Since a missing candle store is automatically initialised, you can assume this will always return a candle store.
@@ -317,19 +311,10 @@ wsClient.on('formattedMessage', (data) => {
 
 wsClient.on('open', async (data) => {
   console.log('connection opened open:', data.wsKey, data.wsUrl);
-
-  // const wsKey = data.wsKey;
-  // const wsKeyContext = wsKeyContextStore[wsKey];
-
-  // // Execute a backfill on open
-  // if (wsKey && wsKey.includes('kline') && wsKeyContext) {
-  //   // TODO: how to confirm if subscription is confirmed for a topic??
-  //   await backfillCandles(wsKeyContext.symbol, wsKeyContext.interval);
-  // }
 });
 
 // response to command sent via WS stream (e.g. subscription confirmation)
-// this will automatically trigger a backfill for tat symbol.
+// this will automatically trigger a backfill for that symbol.
 wsClient.on('response', (data) => {
   console.log('log response: ', JSON.stringify(data, null, 2));
 
@@ -353,10 +338,7 @@ wsClient.on('reconnecting', (data) => {
   console.log('ws automatically reconnecting.... ', data?.wsKey);
 });
 wsClient.on('reconnected', async (data) => {
-  const wsKey = data.wsKey;
-  const wsKeyContext = wsKeyContextStore[wsKey];
-
-  console.log('ws has reconnected ', wsKey, wsKeyContext);
+  console.log('ws has reconnected ', data?.wsKey, data?.wsUrl);
 });
 
 /**
@@ -422,19 +404,8 @@ symbolsToMonitor.forEach((symbol) => {
       interval,
       'usdm',
     )) as any;
+
     const wsKey = result.wsKey;
-
-    // TODO: update me, since new ws client is multiplex it'll only ever have one wskey
-
-    if (wsKey) {
-      wsKeyContextStore[wsKey] = {
-        symbol,
-        interval,
-      };
-    } else {
-      // throw new Error('deprecated for v1!!');
-      console.error('no wskey?');
-    }
 
     console.log(`Opening connection for key: ${wsKey}`);
   });
@@ -447,6 +418,6 @@ function onCandleClosed(symbol: string, interval: string): void {
     dt: new Date(),
     symbol,
     interval,
-    closedSymbolCandles,
+    mostRecentCandlesInStore: JSON.stringify(closedSymbolCandles),
   });
 }
