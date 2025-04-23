@@ -1,4 +1,22 @@
-import { KlineInterval, numberInString } from '../shared';
+import {
+  FuturesOrderType,
+  PositionSide,
+  PriceMatchMode,
+  WorkingType,
+} from '../futures';
+import {
+  BooleanString,
+  BooleanStringCapitalised,
+  KlineInterval,
+  numberInString,
+  OrderResponseType,
+  OrderSide,
+  OrderTimeInForce,
+  OrderType,
+  SelfTradePreventionMode,
+  SideEffects,
+  StringBoolean,
+} from '../shared';
 
 /**
  * Simple request params with timestamp (required) & recv window (optional)
@@ -13,7 +31,7 @@ export type WSAPIRecvWindowTimestamp = {
  * Authentication request types
  *
  */
-export interface SessionLogonWSAPIRequest {
+export interface WSAPISessionLogonRequest {
   timestamp: number;
 }
 
@@ -22,7 +40,7 @@ export interface SessionLogonWSAPIRequest {
  * General request types
  *
  */
-export interface ExchangeInfoWSAPIRequest {
+export interface WSAPIExchangeInfoRequest {
   symbol?: string;
   symbols?: string[];
   permissions?: string[];
@@ -36,23 +54,23 @@ export interface ExchangeInfoWSAPIRequest {
  *
  */
 
-export interface DepthWSAPIRequest {
+export interface WSAPIOrderBookRequest {
   symbol: string;
   limit?: number;
 }
 
-export interface TradesRecentWSAPIRequest {
+export interface WSAPITradesRecentRequest {
   symbol: string;
   limit?: number;
 }
 
-export interface TradesHistoricalWSAPIRequest {
+export interface WSAPITradesHistoricalRequest {
   symbol: string;
   fromId?: number;
   limit?: number;
 }
 
-export interface TradesAggregateWSAPIRequest {
+export interface WSAPITradesAggregateRequest {
   symbol: string;
   fromId?: number;
   startTime?: number;
@@ -60,7 +78,7 @@ export interface TradesAggregateWSAPIRequest {
   limit?: number;
 }
 
-export interface KlinesWSAPIRequest {
+export interface WSAPIKlinesRequest {
   symbol: string;
   interval: KlineInterval;
   startTime?: number;
@@ -69,14 +87,14 @@ export interface KlinesWSAPIRequest {
   limit?: number;
 }
 
-export interface AvgPriceWSAPIRequest {
+export interface WSAPIAvgPriceRequest {
   symbol: string;
 }
 
 /**
  * Symbol for single symbol, or symbols for multiple symbols
  */
-export interface Ticker24hrWSAPIRequest {
+export interface WSAPITicker24hrRequest {
   symbol?: string;
   symbols?: string[];
   type?: 'FULL' | 'MINI';
@@ -85,7 +103,7 @@ export interface Ticker24hrWSAPIRequest {
 /**
  * Symbol for single symbol, or symbols for multiple symbols
  */
-export interface TickerTradingDayWSAPIRequest {
+export interface WSAPITickerTradingDayRequest {
   symbol?: string;
   symbols?: string[];
   timeZone?: string;
@@ -95,7 +113,7 @@ export interface TickerTradingDayWSAPIRequest {
 /**
  * Symbol for single symbol, or symbols for multiple symbols
  */
-export interface TickerWSAPIRequest {
+export interface WSAPITickerRequest {
   symbol?: string;
   symbols?: string[];
   windowSize?: string; // '1m', '2m' ... '59m', '1h', '2h' ... '23h', '1d', '2d' ... '7d'
@@ -105,7 +123,7 @@ export interface TickerWSAPIRequest {
 /**
  * Symbol for single symbol, or symbols for multiple symbols
  */
-export interface TickerPriceWSAPIRequest {
+export interface WSAPITickerPriceRequest {
   symbol?: string;
   symbols?: string[];
 }
@@ -113,7 +131,7 @@ export interface TickerPriceWSAPIRequest {
 /**
  * Symbol for single symbol, or symbols for multiple symbols
  */
-export interface TickerBookWSAPIRequest {
+export interface WSAPITickerBookRequest {
   symbol?: string;
   symbols?: string[];
 }
@@ -124,7 +142,7 @@ export interface TickerBookWSAPIRequest {
  *
  */
 
-export interface AllOrdersWSAPIRequest {
+export interface WSAPIAllOrdersRequest {
   symbol: string;
   orderId?: number;
   startTime?: number;
@@ -132,14 +150,14 @@ export interface AllOrdersWSAPIRequest {
   limit?: number;
 }
 
-export interface AllOrderListsWSAPIRequest {
+export interface WSAPIAllOrderListsRequest {
   fromId?: number;
   startTime?: number;
   endTime?: number;
   limit?: number;
 }
 
-export interface MyTradesWSAPIRequest {
+export interface WSAPIMyTradesRequest {
   symbol: string;
   orderId?: number;
   startTime?: number;
@@ -148,7 +166,7 @@ export interface MyTradesWSAPIRequest {
   limit?: number;
 }
 
-export interface MyPreventedMatchesWSAPIRequest {
+export interface WSAPIMyPreventedMatchesRequest {
   symbol: string;
   preventedMatchId?: number;
   orderId?: number;
@@ -156,7 +174,7 @@ export interface MyPreventedMatchesWSAPIRequest {
   limit?: number;
 }
 
-export interface MyAllocationsWSAPIRequest {
+export interface WSAPIMyAllocationsRequest {
   symbol: string;
   startTime?: number;
   endTime?: number;
@@ -168,7 +186,30 @@ export interface MyAllocationsWSAPIRequest {
 /**
  * Trading request types
  */
-export interface OrderTestWSAPIRequest {
+
+export interface WSAPINewSpotOrderRequest<
+  T extends OrderType = OrderType,
+  RT extends OrderResponseType | undefined = OrderResponseType,
+> {
+  symbol: string;
+  side: OrderSide;
+  type: T;
+  timeInForce?: OrderTimeInForce;
+  quantity?: number;
+  quoteOrderQty?: number;
+  price?: number;
+  newClientOrderId?: string;
+  strategyId?: number;
+  strategyType?: number;
+  stopPrice?: number;
+  trailingDelta?: number;
+  icebergQty?: number;
+  newOrderRespType?: RT;
+  isIsolated?: StringBoolean;
+  sideEffectType?: SideEffects;
+}
+
+export interface WSAPIOrderTestRequest {
   symbol: string;
   side: 'BUY' | 'SELL';
   type: string;
@@ -188,7 +229,7 @@ export interface OrderTestWSAPIRequest {
   recvWindow?: number;
 }
 
-export interface OrderStatusWSAPIRequest {
+export interface WSAPIOrderStatusRequest {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -196,7 +237,7 @@ export interface OrderStatusWSAPIRequest {
   timestamp?: number;
 }
 
-export interface OrderCancelWSAPIRequest {
+export interface WSAPIOrderCancelRequest {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -206,7 +247,7 @@ export interface OrderCancelWSAPIRequest {
   timestamp?: number;
 }
 
-export interface OrderCancelReplaceWSAPIRequest {
+export interface WSAPIOrderCancelReplaceRequest {
   symbol: string;
   cancelReplaceMode: 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
   cancelOrderId?: number;
@@ -232,13 +273,13 @@ export interface OrderCancelReplaceWSAPIRequest {
   timestamp?: number;
 }
 
-export interface OpenOrdersStatusWSAPIRequest {
+export interface WSAPIOpenOrdersStatusRequest {
   symbol?: string;
   recvWindow?: number;
   timestamp?: number;
 }
 
-export interface OpenOrdersCancelAllWSAPIRequest {
+export interface WSAPIOpenOrdersCancelAllRequest {
   symbol: string;
   recvWindow?: number;
   timestamp?: number;
@@ -247,7 +288,7 @@ export interface OpenOrdersCancelAllWSAPIRequest {
 /**
  * Order list request types
  */
-export interface OrderListPlaceWSAPIRequest {
+export interface WSAPIOrderListPlaceRequest {
   symbol: string;
   side: 'BUY' | 'SELL';
   price: numberInString;
@@ -271,7 +312,7 @@ export interface OrderListPlaceWSAPIRequest {
   timestamp?: number;
 }
 
-export interface OrderListPlaceOCOWSAPIRequest {
+export interface WSAPIOrderListPlaceOCORequest {
   symbol: string;
   side: 'BUY' | 'SELL';
   quantity: numberInString;
@@ -310,7 +351,7 @@ export interface OrderListPlaceOCOWSAPIRequest {
   timestamp?: number;
 }
 
-export interface OrderListPlaceOTOWSAPIRequest {
+export interface WSAPIOrderListPlaceOTORequest {
   symbol: string;
   listClientOrderId?: string;
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
@@ -339,7 +380,7 @@ export interface OrderListPlaceOTOWSAPIRequest {
   timestamp?: number;
 }
 
-export interface OrderListPlaceOTOCOWSAPIRequest {
+export interface WSAPIOrderListPlaceOTOCORequest {
   symbol: string;
   listClientOrderId?: string;
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
@@ -387,14 +428,14 @@ export interface OrderListPlaceOTOCOWSAPIRequest {
   timestamp?: number;
 }
 
-export interface OrderListStatusWSAPIRequest {
+export interface WSAPIOrderListStatusRequest {
   origClientOrderId?: string;
   orderListId?: number;
   recvWindow?: number;
   timestamp?: number;
 }
 
-export interface OrderListCancelWSAPIRequest {
+export interface WSAPIOrderListCancelRequest {
   symbol: string;
   orderListId?: number;
   listClientOrderId?: string;
@@ -406,7 +447,7 @@ export interface OrderListCancelWSAPIRequest {
 /**
  * SOR request types
  */
-export interface SOROrderPlaceWSAPIRequest {
+export interface WSAPISOROrderPlaceRequest {
   symbol: string;
   side: 'BUY' | 'SELL';
   type: 'LIMIT' | 'MARKET';
@@ -423,31 +464,56 @@ export interface SOROrderPlaceWSAPIRequest {
   recvWindow?: number;
 }
 
-export interface SOROrderTestWSAPIRequest extends SOROrderPlaceWSAPIRequest {
+export type WSAPISOROrderTestRequest = WSAPISOROrderPlaceRequest & {
   computeCommissionRates?: boolean;
-}
+};
 
 /**
  * Futures market data request types
  */
 
-export interface FuturesDepthWSAPIRequest {
+export interface WSAPIFuturesOrderBookRequest {
   symbol: string;
   limit?: number;
 }
 
-export interface FuturesTickerPriceWSAPIRequest {
+export interface WSAPIFuturesTickerPriceRequest {
   symbol?: string;
 }
 
-export interface FuturesTickerBookWSAPIRequest {
+export interface WSAPIFuturesTickerBookRequest {
   symbol?: string;
 }
 
 /**
  * Futures trading request types
  */
-export interface FuturesOrderModifyWSAPIRequest {
+
+export interface WSAPINewFuturesOrderRequest<numberType = number> {
+  symbol: string;
+  side: OrderSide;
+  positionSide?: PositionSide;
+  type: FuturesOrderType;
+  timeInForce?: OrderTimeInForce;
+  quantity?: numberType;
+  reduceOnly?: BooleanString;
+  price?: numberType;
+  newClientOrderId?: string;
+  stopPrice?: numberType;
+  closePosition?: BooleanString;
+  activationPrice?: numberType;
+  callbackRate?: numberType;
+  workingType?: WorkingType;
+  priceProtect?: BooleanStringCapitalised;
+  newOrderRespType?: 'ACK' | 'RESULT';
+  selfTradePreventionMode?: SelfTradePreventionMode;
+  priceMatch?: PriceMatchMode;
+  goodTillDate?: number; // Mandatory when timeInForce is GTD
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface WSAPIFuturesOrderModifyRequest {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -470,7 +536,7 @@ export interface FuturesOrderModifyWSAPIRequest {
   timestamp?: number;
 }
 
-export interface FuturesOrderCancelWSAPIRequest {
+export interface WSAPIFuturesOrderCancelRequest {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -478,7 +544,7 @@ export interface FuturesOrderCancelWSAPIRequest {
   timestamp?: number;
 }
 
-export interface FuturesOrderStatusWSAPIRequest {
+export interface WSAPIFuturesOrderStatusRequest {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
@@ -486,24 +552,24 @@ export interface FuturesOrderStatusWSAPIRequest {
   timestamp: number;
 }
 
-export interface FuturesPositionWSAPIRequest {
+export interface WSAPIFuturesPositionRequest {
   symbol?: string;
   recvWindow?: number;
   timestamp: number;
 }
 
-export interface FuturesPositionV2WSAPIRequest {
+export interface WSAPIFuturesPositionV2Request {
   symbol?: string;
   recvWindow?: number;
   timestamp: number;
 }
 
-export interface AccountStatusWSAPIRequest {
+export interface WSAPIAccountStatusRequest {
   omitZeroBalances?: boolean;
   recvWindow?: number;
   timestamp: number;
 }
 
-export interface AccountCommissionWSAPIRequest {
+export interface WSAPIAccountCommissionWSAPIRequest {
   symbol: string;
 }

@@ -1,89 +1,90 @@
-import { NewFuturesOrderParams } from './types/futures';
-import { ExchangeInfo, NewSpotOrderParams, OrderResponse } from './types/spot';
+import { ExchangeInfo, OrderResponse } from './types/spot';
 import {
   WSAPIResponse,
   WSAPIUserDataListenKeyRequest,
 } from './types/websockets/ws-api';
 import {
-  AccountCommissionWSAPIRequest,
-  AccountStatusWSAPIRequest,
-  AllOrderListsWSAPIRequest,
-  AllOrdersWSAPIRequest,
-  AvgPriceWSAPIRequest,
-  DepthWSAPIRequest,
-  ExchangeInfoWSAPIRequest,
-  FuturesDepthWSAPIRequest,
-  FuturesOrderCancelWSAPIRequest,
-  FuturesOrderModifyWSAPIRequest,
-  FuturesOrderStatusWSAPIRequest,
-  FuturesPositionV2WSAPIRequest,
-  FuturesPositionWSAPIRequest,
-  FuturesTickerBookWSAPIRequest,
-  FuturesTickerPriceWSAPIRequest,
-  KlinesWSAPIRequest,
-  MyAllocationsWSAPIRequest,
-  MyPreventedMatchesWSAPIRequest,
-  MyTradesWSAPIRequest,
-  OpenOrdersCancelAllWSAPIRequest,
-  OpenOrdersStatusWSAPIRequest,
-  OrderCancelReplaceWSAPIRequest,
-  OrderCancelWSAPIRequest,
-  OrderListCancelWSAPIRequest,
-  OrderListPlaceOCOWSAPIRequest,
-  OrderListPlaceOTOCOWSAPIRequest,
-  OrderListPlaceOTOWSAPIRequest,
-  OrderListPlaceWSAPIRequest,
-  OrderListStatusWSAPIRequest,
-  OrderStatusWSAPIRequest,
-  OrderTestWSAPIRequest,
-  SOROrderPlaceWSAPIRequest,
-  SOROrderTestWSAPIRequest,
-  Ticker24hrWSAPIRequest,
-  TickerBookWSAPIRequest,
-  TickerPriceWSAPIRequest,
-  TickerTradingDayWSAPIRequest,
-  TickerWSAPIRequest,
-  TradesAggregateWSAPIRequest,
-  TradesHistoricalWSAPIRequest,
-  TradesRecentWSAPIRequest,
+  WSAPIAccountCommissionWSAPIRequest,
+  WSAPIAccountStatusRequest,
+  WSAPIAllOrderListsRequest,
+  WSAPIAllOrdersRequest,
+  WSAPIAvgPriceRequest,
+  WSAPIExchangeInfoRequest,
+  WSAPIFuturesOrderBookRequest,
+  WSAPIFuturesOrderCancelRequest,
+  WSAPIFuturesOrderModifyRequest,
+  WSAPIFuturesOrderStatusRequest,
+  WSAPIFuturesPositionRequest,
+  WSAPIFuturesPositionV2Request,
+  WSAPIFuturesTickerBookRequest,
+  WSAPIFuturesTickerPriceRequest,
+  WSAPIKlinesRequest,
+  WSAPIMyAllocationsRequest,
+  WSAPIMyPreventedMatchesRequest,
+  WSAPIMyTradesRequest,
+  WSAPINewFuturesOrderRequest,
+  WSAPINewSpotOrderRequest,
+  WSAPIOpenOrdersCancelAllRequest,
+  WSAPIOpenOrdersStatusRequest,
+  WSAPIOrderBookRequest,
+  WSAPIOrderCancelReplaceRequest,
+  WSAPIOrderCancelRequest,
+  WSAPIOrderListCancelRequest,
+  WSAPIOrderListPlaceOCORequest,
+  WSAPIOrderListPlaceOTOCORequest,
+  WSAPIOrderListPlaceOTORequest,
+  WSAPIOrderListPlaceRequest,
+  WSAPIOrderListStatusRequest,
+  WSAPIOrderStatusRequest,
+  WSAPIOrderTestRequest,
   WSAPIRecvWindowTimestamp,
+  WSAPISOROrderPlaceRequest,
+  WSAPISOROrderTestRequest,
+  WSAPITicker24hrRequest,
+  WSAPITickerBookRequest,
+  WSAPITickerPriceRequest,
+  WSAPITickerRequest,
+  WSAPITickerTradingDayRequest,
+  WSAPITradesAggregateRequest,
+  WSAPITradesHistoricalRequest,
+  WSAPITradesRecentRequest,
 } from './types/websockets/ws-api-requests';
 import {
-  AccountCommissionWSAPIResponse,
-  AccountStatusWSAPIResponse,
-  AggregateTradeWSAPIResponse,
-  AllocationWSAPIResponse,
-  AvgPriceWSAPIResponse,
-  DepthWSAPIResponse,
-  FuturesAccountBalanceItemWSAPIResponse,
-  FuturesAccountStatusWSAPIResponse,
-  FuturesDepthWSAPIResponse,
-  FuturesOrderWSAPIResponse,
-  FuturesPositionV2WSAPIResponse,
-  FuturesPositionWSAPIResponse,
-  FuturesTickerBookWSAPIResponse,
-  FuturesTickerPriceWSAPIResponse,
-  KlineWSAPIResponse,
-  OrderCancelReplaceWSAPIResponse,
-  OrderCancelWSAPIResponse,
-  OrderListCancelWSAPIResponse,
-  OrderListPlaceWSAPIResponse,
-  OrderListStatusWSAPIResponse,
-  OrderTestWithCommissionWSAPIResponse,
-  OrderTestWSAPIResponse,
-  OrderWSAPIResponse,
-  PreventedMatchWSAPIResponse,
-  RateLimitWSAPIResponse,
-  SOROrderPlaceWSAPIResponse,
-  SOROrderTestWithCommissionWSAPIResponse,
-  SOROrderTestWSAPIResponse,
-  TickerBookWSAPIResponse,
-  TickerFullWSAPIResponse,
-  TickerMiniWSAPIResponse,
-  TickerPriceWSAPIResponse,
-  TimeWSAPIResponse,
-  TradeWSAPIResponse,
-  WsAPISessionStatus,
+  WSAPIAccountCommission,
+  WSAPIAccountStatus,
+  WSAPIAggregateTrade,
+  WSAPIAllocation,
+  WSAPIAvgPrice,
+  WSAPIBookTicker,
+  WSAPIFullTicker,
+  WSAPIFuturesAccountBalanceItem,
+  WSAPIFuturesAccountStatus,
+  WSAPIFuturesBookTicker,
+  WSAPIFuturesOrder,
+  WSAPIFuturesOrderBook,
+  WSAPIFuturesPosition,
+  WSAPIFuturesPositionV2,
+  WSAPIFuturesPriceTicker,
+  WSAPIKline,
+  WSAPIMiniTicker,
+  WSAPIOrder,
+  WSAPIOrderBook,
+  WSAPIOrderCancel,
+  WSAPIOrderCancelReplaceResponse,
+  WSAPIOrderListCancelResponse,
+  WSAPIOrderListPlaceResponse,
+  WSAPIOrderListStatusResponse,
+  WSAPIOrderTestResponse,
+  WSAPIOrderTestWithCommission,
+  WSAPIPreventedMatch,
+  WSAPIPriceTicker,
+  WSAPIRateLimit,
+  WSAPIServerTime,
+  WSAPISessionStatus,
+  WSAPISOROrderPlaceResponse,
+  WSAPISOROrderTestResponse,
+  WSAPISOROrderTestResponseWithCommission,
+  WSAPITrade,
 } from './types/websockets/ws-api-responses';
 import { WSClientConfigurableOptions } from './types/websockets/ws-general';
 import { DefaultLogger } from './util/logger';
@@ -231,7 +232,7 @@ export class WebsocketAPIClient {
    */
   getSpotServerTime(
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<TimeWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIServerTime>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'time',
@@ -242,7 +243,7 @@ export class WebsocketAPIClient {
    * Query current exchange trading rules, rate limits, and symbol information
    */
   getSpotExchangeInfo(
-    params?: ExchangeInfoWSAPIRequest,
+    params?: WSAPIExchangeInfoRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<ExchangeInfo>> {
     return this.wsClient.sendWSAPIRequest(
@@ -254,7 +255,7 @@ export class WebsocketAPIClient {
 
   getSpotSessionStatus(
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<WsAPISessionStatus>> {
+  ): Promise<WSAPIResponse<WSAPISessionStatus>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'session.status',
@@ -272,9 +273,9 @@ export class WebsocketAPIClient {
    * Note: If you need to continuously monitor order book updates, consider using WebSocket Streams
    */
   getSpotOrderBook(
-    params: DepthWSAPIRequest,
+    params: WSAPIOrderBookRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<DepthWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIOrderBook>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'depth',
@@ -287,9 +288,9 @@ export class WebsocketAPIClient {
    * Note: If you need access to real-time trading activity, consider using WebSocket Streams
    */
   getSpotRecentTrades(
-    params: TradesRecentWSAPIRequest,
+    params: WSAPITradesRecentRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<TradeWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPITrade[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'trades.recent',
@@ -302,9 +303,9 @@ export class WebsocketAPIClient {
    * Note: If fromId is not specified, the most recent trades are returned
    */
   getSpotHistoricalTrades(
-    params: TradesHistoricalWSAPIRequest,
+    params: WSAPITradesHistoricalRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<TradeWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPITrade[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'trades.historical',
@@ -317,9 +318,9 @@ export class WebsocketAPIClient {
    * Note: An aggregate trade represents one or more individual trades that fill at the same time
    */
   getSpotAggregateTrades(
-    params: TradesAggregateWSAPIRequest,
+    params: WSAPITradesAggregateRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<AggregateTradeWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIAggregateTrade[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'trades.aggregate',
@@ -332,9 +333,9 @@ export class WebsocketAPIClient {
    * Note: If you need access to real-time kline updates, consider using WebSocket Streams
    */
   getSpotKlines(
-    params: KlinesWSAPIRequest,
+    params: WSAPIKlinesRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<KlineWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIKline[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'klines',
@@ -347,9 +348,9 @@ export class WebsocketAPIClient {
    * Note: This request is similar to klines, having the same parameters and response
    */
   getSpotUIKlines(
-    params: KlinesWSAPIRequest,
+    params: WSAPIKlinesRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<KlineWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIKline[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'uiKlines',
@@ -361,9 +362,9 @@ export class WebsocketAPIClient {
    * Get current average price for a symbol
    */
   getSpotAveragePrice(
-    params: AvgPriceWSAPIRequest,
+    params: WSAPIAvgPriceRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<AvgPriceWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIAvgPrice>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'avgPrice',
@@ -376,14 +377,11 @@ export class WebsocketAPIClient {
    * Note: If you need to continuously monitor trading statistics, consider using WebSocket Streams
    */
   getSpot24hrTicker(
-    params?: Ticker24hrWSAPIRequest,
+    params?: WSAPITicker24hrRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<
     WSAPIResponse<
-      | TickerFullWSAPIResponse
-      | TickerMiniWSAPIResponse
-      | TickerFullWSAPIResponse[]
-      | TickerMiniWSAPIResponse[]
+      WSAPIFullTicker | WSAPIMiniTicker | WSAPIFullTicker[] | WSAPIMiniTicker[]
     >
   > {
     return this.wsClient.sendWSAPIRequest(
@@ -397,14 +395,11 @@ export class WebsocketAPIClient {
    * Get price change statistics for a trading day
    */
   getSpotTradingDayTicker(
-    params: TickerTradingDayWSAPIRequest,
+    params: WSAPITickerTradingDayRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<
     WSAPIResponse<
-      | TickerFullWSAPIResponse
-      | TickerMiniWSAPIResponse
-      | TickerFullWSAPIResponse[]
-      | TickerMiniWSAPIResponse[]
+      WSAPIFullTicker | WSAPIMiniTicker | WSAPIFullTicker[] | WSAPIMiniTicker[]
     >
   > {
     return this.wsClient.sendWSAPIRequest(
@@ -419,14 +414,11 @@ export class WebsocketAPIClient {
    * Note: Window size precision is limited to 1 minute
    */
   getSpotTicker(
-    params: TickerWSAPIRequest,
+    params: WSAPITickerRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<
     WSAPIResponse<
-      | TickerFullWSAPIResponse
-      | TickerMiniWSAPIResponse
-      | TickerFullWSAPIResponse[]
-      | TickerMiniWSAPIResponse[]
+      WSAPIFullTicker | WSAPIMiniTicker | WSAPIFullTicker[] | WSAPIMiniTicker[]
     >
   > {
     return this.wsClient.sendWSAPIRequest(
@@ -441,11 +433,9 @@ export class WebsocketAPIClient {
    * Note: If you need access to real-time price updates, consider using WebSocket Streams
    */
   getSpotSymbolPriceTicker(
-    params?: TickerPriceWSAPIRequest,
+    params?: WSAPITickerPriceRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<
-    WSAPIResponse<TickerPriceWSAPIResponse | TickerPriceWSAPIResponse[]>
-  > {
+  ): Promise<WSAPIResponse<WSAPIPriceTicker | WSAPIPriceTicker[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker.price',
@@ -458,11 +448,9 @@ export class WebsocketAPIClient {
    * Note: If you need access to real-time order book ticker updates, consider using WebSocket Streams
    */
   getSpotSymbolOrderBookTicker(
-    params?: TickerBookWSAPIRequest,
+    params?: WSAPITickerBookRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<
-    WSAPIResponse<TickerBookWSAPIResponse | TickerBookWSAPIResponse[]>
-  > {
+  ): Promise<WSAPIResponse<WSAPIBookTicker | WSAPIBookTicker[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker.book',
@@ -480,7 +468,7 @@ export class WebsocketAPIClient {
    * Submit a spot order
    */
   submitNewSpotOrder(
-    params: NewSpotOrderParams,
+    params: WSAPINewSpotOrderRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<OrderResponse>> {
     return this.wsClient.sendWSAPIRequest(
@@ -495,10 +483,10 @@ export class WebsocketAPIClient {
    * Note: Validates new order parameters and verifies your signature but does not send the order into the matching engine
    */
   testSpotOrder(
-    params: OrderTestWSAPIRequest,
+    params: WSAPIOrderTestRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<
-    WSAPIResponse<OrderTestWSAPIResponse | OrderTestWithCommissionWSAPIResponse>
+    WSAPIResponse<WSAPIOrderTestResponse | WSAPIOrderTestWithCommission>
   > {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
@@ -512,9 +500,9 @@ export class WebsocketAPIClient {
    * Note: If both orderId and origClientOrderId parameters are specified, only orderId is used
    */
   getSpotOrderStatus(
-    params: OrderStatusWSAPIRequest,
+    params: WSAPIOrderStatusRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIOrder>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.status',
@@ -527,9 +515,9 @@ export class WebsocketAPIClient {
    * Note: If both orderId and origClientOrderId parameters are specified, only orderId is used
    */
   cancelSpotOrder(
-    params: OrderCancelWSAPIRequest,
+    params: WSAPIOrderCancelRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderCancelWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIOrderCancel>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.cancel',
@@ -542,9 +530,9 @@ export class WebsocketAPIClient {
    * Note: If both cancelOrderId and cancelOrigClientOrderId parameters are specified, only cancelOrderId is used
    */
   cancelReplaceSpotOrder(
-    params: OrderCancelReplaceWSAPIRequest,
+    params: WSAPIOrderCancelReplaceRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderCancelReplaceWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIOrderCancelReplaceResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.cancelReplace',
@@ -557,9 +545,9 @@ export class WebsocketAPIClient {
    * Note: If you need to continuously monitor order status updates, consider using WebSocket Streams
    */
   getSpotOpenOrders(
-    params: OpenOrdersStatusWSAPIRequest,
+    params: WSAPIOpenOrdersStatusRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIOrder[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'openOrders.status',
@@ -572,10 +560,10 @@ export class WebsocketAPIClient {
    * Note: This includes orders that are part of an order list
    */
   cancelAllSpotOpenOrders(
-    params: OpenOrdersCancelAllWSAPIRequest,
+    params: WSAPIOpenOrdersCancelAllRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<
-    WSAPIResponse<(OrderCancelWSAPIResponse | OrderListCancelWSAPIResponse)[]>
+    WSAPIResponse<(WSAPIOrderCancel | WSAPIOrderListCancelResponse)[]>
   > {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
@@ -589,9 +577,9 @@ export class WebsocketAPIClient {
    * Note: This is a deprecated endpoint, consider using placeOCOOrderList instead
    */
   placeSpotOrderList(
-    params: OrderListPlaceWSAPIRequest,
+    params: WSAPIOrderListPlaceRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderListPlaceWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIOrderListPlaceResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.place',
@@ -604,9 +592,9 @@ export class WebsocketAPIClient {
    * Note: Activation of one order immediately cancels the other
    */
   placeSpotOCOOrderList(
-    params: OrderListPlaceOCOWSAPIRequest,
+    params: WSAPIOrderListPlaceOCORequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderListPlaceWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIOrderListPlaceResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.place.oco',
@@ -619,9 +607,9 @@ export class WebsocketAPIClient {
    * Note: The pending order is placed only when the working order is fully filled
    */
   placeSpotOTOOrderList(
-    params: OrderListPlaceOTOWSAPIRequest,
+    params: WSAPIOrderListPlaceOTORequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderListPlaceWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIOrderListPlaceResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.place.oto',
@@ -634,9 +622,9 @@ export class WebsocketAPIClient {
    * Note: The pending orders are placed only when the working order is fully filled
    */
   placeSpotOTOCOOrderList(
-    params: OrderListPlaceOTOCOWSAPIRequest,
+    params: WSAPIOrderListPlaceOTOCORequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderListPlaceWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIOrderListPlaceResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.place.otoco',
@@ -649,9 +637,9 @@ export class WebsocketAPIClient {
    * Note: If both origClientOrderId and orderListId parameters are specified, only origClientOrderId is used
    */
   getSpotOrderListStatus(
-    params: OrderListStatusWSAPIRequest,
+    params: WSAPIOrderListStatusRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderListStatusWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIOrderListStatusResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.status',
@@ -664,9 +652,9 @@ export class WebsocketAPIClient {
    * Note: If both orderListId and listClientOrderId parameters are specified, only orderListId is used
    */
   cancelSpotOrderList(
-    params: OrderListCancelWSAPIRequest,
+    params: WSAPIOrderListCancelRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderListCancelWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIOrderListCancelResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.cancel',
@@ -681,7 +669,7 @@ export class WebsocketAPIClient {
   getSpotOpenOrderLists(
     params: WSAPIRecvWindowTimestamp,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderListStatusWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIOrderListStatusResponse[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'openOrderLists.status',
@@ -694,9 +682,9 @@ export class WebsocketAPIClient {
    * Note: Only supports LIMIT and MARKET orders. quoteOrderQty is not supported
    */
   placeSpotSOROrder(
-    params: SOROrderPlaceWSAPIRequest,
+    params: WSAPISOROrderPlaceRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<SOROrderPlaceWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPISOROrderPlaceResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'sor.order.place',
@@ -709,11 +697,11 @@ export class WebsocketAPIClient {
    * Note: Creates and validates a new order but does not send it into the matching engine
    */
   testSpotSOROrder(
-    params: SOROrderTestWSAPIRequest,
+    params: WSAPISOROrderTestRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<
     WSAPIResponse<
-      SOROrderTestWSAPIResponse | SOROrderTestWithCommissionWSAPIResponse
+      WSAPISOROrderTestResponse | WSAPISOROrderTestResponseWithCommission
     >
   > {
     return this.wsClient.sendWSAPIRequest(
@@ -734,9 +722,9 @@ export class WebsocketAPIClient {
    * Note: Weight: 20
    */
   getSpotAccountStatus(
-    params: AccountStatusWSAPIRequest,
+    params: WSAPIAccountStatusRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<AccountStatusWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIAccountStatus>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'account.status',
@@ -751,7 +739,7 @@ export class WebsocketAPIClient {
   getSpotOrderRateLimits(
     params: WSAPIRecvWindowTimestamp,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<RateLimitWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIRateLimit[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'account.rateLimits.orders',
@@ -764,9 +752,9 @@ export class WebsocketAPIClient {
    * Note: Weight: 20
    */
   getSpotAllOrders(
-    params: AllOrdersWSAPIRequest,
+    params: WSAPIAllOrdersRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIOrder[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'allOrders',
@@ -779,9 +767,9 @@ export class WebsocketAPIClient {
    * Note: Weight: 20
    */
   getSpotAllOrderLists(
-    params: AllOrderListsWSAPIRequest,
+    params: WSAPIAllOrderListsRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderListStatusWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIOrderListStatusResponse[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'allOrderLists',
@@ -794,9 +782,9 @@ export class WebsocketAPIClient {
    * Note: Weight: 20
    */
   getSpotMyTrades(
-    params: MyTradesWSAPIRequest,
+    params: WSAPIMyTradesRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<TradeWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPITrade[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'myTrades',
@@ -809,9 +797,9 @@ export class WebsocketAPIClient {
    * Note: Weight varies based on query type (2-20)
    */
   getSpotPreventedMatches(
-    params: MyPreventedMatchesWSAPIRequest,
+    params: WSAPIMyPreventedMatchesRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<PreventedMatchWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIPreventedMatch[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'myPreventedMatches',
@@ -824,9 +812,9 @@ export class WebsocketAPIClient {
    * Note: Weight: 20
    */
   getSpotAllocations(
-    params: MyAllocationsWSAPIRequest,
+    params: WSAPIMyAllocationsRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<AllocationWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIAllocation[]>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'myAllocations',
@@ -839,9 +827,9 @@ export class WebsocketAPIClient {
    * Note: Weight: 20
    */
   getSpotAccountCommission(
-    params: AccountCommissionWSAPIRequest,
+    params: WSAPIAccountCommissionWSAPIRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<AccountCommissionWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIAccountCommission>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'account.commission',
@@ -860,8 +848,8 @@ export class WebsocketAPIClient {
    * Note: If you need to continuously monitor order book updates, consider using WebSocket Streams
    */
   getFuturesOrderBook(
-    params: FuturesDepthWSAPIRequest,
-  ): Promise<WSAPIResponse<FuturesDepthWSAPIResponse>> {
+    params: WSAPIFuturesOrderBookRequest,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrderBook>> {
     return this.wsClient.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
       'depth',
@@ -874,11 +862,9 @@ export class WebsocketAPIClient {
    * Note: If symbol is not provided, prices for all symbols will be returned
    */
   getFuturesSymbolPriceTicker(
-    params?: FuturesTickerPriceWSAPIRequest,
+    params?: WSAPIFuturesTickerPriceRequest,
   ): Promise<
-    WSAPIResponse<
-      FuturesTickerPriceWSAPIResponse | FuturesTickerPriceWSAPIResponse[]
-    >
+    WSAPIResponse<WSAPIFuturesPriceTicker | WSAPIFuturesPriceTicker[]>
   > {
     return this.wsClient.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
@@ -892,12 +878,8 @@ export class WebsocketAPIClient {
    * Note: If symbol is not provided, bookTickers for all symbols will be returned
    */
   getFuturesSymbolOrderBookTicker(
-    params?: FuturesTickerBookWSAPIRequest,
-  ): Promise<
-    WSAPIResponse<
-      FuturesTickerBookWSAPIResponse | FuturesTickerBookWSAPIResponse[]
-    >
-  > {
+    params?: WSAPIFuturesTickerBookRequest,
+  ): Promise<WSAPIResponse<WSAPIFuturesBookTicker | WSAPIFuturesBookTicker[]>> {
     return this.wsClient.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
       'ticker.book',
@@ -918,8 +900,8 @@ export class WebsocketAPIClient {
    */
   submitNewFuturesOrder(
     market: 'usdm' | 'coinm',
-    params: NewFuturesOrderParams & WSAPIRecvWindowTimestamp,
-  ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
+    params: WSAPINewFuturesOrderRequest,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
     return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'order.place',
@@ -934,8 +916,8 @@ export class WebsocketAPIClient {
    */
   modifyFuturesOrder(
     market: 'usdm' | 'coinm',
-    params: FuturesOrderModifyWSAPIRequest,
-  ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
+    params: WSAPIFuturesOrderModifyRequest,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
     return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'order.modify',
@@ -950,8 +932,8 @@ export class WebsocketAPIClient {
    */
   cancelFuturesOrder(
     market: 'usdm' | 'coinm',
-    params: FuturesOrderCancelWSAPIRequest,
-  ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
+    params: WSAPIFuturesOrderCancelRequest,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
     return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'order.cancel',
@@ -966,8 +948,8 @@ export class WebsocketAPIClient {
    */
   getFuturesOrderStatus(
     market: 'usdm' | 'coinm',
-    params: FuturesOrderStatusWSAPIRequest,
-  ): Promise<WSAPIResponse<FuturesOrderWSAPIResponse>> {
+    params: WSAPIFuturesOrderStatusRequest,
+  ): Promise<WSAPIResponse<WSAPIFuturesOrder>> {
     return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'order.status',
@@ -980,8 +962,8 @@ export class WebsocketAPIClient {
    * Note: Only symbols that have positions or open orders will be returned
    */
   getFuturesPositionV2(
-    params: FuturesPositionV2WSAPIRequest,
-  ): Promise<WSAPIResponse<FuturesPositionV2WSAPIResponse[]>> {
+    params: WSAPIFuturesPositionV2Request,
+  ): Promise<WSAPIResponse<WSAPIFuturesPositionV2[]>> {
     return this.wsClient.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
       'v2/account.position',
@@ -997,8 +979,8 @@ export class WebsocketAPIClient {
    */
   getFuturesPosition(
     market: 'usdm' | 'coinm',
-    params: FuturesPositionWSAPIRequest,
-  ): Promise<WSAPIResponse<FuturesPositionWSAPIResponse[]>> {
+    params: WSAPIFuturesPositionRequest,
+  ): Promise<WSAPIResponse<WSAPIFuturesPosition[]>> {
     return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'account.position',
@@ -1018,7 +1000,7 @@ export class WebsocketAPIClient {
    */
   getFuturesAccountBalanceV2(
     params: WSAPIRecvWindowTimestamp,
-  ): Promise<WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIFuturesAccountBalanceItem[]>> {
     return this.wsClient.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
       'v2/account.balance',
@@ -1035,7 +1017,7 @@ export class WebsocketAPIClient {
   getFuturesAccountBalance(
     market: 'usdm' | 'coinm',
     params: WSAPIRecvWindowTimestamp,
-  ): Promise<WSAPIResponse<FuturesAccountBalanceItemWSAPIResponse[]>> {
+  ): Promise<WSAPIResponse<WSAPIFuturesAccountBalanceItem[]>> {
     return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'account.balance',
@@ -1049,7 +1031,7 @@ export class WebsocketAPIClient {
    */
   getFuturesAccountStatusV2(
     params: WSAPIRecvWindowTimestamp,
-  ): Promise<WSAPIResponse<FuturesAccountStatusWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIFuturesAccountStatus>> {
     return this.wsClient.sendWSAPIRequest(
       WS_KEY_MAP.usdmWSAPI,
       'v2/account.status',
@@ -1066,7 +1048,7 @@ export class WebsocketAPIClient {
   getFuturesAccountStatus(
     market: 'usdm' | 'coinm',
     params: WSAPIRecvWindowTimestamp,
-  ): Promise<WSAPIResponse<FuturesAccountStatusWSAPIResponse>> {
+  ): Promise<WSAPIResponse<WSAPIFuturesAccountStatus>> {
     return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'account.status',

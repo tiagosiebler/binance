@@ -9,7 +9,7 @@ export interface ErrorResponse {
   msg: string;
 }
 
-export interface WsAPISessionStatus {
+export interface WSAPISessionStatus {
   apiKey: string;
   authorizedSince: number;
   connectedSince: number;
@@ -21,21 +21,21 @@ export interface WsAPISessionStatus {
 /**
  * General response types
  */
-export interface TimeWSAPIResponse {
+export interface WSAPIServerTime {
   serverTime: number;
 }
 
 /**
  * Market data response types
  */
-export interface DepthWSAPIResponse {
+export interface WSAPIOrderBook {
   lastUpdateId: number;
   // [price, quantity]
   bids: [numberInString, numberInString][];
   asks: [numberInString, numberInString][];
 }
 
-export interface TradeWSAPIResponse {
+export interface WSAPITrade {
   id: number;
   price: numberInString;
   qty: numberInString;
@@ -45,7 +45,7 @@ export interface TradeWSAPIResponse {
   isBestMatch: boolean;
 }
 
-export interface AggregateTradeWSAPIResponse {
+export interface WSAPIAggregateTrade {
   a: number; // Aggregate trade ID
   p: numberInString; // Price
   q: numberInString; // Quantity
@@ -56,7 +56,7 @@ export interface AggregateTradeWSAPIResponse {
   M: boolean; // Was the trade the best price match?
 }
 
-export type KlineWSAPIResponse = [
+export type WSAPIKline = [
   number, // Kline open time
   numberInString, // Open price
   numberInString, // High price
@@ -71,13 +71,13 @@ export type KlineWSAPIResponse = [
   numberInString, // Unused field
 ];
 
-export interface AvgPriceWSAPIResponse {
+export interface WSAPIAvgPrice {
   mins: number; // Average price interval (in minutes)
   price: numberInString; // Average price
   closeTime: number; // Last trade time
 }
 
-export interface TickerFullWSAPIResponse {
+export interface WSAPIFullTicker {
   symbol: string;
   priceChange: numberInString;
   priceChangePercent: numberInString;
@@ -101,7 +101,7 @@ export interface TickerFullWSAPIResponse {
   count: number; // Number of trades
 }
 
-export interface TickerMiniWSAPIResponse {
+export interface WSAPIMiniTicker {
   symbol: string;
   openPrice: numberInString;
   highPrice: numberInString;
@@ -116,12 +116,12 @@ export interface TickerMiniWSAPIResponse {
   count: number; // Number of trades
 }
 
-export interface TickerPriceWSAPIResponse {
+export interface WSAPIPriceTicker {
   symbol: string;
   price: numberInString;
 }
 
-export interface TickerBookWSAPIResponse {
+export interface WSAPIBookTicker {
   symbol: string;
   bidPrice: numberInString;
   bidQty: numberInString;
@@ -132,7 +132,7 @@ export interface TickerBookWSAPIResponse {
 /**
  * Futures market data response types
  */
-export interface FuturesDepthWSAPIResponse {
+export interface WSAPIFuturesOrderBook {
   lastUpdateId: number;
   E: number; // Message output time
   T: number; // Transaction time
@@ -141,13 +141,13 @@ export interface FuturesDepthWSAPIResponse {
   asks: [numberInString, numberInString][];
 }
 
-export interface FuturesTickerPriceWSAPIResponse {
+export interface WSAPIFuturesPriceTicker {
   symbol: string;
   price: numberInString;
   time: number; // Transaction time
 }
 
-export interface FuturesTickerBookWSAPIResponse {
+export interface WSAPIFuturesBookTicker {
   lastUpdateId: number;
   symbol: string;
   bidPrice: numberInString;
@@ -160,7 +160,7 @@ export interface FuturesTickerBookWSAPIResponse {
 /**
  * Account response types
  */
-export interface AccountStatusWSAPIResponse {
+export interface WSAPIAccountStatus {
   makerCommission: number;
   takerCommission: number;
   buyerCommission: number;
@@ -188,7 +188,7 @@ export interface AccountStatusWSAPIResponse {
   uid: number;
 }
 
-export interface AccountCommissionWSAPIResponse {
+export interface WSAPIAccountCommission {
   symbol: string;
   standardCommission: {
     maker: numberInString;
@@ -210,7 +210,7 @@ export interface AccountCommissionWSAPIResponse {
   };
 }
 
-export interface RateLimitWSAPIResponse {
+export interface WSAPIRateLimit {
   rateLimitType: string;
   interval: string;
   intervalNum: number;
@@ -218,7 +218,7 @@ export interface RateLimitWSAPIResponse {
   count: number;
 }
 
-export interface OrderWSAPIResponse {
+export interface WSAPIOrder {
   symbol: string;
   orderId: number;
   orderListId: number;
@@ -243,7 +243,7 @@ export interface OrderWSAPIResponse {
   preventedQuantity?: numberInString;
 }
 
-export interface OrderListWSAPIResponse {
+export interface WSAPIOrderList {
   orderListId: number;
   contingencyType: string;
   listStatusType: string;
@@ -258,7 +258,7 @@ export interface OrderListWSAPIResponse {
   }[];
 }
 
-export interface TradeWSAPIResponse {
+export interface WSAPITrade {
   symbol: string;
   id: number;
   orderId: number;
@@ -274,7 +274,7 @@ export interface TradeWSAPIResponse {
   isBestMatch: boolean;
 }
 
-export interface PreventedMatchWSAPIResponse {
+export interface WSAPIPreventedMatch {
   symbol: string;
   preventedMatchId: number;
   takerOrderId: number;
@@ -287,7 +287,7 @@ export interface PreventedMatchWSAPIResponse {
   transactTime: number;
 }
 
-export interface AllocationWSAPIResponse {
+export interface WSAPIAllocation {
   symbol: string;
   allocationId: number;
   allocationType: string;
@@ -307,12 +307,12 @@ export interface AllocationWSAPIResponse {
 /**
  * Trading response types
  */
-export interface OrderTestWSAPIResponse {
+export interface WSAPIOrderTestResponse {
   // Empty response object
   [key: string]: never;
 }
 
-export interface OrderTestWithCommissionWSAPIResponse {
+export interface WSAPIOrderTestWithCommission {
   standardCommissionForOrder: {
     maker: numberInString;
     taker: numberInString;
@@ -329,7 +329,7 @@ export interface OrderTestWithCommissionWSAPIResponse {
   };
 }
 
-export interface OrderCancelWSAPIResponse {
+export interface WSAPIOrderCancel {
   symbol: string;
   origClientOrderId: string;
   orderId: number;
@@ -354,14 +354,14 @@ export interface OrderCancelWSAPIResponse {
   selfTradePreventionMode: string;
 }
 
-export interface OrderCancelReplaceWSAPIResponse {
+export interface WSAPIOrderCancelReplaceResponse {
   cancelResult: 'SUCCESS' | 'FAILURE' | 'NOT_ATTEMPTED';
   newOrderResult: 'SUCCESS' | 'FAILURE' | 'NOT_ATTEMPTED';
-  cancelResponse: OrderCancelWSAPIResponse | ErrorResponse;
+  cancelResponse: WSAPIOrderCancel | ErrorResponse;
   newOrderResponse: OrderResponse | ErrorResponse | null;
 }
 
-export interface OrderListCancelWSAPIResponse {
+export interface WSAPIOrderListCancelResponse {
   orderListId: number;
   contingencyType: string;
   listStatusType: string;
@@ -374,13 +374,13 @@ export interface OrderListCancelWSAPIResponse {
     orderId: number;
     clientOrderId: string;
   }[];
-  orderReports: OrderCancelWSAPIResponse[];
+  orderReports: WSAPIOrderCancel[];
 }
 
 /**
  * Order list response types
  */
-export interface OrderListPlaceWSAPIResponse {
+export interface WSAPIOrderListPlaceResponse {
   orderListId: number;
   contingencyType: string;
   listStatusType: string;
@@ -396,7 +396,7 @@ export interface OrderListPlaceWSAPIResponse {
   orderReports: OrderResponse[];
 }
 
-export interface OrderListStatusWSAPIResponse {
+export interface WSAPIOrderListStatusResponse {
   orderListId: number;
   contingencyType: string;
   listStatusType: string;
@@ -414,7 +414,7 @@ export interface OrderListStatusWSAPIResponse {
 /**
  * SOR response types
  */
-export interface SOROrderPlaceWSAPIResponse {
+export interface WSAPISOROrderPlaceResponse {
   symbol: string;
   orderId: number;
   orderListId: number;
@@ -444,12 +444,12 @@ export interface SOROrderPlaceWSAPIResponse {
   usedSor: boolean;
 }
 
-export interface SOROrderTestWSAPIResponse {
+export interface WSAPISOROrderTestResponse {
   // Empty response object
   [key: string]: never;
 }
 
-export interface SOROrderTestWithCommissionWSAPIResponse {
+export interface WSAPISOROrderTestResponseWithCommission {
   standardCommissionForOrder: {
     maker: numberInString;
     taker: numberInString;
@@ -469,7 +469,7 @@ export interface SOROrderTestWithCommissionWSAPIResponse {
 /**
  * Futures trading response types
  */
-export interface FuturesOrderWSAPIResponse {
+export interface WSAPIFuturesOrder {
   orderId: number;
   symbol: string;
   status: string;
@@ -499,7 +499,7 @@ export interface FuturesOrderWSAPIResponse {
   priceRate?: string;
 }
 
-export interface FuturesPositionWSAPIResponse {
+export interface WSAPIFuturesPosition {
   entryPrice: string;
   breakEvenPrice: string;
   marginType: string;
@@ -518,7 +518,7 @@ export interface FuturesPositionWSAPIResponse {
   updateTime: number;
 }
 
-export interface FuturesPositionV2WSAPIResponse {
+export interface WSAPIFuturesPositionV2 {
   symbol: string;
   positionSide: string;
   positionAmt: string;
@@ -544,7 +544,7 @@ export interface FuturesPositionV2WSAPIResponse {
 /**
  * Futures account response types
  */
-export interface FuturesAccountBalanceItemWSAPIResponse {
+export interface WSAPIFuturesAccountBalanceItem {
   accountAlias: string;
   asset: string;
   balance: string;
@@ -556,7 +556,7 @@ export interface FuturesAccountBalanceItemWSAPIResponse {
   updateTime: number;
 }
 
-export interface FuturesAccountAssetWSAPIResponse {
+export interface WSAPIFuturesAccountAsset {
   asset: string;
   walletBalance: string;
   unrealizedProfit: string;
@@ -573,7 +573,7 @@ export interface FuturesAccountAssetWSAPIResponse {
   updateTime: number;
 }
 
-export interface FuturesAccountPositionWSAPIResponse {
+export interface WSAPIFuturesAccountPosition {
   symbol: string;
   initialMargin?: string;
   maintMargin?: string;
@@ -592,7 +592,7 @@ export interface FuturesAccountPositionWSAPIResponse {
   updateTime: number;
 }
 
-export interface FuturesAccountStatusWSAPIResponse {
+export interface WSAPIFuturesAccountStatus {
   feeTier?: number;
   canTrade?: boolean;
   canDeposit?: boolean;
@@ -611,6 +611,6 @@ export interface FuturesAccountStatusWSAPIResponse {
   totalCrossUnPnl: string;
   availableBalance: string;
   maxWithdrawAmount: string;
-  assets: FuturesAccountAssetWSAPIResponse[];
-  positions: FuturesAccountPositionWSAPIResponse[];
+  assets: WSAPIFuturesAccountAsset[];
+  positions: WSAPIFuturesAccountPosition[];
 }
