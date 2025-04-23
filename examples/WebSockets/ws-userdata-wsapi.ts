@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // or
-// import { WebsocketAPIClient, WS_KEY_MAP } from 'binance';
+// import { WebsocketAPIClient, WebsocketClient, WS_KEY_MAP } from 'binance';
 // or
-// const { WebsocketAPIClient, WS_KEY_MAP } = require('binance');
+// const { WebsocketAPIClient, WebsocketClient, WS_KEY_MAP } = require('binance');
 
-import { WebsocketAPIClient, WS_KEY_MAP } from '../../src';
+import { WebsocketAPIClient, WebsocketClient, WS_KEY_MAP } from '../../src';
 
 /**
  * The WS API only works with an Ed25519 API key.
@@ -31,34 +31,34 @@ const secret = process.env.API_SECRET_COM;
 // Your Ed25519 private key is passed as the "secret"
 // const secret = privateKey;
 
-// function attachEventHandlers<TWSClient extends WebsocketClient>(
-//   wsClient: TWSClient,
-// ): void {
-//   /**
-//    * General event handlers for monitoring the WebsocketClient
-//    */
-//   wsClient.on('message', (data) => {
-//     // console.log('raw message received ', JSON.stringify(data));
-//   });
-//   wsClient.on('response', (data) => {
-//     // console.log('ws response: ', JSON.stringify(data));
-//   });
-//   wsClient.on('open', (data) => {
-//     console.log('ws connected', data.wsKey);
-//   });
-//   wsClient.on('reconnecting', ({ wsKey }) => {
-//     console.log('ws automatically reconnecting.... ', wsKey);
-//   });
-//   wsClient.on('reconnected', (data) => {
-//     console.log('ws has reconnected ', data?.wsKey);
-//   });
-//   wsClient.on('authenticated', (data) => {
-//     console.log('ws has authenticated ', data?.wsKey);
-//   });
-//   wsClient.on('exception', (data) => {
-//     console.error('ws exception: ', JSON.stringify(data));
-//   });
-// }
+function attachEventHandlers<TWSClient extends WebsocketClient>(
+  wsClient: TWSClient,
+): void {
+  /**
+   * General event handlers for monitoring the WebsocketClient
+   */
+  wsClient.on('message', (data) => {
+    // console.log('raw message received ', JSON.stringify(data));
+  });
+  wsClient.on('response', (data) => {
+    // console.log('ws response: ', JSON.stringify(data));
+  });
+  wsClient.on('open', (data) => {
+    console.log('ws connected', data.wsKey);
+  });
+  wsClient.on('reconnecting', ({ wsKey }) => {
+    console.log('ws automatically reconnecting.... ', wsKey);
+  });
+  wsClient.on('reconnected', (data) => {
+    console.log('ws has reconnected ', data?.wsKey);
+  });
+  wsClient.on('authenticated', (data) => {
+    console.log('ws has authenticated ', data?.wsKey);
+  });
+  wsClient.on('exception', (data) => {
+    console.error('ws exception: ', JSON.stringify(data));
+  });
+}
 
 async function main() {
   const wsClient = new WebsocketAPIClient({
@@ -74,12 +74,12 @@ async function main() {
     // resubscribeUserDataStreamAfterReconnect: true,
 
     // If you want your own event handlers instead of the default ones with logs, disable this setting and see the `attachEventHandlers` example below:
-    // attachEventListeners: false
+    attachEventListeners: false,
   });
 
-  // Optional, attach your own event handlers, so nothing is left unhandled
+  // Attach your own event handlers to process incoming events
   // You may want to disable the default ones to avoid unnecessary logs (via attachEventListeners:false, above)
-  // attachEventHandlers(wsClient.getWSClient());
+  attachEventHandlers(wsClient.getWSClient());
 
   // Optional, if you see RECV Window errors, you can use this to manage time issues.
   // ! However, make sure you sync your system clock first!
@@ -90,7 +90,7 @@ async function main() {
   // automatically call this method again if reconnected,
   try {
     const response = await wsClient.subscribeUserDataStream(
-      WS_KEY_MAP.mainWSAPI,
+      WS_KEY_MAP.mainWSAPI, // The `mainWSAPI` wsKey will connect to the "spot" Websocket API on Binance.
     );
 
     console.log('subscribeUserDataStream response: ', response);
