@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // or
-// import {
-//   WebsocketAPIClient,
-// } from 'binance';
+// import { DefaultLogger, WebsocketAPIClient, WS_KEY_MAP } from 'binance';
+// or
+// const { DefaultLogger, WebsocketAPIClient, WS_KEY_MAP } = require('binance');
 
-import { DefaultLogger, WebsocketAPIClient } from '../../src/index';
+import { DefaultLogger, WebsocketAPIClient, WS_KEY_MAP } from '../../src';
 
 /**
  * The WS API only works with an Ed25519 API key.
@@ -76,9 +76,9 @@ async function main() {
       // Enforce testnet ws connections, regardless of supplied wsKey
       // testnet: true,
 
-      // If true, if you used requestSubscribeUserDataStream(), it will
-      // automatically call this method again if you're reconnected
-      resubscribeUserDataStreamAfterReconnect: true,
+      // Note: unless you set this to false, the SDK will automatically call
+      // the `subscribeUserDataStream()` method again if reconnected (if you called it before):
+      // resubscribeUserDataStreamAfterReconnect: true,
 
       // If you want your own event handlers instead of the default ones with logs, disable this setting and see the `attachEventHandlers` example below:
       // attachEventListeners: false
@@ -117,16 +117,16 @@ async function main() {
     console.log('startSpotUserDataStream error: ', e);
   }
 
-  // // Note: unless you use onReconnectResubscribeUserDataStream, you
-  // // will need to call this again after being reconnected
+  // Note: unless you set resubscribeUserDataStreamAfterReconnect to false, the SDK will
+  // automatically call this method again if reconnected,
   // try {
   //   const response = await wsClient.subscribeUserDataStream(
-  //     WS_KEY_MAP.mainWSAPITestnet,
+  //     WS_KEY_MAP.mainWSAPI,
   //   );
 
-  //   console.log('requestSubscribeUserDataStream response: ', response);
+  //   console.log('subscribeUserDataStream response: ', response);
   // } catch (e) {
-  //   console.log('requestSubscribeUserDataStream error: ', e);
+  //   console.log('subscribeUserDataStream error: ', e);
   // }
 
   // TODO: add all the other endpoints here, once done
