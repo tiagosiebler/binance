@@ -942,8 +942,6 @@ export interface QueryPortfolioMarginOrderReq {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
-  recvWindow?: number; // Cannot be greater than 60000
-  timestamp: number;
 }
 
 export interface PortfolioMarginOrder {
@@ -975,15 +973,11 @@ export interface QueryPortfolioMarginAllOrdersReq {
   startTime?: number;
   endTime?: number;
   limit?: number; // Default 500; max 500
-  recvWindow?: number; // Cannot be greater than 60000
-  timestamp: number;
 }
 
 export interface QueryPortfolioMarginOCOReq {
   orderListId?: number; // Either orderListId or origClientOrderId must be provided
   origClientOrderId?: string; // Either orderListId or origClientOrderId must be provided
-  recvWindow?: number; // Cannot be greater than 60000
-  timestamp: number;
 }
 
 export interface PortfolioMarginOCOQueryOrder {
@@ -1241,7 +1235,6 @@ export interface GetPortfolioInterestHistoryReq {
   startTime?: number;
   endTime?: number;
   size?: number; // Default: 10, Max: 100
-  recvWindow?: number;
 }
 
 export interface PortfolioNegativeBalanceInterestRecord {
@@ -1280,7 +1273,6 @@ export interface QueryPortfolioUMIncomeReq {
   endTime?: number;
   page?: number;
   limit?: number; // Default 100; max 1000
-  recvWindow?: number;
 }
 
 export interface PortfolioUMIncome {
@@ -1310,7 +1302,6 @@ export interface QueryPortfolioCMIncomeReq {
   endTime?: number;
   page?: number;
   limit?: number; // Default 100; max 1000
-  recvWindow?: number;
 }
 
 export interface PortfolioCMIncome {
