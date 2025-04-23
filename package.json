@@ -1,7 +1,7 @@
 {
   "name": "binance",
-  "version": "3.0.0-beta.5",
-  "description": "Node.js & JavaScript SDK for Binance REST APIs & WebSockets, with TypeScript & end-to-end tests.",
+  "version": "3.0.0-beta.6",
+  "description": "Professional Node.js & JavaScript SDK for Binance REST APIs & WebSockets, with TypeScript & end-to-end tests.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
