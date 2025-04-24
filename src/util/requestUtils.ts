@@ -5,6 +5,7 @@ import { BinanceBaseUrlKey, OrderIdProperty } from '../types/shared';
 import { WsRequestOperationBinance } from '../types/websockets/ws-api';
 import { USDMClient } from '../usdm-client';
 import { signMessage } from './node-support';
+import { SignAlgorithm, SignEncodeMethod } from './webCryptoAPI';
 import {
   parseEventTypeFromMessage,
   WS_KEY_MAP,
@@ -75,6 +76,13 @@ export interface RestClientOptions {
    * Default: 1000 (defaults comes from https agent)
    */
   keepAliveMsecs?: number;
+
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
 }
 
 export type GenericAPIResponse<T = any> = Promise<T>;
@@ -251,13 +259,13 @@ export interface SignedRequestState {
 
 export async function getRequestSignature(
   data: object & { recvWindow?: number; signature?: string },
+  options: RestClientOptions,
   key?: string,
   secret?: string,
-  recvWindow?: number,
   timestamp?: number,
-  strictParamValidation?: boolean,
-  filterUndefinedParams?: boolean,
 ): Promise<SignedRequestState> {
+  const { recvWindow, strictParamValidation, filterUndefinedParams } = options;
+
   // Optional, set to 5000 by default. Increase if timestamp/recvWindow errors are seen.
   const requestRecvWindow = data?.recvWindow ?? recvWindow ?? 5000;
 
@@ -267,6 +275,10 @@ export async function getRequestSignature(
       timestamp,
       recvWindow: requestRecvWindow,
     };
+
+    const signMethod: SignEncodeMethod = 'hex';
+    const signAlgorithm: SignAlgorithm = 'SHA-256';
+
     const serialisedParams = serialiseParams(
       requestParams,
       strictParamValidation,
@@ -274,12 +286,19 @@ export async function getRequestSignature(
       filterUndefinedParams,
     );
 
-    const signature = await signMessage(
-      serialisedParams,
-      secret,
-      'hex',
-      'SHA-256',
-    );
+    let signature: string;
+
+    if (typeof this.options.customSignMessageFn === 'function') {
+      signature = this.options.customSignMessageFn(serialisedParams, secret);
+    } else {
+      signature = await signMessage(
+        serialisedParams,
+        secret,
+        signMethod,
+        signAlgorithm,
+      );
+    }
+
     requestParams.signature = signature;
 
     return {

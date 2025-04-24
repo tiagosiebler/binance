@@ -219,12 +219,10 @@ export default abstract class BaseRestClient {
     const { serialisedParams, signature, requestBody } =
       await getRequestSignature(
         params,
+        this.options,
         this.key,
         this.secret,
-        this.options.recvWindow,
         timestamp,
-        this.options.strictParamValidation,
-        this.options.filterUndefinedParams,
       );
 
     const baseUrl = baseUrlOverride || this.baseUrl;
