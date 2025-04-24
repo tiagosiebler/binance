@@ -198,7 +198,7 @@ import {
         // 'btcusdt@markPrice@1s',
         // Mark Price Stream for All market
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream-for-All-market
-        '!markPrice@arr',
+        // '!markPrice@arr',
         // Kline/Candlestick Streams
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Kline-Candlestick-Streams
         'btcusdt@kline_1m',
