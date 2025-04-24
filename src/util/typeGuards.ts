@@ -61,7 +61,7 @@ export function isWsFormattedMarkPriceUpdateArray(
   return (
     Array.isArray(data) &&
     data.length !== 0 &&
-    data[0].eventType === 'markPriceUpdate'
+    ['markPriceUpdate', 'markPrice'].includes(data[0].eventType)
   );
 }
 
