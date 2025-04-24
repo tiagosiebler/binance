@@ -5676,6 +5676,12 @@ export interface PMProRedeemBFUSDResponse {
   rate: number;
 }
 
+export interface PMProBankruptcyLoanRepaymentHistory {
+  asset: string;
+  amount: string;
+  repayTime: number;
+}
+
 export interface VipLoanInterestRateHistoryParams {
   coin: string;
   startTime?: number;
