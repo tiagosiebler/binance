@@ -361,6 +361,7 @@ import {
   OrderListResponse,
   OrderRateLimitUsage,
   OrderResponseTypeFor,
+  PMProBankruptcyLoanRepaymentHistory,
   PMProMintBFUSDParams,
   PMProMintBFUSDResponse,
   PMProRedeemBFUSDResponse,
@@ -623,7 +624,7 @@ export class MainClient extends BaseRestClient {
     `,
     );
 
-    if (timeDifference > 500) {
+    if (Math.abs(timeDifference) > 500) {
       console.warn(
         `WARNING! Time difference between server and client clock is greater than 500ms. It is currently ${timeDifference}ms.
       Consider adjusting your system clock to avoid unwanted clock sync errors!
@@ -3689,6 +3690,44 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/portfolio/redeem', params);
   }
 
+  getPortfolioMarginBankruptcyLoanRepayHistory(params?: {
+    startTime?: number;
+    endTime?: number;
+    current?: number;
+    size?: number;
+  }): Promise<{
+    total: number;
+    rows: PMProBankruptcyLoanRepaymentHistory[];
+  }> {
+    return this.getPrivate('sapi/v1/portfolio/pmLoan-history', params);
+  }
+
+  /**
+   * Transfer LDUSDT as collateral for all types of Portfolio Margin account
+   */
+  transferLDUSDTPortfolioMargin(params: {
+    asset: string;
+    transferType: 'EARN_TO_FUTURE' | 'FUTURE_TO_EARN';
+    amount: number;
+  }): Promise<{
+    msg: string;
+  }> {
+    return this.postPrivate('sapi/v1/portfolio/earn-asset-transfer', params);
+  }
+
+  /**
+   * Get transferable earn asset balance for all types of Portfolio Margin account
+   */
+  getTransferableEarnAssetBalanceForPortfolioMargin(params: {
+    asset: string;
+    transferType: 'EARN_TO_FUTURE' | 'FUTURE_TO_EARN';
+  }): Promise<{
+    asset: string;
+    amount: string;
+  }> {
+    return this.getPrivate('sapi/v1/portfolio/earn-asset-balance', params);
+  }
+
   /**
    *
    * DERIVATIVES - Futures Data - Market
@@ -3891,6 +3930,18 @@ export class MainClient extends BaseRestClient {
     interestBNBBurn: boolean;
   }> {
     return this.getPrivate('sapi/v1/broker/subAccount/bnbBurn/status', params);
+  }
+
+  /**
+   * Caution:
+   * The operation will delete a sub account under your brokerage master account.
+   * Please transfer out all funds from the sub account and delete API key of the sub account before deleting it.
+   * The deleted sub account CANNOT be reverted.
+   * The daily deletion limit for a broker Master is 20 sub accounts.
+   * You need to enable "trade" option for the api key which requests this endpoint.
+   */
+  deleteBrokerSubAccount(params: { subAccountId: string }): Promise<any> {
+    return this.deletePrivate('/sapi/v1/broker/subAccount', params);
   }
 
   /**
