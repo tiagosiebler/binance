@@ -49,7 +49,7 @@ export function neverGuard(x: never, msg: string): Error {
  * Typeguards for WsFormattedMessage event types:
  */
 
-export function isWsFormattedMarkPriceUpdateEvent(
+export function isWsFormattedMarkPriceUpdateEvent( // ok
   data: WsFormattedMessage,
 ): data is WsMessageMarkPriceUpdateEventFormatted {
   return !Array.isArray(data) && data.eventType === 'markPriceUpdate';
@@ -119,7 +119,7 @@ export function isWsFormattedRollingWindowTickerArray(
 /**
  * Typeguard to validate a 'Compressed/Aggregate' trade
  */
-export function isWsAggTradeFormatted(
+export function isWsAggTradeFormatted( // ok
   data: WsFormattedMessage,
 ): data is WsMessageAggTradeFormatted {
   return !Array.isArray(data) && data.eventType === 'aggTrade';
