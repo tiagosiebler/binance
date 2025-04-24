@@ -76,9 +76,11 @@ export declare interface WebsocketClientV1 {
   ): this;
 }
 /**
- * This legacy websocket client creates one websocket connection per topic.
+ * @deprecated This legacy websocket client creates one websocket connection per topic.
  *
  * If subscribing to a lot of topics, consider using the new multiplex `WebsocketClient`.
+ *
+ * To split your topics into smaller groups (one connection per group), simply make multiple multiplex WebsocketClient instances.
  */
 export class WebsocketClientV1 extends EventEmitter {
   private logger: DefaultLogger;

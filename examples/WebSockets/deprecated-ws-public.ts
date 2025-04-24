@@ -32,6 +32,11 @@ import {
     },
   };
 
+  /**
+   *
+   * This example demonstrates basic usage of the previous WebsocketClientV1, which should be considered deprecated.
+   *
+   */
   const wsClient = new WebsocketClientV1(
     {
       // api_key: key,

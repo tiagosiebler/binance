@@ -288,8 +288,8 @@ export async function getRequestSignature(
 
     let signature: string;
 
-    if (typeof this.options.customSignMessageFn === 'function') {
-      signature = this.options.customSignMessageFn(serialisedParams, secret);
+    if (typeof options.customSignMessageFn === 'function') {
+      signature = await options.customSignMessageFn(serialisedParams, secret);
     } else {
       signature = await signMessage(
         serialisedParams,
