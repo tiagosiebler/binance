@@ -86,7 +86,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   private restClientCache: RestClientCache = new RestClientCache();
 
   private beautifier: Beautifier = new Beautifier({
-    warnKeyMissingInMap: true,
+    warnKeyMissingInMap: false,
   });
 
   private userDataStreamManager: UserDataStreamManager;
@@ -96,6 +96,10 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger) {
     super(options, logger);
+
+    if (options?.beautifyWarnIfMissing) {
+      this.beautifier.setWarnIfMissing(options.beautifyWarnIfMissing);
+    }
 
     /**
      * Binance uses native WebSocket ping/pong frames, which cannot be directly used in

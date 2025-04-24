@@ -18,6 +18,19 @@ const rollingTickerEventMap = {
   n: 'totalTrades',
 };
 
+/**
+ * The beautifier map defines how specific properties are renamed into a more readable property name.
+ *
+ * At first, it's a simple key:value map. The key is the original property name (e.g. aggTrades or bookTickerEvent (for the top-level name of an event: ("bookTicker" + "Event"))).
+ *
+ * The values have different behaviours:
+ * - Value is an object, each child property is renamed to the value
+ *   e.g. aggTrades: { a: "aggTradeId" } -> aggTrades: { aggTradeId: value }
+ * - Value is a string, this points to another key in the map.
+ *   e.g. klineEvent: { k: "kline" } resolves to
+ *        klineEvent: { kline: { BEAUTIFIER_EVENT_MAP["kline"] } }
+ * - Value is an array, each element in that array is transformed into an object.
+ */
 export const BEAUTIFIER_EVENT_MAP = {
   aggTrades: {
     a: 'aggTradeId',

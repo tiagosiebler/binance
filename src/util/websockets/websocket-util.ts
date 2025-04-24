@@ -614,6 +614,9 @@ interface WsContext {
   otherParams: undefined | string[];
 }
 
+/**
+ * @deprecated Only works for legacy WS client, where one connection exists per key
+ */
 export function getContextFromWsKey(legacyWsKey: any): WsContext {
   const [market, streamName, symbol, listenKey, wsKey, ...otherParams] =
     legacyWsKey.split('_');

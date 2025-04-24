@@ -125,10 +125,23 @@ export function isWsAggTradeFormatted(
   return !Array.isArray(data) && data.eventType === 'aggTrade';
 }
 
+const partialBookDepthEventTypeMap = new Map()
+  // For dedicated connection
+  .set('partialBookDepth', true)
+  // For multiplex connection
+  .set('depth5@100ms', true)
+  .set('depth10@100ms', true)
+  .set('depth20@100ms', true)
+  .set('depth5@1000ms', true)
+  .set('depth10@1000ms', true)
+  .set('depth20@1000ms', true);
+
 export function isWsPartialBookDepthEventFormatted(
   data: WsFormattedMessage,
 ): data is WsMessagePartialBookDepthEventFormatted {
-  return !Array.isArray(data) && data.eventType === 'partialBookDepth';
+  return (
+    !Array.isArray(data) && partialBookDepthEventTypeMap.has(data.eventType)
+  );
 }
 
 /**

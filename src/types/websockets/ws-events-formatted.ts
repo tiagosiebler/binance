@@ -172,7 +172,7 @@ export interface WsMessageBookTickerEventFormatted extends WsSharedBase {
 }
 
 export interface WsMessagePartialBookDepthEventFormatted extends WsSharedBase {
-  eventType: 'partialBookDepth';
+  eventType: 'partialBookDepth' | 'string';
   lastUpdateId: number;
   bids: OrderBookRowFormatted[];
   asks: OrderBookRowFormatted[];

@@ -15,6 +15,33 @@ Samples that API credentials using `process.env.API_KEY_COM` can be spawned with
 APIKEY="apikeypastedhere" APISECRET="apisecretpastedhere" tsx examples/WebSockets/ws-userdata-listenkey.ts
 ```
 
+### WebSockets
+
+All examples relating to WebSockets can be found in the [examples/WebSockets](./WebSockets/) folder. High level summary of available examples:
+
+#### Consumers
+
+These are purely for receiving data from Binance's WebSockets (market data, account updates, etc).
+
+##### Market Data
+- ws-public.ts
+  - Demonstration on general usage of the WebSocket client to subscribe to / unsubscribe from one or more market data topics.
+- ws-public-spot-orderbook.ts
+-	ws-public-spot-trades.ts
+
+##### Account Data
+
+- ws-close.ts
+- ws-unsubscribe.ts
+- ws-proxy-socks.ts
+- ws-public-usdm-funding.ts
+- ws-userdata-testnet.ts
+-	ws-userdata-listenkey.ts
+- ws-userdata-connection-safety.ts
+- ws-userdata-wsapi.ts
+- ws-api-client.ts
+- ws-api-raw-promises.ts
+- deprecated-ws-public.ts
 
 ## REST USDM Examples
 
