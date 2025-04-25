@@ -1,17 +1,17 @@
-const { USDMClient } = require('binance');
+const { MainClient } = require('binance');
 
   // This example shows how to call this Binance API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "binance" for Binance exchange
   // This Binance API SDK is available on npm via "npm install binance"
-  // ENDPOINT: fapi/v1/ticker/24hr
-  // METHOD: GET
+  // ENDPOINT: sapi/v1/margin/listen-key
+  // METHOD: DELETE
   // PUBLIC: YES
 
-const client = new USDMClient({
+const client = new MainClient({
   api_key: 'insert_api_key_here',
   api_secret: 'insert_api_secret_here',
 });
 
-client.get24hrChangeStatististics(params)
+client.closeMarginRiskUserDataListenKey(params)
   .then((response) => {
     console.log(response);
   })
