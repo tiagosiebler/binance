@@ -2,9 +2,15 @@
 import {
   DefaultLogger,
   isWsAggTradeFormatted,
+  isWsFormatted24hrTicker,
+  isWsFormatted24hrTickerArray,
+  isWsFormattedForceOrder,
   isWsFormattedKline,
   isWsFormattedMarkPriceUpdateArray,
   isWsFormattedMarkPriceUpdateEvent,
+  isWsFormattedRollingWindowTickerArray,
+  isWsFormattedTrade,
+  isWsPartialBookDepthEventFormatted,
   WebsocketClient,
 } from '../../src';
 
@@ -77,6 +83,30 @@ import {
 
     if (isWsFormattedKline(data)) {
       return console.log('log kline: ', data);
+    }
+
+    if (isWsFormattedTrade(data)) {
+      return console.log('log trade: ', data);
+    }
+
+    if (isWsFormattedForceOrder(data)) {
+      return console.log('log force order: ', data);
+    }
+
+    if (isWsFormatted24hrTickerArray(data)) {
+      return console.log('log 24hr ticker array: ', data);
+    }
+
+    if (isWsFormattedRollingWindowTickerArray(data)) {
+      return console.log('log rolling window ticker array: ', data);
+    }
+
+    if (isWsFormatted24hrTicker(data)) {
+      return console.log('log 24hr ticker: ', data);
+    }
+
+    if (isWsPartialBookDepthEventFormatted(data)) {
+      return console.log('log partial book depth event: ', data);
     }
 
     return console.log('log formattedMessage: ', data);
@@ -198,10 +228,57 @@ import {
         // 'btcusdt@markPrice@1s',
         // Mark Price Stream for All market
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream-for-All-market
-        // '!markPrice@arr',
+        '!markPrice@arr',
         // Kline/Candlestick Streams
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Kline-Candlestick-Streams
-        'btcusdt@kline_1m',
+        // 'btcusdt@kline_1m',
+        // Continuous Contract Kline/Candlestick Streams
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Continuous-Contract-Kline-Candlestick-Streams
+        // 'btcusdt_perpetual@continuousKline_1m', // DOESNT EXIST AS TYPE GUARD, ONLY IN BEAUTIFIER
+        // Individual Symbol Mini Ticker Stream
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Mini-Ticker-Stream
+        // 'btcusdt@miniTicker', // DOESNT EXIST AS TYPE GUARD, ONLY FOR RAW MESSAGE
+        // All Market Mini Tickers Stream
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Mini-Tickers-Stream
+        // '!miniTicker@arr', // DOESNT EXIST AS TYPE GUARD
+        // Individual Symbol Ticker Streams
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Ticker-Streams
+        //'btcusdt@ticker',
+        // All Market Tickers Stream
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Tickers-Stream
+        // '!ticker@arr', // DOESNT EXIST AS TYPE GUARD
+        // Individual Symbol Book Ticker Streams
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Book-Ticker-Streams
+        //'btcusdt@bookTicker', // DOESNT EXIST AS TYPE GUARD
+        // All Book Tickers Stream
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Book-Tickers-Stream
+        // '!bookTicker', // DOESNT EXIST AS TYPE GUARD
+        // Liquidation Order Stream
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Liquidation-Order-Streams
+        // 'btcusdt@forceOrder',
+        // Liquidation Order Stream for All market
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Liquidation-Order-Streams
+        //'!forceOrder@arr',
+        // Partial Book Depth Streams
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Partial-Book-Depth-Streams
+        //'btcusdt@depth5',
+        // 'btcusdt@depth10@100ms'
+        // Diff. Book Depth Stream
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Diff-Book-Depth-Streams
+        // 'btcusdt@depth',
+        // 'btcusdt@depth@100ms',
+        // 'btcusdt@depth@500ms',
+        // 'btcusdt@depth@1000ms'
+        // Composite Index Symbol Information Streams
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Composite-Index-Symbol-Information-Streams
+        // 'btcusdt@compositeIndex' // DOESNT EXIST AS TYPE GUARD
+        // Contract Info Stream
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Contract-Info-Stream
+        // '!contractInfo' // DOESNT EXIST AS TYPE GUARD
+        // Multi-Assets Mode Asset Index Stream
+        // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Multi-Assets-Mode-Asset-Index
+        // '!assetIndex@arr' // DOESNT EXIST AS TYPE GUARD
+        // 'btcusdt@assetIndex'
       ],
       'usdm',
     );
