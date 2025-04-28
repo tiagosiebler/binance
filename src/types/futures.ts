@@ -862,12 +862,23 @@ export interface Basis {
 export interface IndexPriceConstituent {
   exchange: string;
   symbol: string;
+  price: numberInString;
+  weight: numberInString;
 }
 
 export interface IndexPriceConstituents {
   symbol: string;
   time: number;
   constituents: IndexPriceConstituent[];
+}
+
+export interface InsuranceFundBalance {
+  symbols: string[];
+  assets: {
+    asset: string;
+    marginBalance: string;
+    updateTime: number;
+  }[];
 }
 
 export interface ModifyOrderParams {
