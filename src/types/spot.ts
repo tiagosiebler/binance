@@ -914,11 +914,11 @@ export interface SpotAmendKeepPriority {
     listOrderStatus: string;
     listClientOrderId: string;
     symbol: string;
-    orders: Array<{
+    orders: {
       symbol: string;
       orderId: number;
       clientOrderId: string;
-    }>;
+    }[];
   };
 }
 
