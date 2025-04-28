@@ -114,7 +114,7 @@ export interface WsMessage24hrMiniTickerFormatted extends WsSharedBase {
 }
 
 export interface WsMessage24hrTickerFormatted extends WsSharedBase {
-  eventType: '24hrTicker';
+  eventType: '24hrTicker' | '!ticker@arr';
   eventTime: number;
   symbol: string;
   priceChange: number;
@@ -140,23 +140,25 @@ export interface WsMessage24hrTickerFormatted extends WsSharedBase {
 }
 
 export interface WsMessageRollingWindowTickerFormatted extends WsSharedBase {
-  eventType: '1hTicker' | '4hTicker' | '1dTicker';
+  eventType: 'ticker';
   eventTime: number;
   symbol: string;
   priceChange: number;
   priceChangePercent: number;
   weightedAveragePrice: number;
-  openPrice: number;
-  highPrice: number;
-  lowPrice: number;
-  lastPrice: number;
-  totalTradedBaseAssetVolume: number;
-  totalTradedQuoteAssetVolume: number;
-  statisticsOpenTime: number;
-  statisticsCloseTime: number;
+  open: number;
+  high: number;
+  low: number;
+  currentClose: number;
+  baseAssetVolume: number;
+  quoteAssetVolume: number;
+  openTime: number;
+  closeTime: number;
   firstTradeId: number;
   lastTradeId: number;
-  totalTrades: number;
+  trades: number;
+  streamName: string;
+  isWSAPIResponse: false;
 }
 
 export interface WsMessageBookTickerEventFormatted extends WsSharedBase {

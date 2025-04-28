@@ -13,7 +13,6 @@ import {
   WsMessageKlineFormatted,
   WsMessageMarkPriceUpdateEventFormatted,
   WsMessagePartialBookDepthEventFormatted,
-  WsMessageRollingWindowTickerFormatted,
   WsMessageSpotBalanceUpdateFormatted,
   WsMessageSpotOutboundAccountPositionFormatted,
   WsMessageSpotUserDataEventFormatted,
@@ -49,13 +48,13 @@ export function neverGuard(x: never, msg: string): Error {
  * Typeguards for WsFormattedMessage event types:
  */
 
-export function isWsFormattedMarkPriceUpdateEvent( // ok
+export function isWsFormattedMarkPriceUpdateEvent(
   data: WsFormattedMessage,
 ): data is WsMessageMarkPriceUpdateEventFormatted {
   return !Array.isArray(data) && data.eventType === 'markPriceUpdate';
 }
 
-export function isWsFormattedMarkPriceUpdateArray( // ok
+export function isWsFormattedMarkPriceUpdateArray(
   data: WsFormattedMessage,
 ): data is WsMessageMarkPriceUpdateEventFormatted[] {
   return (
@@ -72,54 +71,73 @@ export function isWsFormattedMarkPriceUpdate(
   return isWsFormattedMarkPriceUpdateArray(data);
 }
 
-export function isWsFormattedTrade( // ok
+export function isWsFormattedTrade(
   data: WsFormattedMessage,
 ): data is WsMessageTradeFormatted {
   return !Array.isArray(data) && data.eventType === 'trade';
 }
 
-export function isWsFormattedKline( // ok
+export function isWsFormattedKline(
   data: WsFormattedMessage,
 ): data is WsMessageKlineFormatted {
   return !Array.isArray(data) && data.eventType === 'kline';
 }
 
-export function isWsFormatted24hrTicker( // ok
+export function isWsFormatted24hrTicker(
   data: WsFormattedMessage,
 ): data is WsMessage24hrTickerFormatted {
   return !Array.isArray(data) && data.eventType === '24hrTicker';
 }
 
-export function isWsFormattedForceOrder( // ok
+export function isWsFormattedForceOrder(
   data: WsFormattedMessage,
 ): data is WsMessageForceOrderFormatted {
   return !Array.isArray(data) && data.eventType === 'forceOrder';
 }
 
-export function isWsFormatted24hrTickerArray( // BROKEN
+/**
+ * !ticker@arr
+ * @param data
+ * @returns
+ */
+export function isWsFormatted24hrTickerArray(
   data: WsFormattedMessage,
 ): data is WsMessage24hrTickerFormatted[] {
   return (
     Array.isArray(data) &&
     data.length !== 0 &&
-    data[0].eventType === '24hrTicker'
+    // topic in ws url
+    (['24hrTicker'].includes(data[0].eventType) || // multiplex subscriptions
+      (!!data[0].streamName && ['!ticker@arr'].includes(data[0].streamName)))
   );
 }
 
-export function isWsFormattedRollingWindowTickerArray( // dont exist anymore ??
+/**
+ * !ticker_1h@arr
+ *
+ * @param data
+ * @returns
+ */
+export function isWsFormattedRollingWindowTickerArray(
   data: WsFormattedMessage,
-): data is WsMessageRollingWindowTickerFormatted[] {
+): data is WsMessage24hrTickerFormatted[] {
   return (
     Array.isArray(data) &&
     data.length !== 0 &&
-    ['1hTicker', '4hTicker', '1dTicker'].includes(data[0].eventType)
+    // topic in ws url
+    (['1hTicker', '4hTicker', '1dTicker'].includes(data[0].eventType) ||
+      // multiplex subscriptions
+      (!!data[0].streamName &&
+        ['!ticker_1h@arr', '!ticker_4h@arr', '!ticker_1d@arr'].includes(
+          data[0].streamName,
+        )))
   );
 }
 
 /**
  * Typeguard to validate a 'Compressed/Aggregate' trade
  */
-export function isWsAggTradeFormatted( // ok
+export function isWsAggTradeFormatted(
   data: WsFormattedMessage,
 ): data is WsMessageAggTradeFormatted {
   return !Array.isArray(data) && data.eventType === 'aggTrade';
@@ -129,6 +147,9 @@ const partialBookDepthEventTypeMap = new Map()
   // For dedicated connection
   .set('partialBookDepth', true)
   // For multiplex connection
+  .set('depth5', true)
+  .set('depth10', true)
+  .set('depth20', true)
   .set('depth5@100ms', true)
   .set('depth10@100ms', true)
   .set('depth20@100ms', true)
@@ -136,7 +157,12 @@ const partialBookDepthEventTypeMap = new Map()
   .set('depth10@1000ms', true)
   .set('depth20@1000ms', true);
 
-export function isWsPartialBookDepthEventFormatted( // BROKEN
+/**
+ * <symbol>@depth<levels> OR <symbol>@depth<levels>@100ms
+ * @param data
+ * @returns
+ */
+export function isWsPartialBookDepthEventFormatted(
   data: WsFormattedMessage,
 ): data is WsMessagePartialBookDepthEventFormatted {
   return (
