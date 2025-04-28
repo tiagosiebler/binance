@@ -55,7 +55,7 @@ export function isWsFormattedMarkPriceUpdateEvent( // ok
   return !Array.isArray(data) && data.eventType === 'markPriceUpdate';
 }
 
-export function isWsFormattedMarkPriceUpdateArray(
+export function isWsFormattedMarkPriceUpdateArray( // ok
   data: WsFormattedMessage,
 ): data is WsMessageMarkPriceUpdateEventFormatted[] {
   return (
@@ -72,31 +72,31 @@ export function isWsFormattedMarkPriceUpdate(
   return isWsFormattedMarkPriceUpdateArray(data);
 }
 
-export function isWsFormattedTrade(
+export function isWsFormattedTrade( // ok
   data: WsFormattedMessage,
 ): data is WsMessageTradeFormatted {
   return !Array.isArray(data) && data.eventType === 'trade';
 }
 
-export function isWsFormattedKline(
+export function isWsFormattedKline( // ok
   data: WsFormattedMessage,
 ): data is WsMessageKlineFormatted {
   return !Array.isArray(data) && data.eventType === 'kline';
 }
 
-export function isWsFormatted24hrTicker(
+export function isWsFormatted24hrTicker( // ok
   data: WsFormattedMessage,
 ): data is WsMessage24hrTickerFormatted {
   return !Array.isArray(data) && data.eventType === '24hrTicker';
 }
 
-export function isWsFormattedForceOrder(
+export function isWsFormattedForceOrder( // ok
   data: WsFormattedMessage,
 ): data is WsMessageForceOrderFormatted {
   return !Array.isArray(data) && data.eventType === 'forceOrder';
 }
 
-export function isWsFormatted24hrTickerArray(
+export function isWsFormatted24hrTickerArray( // BROKEN
   data: WsFormattedMessage,
 ): data is WsMessage24hrTickerFormatted[] {
   return (
@@ -106,7 +106,7 @@ export function isWsFormatted24hrTickerArray(
   );
 }
 
-export function isWsFormattedRollingWindowTickerArray(
+export function isWsFormattedRollingWindowTickerArray( // dont exist anymore ??
   data: WsFormattedMessage,
 ): data is WsMessageRollingWindowTickerFormatted[] {
   return (
@@ -136,7 +136,7 @@ const partialBookDepthEventTypeMap = new Map()
   .set('depth10@1000ms', true)
   .set('depth20@1000ms', true);
 
-export function isWsPartialBookDepthEventFormatted(
+export function isWsPartialBookDepthEventFormatted( // BROKEN
   data: WsFormattedMessage,
 ): data is WsMessagePartialBookDepthEventFormatted {
   return (
