@@ -1,6 +1,7 @@
 import { AxiosRequestConfig } from 'axios';
 
 import {
+  AmendKeepPriorityParams,
   BasicAssetPaginatedParams,
   BasicAssetParam,
   BasicSymbolParam,
@@ -433,6 +434,7 @@ import {
   SpecialLowLatencyKeyInfo,
   SpecialLowLatencyKeyResponse,
   SpotAlgoOrder,
+  SpotAmendKeepPriority,
   SpotOrder,
   StakingBasicParams,
   StakingHistory,
@@ -842,6 +844,18 @@ export class MainClient extends BaseRestClient {
     params: ReplaceSpotOrderParams<T, RT>,
   ): Promise<ReplaceSpotOrderResultSuccess<T, RT>> {
     return this.postPrivate('api/v3/order/cancelReplace', params);
+  }
+
+  /**
+   * Reduce the quantity of an existing open order while keeping its priority in the order book.
+   * The new quantity must be less than the current quantity.
+   * https://binance-docs.github.io/apidocs/futures/en/#order-amend-keep-priority-trade
+   */
+  amendOrderKeepPriority(
+    params: AmendKeepPriorityParams,
+  ): Promise<SpotAmendKeepPriority> {
+    this.validateOrderId(params, 'newClientOrderId');
+    return this.putPrivate('fapi/v1/order/amend/keepPriority', params);
   }
 
   getOpenOrders(params?: { symbol?: string }): Promise<SpotOrder[]> {
