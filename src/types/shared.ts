@@ -217,6 +217,14 @@ export interface CancelOrderParams {
   origClientOrderId?: string;
 }
 
+export interface AmendKeepPriorityParams {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  newClientOrderId?: string;
+  newQty: numberInString;
+}
+
 export interface CancelOCOParams {
   symbol: string;
   orderListId?: number;

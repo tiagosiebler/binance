@@ -886,6 +886,42 @@ export interface SpotOrder {
   selfTradePreventionMode: SelfTradePreventionMode;
 }
 
+export interface SpotAmendKeepPriority {
+  transactTime: number;
+  executionId: number;
+  amendedOrder: {
+    symbol: string;
+    orderId: number;
+    orderListId: number;
+    origClientOrderId: string;
+    clientOrderId: string;
+    price: string;
+    qty: string;
+    executedQty: string;
+    preventedQty: string;
+    quoteOrderQty: string;
+    cumulativeQuoteQty: string;
+    status: string;
+    timeInForce: string;
+    type: string;
+    side: string;
+    workingTime: number;
+    selfTradePreventionMode: string;
+  };
+  listStatus?: {
+    orderListId: number;
+    contingencyType: string;
+    listOrderStatus: string;
+    listClientOrderId: string;
+    symbol: string;
+    orders: Array<{
+      symbol: string;
+      orderId: number;
+      clientOrderId: string;
+    }>;
+  };
+}
+
 export interface SpotAssetBalance {
   asset: string;
   free: numberInString;
