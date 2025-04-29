@@ -30,7 +30,13 @@ import {
   WsMessageRollingWindowTickerRaw,
   WsRawMessage,
 } from '../types/websockets/ws-events-raw';
-import { WSAPIWsKey, WsKey } from './websockets/websocket-util';
+import {
+  EVENT_TYPES_USER_DATA,
+  WS_KEYS_FUTURES,
+  WS_KEYS_SPOT,
+  WSAPIWsKey,
+  WsKey,
+} from './websockets/websocket-util';
 
 export function neverGuard(x: never, msg: string): Error {
   return new Error(`Unhandled value exception "${x}", ${msg}`);
@@ -43,6 +49,50 @@ export function neverGuard(x: never, msg: string): Error {
  * and `WsRawMessage` typeguards in the second half.
  *
  */
+
+export function isWsSpotConnection(data: WsFormattedMessage): boolean {
+  return (
+    !Array.isArray(data) && data.wsKey && WS_KEYS_SPOT.includes(data.wsKey)
+  );
+}
+export function isWsFuturesConnection(data: WsFormattedMessage): boolean {
+  return (
+    !Array.isArray(data) && data.wsKey && WS_KEYS_FUTURES.includes(data.wsKey)
+  );
+}
+
+export function isWSAPIWsKey(wsKey: WsKey): wsKey is WSAPIWsKey {
+  switch (wsKey) {
+    case 'mainWSAPITestnet':
+    case 'mainWSAPI':
+    case 'mainWSAPI2':
+    case 'usdmWSAPI':
+    case 'usdmWSAPITestnet':
+    case 'coinmWSAPI':
+    case 'coinmWSAPITestnet': {
+      return true;
+    }
+    case 'main':
+    case 'main2':
+    case 'main3':
+    case 'marginRiskUserData':
+    case 'mainTestnetPublic':
+    case 'mainTestnetUserData':
+    case 'usdm':
+    case 'usdmTestnet':
+    case 'coinm':
+    case 'coinmTestnet':
+    case 'eoptions':
+    case 'coinm2':
+    case 'portfolioMarginUserData':
+    case 'portfolioMarginProUserData': {
+      return false;
+    }
+    default: {
+      throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
+    }
+  }
+}
 
 /**
  * Typeguards for WsFormattedMessage event types:
@@ -171,24 +221,49 @@ export function isWsPartialBookDepthEventFormatted(
 }
 
 /**
- * Note: this won't work on multiplex connections, since it uses the wsKey to resolve the event as a user data event
+ * Works for both the listen key & WS API user data stream workflows.
+ *
+ * - For the listen key workflow, uses the wsKey to identify the connection dedicated
+ * to the user data stream.
+ * - For the WS API user data stream, uses the eventType to identify user data events
+ * from a known list (`EVENT_TYPES_USER_DATA`).
  */
 export function isWsFormattedUserDataEvent(
   data: WsFormattedMessage,
 ): data is WsUserDataEvents {
-  return !Array.isArray(data) && data.wsKey.includes('userData');
+  if (Array.isArray(data)) {
+    return false;
+  }
+
+  // Old listenKey workflow has one dedicated connection per user data stream
+  // Won't work for new WS API user data stream without listen key
+  if (data.wsKey.includes('userData')) {
+    return true;
+  }
+
+  if (data?.eventType && EVENT_TYPES_USER_DATA.includes(data.eventType)) {
+    return true;
+  }
+
+  return false;
 }
 
 export function isWsFormattedSpotUserDataEvent(
   data: WsFormattedMessage,
 ): data is WsMessageSpotUserDataEventFormatted {
-  return isWsFormattedUserDataEvent(data) && data.wsMarket?.includes('spot');
+  return (
+    isWsFormattedUserDataEvent(data) &&
+    (data.wsMarket?.includes('spot') || isWsSpotConnection(data))
+  );
 }
 
 export function isWsFormattedFuturesUserDataEvent(
   data: WsFormattedMessage,
 ): data is WsMessageFuturesUserDataEventFormatted {
-  return isWsFormattedUserDataEvent(data) && data.wsMarket?.includes('usdm');
+  return (
+    isWsFormattedUserDataEvent(data) &&
+    (data.wsMarket?.includes('usdm') || isWsFuturesConnection(data))
+  );
 }
 
 export function isWsFormattedSpotUserDataExecutionReport(
@@ -368,37 +443,4 @@ export function isTopicSubscriptionSuccess(
 ): msg is WebsocketTopicSubscriptionConfirmationEvent {
   if (!isTopicSubscriptionConfirmation(msg)) return false;
   return msg.result === true;
-}
-
-export function isWSAPIWsKey(wsKey: WsKey): wsKey is WSAPIWsKey {
-  switch (wsKey) {
-    case 'mainWSAPITestnet':
-    case 'mainWSAPI':
-    case 'mainWSAPI2':
-    case 'usdmWSAPI':
-    case 'usdmWSAPITestnet':
-    case 'coinmWSAPI':
-    case 'coinmWSAPITestnet': {
-      return true;
-    }
-    case 'main':
-    case 'main2':
-    case 'main3':
-    case 'marginRiskUserData':
-    case 'mainTestnetPublic':
-    case 'mainTestnetUserData':
-    case 'usdm':
-    case 'usdmTestnet':
-    case 'coinm':
-    case 'coinmTestnet':
-    case 'eoptions':
-    case 'coinm2':
-    case 'portfolioMarginUserData':
-    case 'portfolioMarginProUserData': {
-      return false;
-    }
-    default: {
-      throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
-    }
-  }
 }

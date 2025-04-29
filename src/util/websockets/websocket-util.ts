@@ -12,6 +12,20 @@ import { neverGuard } from '../typeGuards';
 
 export const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
+export const EVENT_TYPES_USER_DATA = [
+  'balanceUpdate',
+  'executionReport',
+  'listStatus',
+  'listenKeyExpired',
+  'outboundAccountPosition',
+  'ACCOUNT_CONFIG_UPDATE',
+  'ACCOUNT_UPDATE',
+  'MARGIN_CALL',
+  'ORDER_TRADE_UPDATE',
+  'TRADE_LITE',
+  'CONDITIONAL_ORDER_TRIGGER_REJECT',
+];
+
 export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
   main: 'main', // spot, margin, isolated margin, user data
@@ -63,6 +77,30 @@ export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
   portfolioMarginProUserData: 'portfolioMarginProUserData',
 } as const;
+
+export const WS_KEYS_SPOT = [
+  WS_KEY_MAP.main,
+  WS_KEY_MAP.main2,
+  WS_KEY_MAP.main3,
+  WS_KEY_MAP.mainTestnetPublic,
+  WS_KEY_MAP.mainTestnetUserData,
+  WS_KEY_MAP.mainWSAPI,
+  WS_KEY_MAP.mainWSAPI2,
+  WS_KEY_MAP.mainWSAPITestnet,
+  WS_KEY_MAP.marginRiskUserData,
+] as string[];
+
+export const WS_KEYS_FUTURES = [
+  WS_KEY_MAP.usdm,
+  WS_KEY_MAP.usdmTestnet,
+  WS_KEY_MAP.usdmWSAPI,
+  WS_KEY_MAP.usdmWSAPITestnet,
+  WS_KEY_MAP.coinm,
+  WS_KEY_MAP.coinm2,
+  WS_KEY_MAP.coinmTestnet,
+  WS_KEY_MAP.coinmWSAPI,
+  WS_KEY_MAP.coinmWSAPITestnet,
+] as string[];
 
 export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
 

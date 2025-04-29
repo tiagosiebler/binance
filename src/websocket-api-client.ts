@@ -558,7 +558,7 @@ export class WebsocketAPIClient {
    *
    * Read for more info: https://developers.binance.com/docs/binance-spot-api-docs/faqs/order_amend_keep_priority
    */
-  amendKeepPrioritySpotOrder(
+  amendSpotOrderKeepPriority(
     params: WSAPIOrderAmendKeepPriorityRequest,
     wsKey?: WSAPIWsKeyMain,
   ): Promise<WSAPIResponse<SpotAmendKeepPriorityResult>> {

@@ -35,6 +35,7 @@ import { SignAlgorithm } from './util/webCryptoAPI';
 import { RestClientCache } from './util/websockets/rest-client-cache';
 import { UserDataStreamManager } from './util/websockets/user-data-stream-manager';
 import {
+  EVENT_TYPES_USER_DATA,
   getLegacyWsKeyContext,
   getLegacyWsStoreKeyWithContext,
   getMaxTopicsPerSubscribeEvent,
@@ -781,20 +782,6 @@ export class WebsocketClient extends BaseWebsocketClient<
         'pong',
       ];
 
-      const EVENTS_USER_DATA = [
-        'balanceUpdate',
-        'executionReport',
-        'listStatus',
-        'listenKeyExpired',
-        'outboundAccountPosition',
-        'ACCOUNT_CONFIG_UPDATE',
-        'ACCOUNT_UPDATE',
-        'MARGIN_CALL',
-        'ORDER_TRADE_UPDATE',
-        'TRADE_LITE',
-        'CONDITIONAL_ORDER_TRIGGER_REJECT',
-      ];
-
       // WS API response
       if (isWSAPIResponse) {
         /**
@@ -965,7 +952,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
         // emit an additional event for user data messages
         if (!Array.isArray(beautifiedMessage) && eventType) {
-          if (EVENTS_USER_DATA.includes(eventType)) {
+          if (EVENT_TYPES_USER_DATA.includes(eventType)) {
             results.push({
               eventType: 'formattedUserDataMessage',
               event: beautifiedMessage,
@@ -1013,6 +1000,7 @@ export class WebsocketClient extends BaseWebsocketClient<
           });
           return results;
         }
+
         this.logger.error(
           `!! Unhandled string operation type "${eventType}". Defaulting to "update" channel...`,
           parsed,
