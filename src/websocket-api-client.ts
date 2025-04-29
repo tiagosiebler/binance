@@ -1,4 +1,8 @@
-import { ExchangeInfo, OrderResponse } from './types/spot';
+import {
+  ExchangeInfo,
+  OrderResponse,
+  SpotAmendKeepPriorityResult,
+} from './types/spot';
 import {
   WSAPIResponse,
   WSAPIUserDataListenKeyRequest,
@@ -26,6 +30,7 @@ import {
   WSAPINewSpotOrderRequest,
   WSAPIOpenOrdersCancelAllRequest,
   WSAPIOpenOrdersStatusRequest,
+  WSAPIOrderAmendKeepPriorityRequest,
   WSAPIOrderBookRequest,
   WSAPIOrderCancelReplaceRequest,
   WSAPIOrderCancelRequest,
@@ -253,15 +258,6 @@ export class WebsocketAPIClient {
     );
   }
 
-  getSpotSessionStatus(
-    wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<WSAPISessionStatus>> {
-    return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.mainWSAPI,
-      'session.status',
-    );
-  }
-
   /*
    *
    * SPOT - Market data requests
@@ -460,6 +456,23 @@ export class WebsocketAPIClient {
 
   /*
    *
+   * SPOT - Session authentication requests
+   *
+   * Note: authentication is automatic
+   *
+   */
+
+  getSpotSessionStatus(
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<WSAPISessionStatus>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'session.status',
+    );
+  }
+
+  /*
+   *
    * SPOT - Trading requests
    *
    */
@@ -536,6 +549,22 @@ export class WebsocketAPIClient {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.cancelReplace',
+      params,
+    );
+  }
+
+  /**
+   * Reduce the quantity of an existing open order.
+   *
+   * Read for more info: https://developers.binance.com/docs/binance-spot-api-docs/faqs/order_amend_keep_priority
+   */
+  amendKeepPrioritySpotOrder(
+    params: WSAPIOrderAmendKeepPriorityRequest,
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<SpotAmendKeepPriorityResult>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'order.amend.keepPriority',
       params,
     );
   }

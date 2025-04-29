@@ -5,6 +5,7 @@ import { BinanceBaseUrlKey, OrderIdProperty } from '../types/shared';
 import { WsRequestOperationBinance } from '../types/websockets/ws-api';
 import { USDMClient } from '../usdm-client';
 import { signMessage } from './node-support';
+import { neverGuard } from './typeGuards';
 import { SignAlgorithm, SignEncodeMethod } from './webCryptoAPI';
 import {
   parseEventTypeFromMessage,
@@ -175,9 +176,12 @@ export function requiresWSAPINewClientOID(
     case WS_KEY_MAP.mainWSAPI2:
     case WS_KEY_MAP.mainWSAPITestnet:
     case WS_KEY_MAP.usdmWSAPI:
-    case WS_KEY_MAP.usdmWSAPITestnet: {
+    case WS_KEY_MAP.usdmWSAPITestnet:
+    case WS_KEY_MAP.coinmWSAPI:
+    case WS_KEY_MAP.coinmWSAPITestnet: {
       switch (request.method) {
-        case 'order.place': {
+        case 'order.place':
+        case 'order.amend.keepPriority': {
           return true;
         }
         default: {
@@ -185,9 +189,24 @@ export function requiresWSAPINewClientOID(
         }
       }
     }
+    case WS_KEY_MAP.main:
+    case WS_KEY_MAP.main2:
+    case WS_KEY_MAP.main3:
+    case WS_KEY_MAP.mainTestnetPublic:
+    case WS_KEY_MAP.mainTestnetUserData:
+    case WS_KEY_MAP.marginRiskUserData:
+    case WS_KEY_MAP.usdm:
+    case WS_KEY_MAP.usdmTestnet:
+    case WS_KEY_MAP.coinm:
+    case WS_KEY_MAP.coinm2:
+    case WS_KEY_MAP.coinmTestnet:
+    case WS_KEY_MAP.eoptions:
+    case WS_KEY_MAP.portfolioMarginUserData:
+    case WS_KEY_MAP.portfolioMarginProUserData:
+      return false;
 
     default: {
-      return false;
+      throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
     }
   }
 }

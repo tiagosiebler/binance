@@ -273,6 +273,16 @@ export interface WSAPIOrderCancelReplaceRequest {
   timestamp?: number;
 }
 
+export interface WSAPIOrderAmendKeepPriorityRequest {
+  symbol: string;
+  orderId?: number | string;
+  origClientOrderId?: string;
+  newClientOrderId?: string;
+  newQty?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+
 export interface WSAPIOpenOrdersStatusRequest {
   symbol?: string;
   recvWindow?: number;

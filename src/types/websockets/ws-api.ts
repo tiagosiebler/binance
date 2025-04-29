@@ -20,6 +20,7 @@ import {
   WSAPIMyTradesRequest,
   WSAPIOpenOrdersCancelAllRequest,
   WSAPIOpenOrdersStatusRequest,
+  WSAPIOrderAmendKeepPriorityRequest,
   WSAPIOrderBookRequest,
   WSAPIOrderCancelReplaceRequest,
   WSAPIOrderCancelRequest,
@@ -138,6 +139,7 @@ export const WS_API_Operations = [
   'order.status',
   'order.cancel',
   'order.cancelReplace',
+  'order.amend.keepPriority',
   'order.modify',
   'openOrders.status',
   'openOrders.cancelAll',
@@ -359,8 +361,9 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
     ? WSAPIFuturesOrderCancelRequest
     : WSAPIOrderCancelRequest;
   'order.modify': WSAPIFuturesOrderModifyRequest; // order.modify only futures
-  'order.cancelReplace': WSAPIOrderCancelReplaceRequest;
 
+  'order.cancelReplace': WSAPIOrderCancelReplaceRequest;
+  'order.amend.keepPriority': WSAPIOrderAmendKeepPriorityRequest;
   'openOrders.status': WSAPIOpenOrdersStatusRequest;
   'openOrders.cancelAll': WSAPIOpenOrdersCancelAllRequest;
 

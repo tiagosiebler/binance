@@ -434,7 +434,7 @@ import {
   SpecialLowLatencyKeyInfo,
   SpecialLowLatencyKeyResponse,
   SpotAlgoOrder,
-  SpotAmendKeepPriority,
+  SpotAmendKeepPriorityResult,
   SpotOrder,
   StakingBasicParams,
   StakingHistory,
@@ -853,7 +853,7 @@ export class MainClient extends BaseRestClient {
    */
   amendOrderKeepPriority(
     params: AmendKeepPriorityParams,
-  ): Promise<SpotAmendKeepPriority> {
+  ): Promise<SpotAmendKeepPriorityResult> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.putPrivate('fapi/v1/order/amend/keepPriority', params);
   }
