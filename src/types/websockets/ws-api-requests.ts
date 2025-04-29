@@ -564,7 +564,7 @@ export interface WSAPIFuturesPositionV2Request {
   timestamp: number;
 }
 
-export interface WSAPIAccountStatusRequest {
+export interface WSAPIAccountInformationRequest {
   omitZeroBalances?: boolean;
   recvWindow?: number;
   timestamp: number;

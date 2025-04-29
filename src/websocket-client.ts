@@ -271,6 +271,9 @@ export class WebsocketClient extends BaseWebsocketClient<
    * Authentication is automatic. If you didn't request authentication yourself, there might
    * be a small delay after your first request, while the SDK automatically authenticates.
    *
+   * Misc options:
+   * - signRequest: boolean - if included, this request will automatically be signed with the available credentials.
+   *
    * @param wsKey - The connection this event is for. Currently only "v5PrivateTrade" is supported
    * for Bybit, since that is the dedicated WS API connection.
    * @param operation - The command being sent, e.g. "order.create" to submit a new order.
@@ -302,7 +305,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   >(
     wsKey: WsKey,
     operation: TWSOperation,
-    params: TWSParams,
+    params: TWSParams & { signRequest?: boolean },
   ): Promise<TWSAPIResponse> {
     /**
      * Spot: https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
@@ -314,11 +317,14 @@ export class WebsocketClient extends BaseWebsocketClient<
     const resolvedWsKey = this.options.testnet ? getTestnetWsKey(wsKey) : wsKey;
 
     // this.logger.trace(`sendWSAPIRequest(): assertIsConnected("${wsKey}")...`);
+    const timestampBeforeAuth = Date.now();
     await this.assertIsConnected(resolvedWsKey);
     // this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
 
     // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
     await this.assertIsAuthenticated(resolvedWsKey);
+    const timestampAfterAuth = Date.now();
+
     // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
 
     const request: WsRequestOperationBinance<string> = {
@@ -328,6 +334,23 @@ export class WebsocketClient extends BaseWebsocketClient<
         ...params,
       },
     };
+
+    /**
+     * Some WS API requests require a timestamp to be included. assertIsConnected and assertIsAuthenticated
+     * can introduce a small delay before the actual request is sent, if not connected before that request is
+     * made. This can lead to a curious race condition, where the request timestamp is before
+     * the "authorizedSince" timestamp - as such, binance does not recognise the session as already authenticated.
+     *
+     * The below mechanism measures any delay introduced from the assert calls, and if the request includes a timestamp,
+     * it offsets that timestamp by the delay.
+     */
+    const delayFromAuthAssert = timestampAfterAuth - timestampBeforeAuth;
+    if (delayFromAuthAssert && request.params?.timestamp) {
+      request.params.timestamp += delayFromAuthAssert;
+      this.logger.trace(
+        `sendWSAPIRequest(): adjust timestamp - delay seen by connect/auth assert and delayed request includes timestamp, adjusting timestamp by ${delayFromAuthAssert}ms`,
+      );
+    }
 
     if (requiresWSAPINewClientOID(request, resolvedWsKey)) {
       validateWSAPINewClientOID(request, resolvedWsKey);
@@ -349,14 +372,15 @@ export class WebsocketClient extends BaseWebsocketClient<
     deferredPromise.promise?.catch((e) => {
       if (typeof e === 'string') {
         this.logger.error('unexpcted string', { e });
-        throw e;
+        return e;
       }
       e.request = {
         wsKey: resolvedWsKey,
         operation,
         params,
       };
-      throw e;
+      // throw e;
+      return e;
     });
 
     // this.logger.trace(
@@ -413,8 +437,55 @@ export class WebsocketClient extends BaseWebsocketClient<
   private async signWSAPIRequest<TRequestParams extends string = string>(
     requestEvent: WsRequestOperationBinance<TRequestParams>,
   ): Promise<WsRequestOperationBinance<TRequestParams>> {
-    // Not needed for Binance. Auth happens only on connection open, automatically.
+    if (!requestEvent.params) {
+      return requestEvent;
+    }
+
+    /**
+     *
+     */
+    // Not needed for most commands on binance Binance. Auth happens only on connection open, automatically.
     // Faster than performing auth for every request
+    // However, some commands don't work without this for some reason...
+    const { signRequest, ...otherParams } = requestEvent.params;
+    if (signRequest) {
+      const strictParamValidation = true;
+      const encodeValues = true;
+      const filterUndefinedParams = true;
+
+      const semiFinalRequestParams = {
+        apiKey: this.options.api_key,
+        ...otherParams,
+      };
+
+      const serialisedParams = serialiseParams(
+        semiFinalRequestParams,
+        strictParamValidation,
+        encodeValues,
+        filterUndefinedParams,
+      );
+
+      const signature = await this.signMessage(
+        serialisedParams,
+        this.options.api_secret!,
+        'base64',
+        'SHA-256',
+      );
+
+      console.log('signWSAPIRequest()', {
+        semiFinalRequestParams,
+        serialisedParams,
+      });
+
+      return {
+        ...requestEvent,
+        params: {
+          ...semiFinalRequestParams,
+          signature,
+        },
+      };
+    }
+
     return requestEvent;
   }
 
@@ -435,19 +506,19 @@ export class WebsocketClient extends BaseWebsocketClient<
 
       // Note: You still have to specify the timestamp parameter for SIGNED requests.
 
-      const recvWindow = this.options.recvWindow || 0;
-      const timestamp = Date.now() + (this.getTimeOffsetMs() || 0) + recvWindow;
+      // const recvWindow = this.options.recvWindow || 0;
+      const timestamp = Date.now() + (this.getTimeOffsetMs() || 0); // + recvWindow;
 
       const strictParamValidation = true;
       const encodeValues = true;
       const filterUndefinedParams = true;
 
-      const authParams = {
+      const params = {
         apiKey: this.options.api_key,
         timestamp,
       };
       const serialisedParams = serialiseParams(
-        authParams,
+        params,
         strictParamValidation,
         encodeValues,
         filterUndefinedParams,
@@ -464,7 +535,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         id: this.getNewRequestId(),
         method: 'session.logon',
         params: {
-          ...authParams,
+          ...params,
           signature,
         },
       };
@@ -672,6 +743,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     wsKey: WsKey,
     event: MessageEventLike,
   ): EmittableEvent[] {
+    this.logger.trace(`resolveEmittableEvents(${wsKey}): `, event);
     const results: EmittableEvent[] = [];
 
     try {
@@ -707,6 +779,20 @@ export class WebsocketClient extends BaseWebsocketClient<
         'COMMAND_RESP',
         'ping',
         'pong',
+      ];
+
+      const EVENTS_USER_DATA = [
+        'balanceUpdate',
+        'executionReport',
+        'listStatus',
+        'listenKeyExpired',
+        'outboundAccountPosition',
+        'ACCOUNT_CONFIG_UPDATE',
+        'ACCOUNT_UPDATE',
+        'MARGIN_CALL',
+        'ORDER_TRADE_UPDATE',
+        'TRADE_LITE',
+        'CONDITIONAL_ORDER_TRIGGER_REJECT',
       ];
 
       // WS API response
@@ -879,21 +965,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
         // emit an additional event for user data messages
         if (!Array.isArray(beautifiedMessage) && eventType) {
-          if (
-            [
-              'balanceUpdate',
-              'executionReport',
-              'listStatus',
-              'listenKeyExpired',
-              'outboundAccountPosition',
-              'ACCOUNT_CONFIG_UPDATE',
-              'ACCOUNT_UPDATE',
-              'MARGIN_CALL',
-              'ORDER_TRADE_UPDATE',
-              'TRADE_LITE',
-              'CONDITIONAL_ORDER_TRIGGER_REJECT',
-            ].includes(eventType)
-          ) {
+          if (EVENTS_USER_DATA.includes(eventType)) {
             results.push({
               eventType: 'formattedUserDataMessage',
               event: beautifiedMessage,

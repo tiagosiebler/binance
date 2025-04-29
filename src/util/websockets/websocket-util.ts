@@ -584,15 +584,25 @@ export function parseRawWsMessage(event: any) {
   if (typeof event === 'string') {
     const parsedEvent = JSON.parse(event);
 
+    // WS events are wrapped into "data"
     if (parsedEvent.data) {
       if (typeof parsedEvent.data === 'string') {
         return parseRawWsMessage(parsedEvent.data);
       }
+
       return parsedEvent.data;
     }
+
+    // WS API wraps responses in "event"
+    if (parsedEvent.event) {
+      const { event, ...other } = parsedEvent;
+      return { ...other, ...event };
+    }
+
+    return parsedEvent;
   }
   if (event?.data) {
-    return JSON.parse(event.data);
+    return parseRawWsMessage(event.data);
   }
   return event;
 }

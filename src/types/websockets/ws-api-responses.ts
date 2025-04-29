@@ -160,7 +160,7 @@ export interface WSAPIFuturesBookTicker {
 /**
  * Account response types
  */
-export interface WSAPIAccountStatus {
+export interface WSAPIAccountInformation {
   makerCommission: number;
   takerCommission: number;
   buyerCommission: number;

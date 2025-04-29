@@ -3,7 +3,7 @@ import { FuturesExchangeInfo, NewFuturesOrderParams } from '../futures';
 import { ExchangeInfo, NewSpotOrderParams, OrderResponse } from '../spot';
 import {
   WSAPIAccountCommissionWSAPIRequest,
-  WSAPIAccountStatusRequest,
+  WSAPIAccountInformationRequest,
   WSAPIAllOrderListsRequest,
   WSAPIAllOrdersRequest,
   WSAPIAvgPriceRequest,
@@ -46,7 +46,7 @@ import {
 } from './ws-api-requests';
 import {
   WSAPIAccountCommission,
-  WSAPIAccountStatus,
+  WSAPIAccountInformation,
   WSAPIAggregateTrade,
   WSAPIAllocation,
   WSAPIAvgPrice,
@@ -305,9 +305,11 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
 
-  'account.status': void | TWSKey extends WsAPIFuturesWsKey
-    ? WSAPIRecvWindowTimestamp
-    : WSAPIAccountStatusRequest;
+  'account.status':
+    | void
+    | (TWSKey extends WsAPIFuturesWsKey
+        ? WSAPIRecvWindowTimestamp
+        : WSAPIAccountInformationRequest);
 
   'account.rateLimits.orders': void | WSAPIRecvWindowTimestamp;
 
@@ -472,7 +474,7 @@ export interface WsAPIOperationResponseMap {
    */
 
   'account.status': WSAPIResponse<
-    WSAPIAccountStatus | WSAPIFuturesAccountStatus
+    WSAPIAccountInformation | WSAPIFuturesAccountStatus
   >;
   'account.commission': WSAPIResponse<WSAPIAccountCommission>;
   'account.rateLimits.orders': WSAPIResponse<WSAPIRateLimit[]>;

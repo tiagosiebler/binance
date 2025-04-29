@@ -5,7 +5,7 @@ import {
 } from './types/websockets/ws-api';
 import {
   WSAPIAccountCommissionWSAPIRequest,
-  WSAPIAccountStatusRequest,
+  WSAPIAccountInformationRequest,
   WSAPIAllOrderListsRequest,
   WSAPIAllOrdersRequest,
   WSAPIAvgPriceRequest,
@@ -51,7 +51,7 @@ import {
 } from './types/websockets/ws-api-requests';
 import {
   WSAPIAccountCommission,
-  WSAPIAccountStatus,
+  WSAPIAccountInformation,
   WSAPIAggregateTrade,
   WSAPIAllocation,
   WSAPIAvgPrice,
@@ -718,13 +718,13 @@ export class WebsocketAPIClient {
    */
 
   /**
-   * Query information about your account
+   * Query information about your account, including balances
    * Note: Weight: 20
    */
-  getSpotAccountStatus(
-    params: WSAPIAccountStatusRequest,
+  getSpotAccountInformation(
+    params: WSAPIAccountInformationRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<WSAPIAccountStatus>> {
+  ): Promise<WSAPIResponse<WSAPIAccountInformation>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'account.status',

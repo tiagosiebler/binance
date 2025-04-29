@@ -84,7 +84,7 @@ async function main() {
   // Optional, if you see RECV Window errors, you can use this to manage time issues.
   // ! However, make sure you sync your system clock first!
   // https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow
-  wsClient.setTimeOffsetMs(-5000);
+  // wsClient.setTimeOffsetMs(-5000);
 
   // Note: unless you set resubscribeUserDataStreamAfterReconnect to false, the SDK will
   // automatically call this method again if reconnected,
