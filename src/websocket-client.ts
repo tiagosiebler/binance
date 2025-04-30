@@ -87,7 +87,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   private restClientCache: RestClientCache = new RestClientCache();
 
   private beautifier: Beautifier = new Beautifier({
-    warnKeyMissingInMap: false,
+    warnKeyMissingInMap: true,
   });
 
   private userDataStreamManager: UserDataStreamManager;
@@ -363,26 +363,34 @@ export class WebsocketClient extends BaseWebsocketClient<
     // Store deferred promise, resolved within the "resolveEmittableEvents" method while parsing incoming events
     const promiseRef = getPromiseRefForWSAPIRequest(resolvedWsKey, signedEvent);
 
-    const deferredPromise =
-      this.getWsStore().createDeferredPromise<TWSAPIResponse>(
-        resolvedWsKey,
-        promiseRef,
-        false,
-      );
+    const deferredPromise = this.getWsStore().createDeferredPromise<
+      TWSAPIResponse & { request: any }
+    >(resolvedWsKey, promiseRef, false);
 
-    deferredPromise.promise?.catch((e) => {
-      if (typeof e === 'string') {
-        this.logger.error('unexpcted string', { e });
+    deferredPromise.promise
+      ?.then((res) => {
+        if (!Array.isArray(res)) {
+          res.request = {
+            wsKey: resolvedWsKey,
+            ...signedEvent,
+          };
+        }
+
+        return res;
+      })
+      .catch((e) => {
+        if (typeof e === 'string') {
+          this.logger.error('unexpcted string', { e });
+          return e;
+        }
+        e.request = {
+          wsKey: resolvedWsKey,
+          operation,
+          params: signedEvent.params,
+        };
+        // throw e;
         return e;
-      }
-      e.request = {
-        wsKey: resolvedWsKey,
-        operation,
-        params,
-      };
-      // throw e;
-      return e;
-    });
+      });
 
     // this.logger.trace(
     //   `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,

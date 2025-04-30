@@ -194,6 +194,8 @@ export interface WSAPIResponse<TResponseData extends object = object> {
 
   wsKey: WsKey;
   isWSAPIResponse: boolean;
+
+  request?: any;
 }
 
 export type Exact<T> = {
