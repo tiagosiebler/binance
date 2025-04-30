@@ -1042,8 +1042,12 @@ export interface QueryCrossMarginAccountDetailsParams {
   totalAssetOfBtc: numberInString;
   totalLiabilityOfBtc: numberInString;
   totalNetAssetOfBtc: numberInString;
+  totalCollateralValueInUSDT: numberInString;
+  totalOpenOrderLossInUSDT: numberInString;
   tradeEnabled: boolean;
-  transferEnabled: boolean;
+  transferInEnabled: boolean;
+  transferOutEnabled: boolean;
+  accountType: string;
   userAssets: MarginBalance[];
 }
 
@@ -5362,7 +5366,7 @@ export interface SubmitMarginOTOOrderParams {
   isIsolated?: 'TRUE' | 'FALSE';
   listClientOrderId?: string;
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  sideEffectType?: 'NO_SIDE_EFFECT' | 'MARGIN_BUY';
+  sideEffectType?: SideEffects;
   selfTradePreventionMode?:
     | 'EXPIRE_TAKER'
     | 'EXPIRE_MAKER'
@@ -5422,7 +5426,7 @@ export interface MarginOTOOrder {
 export interface SubmitMarginOTOCOOrderParams {
   symbol: string;
   isIsolated?: 'TRUE' | 'FALSE';
-  sideEffectType?: 'NO_SIDE_EFFECT' | 'MARGIN_BUY';
+  sideEffectType?: SideEffects;
   autoRepayAtCancel?: boolean;
   listClientOrderId?: string;
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
