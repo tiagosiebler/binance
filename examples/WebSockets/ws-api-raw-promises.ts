@@ -99,7 +99,7 @@ async function main() {
 
   // Optional, if you see RECV Window errors, you can use this to manage time issues. However, make sure you sync your system clock first!
   // https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow
-  wsClient.setTimeOffsetMs(-5000);
+  // wsClient.setTimeOffsetMs(-5000);
 
   // Optional, see above. Can be used to prepare a connection before sending commands. This is not required and will happen automatically
   await wsClient.connectWSAPI(WS_API_WS_KEY);
