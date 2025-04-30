@@ -1037,6 +1037,7 @@ export interface MarginAccountRecord {
 }
 
 export interface QueryCrossMarginAccountDetailsParams {
+  created: boolean;
   borrowEnabled: boolean;
   marginLevel: numberInString;
   totalAssetOfBtc: numberInString;
