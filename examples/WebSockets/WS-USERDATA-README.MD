@@ -1,6 +1,6 @@
 # User Data Streams - Binance
 
-The user data streams are the WebSocket method for asynchronously receiving events when any changes happen on your account. Including but not limited to:
+The user data streams are Binance's WebSocket workflow for asynchronously receiving events when any changes happen on your account. Including but not limited to:
 - order events (filled/cancelled/updated/etc)
 - position events
 - balance events (deposit/withdraw/etc)
