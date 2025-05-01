@@ -87,7 +87,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   private restClientCache: RestClientCache = new RestClientCache();
 
   private beautifier: Beautifier = new Beautifier({
-    warnKeyMissingInMap: true,
+    warnKeyMissingInMap: false,
   });
 
   private userDataStreamManager: UserDataStreamManager;

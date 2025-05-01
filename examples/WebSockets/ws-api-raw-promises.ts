@@ -94,8 +94,8 @@ async function main() {
    * - coinmWSAPITestnet: coinm futures testnet
    */
 
-  // const WS_API_WS_KEY: WSAPIWsKey = WS_KEY_MAP.mainWSAPI;
-  const WS_API_WS_KEY: WSAPIWsKey = WS_KEY_MAP.mainWSAPITestnet;
+  // Note: if you set "testnet: true" in the config, this will automatically resolve to WS_KEY_MAP.mainWSAPITestnet (you can keep using mainWSAPI).
+  const WS_API_WS_KEY: WSAPIWsKey = WS_KEY_MAP.mainWSAPI;
 
   // Optional, if you see RECV Window errors, you can use this to manage time issues. However, make sure you sync your system clock first!
   // https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow
