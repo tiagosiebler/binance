@@ -152,12 +152,40 @@ function getWSAPINewOrderIdProperties(
     case WS_KEY_MAP.mainWSAPI2:
     case WS_KEY_MAP.mainWSAPITestnet:
     case WS_KEY_MAP.usdmWSAPI:
-    case WS_KEY_MAP.usdmWSAPITestnet: {
-      if (operation === 'order.place' || operation === 'sor.order.place') {
+    case WS_KEY_MAP.usdmWSAPITestnet:
+    case WS_KEY_MAP.coinmWSAPI:
+    case WS_KEY_MAP.coinmWSAPITestnet: {
+      if (
+        ['order.place', 'order.amend.keepPriority', 'sor.order.place'].includes(
+          operation,
+        )
+      ) {
         return ['newClientOrderId'];
       }
       if (operation === 'orderList.place') {
         return ['listClientOrderId', 'limitClientOrderId', 'stopClientOrderId'];
+      }
+      if (operation === 'orderList.place.oco') {
+        return [
+          'listClientOrderId',
+          'aboveClientOrderId',
+          'belowClientOrderId',
+        ];
+      }
+      if (operation === 'orderList.place.oto') {
+        return [
+          'listClientOrderId',
+          'workingClientOrderId',
+          'pendingClientOrderId',
+        ];
+      }
+      if (operation === 'orderList.place.otoco') {
+        return [
+          'listClientOrderId',
+          'workingClientOrderId',
+          'pendingAboveClientOrderId',
+          'pendingBelowClientOrderId',
+        ];
       }
       return [];
     }
@@ -179,15 +207,15 @@ export function requiresWSAPINewClientOID(
     case WS_KEY_MAP.usdmWSAPITestnet:
     case WS_KEY_MAP.coinmWSAPI:
     case WS_KEY_MAP.coinmWSAPITestnet: {
-      switch (request.method) {
-        case 'order.place':
-        case 'order.amend.keepPriority': {
-          return true;
-        }
-        default: {
-          return false;
-        }
-      }
+      return [
+        'order.place',
+        'order.amend.keepPriority',
+        'sor.order.place',
+        'orderList.place',
+        'orderList.place.oco',
+        'orderList.place.oto',
+        'orderList.place.otoco',
+      ].includes(request.method);
     }
     case WS_KEY_MAP.main:
     case WS_KEY_MAP.main2:
