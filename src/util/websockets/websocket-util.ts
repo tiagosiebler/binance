@@ -303,26 +303,6 @@ export function isPrivateWsTopic(topic: string): boolean {
   return PRIVATE_TOPICS.includes(topic);
 }
 
-export function getWsKeyForTopic(
-  wsKey: string,
-  // topic: string,
-  // isPrivate?: boolean,
-): WsKey {
-  // const isPrivateTopic = isPrivate === true || PRIVATE_TOPICS.includes(topic);
-  switch (wsKey) {
-    // case 'v5': {
-    //   if (isPrivateTopic) {
-    //     return WS_KEY_MAP.main;
-    //   }
-    //   return WS_KEY_MAP.main;
-    // }
-    default: {
-      return WS_KEY_MAP.main;
-      // throw neverGuard(wsKey, 'getWsKeyForTopic(): Unhandled market');
-    }
-  }
-}
-
 export function getTestnetWsKey(wsKey: WsKey): WsKey {
   switch (wsKey) {
     case WS_KEY_MAP.mainTestnetPublic:
@@ -399,7 +379,7 @@ export function getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
     // }
     default: {
       return null;
-      // throw neverGuard(market, 'getWsKeyForTopic(): Unhandled market');
+      // throw neverGuard(wsKey, 'getMaxTopicsPerSubscribeEvent(): Unhandled wsKey');
     }
   }
 }
@@ -492,8 +472,6 @@ export function getTopicsPerWSKey(
 
   // Sort into per wsKey arrays, in case topics are mixed together for different wsKeys
   for (const topicRequest of normalisedTopicRequests) {
-    // const derivedWsKey =
-    //   wsKey || getWsKeyForTopic(market, topicRequest.topic, isPrivateTopic);
     const derivedWsKey = wsKey;
 
     if (
