@@ -112,7 +112,7 @@ export class WebsocketClient extends BaseWebsocketClient<
      * be found here: https://stackoverflow.com/questions/10585355/sending-websocket-ping-pong-frame-from-browser
      */
     if (!isWSPingFrameAvailable()) {
-      this.logger.trace(
+      this.logger.info(
         'Disabled WS heartbeats. WS.ping() is not available in your environment.',
       );
       this.options.disableHeartbeat = true;
@@ -131,9 +131,12 @@ export class WebsocketClient extends BaseWebsocketClient<
           isTestnet?: boolean;
           respawnAttempt?: number;
         } = {},
-      ) => this.respawnUserDataStream(wsKey, market, context),
-      getWsUrlFn: (wsKey: WsKey, connectionType: 'market' | 'userData') =>
-        this.getWsUrl(wsKey, connectionType),
+      ) => {
+        return this.respawnUserDataStream(wsKey, market, context);
+      },
+      getWsUrlFn: (wsKey: WsKey, connectionType: 'market' | 'userData') => {
+        return this.getWsUrl(wsKey, connectionType);
+      },
       getRestClientOptionsFn: () => this.getRestClientOptions(),
       getWsClientOptionsfn: () => this.options,
       closeWsFn: (wsKey: WsKey, force?: boolean) => this.close(wsKey, force),
