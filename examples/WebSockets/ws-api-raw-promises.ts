@@ -75,7 +75,7 @@ async function main() {
    * it will automatically be replaced with a healthy connection.
    *
    * This "not connected yet" scenario can add an initial delay to your first command. If you want to prepare a connection
-   * in advance, you can ask the WebsocketClient to prepare it before you start submitting commands. This is optional.
+   * in advance, you can ask the WebsocketClient to prepare it before you start submitting commands (using the connectWSAPI() method shown below). This is optional.
    *
    */
 
@@ -102,7 +102,7 @@ async function main() {
   // wsClient.setTimeOffsetMs(-5000);
 
   // Optional, see above. Can be used to prepare a connection before sending commands. This is not required and will happen automatically
-  await wsClient.connectWSAPI(WS_API_WS_KEY);
+  // await wsClient.connectWSAPI(WS_API_WS_KEY);
 
   try {
     const wsAPIResponse = await wsClient.sendWSAPIRequest(
