@@ -12,7 +12,7 @@ Found something difficult to implement? Contribute to these examples and help ot
 
 Samples that refer to API credentials using `process.env.API_KEY_COM` can be spawned with environment variables. Unix/macOS example:
 ```
-APIKEY="apikeypastedhere" APISECRET="apisecretpastedhere" tsx examples/WebSockets/ws-userdata-listenkey.ts
+APIKEY='apikeypastedhere' APISECRET='apisecretpastedhere' tsx examples/WebSockets/ws-userdata-listenkey.ts
 ```
 
 Or edit the example directly to hardcode your API keys.

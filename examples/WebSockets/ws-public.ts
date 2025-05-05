@@ -56,53 +56,58 @@ import {
 
   // Formatted data that has gone through the beautifier
   wsClient.on('formattedMessage', (data) => {
-    if (isWsAggTradeFormatted(data)) {
-      console.log('log agg trade: ', data);
-      return;
-    }
+    console.log('log formattedMessage: ', data);
 
-    // For one symbol
-    if (isWsFormattedMarkPriceUpdateEvent(data)) {
-      console.log('log mark price: ', data);
-      return;
-    }
+    /**
+     * Optional: we've included type-guards for many formatted websocket topics.
+     *
+     * These can be used within `if` blocks to narrow down specific event types (even for non-typescript users).
+     */
+    // if (isWsAggTradeFormatted(data)) {
+    //   console.log('log agg trade: ', data);
+    //   return;
+    // }
 
-    // for many symbols
-    if (isWsFormattedMarkPriceUpdateArray(data)) {
-      console.log('log mark prices: ', data);
-      return;
-    }
+    // // For one symbol
+    // if (isWsFormattedMarkPriceUpdateEvent(data)) {
+    //   console.log('log mark price: ', data);
+    //   return;
+    // }
 
-    if (isWsFormattedKline(data)) {
-      console.log('log kline: ', data);
-      return;
-    }
+    // // for many symbols
+    // if (isWsFormattedMarkPriceUpdateArray(data)) {
+    //   console.log('log mark prices: ', data);
+    //   return;
+    // }
 
-    if (isWsFormattedTrade(data)) {
-      return console.log('log trade: ', data);
-    }
+    // if (isWsFormattedKline(data)) {
+    //   console.log('log kline: ', data);
+    //   return;
+    // }
 
-    if (isWsFormattedForceOrder(data)) {
-      return console.log('log force order: ', data);
-    }
+    // if (isWsFormattedTrade(data)) {
+    //   return console.log('log trade: ', data);
+    // }
 
-    if (isWsFormatted24hrTickerArray(data)) {
-      return console.log('log 24hr ticker array: ', data);
-    }
+    // if (isWsFormattedForceOrder(data)) {
+    //   return console.log('log force order: ', data);
+    // }
 
-    if (isWsFormattedRollingWindowTickerArray(data)) {
-      return console.log('log rolling window ticker array: ', data);
-    }
+    // if (isWsFormatted24hrTickerArray(data)) {
+    //   return console.log('log 24hr ticker array: ', data);
+    // }
 
-    if (isWsFormatted24hrTicker(data)) {
-      return console.log('log 24hr ticker: ', data);
-    }
+    // if (isWsFormattedRollingWindowTickerArray(data)) {
+    //   return console.log('log rolling window ticker array: ', data);
+    // }
 
-    if (isWsPartialBookDepthEventFormatted(data)) {
-      return console.log('log partial book depth event: ', data);
-    }
+    // if (isWsFormatted24hrTicker(data)) {
+    //   return console.log('log 24hr ticker: ', data);
+    // }
 
-    console.log('log unhandled formattedMessage: ', data);
+    // if (isWsPartialBookDepthEventFormatted(data)) {
+    //   return console.log('log partial book depth event: ', data);
+    // }
   });
 
   wsClient.on('formattedUserDataMessage', (data) => {
