@@ -51,6 +51,7 @@ import {
   MiscUserDataConnectionState,
   parseEventTypeFromMessage,
   parseRawWsMessage,
+  resolveUserDataMarketForWsKey,
   resolveWsKeyForLegacyMarket,
   WS_AUTH_ON_CONNECT_KEYS,
   WS_KEY_MAP,
@@ -769,6 +770,8 @@ export class WebsocketClient extends BaseWebsocketClient<
       const legacyContext = getLegacyWsKeyContext(wsKey);
       if (legacyContext) {
         parsed.wsMarket = legacyContext.market;
+      } else {
+        parsed.wsMarket = resolveUserDataMarketForWsKey(wsKey);
       }
 
       const traceEmittable = false;
