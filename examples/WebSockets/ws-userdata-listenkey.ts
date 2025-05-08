@@ -27,8 +27,8 @@ import {
 
   const ignoredTraceLogMsgs = [
     'Sending ping',
-    'Received pong, clearing pong timer',
-    'Received ping, sending pong frame',
+    'Received ping frame, sending pong frame',
+    'Received pong frame, clearing pong timer',
   ];
 
   // Optional, hook and customise logging behavior

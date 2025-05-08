@@ -487,15 +487,21 @@ export function getTopicsPerWSKey(
   return perWsKeyTopics;
 }
 
+/**
+ * Some of the newer multiplex websocket topics don't include an eventType ("e") property.
+ *
+ * This attempts to extract that from the streamName, which is included with these incoming events.
+ */
 export function parseEventTypeFromMessage(
   wsKey: WsKey,
   parsedMsg?: any,
 ): string | undefined {
+  // console.log(`parseEventTypeFromMessage(${wsKey})`, parsedMsg);
   if (parsedMsg?.e) {
     return parsedMsg.e;
   }
-  if (parsedMsg?.stream && typeof parsedMsg?.stream === 'string') {
-    const streamName = parsedMsg.stream;
+  const streamName = parsedMsg?.stream || parsedMsg?.streamName;
+  if (streamName && typeof streamName === 'string') {
     // console.log(`parseEventTypeFromMessage(${wsKey}) `, streamName, parsedMsg);
 
     const eventType = streamName.split('@');
@@ -592,18 +598,14 @@ export function resolveWsKeyForLegacyMarket(
     }
   }
 }
-
-/**
- * Try to resolve event.data. Example circumstance: {"stream":"!forceOrder@arr","data":{"e":"forceOrder","E":1634653599186,"o":{"s":"IOTXUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"3661","p":"0.06606","ap":"0.06669","X":"FILLED","l":"962","z":"3661","T":1634653599180}}}
- */
-export function parseRawWsMessage(event: any) {
+export function parseRawWsMessageLegacy(event: any) {
   if (typeof event === 'string') {
     const parsedEvent = JSON.parse(event);
 
     // WS events are wrapped into "data"
     if (parsedEvent.data) {
       if (typeof parsedEvent.data === 'string') {
-        return parseRawWsMessage(parsedEvent.data);
+        return parseRawWsMessageLegacy(parsedEvent.data);
       }
 
       return parsedEvent.data;
@@ -618,8 +620,51 @@ export function parseRawWsMessage(event: any) {
     return parsedEvent;
   }
   if (event?.data) {
+    return parseRawWsMessageLegacy(event.data);
+  }
+  return event;
+}
+
+/**
+ * Try to resolve event.data.
+ *
+ * Example circumstance: {"stream":"!forceOrder@arr","data":{"e":"forceOrder","E":1634653599186,"o":{"s":"IOTXUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"3661","p":"0.06606","ap":"0.06669","X":"FILLED","l":"962","z":"3661","T":1634653599180}}}
+ */
+
+export type ParsedWsMessage = {
+  type: 'multiplexStreamEvent';
+  streamName: string;
+  // id: number | undefined;
+  data: any;
+  wsMarket: string | undefined;
+  // I Think these are all one level down, for multiplex
+  id: string | undefined; //todo:
+  error: { code: number } | undefined; // todo:
+  result?: any; // TODO:
+  success: boolean;
+};
+
+/**
+ * One simple purpose - extract JSON event from raw WS Message.
+ *
+ * Any mapping or additonal handling should not be done here.
+ */
+export function parseRawWsMessage(event: any): any {
+  // WS MessageLike->data (contains JSON as a string)
+  if (event?.data) {
     return parseRawWsMessage(event.data);
   }
+
+  if (typeof event === 'string') {
+    // For multiplex subscriptions
+    // user data || OK
+    // user data ws api || OK
+    // todo: ws api || TODO:
+    const parsedEvent = JSON.parse(event);
+
+    return parsedEvent;
+  }
+
   return event;
 }
 

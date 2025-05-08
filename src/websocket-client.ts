@@ -756,36 +756,79 @@ export class WebsocketClient extends BaseWebsocketClient<
     wsKey: WsKey,
     event: MessageEventLike,
   ): EmittableEvent[] {
-    this.logger.trace(`resolveEmittableEvents(${wsKey}): `, event);
+    this.logger.trace(`resolveEmittableEvents(${wsKey}): `, event?.data);
     const results: EmittableEvent[] = [];
 
     try {
-      // const parsed = JSON.parse(event.data);
-      const parsed = parseRawWsMessage(event);
-      const eventType = parseEventTypeFromMessage(wsKey, parsed);
+      const parsedEvent = parseRawWsMessage(event);
+
+      // ws consumers: { data: ... }
+      // ws api consumers (user data): { event: ... }
+      // other responses: { ... }
+      const eventData = parsedEvent?.data || parsedEvent?.event || parsedEvent;
+      const parsedEventId = parsedEvent?.id;
+      const parsedEventErrorCode = parsedEvent?.error?.code;
+      const streamName = parsedEvent?.stream;
+
+      let eventType = parseEventTypeFromMessage(wsKey, eventData);
+      if (!eventType) {
+        eventType = parseEventTypeFromMessage(wsKey, parsedEvent);
+      }
 
       // Some events don't include the topic (event name)
       // This tries to extract and append it, using available context
-      appendEventIfMissing(parsed, wsKey);
+      appendEventIfMissing(eventData, wsKey, eventType);
+
       const legacyContext = getLegacyWsKeyContext(wsKey);
-      if (legacyContext) {
-        parsed.wsMarket = legacyContext.market;
+      const wsMarket = legacyContext
+        ? legacyContext.market
+        : resolveUserDataMarketForWsKey(wsKey);
+
+      if (Array.isArray(eventData)) {
+        for (const row of eventData) {
+          row.wsMarket = wsMarket;
+          if (streamName && !row.streamName) {
+            row.streamName = streamName;
+          }
+        }
       } else {
-        parsed.wsMarket = resolveUserDataMarketForWsKey(wsKey);
+        eventData.wsMarket = wsMarket;
+        if (streamName && !eventData.streamName) {
+          eventData.streamName = streamName;
+        }
       }
 
+      // TODO: delete me
+      console.log('raw ready to parse: ', {
+        parsedEvent,
+        parsedEventData: eventData,
+        eventType,
+        properties: {
+          parsedEventId,
+          parsedEventErrorCode,
+        },
+      });
+
+      /**
+       * Main parsing logic below:
+       *
+       */
       const traceEmittable = false;
       if (traceEmittable) {
         this.logger.trace('resolveEmittableEvents', {
           ...WS_LOGGER_CATEGORY,
           wsKey,
+          parsedEvent: JSON.stringify(parsedEvent),
+          parsedEventData: JSON.stringify(eventData),
           eventType,
-          parsed: JSON.stringify(parsed),
+          properties: {
+            parsedEventId,
+            parsedEventErrorCode,
+          },
           // parsed: JSON.stringify(parsed, null, 2),
         });
       }
-      const reqId = parsed.id;
-      const isWSAPIResponse = typeof parsed.id === 'number';
+      const isWSAPIResponse = typeof parsedEventId === 'number';
 
       const EVENTS_AUTHENTICATED = ['auth'];
       const EVENTS_RESPONSES = [
@@ -834,18 +877,19 @@ export class WebsocketClient extends BaseWebsocketClient<
          */
 
         const isError =
-          typeof parsed.error?.code === 'number' && parsed.error?.code !== 0;
+          typeof parsedEventErrorCode === 'number' &&
+          parsedEventErrorCode !== 0;
 
         // This is the counterpart to getPromiseRefForWSAPIRequest
-        const promiseRef = [wsKey, reqId].join('_');
+        const promiseRef = [wsKey, parsedEventId].join('_');
 
-        if (!reqId) {
+        if (!parsedEventId) {
           this.logger.error(
             'WS API response is missing reqId - promisified workflow could get stuck. If this happens, please get in touch with steps to reproduce. Trace:',
             {
               wsKey,
               promiseRef,
-              parsedEvent: parsed,
+              parsedEvent: eventData,
             },
           );
         }
@@ -858,7 +902,7 @@ export class WebsocketClient extends BaseWebsocketClient<
               promiseRef,
               {
                 wsKey,
-                ...parsed,
+                ...eventData,
               },
               true,
             );
@@ -866,26 +910,26 @@ export class WebsocketClient extends BaseWebsocketClient<
             this.logger.error('Exception trying to reject WSAPI promise', {
               wsKey,
               promiseRef,
-              parsedEvent: parsed,
+              parsedEvent: eventData,
               e,
             });
           }
 
           results.push({
             eventType: 'exception',
-            event: parsed,
+            event: eventData,
             isWSAPIResponse: isWSAPIResponse,
           });
           return results;
         }
 
         // authenticated
-        if (parsed.result?.apiKey) {
+        if (eventData.result?.apiKey) {
           // Note: Without this check, this will also trigger "onWsAuthenticated()" for session.status requests
           if (this.getWsStore().getAuthenticationInProgressPromise(wsKey)) {
             results.push({
               eventType: 'authenticated',
-              event: parsed,
+              event: eventData,
               isWSAPIResponse: isWSAPIResponse,
             });
           }
@@ -898,7 +942,7 @@ export class WebsocketClient extends BaseWebsocketClient<
             promiseRef,
             {
               wsKey,
-              ...parsed,
+              ...eventData,
             },
             true,
           );
@@ -906,7 +950,7 @@ export class WebsocketClient extends BaseWebsocketClient<
           this.logger.error('Exception trying to resolve WSAPI promise', {
             wsKey,
             promiseRef,
-            parsedEvent: parsed,
+            parsedEvent: eventData,
             e,
           });
         }
@@ -914,12 +958,12 @@ export class WebsocketClient extends BaseWebsocketClient<
         results.push({
           eventType: 'response',
           event: {
-            ...parsed,
-            request: this.getCachedMidFlightRequest(wsKey, reqId),
+            ...eventData,
+            request: this.getCachedMidFlightRequest(wsKey, `${parsedEventId}`),
           },
           isWSAPIResponse: isWSAPIResponse,
         });
-        this.removeCachedMidFlightRequest(wsKey, reqId);
+        this.removeCachedMidFlightRequest(wsKey, `${parsedEventId}`);
 
         return results;
       }
@@ -936,7 +980,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
         this.logger.info(
           `${legacyContext.market} listenKey EXPIRED - attempting to respawn user data stream: ${wsKey}`,
-          parsed,
+          eventData,
         );
 
         // Just closing the connection (with the last parameter as true) will handle cleanup and respawn
@@ -950,7 +994,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
       if (this.options.beautify) {
         const beautifiedMessage = this.beautifier.beautifyWsMessage(
-          parsed,
+          eventData,
           eventType,
           false,
           // Suffix all events for the beautifier, if market is options
@@ -980,7 +1024,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       if (typeof eventType === 'string') {
         results.push({
           eventType: 'message',
-          event: parsed?.data ? parsed.data : parsed,
+          event: eventData?.data ? eventData.data : eventData,
         });
 
         return results;
@@ -989,10 +1033,10 @@ export class WebsocketClient extends BaseWebsocketClient<
       // Messages that are a "reply" to a request/command (e.g. subscribe to these topics) typically include the "op" property
       if (typeof eventType === 'string') {
         // Failed request
-        if (parsed.success === false) {
+        if (eventData.success === false) {
           results.push({
             eventType: 'exception',
-            event: parsed,
+            event: eventData,
           });
           return results;
         }
@@ -1001,7 +1045,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         if (EVENTS_RESPONSES.includes(eventType)) {
           results.push({
             eventType: 'response',
-            event: parsed,
+            event: eventData,
           });
           return results;
         }
@@ -1010,26 +1054,26 @@ export class WebsocketClient extends BaseWebsocketClient<
         if (EVENTS_AUTHENTICATED.includes(eventType)) {
           results.push({
             eventType: 'authenticated',
-            event: parsed,
+            event: eventData,
           });
           return results;
         }
 
         this.logger.error(
           `!! Unhandled string operation type "${eventType}". Defaulting to "update" channel...`,
-          parsed,
+          eventData,
         );
       } else {
         this.logger.error(
           `!!!! Unhandled non-string event type "${eventType}". Defaulting to "update" channel...`,
-          parsed,
+          eventData,
         );
       }
 
       // In case of catastrophic failure, fallback to noisy emit update
       results.push({
         eventType: 'message',
-        event: parsed,
+        event: eventData,
       });
     } catch (e) {
       results.push({

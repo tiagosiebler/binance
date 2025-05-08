@@ -491,11 +491,42 @@ export function logInvalidOrderId(
  * - For the old WebsocketClient, this is extracted using the WsKey.
  * - For the new multiplex Websocketclient, this is extracted using the "stream" parameter.
  */
-export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
+export function appendEventIfMissing(
+  wsMsg: any,
+  wsKey: WsKey,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  eventType: string | undefined,
+) {
   if (wsMsg.e) {
     return;
   }
 
+  /**
+   *
+   * This is a mess right now, diff places parsing in diff levels, because
+   * there's convenient parse-to-child happening too early on, and the
+   * stream name is missing from the child data!
+   *
+   * First parse should be simple, extract json. All handling from there should be later on!!
+   *
+   * Maybe it's time to improve the type handling from the first part where an event is received!
+   *
+   * Also, stream or streamName? what's the right one here??
+   *
+   * TODO: review me and clean up
+   */
+  if (eventType) {
+    if (!Array.isArray(wsMsg)) {
+      wsMsg.e = eventType;
+      return;
+    }
+
+    for (const key in wsMsg) {
+      // wsMsg[key].streamName = wsMsg.stream;
+      wsMsg[key].e = eventType;
+    }
+    return;
+  }
   // Multiplex websockets include the eventType as the stream name
   if (wsMsg.stream && wsMsg.data) {
     const eventType = parseEventTypeFromMessage(wsKey, wsMsg);
@@ -507,12 +538,6 @@ export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
         }
         return;
       }
-
-      wsMsg.data = {
-        streamName: wsMsg.stream,
-        e: eventType,
-        ...wsMsg.data,
-      };
     }
   }
 
