@@ -495,20 +495,20 @@ export interface WSAPIFuturesTickerBookRequest {
  * Futures trading request types
  */
 
-export interface WSAPINewFuturesOrderRequest {
+export interface WSAPINewFuturesOrderRequest<numberType = numberInString> {
   symbol: string;
   side: OrderSide;
   positionSide?: PositionSide;
   type: FuturesOrderType;
   timeInForce?: OrderTimeInForce;
-  quantity?: numberInString;
+  quantity?: numberType;
   reduceOnly?: BooleanString;
-  price?: numberInString;
+  price?: numberType;
   newClientOrderId?: string;
-  stopPrice?: numberInString;
+  stopPrice?: numberType;
   closePosition?: BooleanString;
-  activationPrice?: numberInString;
-  callbackRate?: numberInString;
+  activationPrice?: numberType;
+  callbackRate?: numberType;
   workingType?: WorkingType;
   priceProtect?: BooleanStringCapitalised;
   newOrderRespType?: 'ACK' | 'RESULT';
