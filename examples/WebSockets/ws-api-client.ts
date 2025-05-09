@@ -106,28 +106,34 @@ async function main() {
   }
 
   try {
-    const response = await wsClient.startUserDataStreamForKey({
-      apiKey: key,
-    });
-
-    const listenKey = response.result.listenKey;
-
-    console.log('startSpotUserDataStream response: ', listenKey);
+    const response = await wsClient.getSpotServerTime();
+    console.log('getSpotServerTime response: ', response);
   } catch (e) {
-    console.log('startSpotUserDataStream error: ', e);
+    console.log('getSpotServerTime error: ', e);
   }
 
-  // Note: unless you set resubscribeUserDataStreamAfterReconnect to false, the SDK will
-  // automatically call this method again if reconnected,
-  // try {
-  //   const response = await wsClient.subscribeUserDataStream(
-  //     WS_KEY_MAP.mainWSAPI,
-  //   );
+  try {
+    const response = await wsClient.getSpotExchangeInfo();
+    console.log('getSpotExchangeInfo response: ', response);
+  } catch (e) {
+    console.log('getSpotExchangeInfo error: ', e);
+  }
 
-  //   console.log('subscribeUserDataStream response: ', response);
-  // } catch (e) {
-  //   console.log('subscribeUserDataStream error: ', e);
-  // }
+  try {
+    const response = await wsClient.getSpotOrderBook({ symbol: 'BTCUSDT' });
+    console.log('getSpotOrderBook response: ', response);
+  } catch (e) {
+    console.log('getSpotOrderBook error: ', e);
+  }
+
+  try {
+    const response = await wsClient.getSpotHistoricalTrades({
+      symbol: 'BTCUSDT',
+    });
+    console.log('getSpotHistoricalTrades response: ', response);
+  } catch (e) {
+    console.log('getSpotHistoricalTrades error: ', e);
+  }
 
   // TODO: add all the other endpoints here, once done
 }

@@ -626,25 +626,6 @@ export function parseRawWsMessageLegacy(event: any) {
 }
 
 /**
- * Try to resolve event.data.
- *
- * Example circumstance: {"stream":"!forceOrder@arr","data":{"e":"forceOrder","E":1634653599186,"o":{"s":"IOTXUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"3661","p":"0.06606","ap":"0.06669","X":"FILLED","l":"962","z":"3661","T":1634653599180}}}
- */
-
-export type ParsedWsMessage = {
-  type: 'multiplexStreamEvent';
-  streamName: string;
-  // id: number | undefined;
-  data: any;
-  wsMarket: string | undefined;
-  // I Think these are all one level down, for multiplex
-  id: string | undefined; //todo:
-  error: { code: number } | undefined; // todo:
-  result?: any; // TODO:
-  success: boolean;
-};
-
-/**
  * One simple purpose - extract JSON event from raw WS Message.
  *
  * Any mapping or additonal handling should not be done here.
@@ -656,10 +637,12 @@ export function parseRawWsMessage(event: any): any {
   }
 
   if (typeof event === 'string') {
-    // For multiplex subscriptions
-    // user data || OK
-    // user data ws api || OK
-    // todo: ws api || TODO:
+    // For:
+    // - multiplex subscriptions, as of v3
+    // - user data, dedicated listen key connection
+    // - user data, via ws api (Without listen key)
+    // - ws api responses
+
     const parsedEvent = JSON.parse(event);
 
     return parsedEvent;

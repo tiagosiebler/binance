@@ -760,7 +760,18 @@ export class WebsocketClient extends BaseWebsocketClient<
     const results: EmittableEvent[] = [];
 
     try {
+      /**
+       *
+       * Extract event from JSON
+       *
+       */
       const parsedEvent = parseRawWsMessage(event);
+
+      /**
+       *
+       * Minor data normalisation & preparation
+       *
+       */
 
       // ws consumers: { data: ... }
       // ws api consumers (user data): { event: ... }
@@ -770,10 +781,11 @@ export class WebsocketClient extends BaseWebsocketClient<
       const parsedEventErrorCode = parsedEvent?.error?.code;
       const streamName = parsedEvent?.stream;
 
-      let eventType = parseEventTypeFromMessage(wsKey, eventData);
-      if (!eventType) {
-        eventType = parseEventTypeFromMessage(wsKey, parsedEvent);
-      }
+      const eventType =
+        // First try, the child node
+        parseEventTypeFromMessage(wsKey, eventData) ||
+        // Second try, the parent
+        parseEventTypeFromMessage(wsKey, parsedEvent);
 
       // Some events don't include the topic (event name)
       // This tries to extract and append it, using available context
@@ -784,6 +796,8 @@ export class WebsocketClient extends BaseWebsocketClient<
         ? legacyContext.market
         : resolveUserDataMarketForWsKey(wsKey);
 
+      // This attaches `wsMarket` and `streamName` to incoming events
+      // If the event is an array, it's attached to each element in the array
       if (Array.isArray(eventData)) {
         for (const row of eventData) {
           row.wsMarket = wsMarket;
@@ -798,19 +812,11 @@ export class WebsocketClient extends BaseWebsocketClient<
         }
       }
 
-      // TODO: delete me
-      console.log('raw ready to parse: ', {
-        parsedEvent,
-        parsedEventData: eventData,
-        eventType,
-        properties: {
-          parsedEventId,
-          parsedEventErrorCode,
-        },
-      });
-
       /**
+       *
+       *
        * Main parsing logic below:
+       *
        *
        */
       const traceEmittable = false;
@@ -1060,13 +1066,13 @@ export class WebsocketClient extends BaseWebsocketClient<
         }
 
         this.logger.error(
-          `!! Unhandled string operation type "${eventType}". Defaulting to "update" channel...`,
-          eventData,
+          `!! Unhandled string operation type "${eventType}". Defaulting to "update" channel... raw event:`,
+          JSON.stringify(parsedEvent),
         );
       } else {
         this.logger.error(
-          `!!!! Unhandled non-string event type "${eventType}". Defaulting to "update" channel...`,
-          eventData,
+          `!!!! Unhandled non-string event type "${eventType}". Defaulting to "update" channel... raw event:`,
+          JSON.stringify(parsedEvent),
         );
       }
 

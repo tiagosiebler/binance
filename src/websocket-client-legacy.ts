@@ -25,7 +25,7 @@ import {
   getContextFromWsKey,
   getLegacyWsStoreKeyWithContext,
   parseEventTypeFromMessage,
-  parseRawWsMessage,
+  parseRawWsMessageLegacy,
   safeTerminateWs,
   WS_LOGGER_CATEGORY,
   WsKey,
@@ -331,13 +331,13 @@ export class WebsocketClientV1 extends EventEmitter {
     try {
       this.clearPongTimer(wsKey);
 
-      const msg = parseRawWsMessage(event);
+      const msg = parseRawWsMessageLegacy(event);
 
       // Edge case where raw event does not include event type, detect using wsKey and mutate msg.e
-      appendEventIfMissing(msg, wsKey as any);
+      const eventType = parseEventTypeFromMessage(wsKey as any, msg);
+      appendEventIfMissing(msg, wsKey as any, eventType);
       appendEventMarket(msg, wsKey as any);
 
-      const eventType = parseEventTypeFromMessage(wsKey as any, msg);
       if (eventType) {
         this.emit('message', msg);
 
