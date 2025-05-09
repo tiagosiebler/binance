@@ -796,8 +796,6 @@ export abstract class BaseWebsocketClient<
     wsKey: TWSKey,
     operation: WsOperation,
   ): Promise<MidflightWsRequestEvent<TWSRequestEvent>[]> {
-    // console.log(new Date(), `called getWsSubscribeEventsForTopics()`, topics);
-    // console.trace();
     if (!topics.length) {
       return [];
     }

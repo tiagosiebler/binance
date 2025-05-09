@@ -89,6 +89,11 @@ import {
       console.log('usdm user data event: ', data);
       return;
     }
+
+    console.log(
+      'onUserDataEvent()->unhandled: ',
+      JSON.stringify(data, null, 2),
+    );
   }
 
   wsClient.on('formattedMessage', (data) => {
