@@ -1,8 +1,4 @@
-import {
-  ExchangeInfo,
-  OrderResponse,
-  SpotAmendKeepPriorityResult,
-} from './types/spot';
+import { ExchangeInfo, SpotAmendKeepPriorityResult } from './types/spot';
 import {
   WSAPIResponse,
   WSAPIUserDataListenKeyRequest,
@@ -89,6 +85,7 @@ import {
   WSAPISOROrderPlaceResponse,
   WSAPISOROrderTestResponse,
   WSAPISOROrderTestResponseWithCommission,
+  WSAPISpotOrderResponse,
   WSAPITrade,
 } from './types/websockets/ws-api-responses';
 import { WSClientConfigurableOptions } from './types/websockets/ws-general';
@@ -483,7 +480,7 @@ export class WebsocketAPIClient {
   submitNewSpotOrder(
     params: WSAPINewSpotOrderRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderResponse>> {
+  ): Promise<WSAPIResponse<WSAPISpotOrderResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.place',

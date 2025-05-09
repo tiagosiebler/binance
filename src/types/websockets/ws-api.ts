@@ -1,6 +1,6 @@
 import { WS_KEY_MAP, WsKey } from '../../util/websockets/websocket-util';
-import { FuturesExchangeInfo, NewFuturesOrderParams } from '../futures';
-import { ExchangeInfo, NewSpotOrderParams, OrderResponse } from '../spot';
+import { FuturesExchangeInfo } from '../futures';
+import { ExchangeInfo } from '../spot';
 import {
   WSAPIAccountCommissionWSAPIRequest,
   WSAPIAccountInformationRequest,
@@ -18,6 +18,8 @@ import {
   WSAPIMyAllocationsRequest,
   WSAPIMyPreventedMatchesRequest,
   WSAPIMyTradesRequest,
+  WSAPINewFuturesOrderRequest,
+  WSAPINewSpotOrderRequest,
   WSAPIOpenOrdersCancelAllRequest,
   WSAPIOpenOrdersStatusRequest,
   WSAPIOrderAmendKeepPriorityRequest,
@@ -80,6 +82,7 @@ import {
   WSAPISOROrderPlaceResponse,
   WSAPISOROrderTestResponse,
   WSAPISOROrderTestResponseWithCommission,
+  WSAPISpotOrderResponse,
   WSAPITrade,
 } from './ws-api-responses';
 
@@ -351,8 +354,8 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/trading/websocket-api
    */
   'order.place': (TWSKey extends WsAPIFuturesWsKey
-    ? NewFuturesOrderParams
-    : NewSpotOrderParams) & {
+    ? WSAPINewFuturesOrderRequest
+    : WSAPINewSpotOrderRequest) & {
     timestamp?: number;
   };
   'order.test': WSAPIOrderTestRequest;
@@ -506,7 +509,7 @@ export interface WsAPIOperationResponseMap {
    * - Futures:
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/trading/websocket-api
    */
-  'order.place': WSAPIResponse<OrderResponse | WSAPIFuturesOrder>;
+  'order.place': WSAPIResponse<WSAPISpotOrderResponse | WSAPIFuturesOrder>;
   'order.test': WSAPIResponse<
     WSAPIOrderTestResponse | WSAPIOrderTestWithCommission
   >;
