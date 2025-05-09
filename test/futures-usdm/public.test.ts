@@ -1,18 +1,9 @@
-import {
-  notAuthenticatedError,
-  successResponseList,
-  successResponseObject,
-} from '../response.util';
 import { USDMClient } from '../../src/usdm-client';
 import { getTestProxy } from '../proxy.util';
+import { notAuthenticatedError } from '../response.util';
 
 describe('Public Futures USDM REST API Endpoints', () => {
   const api = new USDMClient({}, getTestProxy());
-
-  const symbol = 'BTCUSDT';
-  const interval = '15m';
-  const timestampOneHourAgo = new Date().getTime() / 1000 - 1000 * 60 * 60;
-  const from = Number(timestampOneHourAgo.toFixed(0));
 
   beforeEach(() => {
     // console.log(`IP request weight: `, api.getRateLimitStates());
@@ -56,7 +47,7 @@ describe('Public Futures USDM REST API Endpoints', () => {
     });
 
     it('get24hrChangeStatististics()', async () => {
-      expect(await api.get24hrChangeStatististics()).toMatchObject(
+      expect(await api.get24hrChangeStatistics()).toMatchObject(
         expect.any(Array),
       );
     });

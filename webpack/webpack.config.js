@@ -20,9 +20,11 @@ function generateConfig(name) {
       alias: {
         [path.resolve(__dirname, "../lib/util/node-support.js")]:
           path.resolve(__dirname, "../lib/util/browser-support.js"),
+      },
+      fallback: {
+        https: false,
       }
     },
-
     module: {
       rules: [
         // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
