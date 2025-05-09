@@ -614,3 +614,45 @@ export interface WSAPIFuturesAccountStatus {
   assets: WSAPIFuturesAccountAsset[];
   positions: WSAPIFuturesAccountPosition[];
 }
+
+/**
+ * Spot Order response types based on newOrderRespType parameter
+ */
+export interface WSAPISpotOrderACK {
+  symbol: string;
+  orderId: number;
+  orderListId: number; // always -1 for singular orders
+  clientOrderId: string;
+  transactTime: number;
+}
+
+export interface WSAPISpotOrderRESULT extends WSAPISpotOrderACK {
+  price: numberInString;
+  origQty: numberInString;
+  executedQty: numberInString;
+  origQuoteOrderQty: numberInString;
+  cummulativeQuoteQty: numberInString;
+  status: string;
+  timeInForce: string;
+  type: string;
+  side: string;
+  workingTime: number;
+  selfTradePreventionMode: string;
+}
+
+export interface WSAPISpotOrderFill {
+  price: numberInString;
+  qty: numberInString;
+  commission: numberInString;
+  commissionAsset: string;
+  tradeId: number;
+}
+
+export interface WSAPISpotOrderFULL extends WSAPISpotOrderRESULT {
+  fills: WSAPISpotOrderFill[];
+}
+
+export type WSAPISpotOrderResponse =
+  | WSAPISpotOrderACK
+  | WSAPISpotOrderRESULT
+  | WSAPISpotOrderFULL;
