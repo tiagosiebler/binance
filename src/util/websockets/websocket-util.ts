@@ -262,16 +262,7 @@ export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [
   WS_KEY_MAP.mainWSAPITestnet,
   WS_KEY_MAP.usdmWSAPI,
   WS_KEY_MAP.usdmWSAPITestnet,
-
-  // WS_KEY_MAP.v5Private,
-  // WS_KEY_MAP.v5PrivateTrade,
 ];
-
-// export const PUBLIC_WS_KEYS = [
-//   WS_KEY_MAP.main,
-//   WS_KEY_MAP.main,
-//   WS_KEY_MAP.main,
-// ] as WsKey[];
 
 /** Used to automatically determine if a sub request should be to the public or private ws (when there's two) */
 const PRIVATE_TOPICS: string[] = [];

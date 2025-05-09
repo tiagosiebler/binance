@@ -1047,7 +1047,7 @@ export class WebsocketClient extends BaseWebsocketClient<
           return results;
         }
 
-        // These are r  equest/reply pattern events (e.g. after subscribing to topics or authenticating)
+        // These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
         if (EVENTS_RESPONSES.includes(eventType)) {
           results.push({
             eventType: 'response',
