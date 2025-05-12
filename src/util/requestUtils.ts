@@ -5,6 +5,7 @@ import { BinanceBaseUrlKey, OrderIdProperty } from '../types/shared';
 import { WsRequestOperationBinance } from '../types/websockets/ws-api';
 import { USDMClient } from '../usdm-client';
 import { signMessage } from './node-support';
+import { neverGuard } from './typeGuards';
 import { SignAlgorithm, SignEncodeMethod } from './webCryptoAPI';
 import {
   parseEventTypeFromMessage,
@@ -151,12 +152,40 @@ function getWSAPINewOrderIdProperties(
     case WS_KEY_MAP.mainWSAPI2:
     case WS_KEY_MAP.mainWSAPITestnet:
     case WS_KEY_MAP.usdmWSAPI:
-    case WS_KEY_MAP.usdmWSAPITestnet: {
-      if (operation === 'order.place' || operation === 'sor.order.place') {
+    case WS_KEY_MAP.usdmWSAPITestnet:
+    case WS_KEY_MAP.coinmWSAPI:
+    case WS_KEY_MAP.coinmWSAPITestnet: {
+      if (
+        ['order.place', 'order.amend.keepPriority', 'sor.order.place'].includes(
+          operation,
+        )
+      ) {
         return ['newClientOrderId'];
       }
       if (operation === 'orderList.place') {
         return ['listClientOrderId', 'limitClientOrderId', 'stopClientOrderId'];
+      }
+      if (operation === 'orderList.place.oco') {
+        return [
+          'listClientOrderId',
+          'aboveClientOrderId',
+          'belowClientOrderId',
+        ];
+      }
+      if (operation === 'orderList.place.oto') {
+        return [
+          'listClientOrderId',
+          'workingClientOrderId',
+          'pendingClientOrderId',
+        ];
+      }
+      if (operation === 'orderList.place.otoco') {
+        return [
+          'listClientOrderId',
+          'workingClientOrderId',
+          'pendingAboveClientOrderId',
+          'pendingBelowClientOrderId',
+        ];
       }
       return [];
     }
@@ -175,19 +204,37 @@ export function requiresWSAPINewClientOID(
     case WS_KEY_MAP.mainWSAPI2:
     case WS_KEY_MAP.mainWSAPITestnet:
     case WS_KEY_MAP.usdmWSAPI:
-    case WS_KEY_MAP.usdmWSAPITestnet: {
-      switch (request.method) {
-        case 'order.place': {
-          return true;
-        }
-        default: {
-          return false;
-        }
-      }
+    case WS_KEY_MAP.usdmWSAPITestnet:
+    case WS_KEY_MAP.coinmWSAPI:
+    case WS_KEY_MAP.coinmWSAPITestnet: {
+      return [
+        'order.place',
+        'order.amend.keepPriority',
+        'sor.order.place',
+        'orderList.place',
+        'orderList.place.oco',
+        'orderList.place.oto',
+        'orderList.place.otoco',
+      ].includes(request.method);
     }
+    case WS_KEY_MAP.main:
+    case WS_KEY_MAP.main2:
+    case WS_KEY_MAP.main3:
+    case WS_KEY_MAP.mainTestnetPublic:
+    case WS_KEY_MAP.mainTestnetUserData:
+    case WS_KEY_MAP.marginRiskUserData:
+    case WS_KEY_MAP.usdm:
+    case WS_KEY_MAP.usdmTestnet:
+    case WS_KEY_MAP.coinm:
+    case WS_KEY_MAP.coinm2:
+    case WS_KEY_MAP.coinmTestnet:
+    case WS_KEY_MAP.eoptions:
+    case WS_KEY_MAP.portfolioMarginUserData:
+    case WS_KEY_MAP.portfolioMarginProUserData:
+      return false;
 
     default: {
-      return false;
+      throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
     }
   }
 }
@@ -444,11 +491,26 @@ export function logInvalidOrderId(
  * - For the old WebsocketClient, this is extracted using the WsKey.
  * - For the new multiplex Websocketclient, this is extracted using the "stream" parameter.
  */
-export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
+export function appendEventIfMissing(
+  wsMsg: any,
+  wsKey: WsKey,
+  eventType: string | undefined,
+) {
   if (wsMsg.e) {
     return;
   }
 
+  if (eventType) {
+    if (!Array.isArray(wsMsg)) {
+      wsMsg.e = eventType;
+      return;
+    }
+
+    for (const key in wsMsg) {
+      wsMsg[key].e = eventType;
+    }
+    return;
+  }
   // Multiplex websockets include the eventType as the stream name
   if (wsMsg.stream && wsMsg.data) {
     const eventType = parseEventTypeFromMessage(wsKey, wsMsg);
@@ -460,12 +522,6 @@ export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
         }
         return;
       }
-
-      wsMsg.data = {
-        streamName: wsMsg.stream,
-        e: eventType,
-        ...wsMsg.data,
-      };
     }
   }
 

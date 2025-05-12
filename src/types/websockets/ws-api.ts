@@ -1,9 +1,9 @@
 import { WS_KEY_MAP, WsKey } from '../../util/websockets/websocket-util';
-import { FuturesExchangeInfo, NewFuturesOrderParams } from '../futures';
-import { ExchangeInfo, NewSpotOrderParams, OrderResponse } from '../spot';
+import { FuturesExchangeInfo } from '../futures';
+import { ExchangeInfo } from '../spot';
 import {
   WSAPIAccountCommissionWSAPIRequest,
-  WSAPIAccountStatusRequest,
+  WSAPIAccountInformationRequest,
   WSAPIAllOrderListsRequest,
   WSAPIAllOrdersRequest,
   WSAPIAvgPriceRequest,
@@ -18,8 +18,11 @@ import {
   WSAPIMyAllocationsRequest,
   WSAPIMyPreventedMatchesRequest,
   WSAPIMyTradesRequest,
+  WSAPINewFuturesOrderRequest,
+  WSAPINewSpotOrderRequest,
   WSAPIOpenOrdersCancelAllRequest,
   WSAPIOpenOrdersStatusRequest,
+  WSAPIOrderAmendKeepPriorityRequest,
   WSAPIOrderBookRequest,
   WSAPIOrderCancelReplaceRequest,
   WSAPIOrderCancelRequest,
@@ -46,7 +49,7 @@ import {
 } from './ws-api-requests';
 import {
   WSAPIAccountCommission,
-  WSAPIAccountStatus,
+  WSAPIAccountInformation,
   WSAPIAggregateTrade,
   WSAPIAllocation,
   WSAPIAvgPrice,
@@ -79,6 +82,7 @@ import {
   WSAPISOROrderPlaceResponse,
   WSAPISOROrderTestResponse,
   WSAPISOROrderTestResponseWithCommission,
+  WSAPISpotOrderResponse,
   WSAPITrade,
 } from './ws-api-responses';
 
@@ -138,6 +142,7 @@ export const WS_API_Operations = [
   'order.status',
   'order.cancel',
   'order.cancelReplace',
+  'order.amend.keepPriority',
   'order.modify',
   'openOrders.status',
   'openOrders.cancelAll',
@@ -192,6 +197,8 @@ export interface WSAPIResponse<TResponseData extends object = object> {
 
   wsKey: WsKey;
   isWSAPIResponse: boolean;
+
+  request?: any;
 }
 
 export type Exact<T> = {
@@ -305,9 +312,11 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/account/websocket-api
    */
 
-  'account.status': void | TWSKey extends WsAPIFuturesWsKey
-    ? WSAPIRecvWindowTimestamp
-    : WSAPIAccountStatusRequest;
+  'account.status':
+    | void
+    | (TWSKey extends WsAPIFuturesWsKey
+        ? WSAPIRecvWindowTimestamp
+        : WSAPIAccountInformationRequest);
 
   'account.rateLimits.orders': void | WSAPIRecvWindowTimestamp;
 
@@ -345,8 +354,8 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/trading/websocket-api
    */
   'order.place': (TWSKey extends WsAPIFuturesWsKey
-    ? NewFuturesOrderParams
-    : NewSpotOrderParams) & {
+    ? WSAPINewFuturesOrderRequest
+    : WSAPINewSpotOrderRequest) & {
     timestamp?: number;
   };
   'order.test': WSAPIOrderTestRequest;
@@ -357,8 +366,9 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
     ? WSAPIFuturesOrderCancelRequest
     : WSAPIOrderCancelRequest;
   'order.modify': WSAPIFuturesOrderModifyRequest; // order.modify only futures
-  'order.cancelReplace': WSAPIOrderCancelReplaceRequest;
 
+  'order.cancelReplace': WSAPIOrderCancelReplaceRequest;
+  'order.amend.keepPriority': WSAPIOrderAmendKeepPriorityRequest;
   'openOrders.status': WSAPIOpenOrdersStatusRequest;
   'openOrders.cancelAll': WSAPIOpenOrdersCancelAllRequest;
 
@@ -472,7 +482,7 @@ export interface WsAPIOperationResponseMap {
    */
 
   'account.status': WSAPIResponse<
-    WSAPIAccountStatus | WSAPIFuturesAccountStatus
+    WSAPIAccountInformation | WSAPIFuturesAccountStatus
   >;
   'account.commission': WSAPIResponse<WSAPIAccountCommission>;
   'account.rateLimits.orders': WSAPIResponse<WSAPIRateLimit[]>;
@@ -499,7 +509,7 @@ export interface WsAPIOperationResponseMap {
    * - Futures:
    * https://developers.binance.com/docs/derivatives/usds-margined-futures/trading/websocket-api
    */
-  'order.place': WSAPIResponse<OrderResponse | WSAPIFuturesOrder>;
+  'order.place': WSAPIResponse<WSAPISpotOrderResponse | WSAPIFuturesOrder>;
   'order.test': WSAPIResponse<
     WSAPIOrderTestResponse | WSAPIOrderTestWithCommission
   >;

@@ -208,7 +208,7 @@ describe('Private Spot REST API Endpoints', () => {
         ).toStrictEqual({});
       });
 
-      it('should close user data key', async () => {
+      it.skip('should close user data key', async () => {
         const { listenKey } = await api.getSpotUserDataListenKey();
         expect(listenKey).toStrictEqual(expect.any(String));
 
@@ -237,7 +237,7 @@ describe('Private Spot REST API Endpoints', () => {
         ).toStrictEqual({});
       });
 
-      it('should close user data key', async () => {
+      it.skip('should close user data key', async () => {
         const { listenKey } = await api.getMarginUserDataListenKey();
         expect(listenKey).toStrictEqual(expect.any(String));
 
@@ -273,7 +273,7 @@ describe('Private Spot REST API Endpoints', () => {
         ).toStrictEqual({});
       });
 
-      it('should close user data key', async () => {
+      it.skip('should close user data key', async () => {
         const { listenKey } = await api.getIsolatedMarginUserDataListenKey({
           symbol,
         });

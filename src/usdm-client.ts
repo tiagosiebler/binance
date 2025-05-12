@@ -37,6 +37,7 @@ import {
   IncomeHistory,
   IndexPriceConstituents,
   IndexPriceKlinesParams,
+  InsuranceFundBalance,
   MarkPrice,
   ModeChangeResult,
   ModifyFuturesOrderParams,
@@ -296,6 +297,12 @@ export class USDMClient extends BaseRestClient {
     symbol: string;
   }): Promise<IndexPriceConstituents> {
     return this.get('fapi/v1/constituents', params);
+  }
+
+  getInsuranceFundBalance(params?: {
+    symbol?: string;
+  }): Promise<InsuranceFundBalance | InsuranceFundBalance[]> {
+    return this.get('fapi/v1/insuranceBalance', params);
   }
 
   /**

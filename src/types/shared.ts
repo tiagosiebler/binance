@@ -35,7 +35,12 @@ export type OrderTimeInForce =
 
 export type StringBoolean = 'TRUE' | 'FALSE';
 
-export type SideEffects = 'MARGIN_BUY' | 'AUTO_REPAY' | 'NO_SIDE_EFFECT';
+export type SideEffects =
+  | 'MARGIN_BUY'
+  | 'AUTO_REPAY'
+  | 'NO_SIDE_EFFECT'
+  | 'AUTO_BORROW_REPAY'
+  | 'NO_SIDE_EFFECT';
 
 /**
  * ACK = confirmation of order acceptance (no placement/fill information)
@@ -216,6 +221,14 @@ export interface CancelOrderParams {
   symbol: string;
   orderId?: number;
   origClientOrderId?: string;
+}
+
+export interface AmendKeepPriorityParams {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  newClientOrderId?: string;
+  newQty: numberInString;
 }
 
 export interface CancelOCOParams {

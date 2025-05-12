@@ -9,7 +9,6 @@ import {
   BooleanStringCapitalised,
   KlineInterval,
   numberInString,
-  OrderResponseType,
   OrderSide,
   OrderTimeInForce,
   OrderType,
@@ -187,24 +186,21 @@ export interface WSAPIMyAllocationsRequest {
  * Trading request types
  */
 
-export interface WSAPINewSpotOrderRequest<
-  T extends OrderType = OrderType,
-  RT extends OrderResponseType | undefined = OrderResponseType,
-> {
+export interface WSAPINewSpotOrderRequest {
   symbol: string;
   side: OrderSide;
-  type: T;
+  type: OrderType;
   timeInForce?: OrderTimeInForce;
-  quantity?: number;
-  quoteOrderQty?: number;
-  price?: number;
+  quantity?: numberInString;
+  quoteOrderQty?: numberInString;
+  price?: numberInString;
   newClientOrderId?: string;
   strategyId?: number;
   strategyType?: number;
-  stopPrice?: number;
+  stopPrice?: numberInString;
   trailingDelta?: number;
-  icebergQty?: number;
-  newOrderRespType?: RT;
+  icebergQty?: numberInString;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
   isIsolated?: StringBoolean;
   sideEffectType?: SideEffects;
 }
@@ -225,7 +221,7 @@ export interface WSAPIOrderTestRequest {
   strategyType?: number;
   selfTradePreventionMode?: string;
   computeCommissionRates?: boolean;
-  timestamp?: number;
+  timestamp: number;
   recvWindow?: number;
 }
 
@@ -234,7 +230,7 @@ export interface WSAPIOrderStatusRequest {
   orderId?: number;
   origClientOrderId?: string;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface WSAPIOrderCancelRequest {
@@ -244,7 +240,7 @@ export interface WSAPIOrderCancelRequest {
   newClientOrderId?: string;
   cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface WSAPIOrderCancelReplaceRequest {
@@ -270,19 +266,29 @@ export interface WSAPIOrderCancelReplaceRequest {
   cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
   orderRateLimitExceededMode?: 'DO_NOTHING' | 'CANCEL_ONLY';
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
+}
+
+export interface WSAPIOrderAmendKeepPriorityRequest {
+  symbol: string;
+  orderId?: number | string;
+  origClientOrderId?: string;
+  newClientOrderId?: string;
+  newQty?: string;
+  recvWindow?: number;
+  timestamp: number;
 }
 
 export interface WSAPIOpenOrdersStatusRequest {
   symbol?: string;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface WSAPIOpenOrdersCancelAllRequest {
   symbol: string;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 /**
@@ -309,7 +315,7 @@ export interface WSAPIOrderListPlaceRequest {
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
   selfTradePreventionMode?: string;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface WSAPIOrderListPlaceOCORequest {
@@ -348,7 +354,7 @@ export interface WSAPIOrderListPlaceOCORequest {
   newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
   selfTradePreventionMode?: string;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface WSAPIOrderListPlaceOTORequest {
@@ -377,7 +383,7 @@ export interface WSAPIOrderListPlaceOTORequest {
   pendingStrategyId?: number;
   pendingStrategyType?: number;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface WSAPIOrderListPlaceOTOCORequest {
@@ -425,14 +431,14 @@ export interface WSAPIOrderListPlaceOTOCORequest {
   pendingBelowStrategyId?: number;
   pendingBelowStrategyType?: number;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface WSAPIOrderListStatusRequest {
   origClientOrderId?: string;
   orderListId?: number;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface WSAPIOrderListCancelRequest {
@@ -441,7 +447,7 @@ export interface WSAPIOrderListCancelRequest {
   listClientOrderId?: string;
   newClientOrderId?: string;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 /**
@@ -460,7 +466,7 @@ export interface WSAPISOROrderPlaceRequest {
   strategyId?: number;
   strategyType?: number;
   selfTradePreventionMode?: string;
-  timestamp?: number;
+  timestamp: number;
   recvWindow?: number;
 }
 
@@ -489,7 +495,7 @@ export interface WSAPIFuturesTickerBookRequest {
  * Futures trading request types
  */
 
-export interface WSAPINewFuturesOrderRequest<numberType = number> {
+export interface WSAPINewFuturesOrderRequest<numberType = numberInString> {
   symbol: string;
   side: OrderSide;
   positionSide?: PositionSide;
@@ -533,7 +539,7 @@ export interface WSAPIFuturesOrderModifyRequest {
   origType?: string;
   positionSide?: 'BOTH' | 'LONG' | 'SHORT';
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface WSAPIFuturesOrderCancelRequest {
@@ -541,7 +547,7 @@ export interface WSAPIFuturesOrderCancelRequest {
   orderId?: number;
   origClientOrderId?: string;
   recvWindow?: number;
-  timestamp?: number;
+  timestamp: number;
 }
 
 export interface WSAPIFuturesOrderStatusRequest {
@@ -564,7 +570,7 @@ export interface WSAPIFuturesPositionV2Request {
   timestamp: number;
 }
 
-export interface WSAPIAccountStatusRequest {
+export interface WSAPIAccountInformationRequest {
   omitZeroBalances?: boolean;
   recvWindow?: number;
   timestamp: number;

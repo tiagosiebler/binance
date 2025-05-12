@@ -50,13 +50,11 @@ export function getSignKeyType(secret: string): KeyType {
   if (secret.includes('PRIVATE KEY')) {
     // Sometimes, not always, RSA keys include "RSA" in the header. That's a definite RSA key.
     if (secret.includes('RSA PRIVATE KEY')) {
-      console.log('RSA web crpyto api');
       return 'RSASSA-PKCS1-v1_5';
     }
 
     // RSA keys are significantly longer than Ed25519 keys. 150 accounts for length of header & footer
     if (secret.length <= 150) {
-      // console.log('Ed25519 key, due to length', secret.length);
       return 'Ed25519';
     }
 

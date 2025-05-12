@@ -4,7 +4,16 @@
 // or
 // const { WebsocketAPIClient, WebsocketClient, WS_KEY_MAP } = require('binance');
 
-import { WebsocketAPIClient, WebsocketClient, WS_KEY_MAP } from '../../src';
+import {
+  isWsFormattedFuturesUserDataEvent,
+  isWsFormattedSpotBalanceUpdate,
+  isWsFormattedSpotOutboundAccountPosition,
+  isWsFormattedSpotUserDataEvent,
+  isWsFormattedUserDataEvent,
+  WebsocketAPIClient,
+  WebsocketClient,
+  WS_KEY_MAP,
+} from '../../src';
 
 /**
  * The WS API only works with an Ed25519 API key.
@@ -37,9 +46,69 @@ function attachEventHandlers<TWSClient extends WebsocketClient>(
   /**
    * General event handlers for monitoring the WebsocketClient
    */
+
+  // Raw events received from binance, as is:
   wsClient.on('message', (data) => {
     // console.log('raw message received ', JSON.stringify(data));
   });
+
+  // Formatted events from the built-in beautifier, with fully readable property names and parsed floats:
+  wsClient.on('formattedMessage', (data) => {
+    // We've included type guards for many events, especially on the user data stream, to help easily
+    // identify events using simple `if` checks.
+    //
+    // Use `if` checks to narrow down specific events from the user data stream
+    if (isWsFormattedSpotOutboundAccountPosition(data)) {
+      console.log(
+        'formattedMessage->isWsFormattedSpotOutboundAccountPosition: ',
+        data,
+      );
+      return;
+    }
+    if (isWsFormattedSpotBalanceUpdate(data)) {
+      console.log('formattedMessage->isWsFormattedSpotBalanceUpdate: ', data);
+      return;
+    }
+
+    //// More general handlers, if you prefer:
+
+    // Any user data event in spot:
+    if (isWsFormattedSpotUserDataEvent(data)) {
+      console.log('formattedMessage->isWsFormattedSpotUserDataEvent: ', data);
+    }
+    // Any user data event in futures:
+    if (isWsFormattedFuturesUserDataEvent(data)) {
+      console.log(
+        'formattedMessage->isWsFormattedFuturesUserDataEvent: ',
+        data,
+      );
+    }
+
+    // Any user data event on any market (spot + futures)
+    if (isWsFormattedUserDataEvent(data)) {
+      console.log('formattedMessage->isWsFormattedUserDataEvent: ', data);
+      return;
+    }
+    console.log('formattedMessage: ', data);
+  });
+
+  // Formatted user data events also have a dedicated event handler, but that's optional and no different to the above
+  // wsClient.on('formattedUserDataMessage', (data) => {
+  //   if (isWsFormattedSpotOutboundAccountPosition(data)) {
+  //     return;
+  //     // console.log(
+  //     //   'formattedUserDataMessage->isWsFormattedSpotOutboundAccountPosition: ',
+  //     //   data,
+  //     // );
+  //   }
+  //   if (isWsFormattedSpotBalanceUpdate(data)) {
+  //     return console.log(
+  //       'formattedUserDataMessage->isWsFormattedSpotBalanceUpdate: ',
+  //       data,
+  //     );
+  //   }
+  //   console.log('formattedUserDataMessage: ', data);
+  // });
   wsClient.on('response', (data) => {
     // console.log('ws response: ', JSON.stringify(data));
   });
@@ -84,7 +153,7 @@ async function main() {
   // Optional, if you see RECV Window errors, you can use this to manage time issues.
   // ! However, make sure you sync your system clock first!
   // https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow
-  wsClient.setTimeOffsetMs(-5000);
+  // wsClient.setTimeOffsetMs(-5000);
 
   // Note: unless you set resubscribeUserDataStreamAfterReconnect to false, the SDK will
   // automatically call this method again if reconnected,

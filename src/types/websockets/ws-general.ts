@@ -36,6 +36,7 @@ export type WsMarket =
 export interface WsSharedBase {
   wsMarket: WsMarket;
   wsKey: WsKey;
+  streamName: string;
 }
 
 export interface WsResponse {
@@ -122,6 +123,11 @@ export interface WSClientConfigurableOptions {
   api_secret?: string;
 
   beautify?: boolean;
+
+  /**
+   * If true, log a warning if the beautifier is missing anything for an event
+   */
+  beautifyWarnIfMissing?: boolean;
 
   /**
    * Set to `true` to connect to Binance's testnet environment.

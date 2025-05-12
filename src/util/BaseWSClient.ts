@@ -137,13 +137,19 @@ function getFinalEmittable(
   }
 
   if (Array.isArray(emittable.event)) {
-    const { event, ...others } = emittable;
-    return {
-      ...others,
-      event: event.map((subEvent) =>
-        getFinalEmittable(subEvent, wsKey, isWSAPIResponse),
-      ),
-    };
+    // Some topics just emit an array.
+    // This is consistent with how it was before the WS API upgrade:
+    return emittable.event.map((subEvent) =>
+      getFinalEmittable(subEvent, wsKey, isWSAPIResponse),
+    );
+
+    // const { event, ...others } = emittable;
+    // return {
+    //   ...others,
+    //   event: event.map((subEvent) =>
+    //     getFinalEmittable(subEvent, wsKey, isWSAPIResponse),
+    //   ),
+    // };
   }
 
   if (emittable.event) {
@@ -790,8 +796,6 @@ export abstract class BaseWebsocketClient<
     wsKey: TWSKey,
     operation: WsOperation,
   ): Promise<MidflightWsRequestEvent<TWSRequestEvent>[]> {
-    // console.log(new Date(), `called getWsSubscribeEventsForTopics()`, topics);
-    // console.trace();
     if (!topics.length) {
       return [];
     }
@@ -1196,7 +1200,22 @@ export abstract class BaseWebsocketClient<
           }
 
           // Other event types are automatically emitted here
-          this.emit(emittable.eventType, emittableFinalEvent);
+          // this.logger.trace(
+          //   `onWsMessage().emit(${emittable.eventType})`,
+          //   emittableFinalEvent,
+          // );
+          try {
+            this.emit(emittable.eventType, emittableFinalEvent);
+          } catch (e) {
+            this.logger.error(
+              `Exception in onWsMessage().emit(${emittable.eventType}) handler:`,
+              e,
+            );
+          }
+          // this.logger.trace(
+          //   `onWsMessage().emit(${emittable.eventType}).done()`,
+          //   emittableFinalEvent,
+          // );
         }
 
         return;

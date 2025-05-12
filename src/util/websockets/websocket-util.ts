@@ -12,6 +12,20 @@ import { neverGuard } from '../typeGuards';
 
 export const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
+export const EVENT_TYPES_USER_DATA = [
+  'balanceUpdate',
+  'executionReport',
+  'listStatus',
+  'listenKeyExpired',
+  'outboundAccountPosition',
+  'ACCOUNT_CONFIG_UPDATE',
+  'ACCOUNT_UPDATE',
+  'MARGIN_CALL',
+  'ORDER_TRADE_UPDATE',
+  'TRADE_LITE',
+  'CONDITIONAL_ORDER_TRIGGER_REJECT',
+];
+
 export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
   main: 'main', // spot, margin, isolated margin, user data
@@ -63,6 +77,30 @@ export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
   portfolioMarginProUserData: 'portfolioMarginProUserData',
 } as const;
+
+export const WS_KEYS_SPOT = [
+  WS_KEY_MAP.main,
+  WS_KEY_MAP.main2,
+  WS_KEY_MAP.main3,
+  WS_KEY_MAP.mainTestnetPublic,
+  WS_KEY_MAP.mainTestnetUserData,
+  WS_KEY_MAP.mainWSAPI,
+  WS_KEY_MAP.mainWSAPI2,
+  WS_KEY_MAP.mainWSAPITestnet,
+  WS_KEY_MAP.marginRiskUserData,
+] as string[];
+
+export const WS_KEYS_FUTURES = [
+  WS_KEY_MAP.usdm,
+  WS_KEY_MAP.usdmTestnet,
+  WS_KEY_MAP.usdmWSAPI,
+  WS_KEY_MAP.usdmWSAPITestnet,
+  WS_KEY_MAP.coinm,
+  WS_KEY_MAP.coinm2,
+  WS_KEY_MAP.coinmTestnet,
+  WS_KEY_MAP.coinmWSAPI,
+  WS_KEY_MAP.coinmWSAPITestnet,
+] as string[];
 
 export type WsKey = (typeof WS_KEY_MAP)[keyof typeof WS_KEY_MAP];
 
@@ -224,16 +262,7 @@ export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [
   WS_KEY_MAP.mainWSAPITestnet,
   WS_KEY_MAP.usdmWSAPI,
   WS_KEY_MAP.usdmWSAPITestnet,
-
-  // WS_KEY_MAP.v5Private,
-  // WS_KEY_MAP.v5PrivateTrade,
 ];
-
-// export const PUBLIC_WS_KEYS = [
-//   WS_KEY_MAP.main,
-//   WS_KEY_MAP.main,
-//   WS_KEY_MAP.main,
-// ] as WsKey[];
 
 /** Used to automatically determine if a sub request should be to the public or private ws (when there's two) */
 const PRIVATE_TOPICS: string[] = [];
@@ -263,26 +292,6 @@ export type WsTopicRequestOrStringTopic<
 
 export function isPrivateWsTopic(topic: string): boolean {
   return PRIVATE_TOPICS.includes(topic);
-}
-
-export function getWsKeyForTopic(
-  wsKey: string,
-  // topic: string,
-  // isPrivate?: boolean,
-): WsKey {
-  // const isPrivateTopic = isPrivate === true || PRIVATE_TOPICS.includes(topic);
-  switch (wsKey) {
-    // case 'v5': {
-    //   if (isPrivateTopic) {
-    //     return WS_KEY_MAP.main;
-    //   }
-    //   return WS_KEY_MAP.main;
-    // }
-    default: {
-      return WS_KEY_MAP.main;
-      // throw neverGuard(wsKey, 'getWsKeyForTopic(): Unhandled market');
-    }
-  }
 }
 
 export function getTestnetWsKey(wsKey: WsKey): WsKey {
@@ -361,7 +370,7 @@ export function getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
     // }
     default: {
       return null;
-      // throw neverGuard(market, 'getWsKeyForTopic(): Unhandled market');
+      // throw neverGuard(wsKey, 'getMaxTopicsPerSubscribeEvent(): Unhandled wsKey');
     }
   }
 }
@@ -454,8 +463,6 @@ export function getTopicsPerWSKey(
 
   // Sort into per wsKey arrays, in case topics are mixed together for different wsKeys
   for (const topicRequest of normalisedTopicRequests) {
-    // const derivedWsKey =
-    //   wsKey || getWsKeyForTopic(market, topicRequest.topic, isPrivateTopic);
     const derivedWsKey = wsKey;
 
     if (
@@ -471,15 +478,21 @@ export function getTopicsPerWSKey(
   return perWsKeyTopics;
 }
 
+/**
+ * Some of the newer multiplex websocket topics don't include an eventType ("e") property.
+ *
+ * This attempts to extract that from the streamName, which is included with these incoming events.
+ */
 export function parseEventTypeFromMessage(
   wsKey: WsKey,
   parsedMsg?: any,
 ): string | undefined {
+  // console.log(`parseEventTypeFromMessage(${wsKey})`, parsedMsg);
   if (parsedMsg?.e) {
     return parsedMsg.e;
   }
-  if (parsedMsg?.stream && typeof parsedMsg?.stream === 'string') {
-    const streamName = parsedMsg.stream;
+  const streamName = parsedMsg?.stream || parsedMsg?.streamName;
+  if (streamName && typeof streamName === 'string') {
     // console.log(`parseEventTypeFromMessage(${wsKey}) `, streamName, parsedMsg);
 
     const eventType = streamName.split('@');
@@ -576,24 +589,56 @@ export function resolveWsKeyForLegacyMarket(
     }
   }
 }
-
-/**
- * Try to resolve event.data. Example circumstance: {"stream":"!forceOrder@arr","data":{"e":"forceOrder","E":1634653599186,"o":{"s":"IOTXUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"3661","p":"0.06606","ap":"0.06669","X":"FILLED","l":"962","z":"3661","T":1634653599180}}}
- */
-export function parseRawWsMessage(event: any) {
+export function parseRawWsMessageLegacy(event: any) {
   if (typeof event === 'string') {
     const parsedEvent = JSON.parse(event);
 
+    // WS events are wrapped into "data"
     if (parsedEvent.data) {
       if (typeof parsedEvent.data === 'string') {
-        return parseRawWsMessage(parsedEvent.data);
+        return parseRawWsMessageLegacy(parsedEvent.data);
       }
+
       return parsedEvent.data;
     }
+
+    // WS API wraps responses in "event"
+    if (parsedEvent.event) {
+      const { event, ...other } = parsedEvent;
+      return { ...other, ...event };
+    }
+
+    return parsedEvent;
   }
   if (event?.data) {
-    return JSON.parse(event.data);
+    return parseRawWsMessageLegacy(event.data);
   }
+  return event;
+}
+
+/**
+ * One simple purpose - extract JSON event from raw WS Message.
+ *
+ * Any mapping or additonal handling should not be done here.
+ */
+export function parseRawWsMessage(event: any): any {
+  // WS MessageLike->data (contains JSON as a string)
+  if (event?.data) {
+    return parseRawWsMessage(event.data);
+  }
+
+  if (typeof event === 'string') {
+    // For:
+    // - multiplex subscriptions, as of v3
+    // - user data, dedicated listen key connection
+    // - user data, via ws api (Without listen key)
+    // - ws api responses
+
+    const parsedEvent = JSON.parse(event);
+
+    return parsedEvent;
+  }
+
   return event;
 }
 
@@ -614,6 +659,9 @@ interface WsContext {
   otherParams: undefined | string[];
 }
 
+/**
+ * @deprecated Only works for legacy WS client, where one connection exists per key
+ */
 export function getContextFromWsKey(legacyWsKey: any): WsContext {
   const [market, streamName, symbol, listenKey, wsKey, ...otherParams] =
     legacyWsKey.split('_');

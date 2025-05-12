@@ -1,11 +1,11 @@
-import { ExchangeInfo, OrderResponse } from './types/spot';
+import { ExchangeInfo, SpotAmendKeepPriorityResult } from './types/spot';
 import {
   WSAPIResponse,
   WSAPIUserDataListenKeyRequest,
 } from './types/websockets/ws-api';
 import {
   WSAPIAccountCommissionWSAPIRequest,
-  WSAPIAccountStatusRequest,
+  WSAPIAccountInformationRequest,
   WSAPIAllOrderListsRequest,
   WSAPIAllOrdersRequest,
   WSAPIAvgPriceRequest,
@@ -26,6 +26,7 @@ import {
   WSAPINewSpotOrderRequest,
   WSAPIOpenOrdersCancelAllRequest,
   WSAPIOpenOrdersStatusRequest,
+  WSAPIOrderAmendKeepPriorityRequest,
   WSAPIOrderBookRequest,
   WSAPIOrderCancelReplaceRequest,
   WSAPIOrderCancelRequest,
@@ -51,7 +52,7 @@ import {
 } from './types/websockets/ws-api-requests';
 import {
   WSAPIAccountCommission,
-  WSAPIAccountStatus,
+  WSAPIAccountInformation,
   WSAPIAggregateTrade,
   WSAPIAllocation,
   WSAPIAvgPrice,
@@ -84,6 +85,7 @@ import {
   WSAPISOROrderPlaceResponse,
   WSAPISOROrderTestResponse,
   WSAPISOROrderTestResponseWithCommission,
+  WSAPISpotOrderResponse,
   WSAPITrade,
 } from './types/websockets/ws-api-responses';
 import { WSClientConfigurableOptions } from './types/websockets/ws-general';
@@ -250,15 +252,6 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'exchangeInfo',
       params,
-    );
-  }
-
-  getSpotSessionStatus(
-    wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<WSAPISessionStatus>> {
-    return this.wsClient.sendWSAPIRequest(
-      wsKey || WS_KEY_MAP.mainWSAPI,
-      'session.status',
     );
   }
 
@@ -460,6 +453,23 @@ export class WebsocketAPIClient {
 
   /*
    *
+   * SPOT - Session authentication requests
+   *
+   * Note: authentication is automatic
+   *
+   */
+
+  getSpotSessionStatus(
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<WSAPISessionStatus>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'session.status',
+    );
+  }
+
+  /*
+   *
    * SPOT - Trading requests
    *
    */
@@ -470,7 +480,7 @@ export class WebsocketAPIClient {
   submitNewSpotOrder(
     params: WSAPINewSpotOrderRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<OrderResponse>> {
+  ): Promise<WSAPIResponse<WSAPISpotOrderResponse>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.place',
@@ -536,6 +546,22 @@ export class WebsocketAPIClient {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'order.cancelReplace',
+      params,
+    );
+  }
+
+  /**
+   * Reduce the quantity of an existing open order.
+   *
+   * Read for more info: https://developers.binance.com/docs/binance-spot-api-docs/faqs/order_amend_keep_priority
+   */
+  amendSpotOrderKeepPriority(
+    params: WSAPIOrderAmendKeepPriorityRequest,
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<SpotAmendKeepPriorityResult>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'order.amend.keepPriority',
       params,
     );
   }
@@ -718,13 +744,13 @@ export class WebsocketAPIClient {
    */
 
   /**
-   * Query information about your account
+   * Query information about your account, including balances
    * Note: Weight: 20
    */
-  getSpotAccountStatus(
-    params: WSAPIAccountStatusRequest,
+  getSpotAccountInformation(
+    params: WSAPIAccountInformationRequest,
     wsKey?: WSAPIWsKeyMain,
-  ): Promise<WSAPIResponse<WSAPIAccountStatus>> {
+  ): Promise<WSAPIResponse<WSAPIAccountInformation>> {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'account.status',

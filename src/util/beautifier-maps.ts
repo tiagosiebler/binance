@@ -18,6 +18,19 @@ const rollingTickerEventMap = {
   n: 'totalTrades',
 };
 
+/**
+ * The beautifier map defines how specific properties are renamed into a more readable property name.
+ *
+ * At first, it's a simple key:value map. The key is the original property name (e.g. aggTrades or bookTickerEvent (for the top-level name of an event: ("bookTicker" + "Event"))).
+ *
+ * The values have different behaviours:
+ * - Value is an object, each child property is renamed to the value
+ *   e.g. aggTrades: { a: "aggTradeId" } -> aggTrades: { aggTradeId: value }
+ * - Value is a string, this points to another key in the map.
+ *   e.g. klineEvent: { k: "kline" } resolves to
+ *        klineEvent: { kline: { BEAUTIFIER_EVENT_MAP["kline"] } }
+ * - Value is an array, each element in that array is transformed into an object.
+ */
 export const BEAUTIFIER_EVENT_MAP = {
   aggTrades: {
     a: 'aggTradeId',
@@ -317,6 +330,13 @@ export const BEAUTIFIER_EVENT_MAP = {
     i: 'orderId',
     r: 'reason',
   },
+  CONDITIONAL_ORDER_TRADE_UPDATEEvent: {
+    e: 'eventType', // Event Type
+    E: 'eventTime', // Event Time
+    T: 'transactionTime', // Transaction Time
+    fs: 'eventBusinessUnit', // Event business unit
+    so: 'order', // order
+  },
   order: {
     s: 'symbol',
     c: 'clientOrderId',
@@ -326,6 +346,8 @@ export const BEAUTIFIER_EVENT_MAP = {
     q: 'originalQuantity',
     p: 'originalPrice',
     ap: 'averagePrice',
+    si: 'strategyId',
+    st: 'strategyType',
     sp: 'stopPrice',
     x: 'executionType',
     X: 'orderStatus',
@@ -351,6 +373,8 @@ export const BEAUTIFIER_EVENT_MAP = {
     V: 'selfTradePrevention',
     pm: 'priceMatch',
     gtd: 'goodTillDate',
+    os: 'strategyOrderStatus',
+    ut: 'orderUpdateTime', // Order update Time
   },
   ACCOUNT_CONFIG_UPDATEEvent: {
     e: 'eventType',
@@ -639,7 +663,16 @@ export const BEAUTIFIER_EVENT_MAP = {
     z: 'orderFilledAccumulatedQuantity',
     T: 'orderTradeTime',
   },
-
+  liabilityChangeEvent: {
+    e: 'eventType', // Event Type
+    E: 'eventTime', // Event Time
+    a: 'asset', //Asset
+    t: 'type', //Type
+    T: 'transactionId', //Transaction ID
+    p: 'principal', //Principal
+    i: 'interest', //Interest
+    l: 'totalLiability', //Total Liability
+  },
   contractInfoEvent: {
     e: 'eventType', // Event Type
     E: 'eventTime', // Event Time
@@ -662,7 +695,6 @@ export const BEAUTIFIER_EVENT_MAP = {
       ma: 'maxLeverage', // Max leverage for this bracket
     },
   ],
-
   GRID_UPDATEEvent: {
     e: 'eventType', // Event Type
     T: 'transactionTime', // Transaction Time

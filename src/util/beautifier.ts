@@ -6,13 +6,14 @@ export interface BeautifierConfig {
 }
 
 export default class Beautifier {
-  private beautificationMap: Record<string, Record<string, any>>;
+  private beautificationMap: Record<string, Record<string, any> | string> =
+    BEAUTIFIER_EVENT_MAP;
 
   private floatKeys: string[];
 
   private floatKeysHashMap: Record<string, boolean>;
 
-  private config: BeautifierConfig | undefined;
+  private config: BeautifierConfig;
 
   constructor(config: BeautifierConfig) {
     this.config = config;
@@ -65,6 +66,7 @@ export default class Beautifier {
       'ignored',
       'income',
       'indexPrice',
+      'interest',
       'ipoable',
       'ipoing',
       'isolatedMargin',
@@ -112,6 +114,7 @@ export default class Beautifier {
       'price',
       'priceChange',
       'priceChangePercent',
+      'principal',
       'quantity',
       'qty',
       'quoteAssetVolume',
@@ -129,6 +132,7 @@ export default class Beautifier {
       'takerCommission',
       'takerQuoteAssetVolume',
       'tickSize',
+      'totalLiability',
       'totalRebateVol',
       'totalTrades',
       'totalTradeVol',
@@ -158,11 +162,14 @@ export default class Beautifier {
     this.floatKeys.forEach((keyName) => {
       this.floatKeysHashMap[keyName] = true;
     });
+  }
 
-    this.beautificationMap = BEAUTIFIER_EVENT_MAP;
+  setWarnIfMissing(value: boolean) {
+    this.config.warnKeyMissingInMap = value;
   }
 
   beautifyValueWithKey(key: string | number, val: unknown) {
+    // console.log('beautifier.beautifyValueWithKey()', { key, val });
     if (typeof val === 'string' && this.floatKeysHashMap[key] && val !== '') {
       const result = parseFloat(val);
       if (isNaN(result)) {
@@ -177,6 +184,7 @@ export default class Beautifier {
    * Beautify array or object, recurisvely
    */
   beautifyObjectValues(data: any | any[]) {
+    // console.log('beautifier.beautifyObjectValues()', { data });
     if (Array.isArray(data)) {
       return this.beautifyArrayValues(data);
     }
@@ -197,6 +205,7 @@ export default class Beautifier {
   }
 
   beautifyArrayValues(data: any[], parentKey?: string | number) {
+    // console.log('beautifier.beautifyArrayValues()', { data, parentKey });
     const beautifedArray: any[] = [];
     for (const [key, val] of data.entries()) {
       const type = typeof val;
@@ -212,7 +221,6 @@ export default class Beautifier {
   }
 
   beautify(data: any, key?: string | number) {
-    // console.log('beautify()', { key });
     if (typeof key !== 'string' && typeof key !== 'number') {
       console.warn(
         `beautify(object, ${key}) is not valid key - beautification failed `,
@@ -223,6 +231,7 @@ export default class Beautifier {
     }
 
     const knownBeautification = this.beautificationMap[key];
+    // console.log('beautify: ', { key, knownBeautification }, data);
     if (!knownBeautification) {
       const valueType = typeof data;
       const isPrimitive =
@@ -251,18 +260,21 @@ export default class Beautifier {
     }
 
     const newItem = {};
-    for (const key in data) {
-      const value = data[key];
+    for (const propertyKey in data) {
+      const value = data[propertyKey];
       const valueType = typeof value;
 
-      let newKey = knownBeautification[key] || key;
+      let newKey = knownBeautification[propertyKey] || propertyKey;
       if (Array.isArray(newKey)) {
         newKey = newKey[0];
       }
 
       if (!Array.isArray(value)) {
         if (valueType === 'object' && value !== null) {
-          newItem[newKey] = this.beautify(value, knownBeautification[key]);
+          newItem[newKey] = this.beautify(
+            value,
+            knownBeautification[propertyKey],
+          );
         } else {
           newItem[newKey] = this.beautifyValueWithKey(newKey, value);
         }
@@ -271,10 +283,43 @@ export default class Beautifier {
 
       const newArray: any[] = [];
       if (Array.isArray(this.beautificationMap[newKey])) {
+        // console.log('beautify().isArray(): ', {
+        //   newKey,
+        //   arrayFromMap: this.beautificationMap[newKey],
+        // });
         for (const elementValue of value) {
           const mappedBeautification =
-            this.beautificationMap[knownBeautification[key]];
+            this.beautificationMap[knownBeautification[propertyKey]];
+
+          // console.log('mapped meautification: ', {
+          //   knownBeautification: knownBeautification[propertyKey],
+          //   mappedBeautification,
+          //   key,
+          //   subKey: propertyKey,
+          //   newKey,
+          // });
+
+          if (!mappedBeautification) {
+            // console.warn(
+            //   `Beautifier(): found map for "${key}" but property with array ("${propertyKey}") is missing in map: `,
+            //   {
+            //     eventMapKey: key,
+            //     propertyKey: propertyKey,
+            //     elementValue,
+            //     knownBeautification,
+            //     value,
+            //     // beautfTest1: this.beautify(value, propertyKey),
+            //   },
+            // );
+            newArray.push(elementValue);
+
+            continue;
+          }
           const childMapping = mappedBeautification[0];
+          // const childMapping =
+          //   typeof mappedBeautification === 'string' // Pointer to another key
+          //     ? this.beautificationMap[mappedBeautification]
+          //     : mappedBeautification[0];
 
           if (typeof childMapping === 'object' && childMapping !== null) {
             const mappedResult = {};

@@ -35,6 +35,7 @@ import { SignAlgorithm } from './util/webCryptoAPI';
 import { RestClientCache } from './util/websockets/rest-client-cache';
 import { UserDataStreamManager } from './util/websockets/user-data-stream-manager';
 import {
+  EVENT_TYPES_USER_DATA,
   getLegacyWsKeyContext,
   getLegacyWsStoreKeyWithContext,
   getMaxTopicsPerSubscribeEvent,
@@ -50,6 +51,7 @@ import {
   MiscUserDataConnectionState,
   parseEventTypeFromMessage,
   parseRawWsMessage,
+  resolveUserDataMarketForWsKey,
   resolveWsKeyForLegacyMarket,
   WS_AUTH_ON_CONNECT_KEYS,
   WS_KEY_MAP,
@@ -86,7 +88,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   private restClientCache: RestClientCache = new RestClientCache();
 
   private beautifier: Beautifier = new Beautifier({
-    warnKeyMissingInMap: true,
+    warnKeyMissingInMap: false,
   });
 
   private userDataStreamManager: UserDataStreamManager;
@@ -96,6 +98,10 @@ export class WebsocketClient extends BaseWebsocketClient<
 
   constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger) {
     super(options, logger);
+
+    if (options?.beautifyWarnIfMissing) {
+      this.beautifier.setWarnIfMissing(options.beautifyWarnIfMissing);
+    }
 
     /**
      * Binance uses native WebSocket ping/pong frames, which cannot be directly used in
@@ -107,7 +113,7 @@ export class WebsocketClient extends BaseWebsocketClient<
      * be found here: https://stackoverflow.com/questions/10585355/sending-websocket-ping-pong-frame-from-browser
      */
     if (!isWSPingFrameAvailable()) {
-      this.logger.trace(
+      this.logger.info(
         'Disabled WS heartbeats. WS.ping() is not available in your environment.',
       );
       this.options.disableHeartbeat = true;
@@ -126,9 +132,12 @@ export class WebsocketClient extends BaseWebsocketClient<
           isTestnet?: boolean;
           respawnAttempt?: number;
         } = {},
-      ) => this.respawnUserDataStream(wsKey, market, context),
-      getWsUrlFn: (wsKey: WsKey, connectionType: 'market' | 'userData') =>
-        this.getWsUrl(wsKey, connectionType),
+      ) => {
+        return this.respawnUserDataStream(wsKey, market, context);
+      },
+      getWsUrlFn: (wsKey: WsKey, connectionType: 'market' | 'userData') => {
+        return this.getWsUrl(wsKey, connectionType);
+      },
       getRestClientOptionsFn: () => this.getRestClientOptions(),
       getWsClientOptionsfn: () => this.options,
       closeWsFn: (wsKey: WsKey, force?: boolean) => this.close(wsKey, force),
@@ -267,6 +276,9 @@ export class WebsocketClient extends BaseWebsocketClient<
    * Authentication is automatic. If you didn't request authentication yourself, there might
    * be a small delay after your first request, while the SDK automatically authenticates.
    *
+   * Misc options:
+   * - signRequest: boolean - if included, this request will automatically be signed with the available credentials.
+   *
    * @param wsKey - The connection this event is for. Currently only "v5PrivateTrade" is supported
    * for Bybit, since that is the dedicated WS API connection.
    * @param operation - The command being sent, e.g. "order.create" to submit a new order.
@@ -298,7 +310,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   >(
     wsKey: WsKey,
     operation: TWSOperation,
-    params: TWSParams,
+    params: TWSParams & { signRequest?: boolean },
   ): Promise<TWSAPIResponse> {
     /**
      * Spot: https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
@@ -310,11 +322,14 @@ export class WebsocketClient extends BaseWebsocketClient<
     const resolvedWsKey = this.options.testnet ? getTestnetWsKey(wsKey) : wsKey;
 
     // this.logger.trace(`sendWSAPIRequest(): assertIsConnected("${wsKey}")...`);
+    const timestampBeforeAuth = Date.now();
     await this.assertIsConnected(resolvedWsKey);
     // this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
 
     // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
     await this.assertIsAuthenticated(resolvedWsKey);
+    const timestampAfterAuth = Date.now();
+
     // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
 
     const request: WsRequestOperationBinance<string> = {
@@ -324,6 +339,23 @@ export class WebsocketClient extends BaseWebsocketClient<
         ...params,
       },
     };
+
+    /**
+     * Some WS API requests require a timestamp to be included. assertIsConnected and assertIsAuthenticated
+     * can introduce a small delay before the actual request is sent, if not connected before that request is
+     * made. This can lead to a curious race condition, where the request timestamp is before
+     * the "authorizedSince" timestamp - as such, binance does not recognise the session as already authenticated.
+     *
+     * The below mechanism measures any delay introduced from the assert calls, and if the request includes a timestamp,
+     * it offsets that timestamp by the delay.
+     */
+    const delayFromAuthAssert = timestampAfterAuth - timestampBeforeAuth;
+    if (delayFromAuthAssert && request.params?.timestamp) {
+      request.params.timestamp += delayFromAuthAssert;
+      this.logger.trace(
+        `sendWSAPIRequest(): adjust timestamp - delay seen by connect/auth assert and delayed request includes timestamp, adjusting timestamp by ${delayFromAuthAssert}ms`,
+      );
+    }
 
     if (requiresWSAPINewClientOID(request, resolvedWsKey)) {
       validateWSAPINewClientOID(request, resolvedWsKey);
@@ -335,25 +367,34 @@ export class WebsocketClient extends BaseWebsocketClient<
     // Store deferred promise, resolved within the "resolveEmittableEvents" method while parsing incoming events
     const promiseRef = getPromiseRefForWSAPIRequest(resolvedWsKey, signedEvent);
 
-    const deferredPromise =
-      this.getWsStore().createDeferredPromise<TWSAPIResponse>(
-        resolvedWsKey,
-        promiseRef,
-        false,
-      );
+    const deferredPromise = this.getWsStore().createDeferredPromise<
+      TWSAPIResponse & { request: any }
+    >(resolvedWsKey, promiseRef, false);
 
-    deferredPromise.promise?.catch((e) => {
-      if (typeof e === 'string') {
-        this.logger.error('unexpcted string', { e });
-        throw e;
-      }
-      e.request = {
-        wsKey: resolvedWsKey,
-        operation,
-        params,
-      };
-      throw e;
-    });
+    deferredPromise.promise
+      ?.then((res) => {
+        if (!Array.isArray(res)) {
+          res.request = {
+            wsKey: resolvedWsKey,
+            ...signedEvent,
+          };
+        }
+
+        return res;
+      })
+      .catch((e) => {
+        if (typeof e === 'string') {
+          this.logger.error('unexpcted string', { e });
+          return e;
+        }
+        e.request = {
+          wsKey: resolvedWsKey,
+          operation,
+          params: signedEvent.params,
+        };
+        // throw e;
+        return e;
+      });
 
     // this.logger.trace(
     //   `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,
@@ -409,8 +450,50 @@ export class WebsocketClient extends BaseWebsocketClient<
   private async signWSAPIRequest<TRequestParams extends string = string>(
     requestEvent: WsRequestOperationBinance<TRequestParams>,
   ): Promise<WsRequestOperationBinance<TRequestParams>> {
-    // Not needed for Binance. Auth happens only on connection open, automatically.
+    if (!requestEvent.params) {
+      return requestEvent;
+    }
+
+    /**
+     *
+     */
+    // Not needed for most commands on binance Binance. Auth happens only on connection open, automatically.
     // Faster than performing auth for every request
+    // However, some commands don't work without this for some reason...
+    const { signRequest, ...otherParams } = requestEvent.params;
+    if (signRequest) {
+      const strictParamValidation = true;
+      const encodeValues = true;
+      const filterUndefinedParams = true;
+
+      const semiFinalRequestParams = {
+        apiKey: this.options.api_key,
+        ...otherParams,
+      };
+
+      const serialisedParams = serialiseParams(
+        semiFinalRequestParams,
+        strictParamValidation,
+        encodeValues,
+        filterUndefinedParams,
+      );
+
+      const signature = await this.signMessage(
+        serialisedParams,
+        this.options.api_secret!,
+        'base64',
+        'SHA-256',
+      );
+
+      return {
+        ...requestEvent,
+        params: {
+          ...semiFinalRequestParams,
+          signature,
+        },
+      };
+    }
+
     return requestEvent;
   }
 
@@ -431,19 +514,19 @@ export class WebsocketClient extends BaseWebsocketClient<
 
       // Note: You still have to specify the timestamp parameter for SIGNED requests.
 
-      const recvWindow = this.options.recvWindow || 0;
-      const timestamp = Date.now() + (this.getTimeOffsetMs() || 0) + recvWindow;
+      // const recvWindow = this.options.recvWindow || 0;
+      const timestamp = Date.now() + (this.getTimeOffsetMs() || 0); // + recvWindow;
 
       const strictParamValidation = true;
       const encodeValues = true;
       const filterUndefinedParams = true;
 
-      const authParams = {
+      const params = {
         apiKey: this.options.api_key,
         timestamp,
       };
       const serialisedParams = serialiseParams(
-        authParams,
+        params,
         strictParamValidation,
         encodeValues,
         filterUndefinedParams,
@@ -460,7 +543,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         id: this.getNewRequestId(),
         method: 'session.logon',
         params: {
-          ...authParams,
+          ...params,
           signature,
         },
       };
@@ -668,33 +751,85 @@ export class WebsocketClient extends BaseWebsocketClient<
     wsKey: WsKey,
     event: MessageEventLike,
   ): EmittableEvent[] {
+    this.logger.trace(`resolveEmittableEvents(${wsKey}): `, event?.data);
     const results: EmittableEvent[] = [];
 
     try {
-      // const parsed = JSON.parse(event.data);
-      const parsed = parseRawWsMessage(event);
-      const eventType = parseEventTypeFromMessage(wsKey, parsed);
+      /**
+       *
+       * Extract event from JSON
+       *
+       */
+      const parsedEvent = parseRawWsMessage(event);
+
+      /**
+       *
+       * Minor data normalisation & preparation
+       *
+       */
+
+      // ws consumers: { data: ... }
+      // ws api consumers (user data): { event: ... }
+      // other responses: { ... }
+      const eventData = parsedEvent?.data || parsedEvent?.event || parsedEvent;
+      const parsedEventId = parsedEvent?.id;
+      const parsedEventErrorCode = parsedEvent?.error?.code;
+      const streamName = parsedEvent?.stream;
+
+      const eventType =
+        // First try, the child node
+        parseEventTypeFromMessage(wsKey, eventData) ||
+        // Second try, the parent
+        parseEventTypeFromMessage(wsKey, parsedEvent);
 
       // Some events don't include the topic (event name)
       // This tries to extract and append it, using available context
-      appendEventIfMissing(parsed, wsKey);
+      appendEventIfMissing(eventData, wsKey, eventType);
+
       const legacyContext = getLegacyWsKeyContext(wsKey);
-      if (legacyContext) {
-        parsed.wsMarket = legacyContext.market;
+      const wsMarket = legacyContext
+        ? legacyContext.market
+        : resolveUserDataMarketForWsKey(wsKey);
+
+      // This attaches `wsMarket` and `streamName` to incoming events
+      // If the event is an array, it's attached to each element in the array
+      if (Array.isArray(eventData)) {
+        for (const row of eventData) {
+          row.wsMarket = wsMarket;
+          if (streamName && !row.streamName) {
+            row.streamName = streamName;
+          }
+        }
+      } else {
+        eventData.wsMarket = wsMarket;
+        if (streamName && !eventData.streamName) {
+          eventData.streamName = streamName;
+        }
       }
 
+      /**
+       *
+       *
+       * Main parsing logic below:
+       *
+       *
+       */
       const traceEmittable = false;
       if (traceEmittable) {
         this.logger.trace('resolveEmittableEvents', {
           ...WS_LOGGER_CATEGORY,
           wsKey,
+          parsedEvent: JSON.stringify(parsedEvent),
+          parsedEventData: JSON.stringify(eventData),
           eventType,
-          parsed: JSON.stringify(parsed),
+          properties: {
+            parsedEventId,
+            parsedEventErrorCode,
+          },
           // parsed: JSON.stringify(parsed, null, 2),
         });
       }
-      const reqId = parsed.id;
-      const isWSAPIResponse = typeof parsed.id === 'number';
+      const isWSAPIResponse = typeof parsedEventId === 'number';
 
       const EVENTS_AUTHENTICATED = ['auth'];
       const EVENTS_RESPONSES = [
@@ -743,18 +878,19 @@ export class WebsocketClient extends BaseWebsocketClient<
          */
 
         const isError =
-          typeof parsed.error?.code === 'number' && parsed.error?.code !== 0;
+          typeof parsedEventErrorCode === 'number' &&
+          parsedEventErrorCode !== 0;
 
         // This is the counterpart to getPromiseRefForWSAPIRequest
-        const promiseRef = [wsKey, reqId].join('_');
+        const promiseRef = [wsKey, parsedEventId].join('_');
 
-        if (!reqId) {
+        if (!parsedEventId) {
           this.logger.error(
             'WS API response is missing reqId - promisified workflow could get stuck. If this happens, please get in touch with steps to reproduce. Trace:',
             {
               wsKey,
               promiseRef,
-              parsedEvent: parsed,
+              parsedEvent: eventData,
             },
           );
         }
@@ -767,7 +903,7 @@ export class WebsocketClient extends BaseWebsocketClient<
               promiseRef,
               {
                 wsKey,
-                ...parsed,
+                ...eventData,
               },
               true,
             );
@@ -775,26 +911,26 @@ export class WebsocketClient extends BaseWebsocketClient<
             this.logger.error('Exception trying to reject WSAPI promise', {
               wsKey,
               promiseRef,
-              parsedEvent: parsed,
+              parsedEvent: eventData,
               e,
             });
           }
 
           results.push({
             eventType: 'exception',
-            event: parsed,
+            event: eventData,
             isWSAPIResponse: isWSAPIResponse,
           });
           return results;
         }
 
         // authenticated
-        if (parsed.result?.apiKey) {
+        if (eventData.result?.apiKey) {
           // Note: Without this check, this will also trigger "onWsAuthenticated()" for session.status requests
           if (this.getWsStore().getAuthenticationInProgressPromise(wsKey)) {
             results.push({
               eventType: 'authenticated',
-              event: parsed,
+              event: eventData,
               isWSAPIResponse: isWSAPIResponse,
             });
           }
@@ -807,7 +943,7 @@ export class WebsocketClient extends BaseWebsocketClient<
             promiseRef,
             {
               wsKey,
-              ...parsed,
+              ...eventData,
             },
             true,
           );
@@ -815,7 +951,7 @@ export class WebsocketClient extends BaseWebsocketClient<
           this.logger.error('Exception trying to resolve WSAPI promise', {
             wsKey,
             promiseRef,
-            parsedEvent: parsed,
+            parsedEvent: eventData,
             e,
           });
         }
@@ -823,12 +959,12 @@ export class WebsocketClient extends BaseWebsocketClient<
         results.push({
           eventType: 'response',
           event: {
-            ...parsed,
-            request: this.getCachedMidFlightRequest(wsKey, reqId),
+            ...eventData,
+            request: this.getCachedMidFlightRequest(wsKey, `${parsedEventId}`),
           },
           isWSAPIResponse: isWSAPIResponse,
         });
-        this.removeCachedMidFlightRequest(wsKey, reqId);
+        this.removeCachedMidFlightRequest(wsKey, `${parsedEventId}`);
 
         return results;
       }
@@ -845,7 +981,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
         this.logger.info(
           `${legacyContext.market} listenKey EXPIRED - attempting to respawn user data stream: ${wsKey}`,
-          parsed,
+          eventData,
         );
 
         // Just closing the connection (with the last parameter as true) will handle cleanup and respawn
@@ -859,7 +995,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
       if (this.options.beautify) {
         const beautifiedMessage = this.beautifier.beautifyWsMessage(
-          parsed,
+          eventData,
           eventType,
           false,
           // Suffix all events for the beautifier, if market is options
@@ -875,21 +1011,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
         // emit an additional event for user data messages
         if (!Array.isArray(beautifiedMessage) && eventType) {
-          if (
-            [
-              'balanceUpdate',
-              'executionReport',
-              'listStatus',
-              'listenKeyExpired',
-              'outboundAccountPosition',
-              'ACCOUNT_CONFIG_UPDATE',
-              'ACCOUNT_UPDATE',
-              'MARGIN_CALL',
-              'ORDER_TRADE_UPDATE',
-              'TRADE_LITE',
-              'CONDITIONAL_ORDER_TRIGGER_REJECT',
-            ].includes(eventType)
-          ) {
+          if (EVENT_TYPES_USER_DATA.includes(eventType)) {
             results.push({
               eventType: 'formattedUserDataMessage',
               event: beautifiedMessage,
@@ -903,7 +1025,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       if (typeof eventType === 'string') {
         results.push({
           eventType: 'message',
-          event: parsed?.data ? parsed.data : parsed,
+          event: eventData?.data ? eventData.data : eventData,
         });
 
         return results;
@@ -912,19 +1034,19 @@ export class WebsocketClient extends BaseWebsocketClient<
       // Messages that are a "reply" to a request/command (e.g. subscribe to these topics) typically include the "op" property
       if (typeof eventType === 'string') {
         // Failed request
-        if (parsed.success === false) {
+        if (eventData.success === false) {
           results.push({
             eventType: 'exception',
-            event: parsed,
+            event: eventData,
           });
           return results;
         }
 
-        // These are r  equest/reply pattern events (e.g. after subscribing to topics or authenticating)
+        // These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
         if (EVENTS_RESPONSES.includes(eventType)) {
           results.push({
             eventType: 'response',
-            event: parsed,
+            event: eventData,
           });
           return results;
         }
@@ -933,25 +1055,26 @@ export class WebsocketClient extends BaseWebsocketClient<
         if (EVENTS_AUTHENTICATED.includes(eventType)) {
           results.push({
             eventType: 'authenticated',
-            event: parsed,
+            event: eventData,
           });
           return results;
         }
+
         this.logger.error(
-          `!! Unhandled string operation type "${eventType}". Defaulting to "update" channel...`,
-          parsed,
+          `!! Unhandled string operation type "${eventType}". Defaulting to "update" channel... raw event:`,
+          JSON.stringify(parsedEvent),
         );
       } else {
         this.logger.error(
-          `!!!! Unhandled non-string event type "${eventType}". Defaulting to "update" channel...`,
-          parsed,
+          `!!!! Unhandled non-string event type "${eventType}". Defaulting to "update" channel... raw event:`,
+          JSON.stringify(parsedEvent),
         );
       }
 
       // In case of catastrophic failure, fallback to noisy emit update
       results.push({
         eventType: 'message',
-        event: parsed,
+        event: eventData,
       });
     } catch (e) {
       results.push({

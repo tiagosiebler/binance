@@ -75,7 +75,7 @@ async function main() {
    * it will automatically be replaced with a healthy connection.
    *
    * This "not connected yet" scenario can add an initial delay to your first command. If you want to prepare a connection
-   * in advance, you can ask the WebsocketClient to prepare it before you start submitting commands. This is optional.
+   * in advance, you can ask the WebsocketClient to prepare it before you start submitting commands (using the connectWSAPI() method shown below). This is optional.
    *
    */
 
@@ -94,15 +94,15 @@ async function main() {
    * - coinmWSAPITestnet: coinm futures testnet
    */
 
-  // const WS_API_WS_KEY: WSAPIWsKey = WS_KEY_MAP.mainWSAPI;
-  const WS_API_WS_KEY: WSAPIWsKey = WS_KEY_MAP.mainWSAPITestnet;
+  // Note: if you set "testnet: true" in the config, this will automatically resolve to WS_KEY_MAP.mainWSAPITestnet (you can keep using mainWSAPI).
+  const WS_API_WS_KEY: WSAPIWsKey = WS_KEY_MAP.mainWSAPI;
 
   // Optional, if you see RECV Window errors, you can use this to manage time issues. However, make sure you sync your system clock first!
   // https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow
-  wsClient.setTimeOffsetMs(-5000);
+  // wsClient.setTimeOffsetMs(-5000);
 
   // Optional, see above. Can be used to prepare a connection before sending commands. This is not required and will happen automatically
-  await wsClient.connectWSAPI(WS_API_WS_KEY);
+  // await wsClient.connectWSAPI(WS_API_WS_KEY);
 
   try {
     const wsAPIResponse = await wsClient.sendWSAPIRequest(

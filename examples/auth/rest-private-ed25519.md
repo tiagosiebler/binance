@@ -2,8 +2,7 @@
 
 ## Creating Ed25519 Keys
 
-Officially, binance recommends downloading and running a key generator from their repo. Guidance for this can be found on the binance website when trying to add a new Ed25519 API key, or in their GitHub repository: https://github.com/binance/asymmetric-key-generator
-
+Officially, binance recommends downloading and running a key generator from their repo. Guidance for this can be found on the [binance website](https://www.binance.com/en/support/faq/detail/6b9a63f1e3384cf48a2eedb82767a69a) when trying to add a new Ed25519 API key, or in their GitHub repository: https://github.com/binance/asymmetric-key-generator
 
 ## Using the Ed25519 public key to get an API key from Binance
 
