@@ -490,8 +490,6 @@ export function logInvalidOrderId(
  *
  * - For the old WebsocketClient, this is extracted using the WsKey.
  * - For the new multiplex Websocketclient, this is extracted using the "stream" parameter.
- *
- * // TODO: consolidate me with similar functionality? Check where it's used and build some tests.
  */
 export function appendEventIfMissing(
   wsMsg: any,

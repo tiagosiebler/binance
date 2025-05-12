@@ -485,11 +485,6 @@ export class WebsocketClient extends BaseWebsocketClient<
         'SHA-256',
       );
 
-      console.log('signWSAPIRequest()', {
-        semiFinalRequestParams,
-        serialisedParams,
-      });
-
       return {
         ...requestEvent,
         params: {

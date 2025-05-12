@@ -369,7 +369,7 @@ export class UserDataStreamManager {
   async triggerUserDataReconnectionWorkflow(
     legacyWsKey: string,
   ): Promise<void> {
-    console.log(`triggerCustomReconnectionWorkflow(${legacyWsKey})`);
+    this.logger.trace(`triggerCustomReconnectionWorkflow(${legacyWsKey})`);
     if (legacyWsKey.includes('userData')) {
       const legacyWsKeyContext = getLegacyWsKeyContext(legacyWsKey);
       if (!legacyWsKeyContext) {
