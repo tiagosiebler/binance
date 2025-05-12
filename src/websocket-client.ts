@@ -455,11 +455,12 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
 
     /**
+     * Not really needed for most commands on Binance. Their WS API supports
+     * sending signed WS API commands, but that adds latency to every request.
      *
+     * Instead, this SDK will authenticate once after connecting. All requests
+     * after authentication can then be sent without sign for maximum speed.
      */
-    // Not needed for most commands on binance Binance. Auth happens only on connection open, automatically.
-    // Faster than performing auth for every request
-    // However, some commands don't work without this for some reason...
     const { signRequest, ...otherParams } = requestEvent.params;
     if (signRequest) {
       const strictParamValidation = true;
