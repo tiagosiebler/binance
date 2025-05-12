@@ -330,6 +330,13 @@ export const BEAUTIFIER_EVENT_MAP = {
     i: 'orderId',
     r: 'reason',
   },
+  CONDITIONAL_ORDER_TRADE_UPDATEEvent: {
+    e: 'eventType', // Event Type
+    E: 'eventTime', // Event Time
+    T: 'transactionTime', // Transaction Time
+    fs: 'eventBusinessUnit', // Event business unit
+    so: 'order', // order
+  },
   order: {
     s: 'symbol',
     c: 'clientOrderId',
@@ -339,6 +346,8 @@ export const BEAUTIFIER_EVENT_MAP = {
     q: 'originalQuantity',
     p: 'originalPrice',
     ap: 'averagePrice',
+    si: 'strategyId',
+    st: 'strategyType',
     sp: 'stopPrice',
     x: 'executionType',
     X: 'orderStatus',
@@ -364,6 +373,8 @@ export const BEAUTIFIER_EVENT_MAP = {
     V: 'selfTradePrevention',
     pm: 'priceMatch',
     gtd: 'goodTillDate',
+    os: 'strategyOrderStatus',
+    ut: 'orderUpdateTime', // Order update Time
   },
   ACCOUNT_CONFIG_UPDATEEvent: {
     e: 'eventType',
@@ -652,7 +663,6 @@ export const BEAUTIFIER_EVENT_MAP = {
     z: 'orderFilledAccumulatedQuantity',
     T: 'orderTradeTime',
   },
-
   contractInfoEvent: {
     e: 'eventType', // Event Type
     E: 'eventTime', // Event Time
@@ -675,7 +685,6 @@ export const BEAUTIFIER_EVENT_MAP = {
       ma: 'maxLeverage', // Max leverage for this bracket
     },
   ],
-
   GRID_UPDATEEvent: {
     e: 'eventType', // Event Type
     T: 'transactionTime', // Transaction Time
