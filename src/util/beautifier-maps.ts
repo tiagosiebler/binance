@@ -663,6 +663,16 @@ export const BEAUTIFIER_EVENT_MAP = {
     z: 'orderFilledAccumulatedQuantity',
     T: 'orderTradeTime',
   },
+  liabilityChangeEvent: {
+    e: 'eventType', // Event Type
+    E: 'eventTime', // Event Time
+    a: 'asset', //Asset
+    t: 'type', //Type
+    T: 'transactionId', //Transaction ID
+    p: 'principal', //Principal
+    i: 'interest', //Interest
+    l: 'totalLiability', //Total Liability
+  },
   contractInfoEvent: {
     e: 'eventType', // Event Type
     E: 'eventTime', // Event Time
