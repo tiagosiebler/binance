@@ -1139,7 +1139,9 @@ export class WebsocketClient extends BaseWebsocketClient<
   }
 
   /**
-   * Subscribe to spot user data stream - listen key is automaticallyr generated. Calling multiple times only opens one connection.
+   * Subscribe to spot user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group (e.g. port 9443 (main) vs 443 (main2))
    */
   public async subscribeSpotUserDataStream(
     wsKey: WsKey = 'main',
@@ -1182,7 +1184,9 @@ export class WebsocketClient extends BaseWebsocketClient<
   }
 
   /**
-   * Subscribe to margin user data stream - listen key is automatically generated.
+   * Subscribe to margin user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group (e.g. port 9443 (main) vs 443 (main2))
    */
   public async subscribeCrossMarginUserDataStream(
     wsKey: WsKey = 'main',
@@ -1221,7 +1225,9 @@ export class WebsocketClient extends BaseWebsocketClient<
   }
 
   /**
-   * Subscribe to isolated margin user data stream - listen key is automatically generated.
+   * Subscribe to isolated margin user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group (e.g. port 9443 (main) vs 443 (main2))
    */
   public async subscribeIsolatedMarginUserDataStream(
     symbol: string,
@@ -1265,7 +1271,9 @@ export class WebsocketClient extends BaseWebsocketClient<
   }
 
   /**
-   * Subscribe to margin risk user data stream - listen key is automatically generated.
+   * Subscribe to margin risk user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group (e.g. port 9443 (main) vs 443 (main2))
    */
   public async subscribeMarginRiskUserDataStream(
     wsKey: WsKey = 'main',
@@ -1492,7 +1500,9 @@ export class WebsocketClient extends BaseWebsocketClient<
    **/
 
   /**
-   * Subscribe to USD-M Futures user data stream - listen key is automatically generated.
+   * Subscribe to USD-M Futures user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
    */
   public async subscribeUsdFuturesUserDataStream(
     wsKey: WsKey = 'usdm', // usdm | usdmTestnet
@@ -1548,7 +1558,9 @@ export class WebsocketClient extends BaseWebsocketClient<
   }
 
   /**
-   * Subscribe to COIN-M Futures user data stream - listen key is automatically generated.
+   * Subscribe to COIN-M Futures user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
    */
   public async subscribeCoinFuturesUserDataStream(
     wsKey: WsKey = 'coinm', // coinm | coinmTestnet
@@ -1589,7 +1601,9 @@ export class WebsocketClient extends BaseWebsocketClient<
   }
 
   /**
-   * Subscribe to Portfolio Margin user data stream - listen key is automatically generated.
+   * Subscribe to Portfolio Margin user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
    */
   public async subscribePortfolioMarginUserDataStream(
     wsKey: WsKey = 'portfolioMarginUserData',
