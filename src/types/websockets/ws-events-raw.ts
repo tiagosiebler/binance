@@ -395,6 +395,17 @@ export interface WsMessageIndexPriceUpdateEventRaw extends WsSharedBase {
   p: numberInString;
 }
 
+export interface WsMessageMarkPriceUpdateEventRaw extends WsSharedBase {
+  e: 'markPriceUpdate';
+  E: number;
+  s: string;
+  p: string;
+  P: string;
+  i: string;
+  r: string;
+  T: number;
+}
+
 export interface WsMessageForceOrderRaw extends WsSharedBase {
   e: 'forceOrder';
   E: number;
