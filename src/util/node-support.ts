@@ -20,11 +20,13 @@ export async function signMessage(
     }
 
     // fallback to ed25519
+    // ed25519 requires b64 encoding
+    const ed25519Method: SignEncodeMethod = 'base64';
     return sign(null, Buffer.from(message), {
       key: secret,
       padding: constants.RSA_PKCS1_PSS_PADDING,
       saltLength: constants.RSA_PSS_SALTLEN_DIGEST,
-    }).toString(pemEncodeMethod);
+    }).toString(ed25519Method);
   }
 
   // fallback to hmac

@@ -645,6 +645,7 @@ export function parseRawWsMessage(event: any): any {
 export interface MiscUserDataConnectionState {
   isReconnecting?: boolean;
   respawnAttempt?: number;
+  symbol?: string; // isolated margin is per symbol
 }
 
 interface WsContext {

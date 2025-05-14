@@ -18,6 +18,7 @@ import {
   WebsocketClient,
   WsUserDataEvents,
 } from '../../src/index';
+import { WsConnectionStateEnum } from '../../src/util/websockets/WsStore.types';
 
 (async () => {
   const key = process.env.API_KEY_COM || 'APIKEY';
@@ -154,13 +155,86 @@ import {
    *
    * Once subscribed, you don't need to do anything else. Listen-key keep-alive, refresh, reconnects, etc are all automatically handled by the SDK.
    */
-  wsClient.subscribeSpotUserDataStream();
-  // wsClient.subscribeCrossMarginUserDataStream();
-  // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
-  // wsClient.subscribeUsdFuturesUserDataStream();
 
-  // setTimeout(() => {
-  //   console.log('killing all connections');
-  //   wsClient.closeAll();
-  // }, 1000 * 15);
+  // Example 1: Spot, by default, routes to the "main" wss domain "wss://stream.binance.com:9443".
+  // No parameters needed, just call the subscribe function.
+  wsClient.subscribeSpotUserDataStream();
+
+  // // Example 2: Optional: subscribe to spot via other wss domains
+  wsClient.subscribeSpotUserDataStream('main2'); // routed to "wss://stream.binance.com:443"
+
+  // // Example 3: cross margin
+  wsClient.subscribeCrossMarginUserDataStream();
+
+  // Example 4: isolated margin
+  wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDC');
+
+  /**
+   * Futures
+   */
+
+  // Example 5: usdm futures
+  wsClient.subscribeUsdFuturesUserDataStream();
+
+  // Example 6: coinm futures
+  wsClient.subscribeCoinFuturesUserDataStream();
+
+  // Example 7: portfolio margin
+  // wsClient.subscribePortfolioMarginUserDataStream();
+
+  // Example 8: portfolio margin pro
+  // wsClient.subscribePortfolioMarginUserDataStream('portfolioMarginProUserData');
+
+  // after 15 seconds, kill user data connections one by one (or all at once)
+  setTimeout(() => {
+    // console.log('killing all connections at once');
+    // wsClient.closeAll();
+
+    // or:
+    console.log('killing individual connections');
+
+    try {
+      // console.log('killing all connections');
+      // wsClient.closeAll();
+      // Example 1:
+      wsClient.unsubscribeSpotUserDataStream();
+      // Example 2: use the wsKey to route to another domain
+      wsClient.unsubscribeSpotUserDataStream('main2');
+      // Example 3: cross margin
+      wsClient.unsubscribeCrossMarginUserDataStream();
+      // Example 4: isolated margin
+      wsClient.unsubscribeIsolatedMarginUserDataStream('BTCUSDC');
+      // Example 5: usdm futures
+      wsClient.unsubscribeUsdFuturesUserDataStream();
+      // Example 6: coinm futures
+      wsClient.unsubscribeCoinFuturesUserDataStream();
+      // // Example 7: portfolio margin
+      // wsClient.unsubscribePortfolioMarginUserDataStream();
+      // // Example 8: portfolio margin pro
+      // wsClient.unsubscribePortfolioMarginUserDataStream(
+      //   'portfolioMarginProUserData',
+      // );
+    } catch (e) {
+      console.error('Exception trying to close a user data stream: ', e);
+    }
+  }, 1000 * 15);
+
+  // after 20 seconds, list the remaining open connections
+  setTimeout(() => {
+    try {
+      console.log(
+        'remaining connections:',
+        wsClient
+          .getWsStore()
+          .getKeys()
+          .filter(
+            (key) =>
+              wsClient.getWsStore().get(key)?.connectionState ===
+              WsConnectionStateEnum.CONNECTED,
+          ),
+      );
+    } catch (e) {
+      console.error('Exception trying to close a user data stream: ', e);
+    }
+  }, 1000 * 20);
 })();

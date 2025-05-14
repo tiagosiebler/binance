@@ -1183,6 +1183,10 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
   }
 
+  public unsubscribeSpotUserDataStream(wsKey: WsKey = 'main'): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'spot');
+  }
+
   /**
    * Subscribe to margin user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
    *
@@ -1224,6 +1228,12 @@ export class WebsocketClient extends BaseWebsocketClient<
     }
   }
 
+  public unsubscribeCrossMarginUserDataStream(
+    wsKey: WsKey = 'main',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'crossMargin');
+  }
+
   /**
    * Subscribe to isolated margin user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
    *
@@ -1252,7 +1262,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         market,
         listenKey,
         forceNewConnection,
-        miscState,
+        { ...miscState, symbol },
       );
     } catch (e) {
       this.logger.error('Failed to connect to isolated margin user data', {
@@ -1264,10 +1274,17 @@ export class WebsocketClient extends BaseWebsocketClient<
         functionRef: 'subscribeIsolatedMarginUserDataStream()',
         wsKey,
         forceNewConnection,
-        ...miscState,
+        miscState: { ...miscState, symbol },
         error: e?.stack || e,
       });
     }
+  }
+
+  public unsubscribeIsolatedMarginUserDataStream(
+    symbol: string,
+    wsKey: WsKey = 'main',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'isolatedMargin', symbol);
   }
 
   /**
@@ -1309,6 +1326,200 @@ export class WebsocketClient extends BaseWebsocketClient<
         error: e?.stack || e,
       });
     }
+  }
+
+  public unsubscribeMarginRiskUserDataStream(
+    wsKey: WsKey = 'main',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'riskDataMargin');
+  }
+
+  /**
+   * --------------------------
+   * End of SPOT market websocket streams
+   * --------------------------
+   **/
+
+  /**
+   * Subscribe to USD-M Futures user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
+   */
+  public async subscribeUsdFuturesUserDataStream(
+    wsKey: WsKey = 'usdm', // usdm | usdmTestnet
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const isTestnet = wsKey === WS_KEY_MAP.usdmTestnet;
+      const restClient = this.restClientCache.getUSDMRestClient(
+        this.getRestClientOptions(),
+        this.options.requestOptions,
+      );
+
+      const { listenKey } = await restClient.getFuturesUserDataListenKey();
+
+      const market: WsMarket = isTestnet ? 'usdmTestnet' : 'usdm';
+
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to USD Futures user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeUsdFuturesUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  public unsubscribeUsdFuturesUserDataStream(
+    wsKey: WsKey = 'usdm',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'usdm');
+  }
+
+  /**
+   * Subscribe to COIN-M Futures user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
+   */
+  public async subscribeCoinFuturesUserDataStream(
+    wsKey: WsKey = 'coinm', // coinm | coinmTestnet
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const isTestnet = wsKey === WS_KEY_MAP.coinmTestnet;
+      const { listenKey } = await this.restClientCache
+        .getCOINMRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getFuturesUserDataListenKey();
+
+      const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
+
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to COIN Futures user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeCoinFuturesUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  public unsubscribeCoinFuturesUserDataStream(
+    wsKey: WsKey = 'coinm',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'coinm');
+  }
+
+  /**
+   * Subscribe to Portfolio Margin user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
+   */
+  public async subscribePortfolioMarginUserDataStream(
+    wsKey: WsKey = 'portfolioMarginUserData',
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const { listenKey } = await this.restClientCache
+        .getPortfolioClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getPMUserDataListenKey();
+
+      const market: WsMarket = 'portfoliom';
+
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to Portfolio Margin user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribePortfolioMarginUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  public unsubscribePortfolioMarginUserDataStream(
+    wsKey: WsKey = 'portfolioMarginUserData',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'portfoliom');
+  }
+
+  /**
+   * Close an active, dedicated, user data stream connection.
+   *
+   * @param wsKey - the connection key used to open the connection (excluding any automatic parameters such as the listen key). E.g. 'main' for spot/margin, 'usdm' for futures.
+   * @param wsMarket - the product group, recommended if you're subscribed to both spot and margin (since they're on the same wsKey (main)).
+   */
+  public async closeUserDataStream(
+    wsKey: WsKey,
+    wsMarket: WsMarket,
+    symbol?: string,
+  ): Promise<void> {
+    const wsKeys = this.getWsStore().getKeys();
+    const userDataWsKey = wsKeys.find((key) => {
+      if (key === wsKey) {
+        return true;
+      }
+
+      // built around the assumption in how per-connection listen key wskeys are created
+      // isolatedMargin_userData_BTCUSDC_6RszN123x213x1233x213x1233x213xx123x1uzkTV_main
+      // coinm_userData__WRAVTxGaQa1Nhd1243312kjn13kj12n3m5wRFv6JoFQgwUR5AEFofZtlk_coinm
+      const symbolSuffix = symbol ? '_' + symbol : '';
+      const prefixMatch = wsMarket + '_userData' + symbolSuffix;
+
+      return key.startsWith(prefixMatch) && key.endsWith(wsKey);
+    });
+
+    if (!userDataWsKey) {
+      throw new Error(
+        `No matching connection found with wsKey "${wsKey}". Active connections: ${JSON.stringify(wsKeys)}`,
+      );
+    }
+
+    // todo: close?
+    this.close(userDataWsKey);
   }
 
   protected isCustomReconnectionNeeded(wsKey: string): boolean {
@@ -1490,155 +1701,6 @@ export class WebsocketClient extends BaseWebsocketClient<
             : 1,
         });
       }, 1000 * delayInSeconds);
-    }
-  }
-
-  /**
-   * --------------------------
-   * End of SPOT market websocket streams
-   * --------------------------
-   **/
-
-  /**
-   * Subscribe to USD-M Futures user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
-   *
-   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
-   */
-  public async subscribeUsdFuturesUserDataStream(
-    wsKey: WsKey = 'usdm', // usdm | usdmTestnet
-    forceNewConnection?: boolean,
-    miscState?: MiscUserDataConnectionState,
-  ): Promise<WSConnectedResult | undefined> {
-    try {
-      const isTestnet = wsKey === WS_KEY_MAP.usdmTestnet;
-      const restClient = this.restClientCache.getUSDMRestClient(
-        this.getRestClientOptions(),
-        this.options.requestOptions,
-      );
-
-      const { listenKey } = await restClient.getFuturesUserDataListenKey();
-
-      const market: WsMarket = isTestnet ? 'usdmTestnet' : 'usdm';
-
-      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
-        wsKey,
-        market,
-        listenKey,
-        forceNewConnection,
-        miscState,
-      );
-    } catch (e) {
-      this.logger.error('Failed to connect to USD Futures user data', {
-        ...WS_LOGGER_CATEGORY,
-        error: e,
-      });
-      this.emit('exception', {
-        functionRef: 'subscribeUsdFuturesUserDataStream()',
-        wsKey,
-        forceNewConnection,
-        ...miscState,
-        error: e?.stack || e,
-      });
-    }
-  }
-
-  public async closeUserDataStream(wsKey: WsKey = 'usdm'): Promise<void> {
-    const wsKeys = this.getWsStore().getKeys();
-    const userDataWsKey = wsKeys.find((key) => {
-      return key === wsKey || key.startsWith(wsKey + '_userData');
-    });
-
-    if (!userDataWsKey) {
-      throw new Error(
-        `No matching connection found with wsKey "${wsKey}". Active connections: [${JSON.stringify(wsKey)}]`,
-      );
-    }
-
-    this.close(userDataWsKey);
-  }
-
-  /**
-   * Subscribe to COIN-M Futures user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
-   *
-   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
-   */
-  public async subscribeCoinFuturesUserDataStream(
-    wsKey: WsKey = 'coinm', // coinm | coinmTestnet
-    forceNewConnection?: boolean,
-    miscState?: MiscUserDataConnectionState,
-  ): Promise<WSConnectedResult | undefined> {
-    try {
-      const isTestnet = wsKey === WS_KEY_MAP.coinmTestnet;
-      const { listenKey } = await this.restClientCache
-        .getCOINMRestClient(
-          this.getRestClientOptions(),
-          this.options.requestOptions,
-        )
-        .getFuturesUserDataListenKey();
-
-      const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
-
-      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
-        wsKey,
-        market,
-        listenKey,
-        forceNewConnection,
-        miscState,
-      );
-    } catch (e) {
-      this.logger.error('Failed to connect to COIN Futures user data', {
-        ...WS_LOGGER_CATEGORY,
-        error: e,
-      });
-      this.emit('exception', {
-        functionRef: 'subscribeCoinFuturesUserDataStream()',
-        wsKey,
-        forceNewConnection,
-        ...miscState,
-        error: e?.stack || e,
-      });
-    }
-  }
-
-  /**
-   * Subscribe to Portfolio Margin user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
-   *
-   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
-   */
-  public async subscribePortfolioMarginUserDataStream(
-    wsKey: WsKey = 'portfolioMarginUserData',
-    forceNewConnection?: boolean,
-    miscState?: MiscUserDataConnectionState,
-  ): Promise<WSConnectedResult | undefined> {
-    try {
-      const { listenKey } = await this.restClientCache
-        .getPortfolioClient(
-          this.getRestClientOptions(),
-          this.options.requestOptions,
-        )
-        .getPMUserDataListenKey();
-
-      const market: WsMarket = 'portfoliom';
-
-      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
-        wsKey,
-        market,
-        listenKey,
-        forceNewConnection,
-        miscState,
-      );
-    } catch (e) {
-      this.logger.error('Failed to connect to Portfolio Margin user data', {
-        ...WS_LOGGER_CATEGORY,
-        error: e,
-      });
-      this.emit('exception', {
-        functionRef: 'subscribePortfolioMarginUserDataStream()',
-        wsKey,
-        forceNewConnection,
-        ...miscState,
-        error: e?.stack || e,
-      });
     }
   }
 

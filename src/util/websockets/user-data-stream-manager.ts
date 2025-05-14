@@ -118,7 +118,7 @@ export class UserDataStreamManager {
     miscState?: MiscUserDataConnectionState,
   ): Promise<WSConnectedResult | undefined> {
     const streamName = 'userData';
-    const symbol = undefined;
+    const symbol = miscState?.symbol;
 
     this.logger.trace('subscribeGeneralUserDataStreamWithListenKey(): ', {
       wsKey,
