@@ -396,9 +396,11 @@ export class WsStore<
 
   getTopicsByKey(): Record<string, Set<TWSTopicSubscribeEventArgs>> {
     const result: any = {};
+
     for (const refKey in this.wsState) {
       result[refKey] = this.getTopics(refKey as WsKey);
     }
+
     return result;
   }
 

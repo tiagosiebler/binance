@@ -47,8 +47,8 @@ import { DefaultLogger, WebsocketClient } from '../../src/index';
   );
 
   setTimeout(() => {
-    // unsubscribe from user data stream
-    wsClient.closeUserDataStream('usdm');
+    // unsubscribe from user data stream (for usd futures)
+    wsClient.unsubscribeUsdFuturesUserDataStream();
 
     // unsubscribe from individual topics on a connection, one at a time:
     // wsClient.unsubscribe('!miniTicker@arr', 'main');

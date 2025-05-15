@@ -1252,6 +1252,7 @@ export abstract class BaseWebsocketClient<
     if (
       this.wsStore.getConnectionState(wsKey) !== WsConnectionStateEnum.CLOSING
     ) {
+      // unintentional close, attempt recovery
       this.logger.trace(
         `onWsClose(${wsKey}): rejecting all deferred promises...`,
       );
@@ -1266,12 +1267,17 @@ export abstract class BaseWebsocketClient<
       this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!);
       this.emit('reconnecting', { wsKey, event });
     } else {
+      // intentional close - clean up
       // clean up any pending promises for this connection
       this.logger.trace(
         `onWsClose(${wsKey}): rejecting all deferred promises...`,
       );
       this.getWsStore().rejectAllDeferredPromises(wsKey, 'disconnected');
       this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
+
+      // This was an intentional close, delete all state for this connection, as if it never existed:
+      this.wsStore.delete(wsKey);
+
       this.emit('close', { wsKey, event });
     }
   }
