@@ -13,8 +13,6 @@ import {
   OrderTimeInForce,
   OrderType,
   SelfTradePreventionMode,
-  SideEffects,
-  StringBoolean,
 } from '../shared';
 
 /**
@@ -191,18 +189,17 @@ export interface WSAPINewSpotOrderRequest {
   side: OrderSide;
   type: OrderType;
   timeInForce?: OrderTimeInForce;
+  price?: numberInString;
   quantity?: numberInString;
   quoteOrderQty?: numberInString;
-  price?: numberInString;
   newClientOrderId?: string;
-  strategyId?: number;
-  strategyType?: number;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
   stopPrice?: numberInString;
   trailingDelta?: number;
   icebergQty?: numberInString;
-  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  isIsolated?: StringBoolean;
-  sideEffectType?: SideEffects;
+  strategyId?: number;
+  strategyType?: number;
+  selfTradePreventionMode?: string;
 }
 
 export interface WSAPIOrderTestRequest {
