@@ -304,7 +304,7 @@ export interface SignedRequestState {
   recvWindow?: number;
 }
 
-export async function getRequestSignature(
+export async function getRESTRequestSignature(
   data: object & { recvWindow?: number; signature?: string },
   options: RestClientOptions,
   key?: string,
@@ -344,6 +344,7 @@ export async function getRequestSignature(
         signMethod,
         signAlgorithm,
       );
+      signature = encodeURIComponent(signature);
     }
 
     requestParams.signature = signature;

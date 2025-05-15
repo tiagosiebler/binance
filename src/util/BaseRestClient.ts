@@ -5,8 +5,8 @@ import { BinanceBaseUrlKey } from '../types/shared';
 import Beautifier from './beautifier';
 import {
   GenericAPIResponse,
-  getRequestSignature,
   getRestBaseUrl,
+  getRESTRequestSignature,
   getTestnetBaseUrlKey,
   RestClientOptions,
   serialiseParams,
@@ -217,7 +217,7 @@ export default abstract class BaseRestClient {
 
     // Handles serialisation of params into query string (url?key1=value1&key2=value2), handles encoding of values, adds timestamp and signature to request.
     const { serialisedParams, signature, requestBody } =
-      await getRequestSignature(
+      await getRESTRequestSignature(
         params,
         this.options,
         this.key,
