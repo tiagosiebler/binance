@@ -514,13 +514,16 @@ export class WebsocketClient extends BaseWebsocketClient<
       // Once authenticated, you no longer have to specify apiKey and signature for those requests that need them. Requests will be performed on behalf of the account owning the authenticated API key.
 
       // Note: You still have to specify the timestamp parameter for SIGNED requests.
-
-      // const recvWindow = this.options.recvWindow || 0;
-      const timestamp = Date.now() + (this.getTimeOffsetMs() || 0); // + recvWindow;
-
+      const timestamp = Date.now() + (this.getTimeOffsetMs() || 0);
       const strictParamValidation = true;
       const encodeValues = true;
       const filterUndefinedParams = true;
+
+      if (!this.options.api_key || !this.options.api_secret) {
+        throw new Error(
+          'API key and/or secret missing, unable to prepare WS auth event without valid API keys.',
+        );
+      }
 
       const params = {
         apiKey: this.options.api_key,
@@ -535,7 +538,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
       const signature = await this.signMessage(
         serialisedParams,
-        this.options.api_secret!,
+        this.options.api_secret,
         'base64',
         'SHA-256',
       );
