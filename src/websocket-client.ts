@@ -63,6 +63,11 @@ import { WSConnectedResult } from './util/websockets/WsStore.types';
 
 const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
+export interface WSAPIRequestFlags {
+  /** If true, will skip auth requirement for WS API connection */
+  authIsOptional?: boolean | undefined;
+}
+
 /**
  * Multiplex Node.js, JavaScript & TypeScript Websocket Client for all of Binance's available WebSockets.
  *
@@ -298,7 +303,8 @@ export class WebsocketClient extends BaseWebsocketClient<
   >(
     wsKey: TWSKey,
     operation: TWSOperation,
-    ...params: TWSParams extends void | never ? [] | [undefined] : [TWSParams]
+    params?: TWSParams extends void | never ? undefined : TWSParams,
+    requestFlags?: WSAPIRequestFlags,
   ): Promise<TWSAPIResponse>;
 
   async sendWSAPIRequest<
@@ -311,9 +317,12 @@ export class WebsocketClient extends BaseWebsocketClient<
     wsKey: WsKey,
     operation: TWSOperation,
     params: TWSParams & { signRequest?: boolean },
+    requestFlags?: WSAPIRequestFlags,
   ): Promise<TWSAPIResponse> {
     /**
-     * Spot: https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
+     * Spot:
+     * -> https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
+     * -> https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-api.md#public-api-requests
      * USDM Futures: https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
      * COINM Futures: https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-api-general-info
      */
@@ -326,11 +335,13 @@ export class WebsocketClient extends BaseWebsocketClient<
     await this.assertIsConnected(resolvedWsKey);
     // this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
 
-    // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
-    await this.assertIsAuthenticated(resolvedWsKey);
+    // Some commands don't require authentication.
+    if (requestFlags?.authIsOptional !== true) {
+      // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
+      await this.assertIsAuthenticated(resolvedWsKey);
+      // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
+    }
     const timestampAfterAuth = Date.now();
-
-    // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
 
     const request: WsRequestOperationBinance<string> = {
       id: this.getNewRequestId(),
@@ -371,6 +382,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       TWSAPIResponse & { request: any }
     >(resolvedWsKey, promiseRef, false);
 
+    // Enrich returned promise with request context for easier debugging
     deferredPromise.promise
       ?.then((res) => {
         if (!Array.isArray(res)) {

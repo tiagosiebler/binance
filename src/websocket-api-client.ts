@@ -226,6 +226,8 @@ export class WebsocketAPIClient {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ping',
+      undefined,
+      { authIsOptional: true },
     );
   }
 
@@ -238,6 +240,8 @@ export class WebsocketAPIClient {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'time',
+      undefined,
+      { authIsOptional: true },
     );
   }
 
@@ -252,6 +256,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'exchangeInfo',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -273,6 +278,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'depth',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -288,6 +294,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'trades.recent',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -303,6 +310,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'trades.historical',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -318,6 +326,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'trades.aggregate',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -333,6 +342,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'klines',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -348,6 +358,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'uiKlines',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -362,6 +373,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'avgPrice',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -381,6 +393,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker.24hr',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -399,6 +412,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker.tradingDay',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -418,6 +432,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -433,6 +448,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker.price',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -448,6 +464,7 @@ export class WebsocketAPIClient {
       wsKey || WS_KEY_MAP.mainWSAPI,
       'ticker.book',
       params,
+      { authIsOptional: true },
     );
   }
 
