@@ -897,6 +897,7 @@ export class WebsocketAPIClient {
       WS_KEY_MAP.usdmWSAPI,
       'depth',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -913,6 +914,7 @@ export class WebsocketAPIClient {
       WS_KEY_MAP.usdmWSAPI,
       'ticker.price',
       params,
+      { authIsOptional: true },
     );
   }
 
@@ -927,6 +929,7 @@ export class WebsocketAPIClient {
       WS_KEY_MAP.usdmWSAPI,
       'ticker.book',
       params,
+      { authIsOptional: true },
     );
   }
 
