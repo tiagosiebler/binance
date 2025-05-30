@@ -59,7 +59,7 @@ Refer to the [examples](./examples) folder for implementation demos.
 - Issues? Check the [issues tab](https://github.com/tiagosiebler/binance/issues).
 - Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
 - Questions about Binance APIs & WebSockets? Ask in the official [Binance API](https://t.me/binance_api_english) group on telegram.
-- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/QuantSDKs)
+- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
 
 <!-- template_related_projects -->
 
