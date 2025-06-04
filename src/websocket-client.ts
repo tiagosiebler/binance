@@ -204,7 +204,11 @@ export class WebsocketClient extends BaseWebsocketClient<
    * You do not need to call this, but if you call this before making any WS API requests,
    * it can accelerate the first request (by preparing the connection in advance).
    */
-  public connectWSAPI(wsKey: WSAPIWsKey): Promise<unknown> {
+  public connectWSAPI(wsKey: WSAPIWsKey, skipAuth?: boolean): Promise<unknown> {
+    if (skipAuth) {
+      return this.assertIsConnected(wsKey);
+    }
+
     /** This call automatically ensures the connection is active AND authenticated before resolving */
     return this.assertIsAuthenticated(wsKey);
   }
@@ -767,7 +771,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     wsKey: WsKey,
     event: MessageEventLike,
   ): EmittableEvent[] {
-    this.logger.trace(`resolveEmittableEvents(${wsKey}): `, event?.data);
+    // this.logger.trace(`resolveEmittableEvents(${wsKey}): `, event?.data);
     const results: EmittableEvent[] = [];
 
     try {

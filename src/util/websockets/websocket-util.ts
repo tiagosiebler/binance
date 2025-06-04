@@ -256,13 +256,7 @@ export function getWsURLSuffix(
   }
 }
 
-export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [
-  WS_KEY_MAP.mainWSAPI,
-  WS_KEY_MAP.mainWSAPI2,
-  WS_KEY_MAP.mainWSAPITestnet,
-  WS_KEY_MAP.usdmWSAPI,
-  WS_KEY_MAP.usdmWSAPITestnet,
-];
+export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [];
 
 /** Used to automatically determine if a sub request should be to the public or private ws (when there's two) */
 const PRIVATE_TOPICS: string[] = [];
