@@ -17,6 +17,7 @@ type ApiLimitHeader =
   | 'x-mbx-used-weight-1m'
   | 'x-sapi-used-ip-weight-1m'
   | 'x-mbx-order-count-1s'
+  | 'x-mbx-order-count-10s'
   | 'x-mbx-order-count-1m'
   | 'x-mbx-order-count-1h'
   | 'x-mbx-order-count-1d';
@@ -124,6 +125,7 @@ export default abstract class BaseRestClient {
       'x-mbx-used-weight-1m': 0,
       'x-sapi-used-ip-weight-1m': 0,
       'x-mbx-order-count-1s': 0,
+      'x-mbx-order-count-10s': 0,
       'x-mbx-order-count-1m': 0,
       'x-mbx-order-count-1h': 0,
       'x-mbx-order-count-1d': 0,
