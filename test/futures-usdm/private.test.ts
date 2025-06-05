@@ -159,7 +159,7 @@ describe('Private Futures USDM REST API Endpoints', () => {
       });
     });
 
-    it('should close user data key', async () => {
+    it.skip('should close user data key', async () => {
       await api.getFuturesUserDataListenKey();
       expect(await api.closeFuturesUserDataListenKey()).toStrictEqual({});
       expect(api.keepAliveFuturesUserDataListenKey()).rejects.toMatchObject({

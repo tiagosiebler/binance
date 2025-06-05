@@ -3,7 +3,7 @@ import Beautifier from '../src/util/beautifier';
 describe('Beautifier', () => {
   let beautifier: Beautifier;
   beforeEach(() => {
-    beautifier = new Beautifier();
+    beautifier = new Beautifier({ warnKeyMissingInMap: true });
   });
 
   describe('Websocket Messages', () => {

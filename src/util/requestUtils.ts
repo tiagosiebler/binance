@@ -1,18 +1,17 @@
 import { nanoid } from 'nanoid';
 
 import { MainClient } from '../main-client';
-import { NewFuturesOrderParams } from '../types/futures';
-import {
-  BinanceBaseUrlKey,
-  CancelOCOParams,
-  CancelOrderParams,
-  NewOCOParams,
-  OrderIdProperty,
-} from '../types/shared';
-import { WsMarket } from '../types/websockets';
+import { BinanceBaseUrlKey, OrderIdProperty } from '../types/shared';
+import { WsRequestOperationBinance } from '../types/websockets/ws-api';
 import { USDMClient } from '../usdm-client';
-import { WsKey } from '../websocket-client';
 import { signMessage } from './node-support';
+import { neverGuard } from './typeGuards';
+import { SignAlgorithm, SignEncodeMethod } from './webCryptoAPI';
+import {
+  parseEventTypeFromMessage,
+  WS_KEY_MAP,
+  WsKey,
+} from './websockets/websocket-util';
 
 export type RestClient = MainClient | USDMClient;
 
@@ -52,7 +51,39 @@ export interface RestClientOptions {
   /**
    * Default: false. If true, use testnet when available
    */
-  useTestnet?: boolean;
+  testnet?: boolean;
+
+  // /**
+  //  * Default: true.
+  //  *
+  //  * API exceptions (any response with an error code) are thrown (including response headers).
+  //  * If false, they are returned.
+  //  *
+  //  * // Thrown exceptions include response headers. If we force a return instead of throw,
+  //  * // what's the handling of headers? If we return the parent object (incl headers), we're returning
+  //  * // a schema different from the healthy return (data only excluding headers). Not adding this yet.
+  //  */
+  // throwExceptions?: boolean;
+
+  /**
+   * Enable keep alive for REST API requests (via axios).
+   * See: https://github.com/tiagosiebler/bybit-api/issues/368
+   */
+  keepAlive?: boolean;
+
+  /**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+  keepAliveMsecs?: number;
+
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
 }
 
 export type GenericAPIResponse<T = any> = Promise<T>;
@@ -88,10 +119,155 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
 }
 
 export function generateNewOrderId(network: BinanceBaseUrlKey): string {
-  const id = nanoid(22);
+  const id = nanoid(22); // must pass ^[\.A-Z\:/a-z0-9_-]{1,32}$ with prefix
   const prefixedId = 'x-' + getOrderIdPrefix(network) + id;
 
   return prefixedId;
+}
+export function getBaseURLKeyForWsKey(wsKey: WsKey): BinanceBaseUrlKey {
+  switch (wsKey) {
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2:
+    case WS_KEY_MAP.mainWSAPITestnet: {
+      return 'spot';
+    }
+    case WS_KEY_MAP.usdmWSAPI:
+    case WS_KEY_MAP.usdmWSAPITestnet: {
+      return 'usdm';
+    }
+
+    default: {
+      return 'spot';
+    }
+  }
+}
+
+function getWSAPINewOrderIdProperties(
+  operation: WsRequestOperationBinance<string>['method'],
+  wsKey: WsKey,
+): OrderIdProperty[] {
+  //
+  switch (wsKey) {
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2:
+    case WS_KEY_MAP.mainWSAPITestnet:
+    case WS_KEY_MAP.usdmWSAPI:
+    case WS_KEY_MAP.usdmWSAPITestnet:
+    case WS_KEY_MAP.coinmWSAPI:
+    case WS_KEY_MAP.coinmWSAPITestnet: {
+      if (
+        ['order.place', 'order.amend.keepPriority', 'sor.order.place'].includes(
+          operation,
+        )
+      ) {
+        return ['newClientOrderId'];
+      }
+      if (operation === 'orderList.place') {
+        return ['listClientOrderId', 'limitClientOrderId', 'stopClientOrderId'];
+      }
+      if (operation === 'orderList.place.oco') {
+        return [
+          'listClientOrderId',
+          'aboveClientOrderId',
+          'belowClientOrderId',
+        ];
+      }
+      if (operation === 'orderList.place.oto') {
+        return [
+          'listClientOrderId',
+          'workingClientOrderId',
+          'pendingClientOrderId',
+        ];
+      }
+      if (operation === 'orderList.place.otoco') {
+        return [
+          'listClientOrderId',
+          'workingClientOrderId',
+          'pendingAboveClientOrderId',
+          'pendingBelowClientOrderId',
+        ];
+      }
+      return [];
+    }
+    default: {
+      return [];
+    }
+  }
+}
+
+export function requiresWSAPINewClientOID(
+  request: WsRequestOperationBinance<string>,
+  wsKey: WsKey,
+): boolean {
+  switch (wsKey) {
+    case WS_KEY_MAP.mainWSAPI:
+    case WS_KEY_MAP.mainWSAPI2:
+    case WS_KEY_MAP.mainWSAPITestnet:
+    case WS_KEY_MAP.usdmWSAPI:
+    case WS_KEY_MAP.usdmWSAPITestnet:
+    case WS_KEY_MAP.coinmWSAPI:
+    case WS_KEY_MAP.coinmWSAPITestnet: {
+      return [
+        'order.place',
+        'order.amend.keepPriority',
+        'sor.order.place',
+        'orderList.place',
+        'orderList.place.oco',
+        'orderList.place.oto',
+        'orderList.place.otoco',
+      ].includes(request.method);
+    }
+    case WS_KEY_MAP.main:
+    case WS_KEY_MAP.main2:
+    case WS_KEY_MAP.main3:
+    case WS_KEY_MAP.mainTestnetPublic:
+    case WS_KEY_MAP.mainTestnetUserData:
+    case WS_KEY_MAP.marginRiskUserData:
+    case WS_KEY_MAP.usdm:
+    case WS_KEY_MAP.usdmTestnet:
+    case WS_KEY_MAP.coinm:
+    case WS_KEY_MAP.coinm2:
+    case WS_KEY_MAP.coinmTestnet:
+    case WS_KEY_MAP.eoptions:
+    case WS_KEY_MAP.portfolioMarginUserData:
+    case WS_KEY_MAP.portfolioMarginProUserData:
+      return false;
+
+    default: {
+      throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
+    }
+  }
+}
+
+export function validateWSAPINewClientOID(
+  request: WsRequestOperationBinance<string>,
+  wsKey: WsKey,
+): void {
+  if (!requiresWSAPINewClientOID(request, wsKey) || !request.params) {
+    return;
+  }
+
+  const newClientOIDProperties = getWSAPINewOrderIdProperties(
+    request.method,
+    wsKey,
+  );
+
+  if (!newClientOIDProperties.length) {
+    return;
+  }
+
+  const baseUrlKey = getBaseURLKeyForWsKey(wsKey);
+  for (const orderIdProperty of newClientOIDProperties) {
+    if (!request.params[orderIdProperty]) {
+      request.params[orderIdProperty] = generateNewOrderId(baseUrlKey);
+      continue;
+    }
+
+    const expectedOrderIdPrefix = `x-${getOrderIdPrefix(baseUrlKey)}`;
+    if (!request.params[orderIdProperty].startsWith(expectedOrderIdPrefix)) {
+      logInvalidOrderId(orderIdProperty, expectedOrderIdPrefix, request.params);
+    }
+  }
 }
 
 export function serialiseParams(
@@ -128,15 +304,15 @@ export interface SignedRequestState {
   recvWindow?: number;
 }
 
-export async function getRequestSignature(
-  data: any,
+export async function getRESTRequestSignature(
+  data: object & { recvWindow?: number; signature?: string },
+  options: RestClientOptions,
   key?: string,
   secret?: string,
-  recvWindow?: number,
   timestamp?: number,
-  strictParamValidation?: boolean,
-  filterUndefinedParams?: boolean,
 ): Promise<SignedRequestState> {
+  const { recvWindow, strictParamValidation, filterUndefinedParams } = options;
+
   // Optional, set to 5000 by default. Increase if timestamp/recvWindow errors are seen.
   const requestRecvWindow = data?.recvWindow ?? recvWindow ?? 5000;
 
@@ -146,13 +322,31 @@ export async function getRequestSignature(
       timestamp,
       recvWindow: requestRecvWindow,
     };
+
+    const signMethod: SignEncodeMethod = 'hex';
+    const signAlgorithm: SignAlgorithm = 'SHA-256';
+
     const serialisedParams = serialiseParams(
       requestParams,
       strictParamValidation,
       true,
       filterUndefinedParams,
     );
-    const signature = await signMessage(serialisedParams, secret);
+
+    let signature: string;
+
+    if (typeof options.customSignMessageFn === 'function') {
+      signature = await options.customSignMessageFn(serialisedParams, secret);
+    } else {
+      signature = await signMessage(
+        serialisedParams,
+        secret,
+        signMethod,
+        signAlgorithm,
+      );
+      signature = encodeURIComponent(signature);
+    }
+
     requestParams.signature = signature;
 
     return {
@@ -174,6 +368,7 @@ const BINANCE_BASE_URLS: Record<BinanceBaseUrlKey, string> = {
   spot2: 'https://api1.binance.com',
   spot3: 'https://api2.binance.com',
   spot4: 'https://api3.binance.com',
+  spottest: 'https://testnet.binance.vision',
 
   // USDM Futures
   usdm: 'https://fapi.binance.com',
@@ -198,6 +393,7 @@ export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
     case 'spot2':
     case 'spot3':
     case 'spot4':
+    case 'spottest':
     default:
       return 'api/v3/time';
 
@@ -212,6 +408,33 @@ export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
     case 'voptions':
     case 'voptionstest':
       return 'vapi/v1/time';
+  }
+}
+
+export function getTestnetBaseUrlKey(
+  urlKey: BinanceBaseUrlKey,
+): BinanceBaseUrlKey {
+  switch (urlKey) {
+    case 'spot':
+    case 'spot1':
+    case 'spot2':
+    case 'spot3':
+    case 'spot4':
+    case 'spottest':
+    default:
+      return 'spottest';
+
+    case 'usdm':
+    case 'usdmtest':
+      return 'usdmtest';
+
+    case 'coinm':
+    case 'coinmtest':
+      return 'coinmtest';
+
+    case 'voptions':
+    case 'voptionstest':
+      return 'voptionstest';
   }
 }
 
@@ -252,11 +475,7 @@ export function isWsPong(response: any) {
 export function logInvalidOrderId(
   orderIdProperty: OrderIdProperty,
   expectedOrderIdPrefix: string,
-  params:
-    | NewFuturesOrderParams
-    | CancelOrderParams
-    | NewOCOParams
-    | CancelOCOParams,
+  params: object,
 ) {
   console.warn(
     `WARNING: '${orderIdProperty}' invalid - it should be prefixed with ${expectedOrderIdPrefix}. Use the 'client.generateNewOrderId()' REST client utility method to generate a fresh order ID on demand. Original request: ${JSON.stringify(
@@ -265,9 +484,46 @@ export function logInvalidOrderId(
   );
 }
 
-export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
+/**
+ * For some topics, the received event does not include any information on the topic the event is for (e.g. book tickers).
+ *
+ * This method extracts this using available context, to add an "eventType" property if missing.
+ *
+ * - For the old WebsocketClient, this is extracted using the WsKey.
+ * - For the new multiplex Websocketclient, this is extracted using the "stream" parameter.
+ */
+export function appendEventIfMissing(
+  wsMsg: any,
+  wsKey: WsKey,
+  eventType: string | undefined,
+) {
   if (wsMsg.e) {
     return;
+  }
+
+  if (eventType) {
+    if (!Array.isArray(wsMsg)) {
+      wsMsg.e = eventType;
+      return;
+    }
+
+    for (const key in wsMsg) {
+      wsMsg[key].e = eventType;
+    }
+    return;
+  }
+  // Multiplex websockets include the eventType as the stream name
+  if (wsMsg.stream && wsMsg.data) {
+    const eventType = parseEventTypeFromMessage(wsKey, wsMsg);
+    if (eventType) {
+      if (Array.isArray(wsMsg.data)) {
+        for (const key in wsMsg.data) {
+          wsMsg.data[key].streamName = wsMsg.stream;
+          wsMsg.data[key].e = eventType;
+        }
+        return;
+      }
+    }
   }
 
   if (wsKey.indexOf('bookTicker') !== -1) {
@@ -289,46 +545,6 @@ export function appendEventIfMissing(wsMsg: any, wsKey: WsKey) {
   }
 
   // console.warn('couldnt derive event type: ', wsKey);
-}
-
-interface WsContext {
-  symbol: string | undefined;
-  market: WsMarket;
-  isTestnet: boolean | undefined;
-  isUserData: boolean;
-  streamName: string;
-  listenKey: string | undefined;
-  otherParams: undefined | string[];
-}
-
-export function getContextFromWsKey(wsKey: WsKey): WsContext {
-  const [market, streamName, symbol, listenKey, ...otherParams] =
-    wsKey.split('_');
-  return {
-    symbol: symbol === 'undefined' ? undefined : symbol,
-    market: market as WsMarket,
-    isTestnet: market.includes('estnet'),
-    isUserData: wsKey.includes('userData'),
-    streamName,
-    listenKey: listenKey === 'undefined' ? undefined : listenKey,
-    otherParams,
-  };
-}
-
-export function getWsKeyWithContext(
-  market: WsMarket,
-  streamName: string,
-  symbol: string | undefined = undefined,
-  listenKey: string | undefined = undefined,
-  ...otherParams: (string | boolean)[]
-): WsKey {
-  return [market, streamName, symbol, listenKey, ...otherParams].join('_');
-}
-
-export function appendEventMarket(wsMsg: any, wsKey: WsKey) {
-  const { market } = getContextFromWsKey(wsKey);
-  wsMsg.wsMarket = market;
-  wsMsg.wsKey = wsKey;
 }
 
 export function asArray<T>(el: T[] | T): T[] {
