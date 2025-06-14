@@ -1797,6 +1797,10 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/sub-account/futures/enable', { email });
   }
 
+  /**
+   * @deprecated as of 2025-06-03
+   * User now should make the initial transfer in the Margin account to enable it.
+   */
   subAccountEnableMargin(email: string): Promise<SubAccountEnableMargin> {
     return this.postPrivate('sapi/v1/sub-account/margin/enable', { email });
   }
@@ -1807,6 +1811,10 @@ export class MainClient extends BaseRestClient {
     return this.postPrivate('sapi/v1/sub-account/eoptions/enable', params);
   }
 
+  /**
+   * @deprecated as of 2025-06-03
+   * User now should make the initial transfer in the Margin account to enable it.
+   */
   subAccountEnableLeverageToken(
     params: SubAccountEnableLeverageToken,
   ): Promise<SubAccountEnableLeverageToken> {
