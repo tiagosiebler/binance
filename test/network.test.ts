@@ -1,5 +1,7 @@
-import crypto from 'crypto';
-import https from 'https';
+import crypto from 'node:crypto';
+import https from 'node:https';
+import tls, { PeerCertificate } from 'node:tls';
+
 import { ConnectionOptions } from 'tls';
 
 import { MainClient } from '../src/index';
@@ -18,26 +20,32 @@ const PINNED_PUBLIC_KEY = '8f+yoE6YBsp3ftzgATuaWqQiZna/x30yVX676Ky7lxY=';
 const certificatePinningConfiguration: ConnectionOptions = {
   // ca: trustedCert, // Ensures only the specific CA is trusted
   checkServerIdentity: (host, cert) => {
+    // Make sure the certificate is issued to the host we are connected to
+    const err = tls.checkServerIdentity(host, cert);
+    if (err) {
+      return err;
+    }
+
     // Verify Subject Alternative Name (SAN)
     if (!cert.subjectaltname.includes('DNS:*.binance.com')) {
       throw new Error(
         `Certificate SAN mismatch: expected "*.binance.com", got ${cert.subjectaltname}`,
       );
     }
-    const publicKey = cert.pubkey;
-    const publicKeyHash = crypto
-      .createHash('sha256')
-      .update(publicKey)
-      .digest('base64');
-
+    const publicKeyHash = sha256(cert.pubkey);
     if (publicKeyHash !== PINNED_PUBLIC_KEY) {
-      throw new Error(
-        `Certificate pinning validation failed: expected ${PINNED_PUBLIC_KEY}, got ${publicKeyHash}`,
+      return new Error(
+        `Certificate verification error: expected "${PINNED_PUBLIC_KEY}", got "${publicKeyHash}"`,
       );
     }
+
     return undefined;
   },
 };
+
+function sha256(s) {
+  return crypto.createHash('sha256').update(s).digest('base64');
+}
 
 describe('Test advanced https agent configuration', () => {
   // Simple positive check for working certificate pinning while keepAlive flag is active
@@ -87,39 +95,61 @@ describe('Test advanced https agent configuration', () => {
     });
   });
 
-  describe('mismatching pinned certificate', () => {
-    const api = new MainClient(
-      {
-        keepAlive: true,
-      },
-      {
-        ...getTestProxy(),
-        httpsAgent: new https.Agent({
-          rejectUnauthorized: true,
-          checkServerIdentity: (host, cert) => {
-            const publicKeyHash = crypto
-              .createHash('sha256')
-              .update(cert.pubkey)
-              .digest('base64');
-
-            const PINNED_PUBLIC_KEY = 'fakePublicKeyHashShouldMismatch==';
-            if (publicKeyHash !== PINNED_PUBLIC_KEY) {
-              throw new Error(
-                `Certificate pinning validation failed: expected ${PINNED_PUBLIC_KEY}, got ${publicKeyHash}`,
-              );
-              // eslint-disable-next-line no-unreachable
-            }
-
-            return undefined;
-          },
-        }),
-      },
-    );
-
+  describe.only('mismatching pinned certificate', () => {
     it('getServerTime() should throw since the pinned certificate did not match', async () => {
-      expect(() => api.getServerTime()).rejects.toMatchObject(
-        expect.any(Object),
+      const badPinClient = new MainClient(
+        {
+          keepAlive: true,
+        },
+        {
+          // ...getTestProxy(),
+          httpsAgent: new https.Agent({
+            rejectUnauthorized: true,
+            checkServerIdentity: (host, cert: PeerCertificate) => {
+              // Make sure the certificate is issued to the host we are connected to
+              const err = tls.checkServerIdentity(host, cert);
+              if (err) {
+                return err;
+              }
+
+              // This loop is informational only.
+              // Print the certificate and public key fingerprints of all certs in the
+              // chain. Its common to pin the public key of the issuer on the public
+              // internet, while pinning the public key of the service in sensitive
+              // environments.
+              let lastprint256 = '';
+              do {
+                console.log('Subject Common Name:', cert.subject.CN);
+                console.log(
+                  '  Certificate SHA256 fingerprint:',
+                  cert.fingerprint256,
+                );
+
+                console.log('  Public key ping-sha256:', sha256(cert.pubkey));
+
+                lastprint256 = cert.fingerprint256;
+              } while (cert.fingerprint256 !== lastprint256);
+
+              const PINNED_PUBLIC_KEY = 'fakePublicKeyHashShouldMismatch==';
+              const publicKeyHash = sha256(cert.pubkey);
+
+              if (publicKeyHash !== PINNED_PUBLIC_KEY) {
+                return new Error(
+                  `Certificate verification error: expected "${PINNED_PUBLIC_KEY}", got "${publicKeyHash}"`,
+                );
+              }
+
+              return undefined;
+            },
+          }),
+        },
       );
+
+      try {
+        expect(await badPinClient.getServerTime()).toStrictEqual('');
+      } catch (e) {
+        expect(e?.message).toMatch(/Certificate verification error/);
+      }
     });
   });
 });
