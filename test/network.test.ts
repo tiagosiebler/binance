@@ -117,7 +117,9 @@ describe('Test advanced https agent configuration', () => {
     );
 
     it('getServerTime() should throw since the pinned certificate did not match', async () => {
-      expect(api.getServerTime()).rejects.toThrow(expect.any(Object));
+      expect(() => api.getServerTime()).rejects.toMatchObject(
+        expect.any(Object),
+      );
     });
   });
 });
