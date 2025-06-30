@@ -13,6 +13,7 @@ export type BinanceBaseUrlKey =
   | 'spot2'
   | 'spot3'
   | 'spot4'
+  | 'spottest'
   | 'usdmtest'
   | 'usdm'
   | 'coinm'

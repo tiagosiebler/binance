@@ -1,298 +1,596 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { AxiosRequestConfig } from 'axios';
-import { EventEmitter } from 'events';
 import WebSocket from 'isomorphic-ws';
 
-import { CoinMClient } from './coinm-client';
-import { DefaultLogger } from './logger';
-import { MainClient } from './main-client';
 import { KlineInterval } from './types/shared';
 import {
-  WsFormattedMessage,
+  Exact,
+  WsAPIOperationResponseMap,
+  WsAPITopicRequestParamMap,
+  WsAPIWsKeyTopicMap,
+  WsOperation,
+  WsRequestOperationBinance,
+} from './types/websockets/ws-api';
+import {
+  MessageEventLike,
+  WSClientConfigurableOptions,
   WsMarket,
-  WsRawMessage,
-  WsResponse,
-  WsUserDataEvents,
-} from './types/websockets';
-import { USDMClient } from './usdm-client';
+  WsTopic,
+} from './types/websockets/ws-general';
+import {
+  BaseWebsocketClient,
+  EmittableEvent,
+  MidflightWsRequestEvent,
+} from './util/BaseWSClient';
 import Beautifier from './util/beautifier';
+import { DefaultLogger } from './util/logger';
+import { signMessage } from './util/node-support';
 import {
   appendEventIfMissing,
-  appendEventMarket,
-  getContextFromWsKey,
-  getWsKeyWithContext,
+  requiresWSAPINewClientOID,
   RestClientOptions,
+  serialiseParams,
+  validateWSAPINewClientOID,
 } from './util/requestUtils';
-import { safeTerminateWs } from './util/ws-utils';
-import WsStore, { WsConnectionStateEnum } from './util/WsStore';
+import { neverGuard } from './util/typeGuards';
+import { SignAlgorithm } from './util/webCryptoAPI';
+import { RestClientCache } from './util/websockets/rest-client-cache';
+import { UserDataStreamManager } from './util/websockets/user-data-stream-manager';
+import {
+  EVENT_TYPES_USER_DATA,
+  getLegacyWsKeyContext,
+  getLegacyWsStoreKeyWithContext,
+  getMaxTopicsPerSubscribeEvent,
+  getNormalisedTopicRequests,
+  getPromiseRefForWSAPIRequest,
+  getRealWsKeyFromDerivedWsKey,
+  getTestnetWsKey,
+  getWsUrl,
+  getWsURLSuffix,
+  isPrivateWsTopic,
+  isWSPingFrameAvailable,
+  isWSPongFrameAvailable,
+  MiscUserDataConnectionState,
+  parseEventTypeFromMessage,
+  parseRawWsMessage,
+  resolveUserDataMarketForWsKey,
+  resolveWsKeyForLegacyMarket,
+  WS_AUTH_ON_CONNECT_KEYS,
+  WS_KEY_MAP,
+  WSAPIWsKey,
+  WsKey,
+  WsTopicRequest,
+} from './util/websockets/websocket-util';
+import { WSConnectedResult } from './util/websockets/WsStore.types';
 
-const wsBaseEndpoints: Record<WsMarket, string> = {
-  spot: 'wss://stream.binance.com:9443',
-  margin: 'wss://stream.binance.com:9443',
-  isolatedMargin: 'wss://stream.binance.com:9443',
-  usdm: 'wss://fstream.binance.com',
-  usdmTestnet: 'wss://stream.binancefuture.com',
-  coinm: 'wss://dstream.binance.com',
-  coinmTestnet: 'wss://dstream.binancefuture.com',
-  options: 'wss://vstream.binance.com',
-  optionsTestnet: 'wss://testnetws.binanceops.com',
-};
+const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
-const loggerCategory = { category: 'binance-ws' };
-
-export interface WSClientConfigurableOptions {
-  api_key?: string;
-  api_secret?: string;
-  beautify?: boolean;
-  // Disable ping/pong ws heartbeat mechanism (not recommended)
-  disableHeartbeat?: boolean;
-  pongTimeout?: number;
-  pingInterval?: number;
-  reconnectTimeout?: number;
-  restOptions?: RestClientOptions;
-  requestOptions?: AxiosRequestConfig;
-  wsOptions?: {
-    protocols?: string[];
-    agent?: any;
-  };
-  wsUrl?: string;
-}
-
-export interface WebsocketClientOptions extends WSClientConfigurableOptions {
-  pongTimeout: number;
-  pingInterval: number;
-  reconnectTimeout: number;
-}
-
-// export const wsKeySpot = 'spot';
-// export const wsKeyLinearPrivate = 'linearPrivate';
-// export const wsKeyLinearPublic = 'linearPublic';
-
-// This is used to differentiate between each of the available websocket streams (as binance has multiple websockets)
-export type WsKey =
-  | string
-  | 'spot'
-  | 'margin'
-  | 'usdmfutures'
-  | 'coinmfutures'
-  | 'options';
-
-type WsEventInternalSrc = 'event' | 'function';
-
-interface RestClientStore {
-  spot: MainClient;
-  margin: MainClient;
-  usdmFutures: USDMClient;
-  usdmFuturesTestnet: USDMClient;
-  coinmFutures: CoinMClient;
-  coinmFuturesTestnet: CoinMClient;
-  // options: MainClient;
-}
-
-export declare interface WebsocketClient {
-  on(event: 'reply', listener: (event: WsResponse) => void): this;
-
-  on(event: 'message', listener: (event: WsRawMessage) => void): this;
-
-  on(
-    event: 'formattedMessage',
-    listener: (event: WsFormattedMessage) => void,
-  ): this;
-
-  on(
-    event: 'formattedUserDataMessage',
-    listener: (event: WsUserDataEvents) => void,
-  ): this;
-
-  on(
-    event: 'error',
-    listener: (event: { wsKey: WsKey; error: any; rawEvent?: string }) => void,
-  ): this;
-
-  on(
-    event: 'open' | 'reconnected' | 'reconnecting' | 'close',
-    listener: (event: { wsKey: WsKey; ws: WebSocket; event?: any }) => void,
-  ): this;
-}
-
-interface ListenKeyPersistenceState {
-  keepAliveTimer: ReturnType<typeof setInterval> | undefined;
-  keepAliveRetryTimer: ReturnType<typeof setTimeout> | undefined;
-  lastKeepAlive: number;
-  market: WsMarket;
-  keepAliveFailures: number;
-}
-
-function throwUnhandledSwitch(x: never, msg: string): never {
-  throw new Error(msg);
-}
-
-function parseEventTypeFromMessage(parsedMsg?): string | undefined {
-  if (parsedMsg?.e) {
-    return parsedMsg.e;
-  }
-  if (Array.isArray(parsedMsg) && parsedMsg.length) {
-    return parsedMsg[0]?.e;
-  }
-
-  return;
+export interface WSAPIRequestFlags {
+  /** If true, will skip auth requirement for WS API connection */
+  authIsOptional?: boolean | undefined;
 }
 
 /**
- * Try to resolve event.data. Example circumstance: {"stream":"!forceOrder@arr","data":{"e":"forceOrder","E":1634653599186,"o":{"s":"IOTXUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"3661","p":"0.06606","ap":"0.06669","X":"FILLED","l":"962","z":"3661","T":1634653599180}}}
+ * Multiplex Node.js, JavaScript & TypeScript Websocket Client for all of Binance's available WebSockets.
+ *
+ * When possible, it will subscribe to all requested topics on a single websocket connection. A list of
+ * all available streams can be seen in the WS_KEY_URL_MAP found in util/websockets/websocket-util.ts.
+ *
+ * Connectivity is automatically maintained. If disconnected, the WebsocketClient will automatically
+ * clean out the old dead connection, respawn a fresh one and resubscribe to all the requested topics.
+ *
+ * If any connection is reconnected, the WS client will:
+ * - Emit the "reconnecting" event when the process begins.
+ * - Emit the "reconnected" event, when the process has completed. When this event arrives, it is often a
+ * good time to execute any synchorisation workflow (e.g. via the REST API) if any information was missed
+ * while disconnected.
+ *
+ * User data streams will use a dedicated connection per stream for increased resilience.
  */
-export function parseRawWsMessage(event: any) {
-  if (typeof event === 'string') {
-    const parsedEvent = JSON.parse(event);
 
-    if (parsedEvent.data) {
-      if (typeof parsedEvent.data === 'string') {
-        return parseRawWsMessage(parsedEvent.data);
-      }
-      return parsedEvent.data;
+export class WebsocketClient extends BaseWebsocketClient<
+  WsKey,
+  WsRequestOperationBinance<WsTopic>
+> {
+  private restClientCache: RestClientCache = new RestClientCache();
+
+  private beautifier: Beautifier = new Beautifier({
+    warnKeyMissingInMap: false,
+  });
+
+  private userDataStreamManager: UserDataStreamManager;
+
+  private respawnTimeoutCache: Record<string, ReturnType<typeof setTimeout>> =
+    {};
+
+  constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger) {
+    super(options, logger);
+
+    if (options?.beautifyWarnIfMissing) {
+      this.beautifier.setWarnIfMissing(options.beautifyWarnIfMissing);
     }
+
+    /**
+     * Binance uses native WebSocket ping/pong frames, which cannot be directly used in
+     * some environents (e.g. most browsers do not support sending raw ping/pong frames).
+     *
+     * This disables heartbeats in those environments, if ping/pong frames are unavailable.
+     *
+     * Some browsers may still handle these automatically. Some discussion around this can
+     * be found here: https://stackoverflow.com/questions/10585355/sending-websocket-ping-pong-frame-from-browser
+     */
+    if (!isWSPingFrameAvailable()) {
+      this.logger.info(
+        'Disabled WS heartbeats. WS.ping() is not available in your environment.',
+      );
+      this.options.disableHeartbeat = true;
+    }
+
+    this.userDataStreamManager = new UserDataStreamManager({
+      logger: this.logger,
+      wsStore: this.getWsStore(),
+      restClientCache: this.restClientCache,
+      // fn pointers:
+      respawnUserDataFn: (
+        wsKey: WsKey,
+        market: WsMarket,
+        context: {
+          symbol?: string;
+          isTestnet?: boolean;
+          respawnAttempt?: number;
+        } = {},
+      ) => {
+        return this.respawnUserDataStream(wsKey, market, context);
+      },
+      getWsUrlFn: (wsKey: WsKey, connectionType: 'market' | 'userData') => {
+        return this.getWsUrl(wsKey, connectionType);
+      },
+      getRestClientOptionsFn: () => this.getRestClientOptions(),
+      getWsClientOptionsfn: () => this.options,
+      closeWsFn: (wsKey: WsKey, force?: boolean) => this.close(wsKey, force),
+      connectFn: (
+        wsKey: WsKey,
+        customUrl?: string | undefined,
+        throwOnError?: boolean,
+      ) => this.connect(wsKey, customUrl, throwOnError),
+    });
   }
-  if (event?.data) {
-    return JSON.parse(event.data);
-  }
-  return event;
-}
 
-export class WebsocketClient extends EventEmitter {
-  private logger: typeof DefaultLogger;
-
-  private options: WebsocketClientOptions;
-
-  private wsStore: WsStore;
-
-  private beautifier: Beautifier;
-
-  private restClients: Partial<RestClientStore>;
-
-  private listenKeyStateStore: Record<string, ListenKeyPersistenceState>;
-
-  private wsUrlKeyMap: Record<string, WsKey>;
-
-  constructor(
-    options: WSClientConfigurableOptions,
-    logger?: typeof DefaultLogger,
-  ) {
-    super();
-
-    this.logger = logger || DefaultLogger;
-    this.wsStore = new WsStore(this.logger);
-    this.beautifier = new Beautifier();
-
-    this.restClients = {};
-
-    this.options = {
-      pongTimeout: 7500,
-      pingInterval: 10000,
-      reconnectTimeout: 500,
-      ...options,
-    };
-
-    this.listenKeyStateStore = {};
-    this.wsUrlKeyMap = {};
-
-    // add default error handling so this doesn't crash node (if the user didn't set a handler)
-    this.on('error', () => {});
+  private getUserDataStreamManager(): UserDataStreamManager {
+    return this.userDataStreamManager;
   }
 
   private getRestClientOptions(): RestClientOptions {
     return {
       ...this.options,
       ...this.options.restOptions,
+      testnet: this.options.testnet,
       api_key: this.options.api_key,
       api_secret: this.options.api_secret,
     };
   }
 
-  public connectToWsUrl(
-    url: string,
-    wsKey?: WsKey,
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    const wsRefKey = wsKey || url;
+  /**
+   * Request connection of all dependent (public & WS API) websockets in prod, instead of waiting
+   * for automatic connection by SDK.
+   *
+   * For the Binance SDK, this will only open public connections (without auth), but is almost definitely overkill if you're only working with one product group.
+   */
+  public connectAll(): Promise<WSConnectedResult | undefined>[] {
+    return this.connectPublic();
+  }
 
-    const oldWs = this.wsStore.getWs(wsRefKey);
-    if (oldWs && this.wsStore.isWsOpen(wsRefKey) && !forceNewConnection) {
-      this.logger.silly(
-        'connectToWsUrl(): Returning existing open WS connection',
-        { ...loggerCategory, wsRefKey },
-      );
-      return oldWs;
+  /**
+   * Request connection to all public websockets in prod (spot, margin, futures, options). Overkill if
+   * you're only working with one product group.
+   */
+  public connectPublic(): Promise<WSConnectedResult | undefined>[] {
+    return [
+      this.connect(WS_KEY_MAP.main),
+      this.connect(WS_KEY_MAP.usdm),
+      this.connect(WS_KEY_MAP.coinm),
+      this.connect(WS_KEY_MAP.eoptions),
+    ];
+  }
+
+  /**
+   * This function serves no purpose in the Binance SDK
+   */
+  public async connectPrivate(): Promise<WebSocket | undefined> {
+    return;
+  }
+
+  /**
+   * Ensures the WS API connection is active and ready.
+   *
+   * You do not need to call this, but if you call this before making any WS API requests,
+   * it can accelerate the first request (by preparing the connection in advance).
+   */
+  public connectWSAPI(wsKey: WSAPIWsKey, skipAuth?: boolean): Promise<unknown> {
+    if (skipAuth) {
+      return this.assertIsConnected(wsKey);
     }
 
-    this.logger.silly(
-      `connectToWsUrl(): Opening WS connection to URL: ${url}`,
-      { ...loggerCategory, wsRefKey },
+    /** This call automatically ensures the connection is active AND authenticated before resolving */
+    return this.assertIsAuthenticated(wsKey);
+  }
+
+  /**
+   * Request subscription to one or more topics. Pass topics as either an array of strings,
+   * or array of objects (if the topic has parameters).
+   *
+   * Objects should be formatted as {topic: string, params: object, category: CategoryV5}.
+   *
+   * - Subscriptions are automatically routed to the correct websocket connection.
+   * - Authentication/connection is automatic.
+   * - Resubscribe after network issues is automatic.
+   *
+   * Call `unsubscribe(topics)` to remove topics
+   */
+  public subscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+  ): Promise<unknown> {
+    const topicRequests = Array.isArray(requests) ? requests : [requests];
+    const normalisedTopicRequests = getNormalisedTopicRequests(topicRequests);
+
+    return this.subscribeTopicsForWsKey(normalisedTopicRequests, wsKey);
+  }
+
+  /**
+   * Unsubscribe from one or more topics. Similar to subscribe() but in reverse.
+   *
+   * - Requests are automatically routed to the correct websocket connection.
+   * - These topics will be removed from the topic cache, so they won't be subscribed to again.
+   */
+  public unsubscribe(
+    requests:
+      | (WsTopicRequest<WsTopic> | WsTopic)
+      | (WsTopicRequest<WsTopic> | WsTopic)[],
+    wsKey: WsKey,
+  ) {
+    const topicRequests = Array.isArray(requests) ? requests : [requests];
+    const normalisedTopicRequests = getNormalisedTopicRequests(topicRequests);
+
+    return this.unsubscribeTopicsForWsKey(normalisedTopicRequests, wsKey);
+  }
+
+  /**
+   *
+   *
+   *
+   * WS API Methods - similar to the REST API, but via WebSockets
+   * https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
+   *
+   * https://github.com/tiagosiebler/awesome-crypto-examples/wiki/REST-API-vs-WebSockets-vs-WebSocket-API
+   *
+   *
+   *
+   */
+
+  /**
+   * Send a Websocket API command/request on a connection. Returns a promise that resolves on reply.
+   *
+   * WS API Documentation for list of operations and parameters:
+   *
+   * - Spot: https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
+   * - USDM Futures: https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
+   * - COINM Futures: https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-api-general-info
+   *
+   *
+   * Returned promise is rejected if:
+   * - an exception is detected in the reply, OR
+   * - the connection disconnects for any reason (even if automatic reconnect will happen).
+   *
+   * Authentication is automatic. If you didn't request authentication yourself, there might
+   * be a small delay after your first request, while the SDK automatically authenticates.
+   *
+   * Misc options:
+   * - signRequest: boolean - if included, this request will automatically be signed with the available credentials.
+   *
+   * @param wsKey - The connection this event is for. Currently only "v5PrivateTrade" is supported
+   * for Bybit, since that is the dedicated WS API connection.
+   * @param operation - The command being sent, e.g. "order.create" to submit a new order.
+   * @param params - Any request parameters for the command. E.g. `OrderParamsV5` to submit a new
+   * order. Only send parameters for the request body. Everything else is automatically handled.
+   * @returns Promise - tries to resolve with async WS API response. Rejects if disconnected or exception is seen in async WS API response
+   */
+
+  // This overload allows the caller to omit the 3rd param, if it isn't required
+  sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap,
+    TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
+    // if this throws a type error, probably forgot to add a new operation to WsAPITopicRequestParamMap
+    TWSParams extends Exact<WsAPITopicRequestParamMap<TWSKey>[TWSOperation]>,
+    TWSAPIResponse extends
+      WsAPIOperationResponseMap[TWSOperation] = WsAPIOperationResponseMap[TWSOperation],
+  >(
+    wsKey: TWSKey,
+    operation: TWSOperation,
+    params?: TWSParams extends void | never ? undefined : TWSParams,
+    requestFlags?: WSAPIRequestFlags,
+  ): Promise<TWSAPIResponse>;
+
+  async sendWSAPIRequest<
+    TWSKey extends keyof WsAPIWsKeyTopicMap,
+    TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
+    TWSParams extends Exact<WsAPITopicRequestParamMap<TWSKey>[TWSOperation]>,
+    TWSAPIResponse extends
+      WsAPIOperationResponseMap[TWSOperation] = WsAPIOperationResponseMap[TWSOperation],
+  >(
+    wsKey: WsKey,
+    operation: TWSOperation,
+    params: TWSParams & { signRequest?: boolean },
+    requestFlags?: WSAPIRequestFlags,
+  ): Promise<TWSAPIResponse> {
+    /**
+     * Spot:
+     * -> https://developers.binance.com/docs/binance-spot-api-docs/websocket-api/general-api-information
+     * -> https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-api.md#public-api-requests
+     * USDM Futures: https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
+     * COINM Futures: https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-api-general-info
+     */
+
+    // If testnet, enforce testnet wskey for WS API calls
+    const resolvedWsKey = this.options.testnet ? getTestnetWsKey(wsKey) : wsKey;
+
+    // this.logger.trace(`sendWSAPIRequest(): assertIsConnected("${wsKey}")...`);
+    const timestampBeforeAuth = Date.now();
+    await this.assertIsConnected(resolvedWsKey);
+    // this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
+
+    // Some commands don't require authentication.
+    if (requestFlags?.authIsOptional !== true) {
+      // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
+      await this.assertIsAuthenticated(resolvedWsKey);
+      // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
+    }
+    const timestampAfterAuth = Date.now();
+
+    const request: WsRequestOperationBinance<string> = {
+      id: this.getNewRequestId(),
+      method: operation,
+      params: {
+        ...params,
+      },
+    };
+
+    /**
+     * Some WS API requests require a timestamp to be included. assertIsConnected and assertIsAuthenticated
+     * can introduce a small delay before the actual request is sent, if not connected before that request is
+     * made. This can lead to a curious race condition, where the request timestamp is before
+     * the "authorizedSince" timestamp - as such, binance does not recognise the session as already authenticated.
+     *
+     * The below mechanism measures any delay introduced from the assert calls, and if the request includes a timestamp,
+     * it offsets that timestamp by the delay.
+     */
+    const delayFromAuthAssert = timestampAfterAuth - timestampBeforeAuth;
+    if (delayFromAuthAssert && request.params?.timestamp) {
+      request.params.timestamp += delayFromAuthAssert;
+      this.logger.trace(
+        `sendWSAPIRequest(): adjust timestamp - delay seen by connect/auth assert and delayed request includes timestamp, adjusting timestamp by ${delayFromAuthAssert}ms`,
+      );
+    }
+
+    if (requiresWSAPINewClientOID(request, resolvedWsKey)) {
+      validateWSAPINewClientOID(request, resolvedWsKey);
+    }
+
+    // Sign, if needed
+    const signedEvent = await this.signWSAPIRequest(request);
+
+    // Store deferred promise, resolved within the "resolveEmittableEvents" method while parsing incoming events
+    const promiseRef = getPromiseRefForWSAPIRequest(resolvedWsKey, signedEvent);
+
+    const deferredPromise = this.getWsStore().createDeferredPromise<
+      TWSAPIResponse & { request: any }
+    >(resolvedWsKey, promiseRef, false);
+
+    // Enrich returned promise with request context for easier debugging
+    deferredPromise.promise
+      ?.then((res) => {
+        if (!Array.isArray(res)) {
+          res.request = {
+            wsKey: resolvedWsKey,
+            ...signedEvent,
+          };
+        }
+
+        return res;
+      })
+      .catch((e) => {
+        if (typeof e === 'string') {
+          this.logger.error('unexpcted string', { e });
+          return e;
+        }
+        e.request = {
+          wsKey: resolvedWsKey,
+          operation,
+          params: signedEvent.params,
+        };
+        // throw e;
+        return e;
+      });
+
+    // this.logger.trace(
+    //   `sendWSAPIRequest(): sending raw request: ${JSON.stringify(signedEvent)} with promiseRef(${promiseRef})`,
+    // );
+
+    // Send event.
+    const throwExceptions = true;
+    this.tryWsSend(resolvedWsKey, JSON.stringify(signedEvent), throwExceptions);
+
+    this.logger.trace(
+      `sendWSAPIRequest(): sent "${operation}" event with promiseRef(${promiseRef})`,
     );
 
-    const { protocols = [], ...wsOptions } = this.options.wsOptions || {};
-
-    const ws = new WebSocket(url, protocols, wsOptions);
-    this.wsUrlKeyMap[url] = wsRefKey;
-
-    if (typeof ws.on === 'function') {
-      ws.on('ping', (event) => this.onWsPing(event, wsRefKey, ws, 'event'));
-      ws.on('pong', (event) => this.onWsPong(event, wsRefKey, 'event'));
-    }
-
-    ws.onopen = (event) => this.onWsOpen(event, wsRefKey, url);
-    ws.onerror = (event) =>
-      this.parseWsError('WS Error Event', event, wsRefKey, url);
-    ws.onclose = (event) => this.onWsClose(event, wsRefKey, ws, url);
-    ws.onmessage = (event) => this.onWsMessage(event, wsRefKey, 'function');
-
-    // Not sure these work in the browser, the traditional event listeners are required for ping/pong frames in node
-    ws.onping = (event) => this.onWsPing(event, wsRefKey, ws, 'function');
-    ws.onpong = (event) => this.onWsPong(event, wsRefKey, 'function');
-
-    // Add ws connection with key to store
-    this.wsStore.setWs(wsRefKey, ws);
-
-    ws.wsKey = wsRefKey;
-
-    return ws;
+    // Return deferred promise, so caller can await this call
+    return deferredPromise.promise!;
   }
 
-  public tryWsSend(wsKey: WsKey, wsMessage: string) {
-    try {
-      this.logger.silly('Sending upstream ws message: ', {
-        ...loggerCategory,
-        wsMessage,
-        wsKey,
-      });
-      if (!wsKey) {
-        throw new Error('No wsKey provided');
-      }
+  /**
+   *
+   *
+   * Internal methods - not intended for public use
+   *
+   *
+   */
 
-      const ws = this.getWs(wsKey);
-      if (!ws) {
+  /**
+   * @returns The WS URL to connect to for this WS key
+   */
+  async getWsUrl(
+    wsKey: WsKey,
+    connectionType: 'market' | 'userData' = 'market',
+  ): Promise<string> {
+    const wsBaseURL =
+      getWsUrl(wsKey, this.options, this.logger) +
+      getWsURLSuffix(wsKey, connectionType);
+
+    return wsBaseURL;
+  }
+
+  private async signMessage(
+    paramsStr: string,
+    secret: string,
+    method: 'hex' | 'base64',
+    algorithm: SignAlgorithm,
+  ): Promise<string> {
+    if (typeof this.options.customSignMessageFn === 'function') {
+      return this.options.customSignMessageFn(paramsStr, secret);
+    }
+    return await signMessage(paramsStr, secret, method, algorithm);
+    // return await signMessageWebCryptoAPI(paramsStr, secret, method, algorithm);
+  }
+
+  private async signWSAPIRequest<TRequestParams extends string = string>(
+    requestEvent: WsRequestOperationBinance<TRequestParams>,
+  ): Promise<WsRequestOperationBinance<TRequestParams>> {
+    if (!requestEvent.params) {
+      return requestEvent;
+    }
+
+    /**
+     * Not really needed for most commands on Binance. Their WS API supports
+     * sending signed WS API commands, but that adds latency to every request.
+     *
+     * Instead, this SDK will authenticate once after connecting. All requests
+     * after authentication can then be sent without sign for maximum speed.
+     */
+    const { signRequest, ...otherParams } = requestEvent.params;
+    if (signRequest) {
+      const strictParamValidation = true;
+      const encodeValues = true;
+      const filterUndefinedParams = true;
+
+      const semiFinalRequestParams = {
+        apiKey: this.options.api_key,
+        ...otherParams,
+      };
+
+      const serialisedParams = serialiseParams(
+        semiFinalRequestParams,
+        strictParamValidation,
+        encodeValues,
+        filterUndefinedParams,
+      );
+
+      const signature = await this.signMessage(
+        serialisedParams,
+        this.options.api_secret!,
+        'base64',
+        'SHA-256',
+      );
+
+      return {
+        ...requestEvent,
+        params: {
+          ...semiFinalRequestParams,
+          signature,
+        },
+      };
+    }
+
+    return requestEvent;
+  }
+
+  protected async getWsAuthRequestEvent(
+    wsKey: WsKey,
+  ): Promise<
+    WsRequestOperationBinance<
+      string,
+      { apiKey: string; signature: string; timestamp: number }
+    >
+  > {
+    try {
+      // Note: Only Ed25519 keys are supported for this feature.
+
+      // If you do not want to specify apiKey and signature in each individual request, you can authenticate your API key for the active WebSocket session.
+
+      // Once authenticated, you no longer have to specify apiKey and signature for those requests that need them. Requests will be performed on behalf of the account owning the authenticated API key.
+
+      // Note: You still have to specify the timestamp parameter for SIGNED requests.
+      const timestamp = Date.now() + (this.getTimeOffsetMs() || 0);
+      const strictParamValidation = true;
+      const encodeValues = true;
+      const filterUndefinedParams = true;
+
+      if (!this.options.api_key || !this.options.api_secret) {
         throw new Error(
-          `No active websocket connection exists for wsKey: ${wsKey}`,
+          'API key and/or secret missing, unable to prepare WS auth event without valid API keys.',
         );
       }
-      ws.send(wsMessage);
+
+      const params = {
+        apiKey: this.options.api_key,
+        timestamp,
+      };
+      const serialisedParams = serialiseParams(
+        params,
+        strictParamValidation,
+        encodeValues,
+        filterUndefinedParams,
+      );
+
+      const signature = await this.signMessage(
+        serialisedParams,
+        this.options.api_secret,
+        'base64',
+        'SHA-256',
+      );
+
+      const request: WsRequestOperationBinance<string> = {
+        id: this.getNewRequestId(),
+        method: 'session.logon',
+        params: {
+          ...params,
+          signature,
+        },
+      };
+
+      return request;
     } catch (e) {
-      this.logger.error('Failed to send WS message', {
-        ...loggerCategory,
-        wsMessage,
-        wsKey,
-        exception: e,
-      });
+      this.logger.error(e, { ...WS_LOGGER_CATEGORY, wsKey });
+      throw e;
     }
   }
 
-  public tryWsPing(wsKey: WsKey) {
+  protected sendPingEvent(wsKey: WsKey) {
     try {
-      // this.logger.silly(`Sending upstream ping: `, { ...loggerCategory, wsKey });
+      if (!isWSPingFrameAvailable()) {
+        this.logger.trace(
+          'Unable to send WS ping frame. Not available in this environment.',
+          { ...WS_LOGGER_CATEGORY, wsKey },
+        );
+        return;
+      }
+
+      // this.logger.trace(`Sending upstream ping: `, { ...loggerCategory, wsKey });
       if (!wsKey) {
         throw new Error('No wsKey provided');
       }
 
-      const ws = this.getWs(wsKey);
+      const ws = this.getWsStore().getWs(wsKey);
       if (!ws) {
         throw new Error(
           `No active websocket connection exists for wsKey: ${wsKey}`,
@@ -304,582 +602,535 @@ export class WebsocketClient extends EventEmitter {
         ws.ping();
         ws.pong();
       } else {
-        this.logger.silly(
+        this.logger.trace(
           'WS ready state not open - refusing to send WS ping',
-          { ...loggerCategory, wsKey, readyState: ws?.readyState },
+          { ...WS_LOGGER_CATEGORY, wsKey, readyState: ws?.readyState },
         );
       }
     } catch (e) {
       this.logger.error('Failed to send WS ping', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         wsKey,
         exception: e,
       });
     }
   }
 
-  private onWsOpen(ws: WebSocket, wsKey: WsKey, wsUrl: string) {
-    this.logger.silly(`onWsOpen(): ${wsUrl} : ${wsKey}`);
-    if (
-      this.wsStore.isConnectionState(wsKey, WsConnectionStateEnum.RECONNECTING)
-    ) {
-      this.logger.info('Websocket reconnected', { ...loggerCategory, wsKey });
-      this.emit('reconnected', { wsKey, ws });
-    } else {
-      this.logger.info('Websocket connected', { ...loggerCategory, wsKey });
-      this.emit('open', { wsKey, ws });
-    }
-
-    this.setWsState(wsKey, WsConnectionStateEnum.CONNECTED);
-
-    const topics = [...this.wsStore.getTopics(wsKey)];
-    if (topics.length) {
-      this.requestSubscribeTopics(wsKey, topics);
-    }
-
-    if (!this.options.disableHeartbeat) {
-      const wsState = this.wsStore.get(wsKey, true)!;
-      if (wsState.activePingTimer) {
-        clearInterval(wsState.activePingTimer);
+  protected sendPongEvent(wsKey: WsKey) {
+    try {
+      if (!isWSPongFrameAvailable()) {
+        this.logger.trace(
+          'Unable to send WS pong frame. Not available in this environment.',
+          { ...WS_LOGGER_CATEGORY, wsKey },
+        );
+        return;
       }
 
-      wsState.activePingTimer = setInterval(
-        () => this.sendPing(wsKey, wsUrl),
-        this.options.pingInterval,
+      // this.logger.trace(`Sending upstream ping: `, { ...loggerCategory, wsKey });
+      if (!wsKey) {
+        throw new Error('No wsKey provided');
+      }
+
+      const ws = this.getWsStore().getWs(wsKey);
+      if (!ws) {
+        throw new Error(
+          `No active websocket connection exists for wsKey: ${wsKey}`,
+        );
+      }
+
+      // Binance allows unsolicited pongs, so we send both (though we expect a pong in response to our ping if the connection is still alive)
+      if (ws.readyState === 1) {
+        ws.pong();
+      } else {
+        this.logger.trace(
+          'WS ready state not open - refusing to send WS pong',
+          { ...WS_LOGGER_CATEGORY, wsKey, readyState: ws?.readyState },
+        );
+      }
+    } catch (e) {
+      this.logger.error('Failed to send WS pong', {
+        ...WS_LOGGER_CATEGORY,
+        wsKey,
+        exception: e,
+      });
+    }
+  }
+
+  /** Force subscription requests to be sent in smaller batches, if a number is returned */
+  protected getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
+    return getMaxTopicsPerSubscribeEvent(wsKey);
+  }
+
+  /**
+   * @returns one or more correctly structured request events for performing a operations over WS. This can vary per exchange spec.
+   */
+  protected async getWsRequestEvents(
+    wsKey: WsKey,
+    operation: WsOperation,
+    requests: WsTopicRequest<string>[],
+  ): Promise<MidflightWsRequestEvent<WsRequestOperationBinance<WsTopic>>[]> {
+    const wsRequestEvents: MidflightWsRequestEvent<
+      WsRequestOperationBinance<WsTopic>
+    >[] = [];
+    const wsRequestBuildingErrors: unknown[] = [];
+
+    switch (wsKey) {
+      default: {
+        const topics = requests.map((r) => r.topic);
+
+        // Previously used to track topics in a request. Keeping this for subscribe/unsubscribe requests, no need for incremental values
+        const req_id = this.getNewRequestId();
+
+        const wsEvent: WsRequestOperationBinance<WsTopic> = {
+          method: operation,
+          params: topics,
+          id: req_id,
+        };
+
+        // Cache midflight subs on the req ID
+        // Enrich response with subs for that req ID
+
+        const midflightWsEvent: MidflightWsRequestEvent<
+          WsRequestOperationBinance<WsTopic>
+        > = {
+          requestKey: wsEvent.id,
+          requestEvent: wsEvent,
+        };
+
+        wsRequestEvents.push({
+          ...midflightWsEvent,
+        });
+        break;
+      }
+    }
+
+    if (wsRequestBuildingErrors.length) {
+      const label =
+        wsRequestBuildingErrors.length === requests.length ? 'all' : 'some';
+
+      this.logger.error(
+        `Failed to build/send ${wsRequestBuildingErrors.length} event(s) for ${label} WS requests due to exceptions`,
+        {
+          ...WS_LOGGER_CATEGORY,
+          wsRequestBuildingErrors,
+          wsRequestBuildingErrorsStringified: JSON.stringify(
+            wsRequestBuildingErrors,
+            null,
+            2,
+          ),
+        },
       );
     }
+
+    return wsRequestEvents;
   }
 
-  private onWsClose(event: any, wsKey: WsKey, ws: WebSocket, wsUrl: string) {
-    const wsConnectionState = this.wsStore.getConnectionState(wsKey);
-    const { market, listenKey, isUserData } = getContextFromWsKey(wsKey);
-
-    this.logger.info('Websocket connection closed', {
-      ...loggerCategory,
-      wsKey,
-      eventCloseCode: event?.target?._closeCode,
-      wsConnectionState,
-      isUserData,
-      listenKey,
-      market,
-    });
-
-    // Clear any timers before we initiate revival
-    this.clearTimers(wsKey);
-
-    // User data sockets include the listen key. To prevent accummulation in memory we should clean up old disconnected states
-    if (isUserData) {
-      this.wsStore.delete(wsKey);
-
-      if (listenKey) {
-        this.clearUserDataKeepAliveTimer(listenKey);
-      }
-    }
-
-    if (wsConnectionState !== WsConnectionStateEnum.CLOSING) {
-      this.reconnectWithDelay(wsKey, this.options.reconnectTimeout!, wsUrl);
-      this.emit('reconnecting', { wsKey, event, ws });
-    } else {
-      this.setWsState(wsKey, WsConnectionStateEnum.INITIAL);
-      this.emit('close', { wsKey, event, ws });
-    }
+  protected getPrivateWSKeys(): WsKey[] {
+    return WS_AUTH_ON_CONNECT_KEYS;
   }
 
-  private onWsMessage(
-    event: MessageEvent,
+  protected isAuthOnConnectWsKey(wsKey: WsKey): boolean {
+    return WS_AUTH_ON_CONNECT_KEYS.includes(wsKey);
+  }
+
+  /**
+   * Determines if a topic is for a private channel, using a hardcoded list of strings
+   */
+  protected isPrivateTopicRequest(request: WsTopicRequest<string>): boolean {
+    const topicName = request?.topic?.toLowerCase();
+    if (!topicName) {
+      return false;
+    }
+
+    return isPrivateWsTopic(topicName);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected isWsPing(msg: any): boolean {
+    if (!msg) {
+      return false;
+    }
+
+    // For binance, all ping/pong events are frame events
+    return false;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected isWsPong(msg: any): boolean {
+    if (!msg) {
+      return false;
+    }
+    // For binance, all ping/pong events are frame events
+    return false;
+  }
+
+  /**
+   * Abstraction called to sort ws events into emittable event types (response to a request, data update, etc)
+   */
+  protected resolveEmittableEvents(
     wsKey: WsKey,
-    source: WsEventInternalSrc,
-  ) {
+    event: MessageEventLike,
+  ): EmittableEvent[] {
+    // this.logger.trace(`resolveEmittableEvents(${wsKey}): `, event?.data);
+    const results: EmittableEvent[] = [];
+
     try {
-      this.clearPongTimer(wsKey);
+      /**
+       *
+       * Extract event from JSON
+       *
+       */
+      const parsedEvent = parseRawWsMessage(event);
 
-      const msg = parseRawWsMessage(event);
+      /**
+       *
+       * Minor data normalisation & preparation
+       *
+       */
 
-      // Edge case where raw event does not include event type, detect using wsKey and mutate msg.e
-      appendEventIfMissing(msg, wsKey);
-      appendEventMarket(msg, wsKey);
+      // ws consumers: { data: ... }
+      // ws api consumers (user data): { event: ... }
+      // other responses: { ... }
+      const eventData = parsedEvent?.data || parsedEvent?.event || parsedEvent;
+      const parsedEventId = parsedEvent?.id;
+      const parsedEventErrorCode = parsedEvent?.error?.code;
+      const streamName = parsedEvent?.stream;
 
-      const eventType = parseEventTypeFromMessage(msg);
-      if (eventType) {
-        this.emit('message', msg);
+      const eventType =
+        // First try, the child node
+        parseEventTypeFromMessage(wsKey, eventData) ||
+        // Second try, the parent
+        parseEventTypeFromMessage(wsKey, parsedEvent);
 
-        if (eventType === 'listenKeyExpired') {
-          const { market } = getContextFromWsKey(wsKey);
-          this.logger.info(
-            `${market} listenKey expired - attempting to respawn user data stream: ${wsKey}`,
-          );
+      // Some events don't include the topic (event name)
+      // This tries to extract and append it, using available context
+      appendEventIfMissing(eventData, wsKey, eventType);
 
-          // Just closing the connection (with the last parameter as true) will handle cleanup and respawn
-          const shouldTriggerReconnect = true;
-          this.close(wsKey, shouldTriggerReconnect);
-        }
+      const legacyContext = getLegacyWsKeyContext(wsKey);
+      const wsMarket = legacyContext
+        ? legacyContext.market
+        : resolveUserDataMarketForWsKey(wsKey);
 
-        if (this.options.beautify) {
-          const beautifiedMessage = this.beautifier.beautifyWsMessage(
-            msg,
-            eventType,
-            false,
-          );
-
-          this.emit('formattedMessage', beautifiedMessage);
-
-          // emit a separate event for user data messages
-          if (!Array.isArray(beautifiedMessage)) {
-            if (
-              [
-                'balanceUpdate',
-                'executionReport',
-                'listStatus',
-                'listenKeyExpired',
-                'outboundAccountPosition',
-                'ACCOUNT_CONFIG_UPDATE',
-                'ACCOUNT_UPDATE',
-                'MARGIN_CALL',
-                'ORDER_TRADE_UPDATE',
-                'TRADE_LITE',
-                'CONDITIONAL_ORDER_TRIGGER_REJECT',
-              ].includes(eventType)
-            ) {
-              this.emit('formattedUserDataMessage', beautifiedMessage);
-            }
+      // This attaches `wsMarket` and `streamName` to incoming events
+      // If the event is an array, it's attached to each element in the array
+      if (Array.isArray(eventData)) {
+        for (const row of eventData) {
+          row.wsMarket = wsMarket;
+          if (streamName && !row.streamName) {
+            row.streamName = streamName;
           }
         }
-        return;
+      } else {
+        eventData.wsMarket = wsMarket;
+        if (streamName && !eventData.streamName) {
+          eventData.streamName = streamName;
+        }
       }
 
-      if (msg.result !== undefined) {
-        this.emit('reply', {
-          type: event.type,
-          data: msg,
+      /**
+       *
+       *
+       * Main parsing logic below:
+       *
+       *
+       */
+      const traceEmittable = false;
+      if (traceEmittable) {
+        this.logger.trace('resolveEmittableEvents', {
+          ...WS_LOGGER_CATEGORY,
           wsKey,
+          parsedEvent: JSON.stringify(parsedEvent),
+          parsedEventData: JSON.stringify(eventData),
+          eventType,
+          properties: {
+            parsedEventId,
+            parsedEventErrorCode,
+          },
+          // parsed: JSON.stringify(parsed, null, 2),
         });
-        return;
       }
+      const isWSAPIResponse = typeof parsedEventId === 'number';
 
-      this.logger.warning(
-        'Bug? Unhandled ws message event type. Check if appendEventIfMissing needs to parse wsKey.',
-        {
-          ...loggerCategory,
-          parsedMessage: JSON.stringify(msg),
-          rawEvent: event,
-          wsKey,
-          source,
-        },
-      );
-    } catch (e) {
-      this.logger.error('Exception parsing ws message: ', {
-        ...loggerCategory,
-        rawEvent: event,
-        wsKey,
-        error: e,
-        source,
-      });
-      this.emit('error', { wsKey, error: e, rawEvent: event, source });
-    }
-  }
+      const EVENTS_AUTHENTICATED = ['auth'];
+      const EVENTS_RESPONSES = [
+        'subscribe',
+        'unsubscribe',
+        'COMMAND_RESP',
+        'ping',
+        'pong',
+      ];
 
-  private sendPing(wsKey: WsKey, wsUrl: string) {
-    this.clearPongTimer(wsKey);
+      // WS API response
+      if (isWSAPIResponse) {
+        /**
+         * Responses to "subscribe" are quite basic, with no indication of errors (e.g. bad topic):
+         *
+         *   {
+         *     result: null,
+         *     id: 1,
+         *   };
+         *
+         * Currently there's no simple way to tell this apart from an actual WS API response with
+         * error. So subscribe/unsubscribe requests will simply look like a WS API response internally,
+         * but that will not affect usage.
+         *
+         * Unrelated, example wsapi error for reference:
+         *
+            {
+              id: 1,
+              status: 400,
+              error: {
+                code: -1021,
+                msg: "Timestamp for this request was 1000ms ahead of the server's time."
+              },
+              rateLimits: [
+                {
+                  rateLimitType: 'REQUEST_WEIGHT',
+                  interval: 'MINUTE',
+                  intervalNum: 1,
+                  limit: 6000,
+                  count: 4
+                }
+              ],
+              wsKey: 'mainWSAPI',
+              isWSAPIResponse: true
+            }
+         */
 
-    this.logger.silly('Sending ping', { ...loggerCategory, wsKey });
-    this.tryWsPing(wsKey);
+        const isError =
+          typeof parsedEventErrorCode === 'number' &&
+          parsedEventErrorCode !== 0;
 
-    this.wsStore.get(wsKey, true).activePongTimer = setTimeout(
-      () => this.executeReconnectableClose(wsKey, 'Pong timeout', wsUrl),
-      this.options.pongTimeout,
-    );
-  }
+        // This is the counterpart to getPromiseRefForWSAPIRequest
+        const promiseRef = [wsKey, parsedEventId].join('_');
 
-  private onWsPing(
-    event: any,
-    wsKey: WsKey,
-    ws: WebSocket,
-    source: WsEventInternalSrc,
-  ) {
-    this.logger.silly('Received ping, sending pong frame', {
-      ...loggerCategory,
-      wsKey,
-      source,
-    });
-    ws.pong();
-  }
-
-  private onWsPong(event: any, wsKey: WsKey, source: WsEventInternalSrc) {
-    this.logger.silly('Received pong, clearing pong timer', {
-      ...loggerCategory,
-      wsKey,
-      source,
-    });
-    this.clearPongTimer(wsKey);
-  }
-
-  /**
-   * Closes a connection, if it's even open. If open, this will trigger a reconnect asynchronously.
-   * If closed, trigger a reconnect immediately
-   */
-  private executeReconnectableClose(
-    wsKey: WsKey,
-    reason: string,
-    wsUrl: string,
-  ) {
-    this.logger.info(`${reason} - closing socket to reconnect`, {
-      ...loggerCategory,
-      wsKey,
-      reason,
-    });
-
-    const wasOpen = this.wsStore.isWsOpen(wsKey);
-
-    safeTerminateWs(this.getWs(wsKey));
-
-    this.clearPingTimer(wsKey);
-    this.clearPongTimer(wsKey);
-
-    if (!wasOpen) {
-      this.logger.info(
-        `${reason} - socket already closed - trigger immediate reconnect`,
-        {
-          ...loggerCategory,
-          wsKey,
-          reason,
-        },
-      );
-      this.reconnectWithDelay(wsKey, this.options.reconnectTimeout, wsUrl);
-    }
-  }
-
-  public close(wsKey: WsKey, shouldReconnectAfterClose?: boolean) {
-    this.logger.info('Closing connection', {
-      ...loggerCategory,
-      wsKey,
-      willReconnect: shouldReconnectAfterClose,
-    });
-    this.setWsState(
-      wsKey,
-      shouldReconnectAfterClose
-        ? WsConnectionStateEnum.RECONNECTING
-        : WsConnectionStateEnum.CLOSING,
-    );
-
-    this.clearTimers(wsKey);
-    this.getWs(wsKey)?.close();
-
-    const { listenKey } = getContextFromWsKey(wsKey);
-    if (listenKey) {
-      this.teardownUserDataListenKey(listenKey, this.getWs(wsKey));
-    } else {
-      safeTerminateWs(this.getWs(wsKey));
-    }
-  }
-
-  public closeAll(shouldReconnectAfterClose?: boolean) {
-    const keys = this.wsStore.getKeys();
-    this.logger.info(`Closing all ws connections: ${keys}`);
-    keys.forEach((key) => {
-      this.close(key, shouldReconnectAfterClose);
-    });
-  }
-
-  public closeWs(ws: WebSocket, shouldReconnectAfterClose?: boolean) {
-    const wsKey = this.wsUrlKeyMap[ws.url] || ws?.wsKey;
-    if (!wsKey) {
-      throw new Error(
-        'Cannot close websocket as it has no known wsKey attached.',
-      );
-    }
-    return this.close(wsKey, shouldReconnectAfterClose);
-  }
-
-  private parseWsError(
-    context: string,
-    error: any,
-    wsKey: WsKey,
-    wsUrl: string,
-  ) {
-    this.logger.error(context, { ...loggerCategory, wsKey, error });
-
-    if (!error.message) {
-      this.logger.error(`${context} due to unexpected error: `, error);
-      this.emit('error', { error, wsKey, wsUrl });
-      return;
-    }
-
-    switch (error.message) {
-      case 'Unexpected server response: 401':
-        this.logger.error(`${context} due to 401 authorization failure.`, {
-          ...loggerCategory,
-          wsKey,
-        });
-        break;
-
-      default:
-        if (
-          this.wsStore.getConnectionState(wsKey) !==
-          WsConnectionStateEnum.CLOSING
-        ) {
+        if (!parsedEventId) {
           this.logger.error(
-            `${context} due to unexpected response error: "${
-              error?.msg || error?.message || error
-            }"`,
-            { ...loggerCategory, wsKey, error },
-          );
-          this.executeReconnectableClose(wsKey, 'unhandled onWsError', wsUrl);
-        } else {
-          this.logger.info(
-            `${wsKey} socket forcefully closed. Will not reconnect.`,
+            'WS API response is missing reqId - promisified workflow could get stuck. If this happens, please get in touch with steps to reproduce. Trace:',
+            {
+              wsKey,
+              promiseRef,
+              parsedEvent: eventData,
+            },
           );
         }
-        break;
-    }
-    this.emit('error', { error, wsKey, wsUrl });
-  }
 
-  private reconnectWithDelay(
-    wsKey: WsKey,
-    connectionDelayMs: number,
-    wsUrl: string,
-  ) {
-    this.clearTimers(wsKey);
+        // WS API Exception
+        if (isError) {
+          try {
+            this.getWsStore().rejectDeferredPromise(
+              wsKey,
+              promiseRef,
+              {
+                wsKey,
+                ...eventData,
+              },
+              true,
+            );
+          } catch (e) {
+            this.logger.error('Exception trying to reject WSAPI promise', {
+              wsKey,
+              promiseRef,
+              parsedEvent: eventData,
+              e,
+            });
+          }
 
-    if (
-      this.wsStore.getConnectionState(wsKey) !==
-      WsConnectionStateEnum.CONNECTING
-    ) {
-      this.setWsState(wsKey, WsConnectionStateEnum.RECONNECTING);
-    }
+          results.push({
+            eventType: 'exception',
+            event: eventData,
+            isWSAPIResponse: isWSAPIResponse,
+          });
+          return results;
+        }
 
-    this.logger.info('Reconnecting to websocket with delay...', {
-      ...loggerCategory,
-      wsKey,
-      connectionDelayMs,
-    });
+        // authenticated
+        if (eventData.result?.apiKey) {
+          // Note: Without this check, this will also trigger "onWsAuthenticated()" for session.status requests
+          if (this.getWsStore().getAuthenticationInProgressPromise(wsKey)) {
+            results.push({
+              eventType: 'authenticated',
+              event: eventData,
+              isWSAPIResponse: isWSAPIResponse,
+            });
+          }
+        }
 
-    if (this.wsStore.get(wsKey)?.activeReconnectTimer) {
-      this.clearReconnectTimer(wsKey);
-    }
+        // WS API Success
+        try {
+          this.getWsStore().resolveDeferredPromise(
+            wsKey,
+            promiseRef,
+            {
+              wsKey,
+              ...eventData,
+            },
+            true,
+          );
+        } catch (e) {
+          this.logger.error('Exception trying to resolve WSAPI promise', {
+            wsKey,
+            promiseRef,
+            parsedEvent: eventData,
+            e,
+          });
+        }
 
-    this.wsStore.get(wsKey, true).activeReconnectTimer = setTimeout(() => {
-      this.clearReconnectTimer(wsKey);
+        results.push({
+          eventType: 'response',
+          event: {
+            ...eventData,
+            request: this.getCachedMidFlightRequest(wsKey, `${parsedEventId}`),
+          },
+          isWSAPIResponse: isWSAPIResponse,
+        });
+        this.removeCachedMidFlightRequest(wsKey, `${parsedEventId}`);
 
-      if (wsKey.includes('userData')) {
-        const { market, symbol, isTestnet } = getContextFromWsKey(wsKey);
-        this.logger.info('Reconnecting to user data stream', {
-          ...loggerCategory,
-          wsKey,
-          market,
-          symbol,
+        return results;
+      }
+
+      // Handle incoming event that listen key expired
+      if (eventType === 'listenKeyExpired') {
+        const legacyContext = getLegacyWsKeyContext(wsKey);
+        if (!legacyContext) {
+          // handle this how?
+          throw new Error(
+            'No context found within wsKey - fatal error with expired listen key',
+          );
+        }
+
+        this.logger.info(
+          `${legacyContext.market} listenKey EXPIRED - attempting to respawn user data stream: ${wsKey}`,
+          eventData,
+        );
+
+        // Just closing the connection (with the last parameter as true) will handle cleanup and respawn
+        // Automatically leads to triggerCustomReconnectionWorkflow() to handle fresh user data respawn
+        this.getUserDataStreamManager().teardownUserDataListenKey(
+          legacyContext.listenKey,
+          this.getWsStore().getWs(wsKey),
+        );
+        this.executeReconnectableClose(wsKey, 'listenKeyExpired');
+      }
+
+      if (this.options.beautify) {
+        const beautifiedMessage = this.beautifier.beautifyWsMessage(
+          eventData,
+          eventType,
+          false,
+          // Suffix all events for the beautifier, if market is options
+          // Options has some conflicting keys with different intentions, so will be suffixed
+          wsKey === 'eoptions' ? 'Options' : '',
+        );
+
+        results.push({
+          eventType: 'formattedMessage',
+          event: beautifiedMessage,
+          isWSAPIResponse,
         });
 
-        // We'll set a new one once the new stream respawns, with a diff listenKey in the key
-        this.wsStore.delete(wsKey);
-
-        this.respawnUserDataStream(market, symbol, isTestnet);
-
-        return;
+        // emit an additional event for user data messages
+        if (!Array.isArray(beautifiedMessage) && eventType) {
+          if (EVENT_TYPES_USER_DATA.includes(eventType)) {
+            results.push({
+              eventType: 'formattedUserDataMessage',
+              event: beautifiedMessage,
+              isWSAPIResponse,
+            });
+          }
+        }
       }
 
-      this.logger.info('Reconnecting to public websocket', {
-        ...loggerCategory,
-        wsKey,
-        wsUrl,
+      // Messages for a subscribed topic all include the "topic" property
+      if (typeof eventType === 'string') {
+        results.push({
+          eventType: 'message',
+          event: eventData?.data ? eventData.data : eventData,
+        });
+
+        return results;
+      }
+
+      // Messages that are a "reply" to a request/command (e.g. subscribe to these topics) typically include the "op" property
+      if (typeof eventType === 'string') {
+        // Failed request
+        if (eventData.success === false) {
+          results.push({
+            eventType: 'exception',
+            event: eventData,
+          });
+          return results;
+        }
+
+        // These are request/reply pattern events (e.g. after subscribing to topics or authenticating)
+        if (EVENTS_RESPONSES.includes(eventType)) {
+          results.push({
+            eventType: 'response',
+            event: eventData,
+          });
+          return results;
+        }
+
+        // Request/reply pattern for authentication success
+        if (EVENTS_AUTHENTICATED.includes(eventType)) {
+          results.push({
+            eventType: 'authenticated',
+            event: eventData,
+          });
+          return results;
+        }
+
+        this.logger.error(
+          `!! Unhandled string operation type "${eventType}". Defaulting to "update" channel... raw event:`,
+          JSON.stringify(parsedEvent),
+        );
+      } else {
+        this.logger.error(
+          `!!!! Unhandled non-string event type "${eventType}". Defaulting to "update" channel... raw event:`,
+          JSON.stringify(parsedEvent),
+        );
+      }
+
+      // In case of catastrophic failure, fallback to noisy emit update
+      results.push({
+        eventType: 'message',
+        event: eventData,
       });
-      this.connectToWsUrl(wsUrl, wsKey);
-    }, connectionDelayMs);
-  }
+    } catch (e) {
+      results.push({
+        event: {
+          message: 'Failed to parse event data due to exception',
+          exception: e,
+          eventData: event.data,
+        },
+        eventType: 'exception',
+      });
 
-  private clearTimers(wsKey: WsKey) {
-    this.clearPingTimer(wsKey);
-    this.clearPongTimer(wsKey);
-    this.clearReconnectTimer(wsKey);
-  }
-
-  // Send a ping at intervals
-  private clearPingTimer(wsKey: WsKey) {
-    const wsState = this.wsStore.get(wsKey);
-    if (wsState?.activePingTimer) {
-      clearInterval(wsState.activePingTimer);
-      wsState.activePingTimer = undefined;
-    }
-  }
-
-  // Expect a pong within a time limit
-  private clearPongTimer(wsKey: WsKey) {
-    const wsState = this.wsStore.get(wsKey);
-    if (wsState?.activePongTimer) {
-      clearTimeout(wsState.activePongTimer);
-      wsState.activePongTimer = undefined;
-    }
-  }
-
-  // Timer tracking that a reconnect is about to happen / in progress
-  private clearReconnectTimer(wsKey: WsKey) {
-    const wsState = this.wsStore.get(wsKey);
-    if (wsState?.activeReconnectTimer) {
-      clearTimeout(wsState.activeReconnectTimer);
-      wsState.activeReconnectTimer = undefined;
-    }
-  }
-
-  private clearUserDataKeepAliveTimer(listenKey: string): void {
-    const state = this.listenKeyStateStore[listenKey];
-    if (!state) {
-      return;
-    }
-
-    if (state.keepAliveTimer) {
-      this.logger.silly(
-        `Clearing old listen key interval timer for ${listenKey}`,
-      );
-      clearInterval(state.keepAliveTimer);
-    }
-
-    if (state.keepAliveRetryTimer) {
-      this.logger.silly(
-        `Clearing old listen key keepAliveRetry timer for ${listenKey}`,
-      );
-      clearTimeout(state.keepAliveRetryTimer);
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private getWsBaseUrl(market: WsMarket, wsKey?: WsKey): string {
-    if (this.options.wsUrl) {
-      return this.options.wsUrl;
-    }
-
-    return wsBaseEndpoints[market];
-  }
-
-  public getWs(wsKey: WsKey): WebSocket | undefined {
-    return this.wsStore.getWs(wsKey);
-  }
-
-  private setWsState(wsKey: WsKey, state: WsConnectionStateEnum) {
-    this.wsStore.setConnectionState(wsKey, state);
-  }
-
-  private getSpotRestClient(): MainClient {
-    if (!this.restClients.spot) {
-      this.restClients.spot = new MainClient(
-        this.getRestClientOptions(),
-        this.options.requestOptions,
+      this.logger.error(
+        'Error caught within resolveEmittableEvents - failed to parse event data? Caught exception: ',
+        {
+          exception: e,
+          eventData: event.data,
+        },
       );
     }
-    return this.restClients.spot;
-  }
 
-  private getUSDMRestClient(isTestnet?: boolean): USDMClient {
-    if (isTestnet) {
-      if (!this.restClients.usdmFuturesTestnet) {
-        this.restClients.usdmFuturesTestnet = new USDMClient(
-          this.getRestClientOptions(),
-          this.options.requestOptions,
-          isTestnet,
-        );
-      }
-      return this.restClients.usdmFuturesTestnet;
-    }
-    if (!this.restClients.usdmFutures) {
-      this.restClients.usdmFutures = new USDMClient(
-        this.getRestClientOptions(),
-        this.options.requestOptions,
-      );
-    }
-    return this.restClients.usdmFutures;
-  }
-
-  private getCOINMRestClient(isTestnet?: boolean): CoinMClient {
-    if (isTestnet) {
-      if (!this.restClients.coinmFuturesTestnet) {
-        this.restClients.coinmFuturesTestnet = new CoinMClient(
-          this.getRestClientOptions(),
-          this.options.requestOptions,
-          isTestnet,
-        );
-      }
-      return this.restClients.coinmFuturesTestnet;
-    }
-    if (!this.restClients.coinmFutures) {
-      this.restClients.coinmFutures = new CoinMClient(
-        this.getRestClientOptions(),
-        this.options.requestOptions,
-      );
-    }
-    return this.restClients.coinmFutures;
+    return results;
   }
 
   /**
-   * Send WS message to subscribe to topics. Use subscribe() to call this.
+   *
+   *
+   *
+   *
+   *
+   *  User Data Streams
+   *
+   *
+   *
+   *
+   *
    */
-  private requestSubscribeTopics(wsKey: WsKey, topics: string[]) {
-    const wsMessage = JSON.stringify({
-      method: 'SUBSCRIBE',
-      params: topics,
-      id: new Date().getTime(),
-    });
-
-    this.tryWsSend(wsKey, wsMessage);
-  }
-
-  /**
-   * Send WS message to unsubscribe from topics. Use unsubscribe() to call this.
-   */
-  private requestUnsubscribeTopics(wsKey: WsKey, topics: string[]) {
-    const wsMessage = JSON.stringify({
-      op: 'UNSUBSCRIBE',
-      params: topics,
-      id: new Date().getTime(),
-    });
-
-    this.tryWsSend(wsKey, wsMessage);
-  }
-
-  /**
-   * Send WS message to unsubscribe from topics.
-   */
-  public requestListSubscriptions(wsKey: WsKey, requestId: number) {
-    const wsMessage = JSON.stringify({
-      method: 'LIST_SUBSCRIPTIONS',
-      id: requestId,
-    });
-
-    this.tryWsSend(wsKey, wsMessage);
-  }
-
-  /**
-   * Send WS message to set property state
-   */
-  public requestSetProperty(
-    wsKey: WsKey,
-    property: 'combined' | string,
-    value: any,
-    requestId: number,
-  ) {
-    const wsMessage = JSON.stringify({
-      method: 'SET_PROPERTY',
-      params: [property, value],
-      id: requestId,
-    });
-
-    this.tryWsSend(wsKey, wsMessage);
-  }
-
-  /**
-   * Send WS message to get property state
-   */
-  public requestGetProperty(
-    wsKey: WsKey,
-    property: 'combined' | string,
-    requestId: number,
-  ) {
-    const wsMessage = JSON.stringify({
-      method: 'GET_PROPERTY',
-      params: [property],
-      id: requestId,
-    });
-
-    this.tryWsSend(wsKey, wsMessage);
-  }
 
   /**
    * --------------------------
@@ -887,308 +1138,644 @@ export class WebsocketClient extends EventEmitter {
    * --------------------------
    **/
 
-  private getListenKeyState(
-    listenKey: string,
-    market: WsMarket,
-  ): ListenKeyPersistenceState {
-    const state = this.listenKeyStateStore[listenKey];
-    if (state) {
-      return state;
-    }
-    this.listenKeyStateStore[listenKey] = {
-      market,
-      lastKeepAlive: 0,
-      keepAliveTimer: undefined,
-      keepAliveRetryTimer: undefined,
-      keepAliveFailures: 0,
-    };
-    return this.listenKeyStateStore[listenKey];
-  }
-
-  private setKeepAliveListenKeyTimer(
-    listenKey: string,
-    market: WsMarket,
-    ws: WebSocket,
+  /**
+   * Subscribe to a spot user data stream. Use REST client to generate and persist listen key.
+   * Supports spot, margin & isolated margin listen keys.
+   */
+  public async subscribeSpotUserDataStreamWithListenKey(
     wsKey: WsKey,
-    symbol?: string,
-    isTestnet?: boolean,
-  ) {
-    const listenKeyState = this.getListenKeyState(listenKey, market);
-
-    this.clearUserDataKeepAliveTimer(listenKey);
-
-    this.logger.silly(`Created new listen key interval timer for ${listenKey}`);
-
-    // Set timer to keep WS alive every 50 minutes
-    const minutes50 = 1000 * 60 * 50;
-    listenKeyState.keepAliveTimer = setInterval(
-      () =>
-        this.checkKeepAliveListenKey(
-          listenKey,
-          market,
-          ws,
-          wsKey,
-          symbol,
-          isTestnet,
-        ),
-      minutes50,
-      // 1000 * 60
+    listenKey: string,
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+      wsKey,
+      'spot',
+      listenKey,
+      forceNewConnection,
+      miscState,
     );
   }
 
-  private sendKeepAliveForMarket(
-    listenKey: string,
-    market: WsMarket,
-    ws: WebSocket,
-    wsKey: WsKey,
-    symbol?: string,
-    isTestnet?: boolean,
-  ) {
-    switch (market) {
-      case 'spot':
-        return this.getSpotRestClient().keepAliveSpotUserDataListenKey(
-          listenKey,
-        );
-      case 'margin':
-        return this.getSpotRestClient().keepAliveMarginUserDataListenKey(
-          listenKey,
-        );
-      case 'isolatedMargin':
-        return this.getSpotRestClient().keepAliveIsolatedMarginUserDataListenKey(
-          { listenKey, symbol: symbol! },
-        );
-      case 'coinm':
-      case 'options':
-      case 'optionsTestnet':
-      case 'usdm':
-        return this.getUSDMRestClient().keepAliveFuturesUserDataListenKey();
-      case 'usdmTestnet':
-        return this.getUSDMRestClient(
-          isTestnet,
-        ).keepAliveFuturesUserDataListenKey();
-      case 'coinmTestnet':
-        return this.getUSDMRestClient(
-          isTestnet,
-        ).keepAliveFuturesUserDataListenKey();
-      default:
-        throwUnhandledSwitch(
-          market,
-          `Failed to send keep alive for user data stream in unhandled market ${market}`,
-        );
-    }
-  }
-
-  private async checkKeepAliveListenKey(
-    listenKey: string,
-    market: WsMarket,
-    ws: WebSocket,
-    wsKey: WsKey,
-    symbol?: string,
-    isTestnet?: boolean,
-  ) {
-    const listenKeyState = this.getListenKeyState(listenKey, market);
-
+  /**
+   * Subscribe to spot user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group (e.g. port 9443 (main) vs 443 (main2))
+   */
+  public async subscribeSpotUserDataStream(
+    wsKey: WsKey = 'main',
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | void> {
+    this.logger.trace('subscribeSpotUserDataStream()', {
+      wsKey,
+      forceNewConnection,
+      miscState,
+    });
     try {
-      if (listenKeyState.keepAliveRetryTimer) {
-        clearTimeout(listenKeyState.keepAliveRetryTimer);
-        listenKeyState.keepAliveRetryTimer = undefined;
-      }
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getSpotUserDataListenKey();
 
-      // Simple way to test keep alive failure handling:
-      // throw new Error(`Fake keep alive failure`);
-
-      await this.sendKeepAliveForMarket(
-        listenKey,
-        market,
-        ws,
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
         wsKey,
-        symbol,
-        isTestnet,
-      );
-
-      listenKeyState.lastKeepAlive = Date.now();
-      listenKeyState.keepAliveFailures = 0;
-      this.logger.info(
-        `Completed keep alive cycle for listenKey(${listenKey}) in market(${market})`,
-        { ...loggerCategory, listenKey },
+        'spot',
+        listenKey,
+        forceNewConnection,
+        miscState,
       );
     } catch (e) {
-      listenKeyState.keepAliveFailures++;
-
-      // code: -1125,
-      // message: 'This listenKey does not exist.',
-      const errorCode = e?.code;
-      if (errorCode === -1125) {
-        this.logger.error(
-          'FATAL: Failed to keep WS alive for listen key - listen key expired/invalid. Respawning with fresh listen key...',
-          {
-            ...loggerCategory,
-            listenKey,
-            error: e,
-            errorCode,
-            errorMsg: e?.message,
-          },
-        );
-
-        const shouldReconnectAfterClose = false;
-        this.close(wsKey, shouldReconnectAfterClose);
-        this.respawnUserDataStream(market, symbol);
-
-        return;
-      }
-
-      // If max failurees reached, tear down and respawn if allowed
-      if (listenKeyState.keepAliveFailures >= 3) {
-        this.logger.error(
-          'FATAL: Failed to keep WS alive for listen key after 3 attempts',
-          { ...loggerCategory, listenKey, error: e },
-        );
-
-        // reconnect follows a less automatic workflow since this is tied to a listen key (which may need a new one).
-        // Kill connection first, with instruction NOT to reconnect automatically
-        const shouldReconnectAfterClose = false;
-        this.close(wsKey, shouldReconnectAfterClose);
-
-        // Then respawn a connection with a potentially new listen key (since the old one may be invalid now)
-        this.respawnUserDataStream(market, symbol);
-
-        return;
-      }
-
-      const reconnectDelaySeconds = 1000 * 15;
-      this.logger.warning(
-        `Userdata keep alive request failed due to error, trying again with short delay (${reconnectDelaySeconds} seconds)`,
-        {
-          ...loggerCategory,
-          listenKey,
-          error: e,
-          keepAliveAttempts: listenKeyState.keepAliveFailures,
-        },
-      );
-
-      listenKeyState.keepAliveRetryTimer = setTimeout(
-        () =>
-          this.checkKeepAliveListenKey(listenKey, market, ws, wsKey, symbol),
-        reconnectDelaySeconds,
-      );
+      this.logger.error('Failed to connect to spot user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeSpotUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
     }
   }
 
-  private teardownUserDataListenKey(listenKey: string, ws: WebSocket) {
-    if (listenKey) {
-      this.clearUserDataKeepAliveTimer(listenKey);
-      delete this.listenKeyStateStore[listenKey];
-      safeTerminateWs(ws);
+  public unsubscribeSpotUserDataStream(wsKey: WsKey = 'main'): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'spot');
+  }
+
+  /**
+   * Subscribe to margin user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group (e.g. port 9443 (main) vs 443 (main2))
+   */
+  public async subscribeCrossMarginUserDataStream(
+    wsKey: WsKey = 'main',
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getMarginUserDataListenKey();
+
+      const market: WsMarket = 'crossMargin';
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to margin user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeMarginUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  public unsubscribeCrossMarginUserDataStream(
+    wsKey: WsKey = 'main',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'crossMargin');
+  }
+
+  /**
+   * Subscribe to isolated margin user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group (e.g. port 9443 (main) vs 443 (main2))
+   */
+  public async subscribeIsolatedMarginUserDataStream(
+    symbol: string,
+    wsKey: WsKey = 'main',
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const lowerCaseSymbol = symbol.toLowerCase();
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getIsolatedMarginUserDataListenKey({
+          symbol: lowerCaseSymbol,
+        });
+
+      const market: WsMarket = 'isolatedMargin';
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        { ...miscState, symbol },
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to isolated margin user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+        symbol,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeIsolatedMarginUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        miscState: { ...miscState, symbol },
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  public unsubscribeIsolatedMarginUserDataStream(
+    symbol: string,
+    wsKey: WsKey = 'main',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'isolatedMargin', symbol);
+  }
+
+  /**
+   * Subscribe to margin risk user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group (e.g. port 9443 (main) vs 443 (main2))
+   */
+  public async subscribeMarginRiskUserDataStream(
+    wsKey: WsKey = 'main',
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const { listenKey } = await this.restClientCache
+        .getSpotRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getMarginRiskUserDataListenKey();
+
+      const market: WsMarket = 'riskDataMargin';
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to margin risk user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeMarginRiskUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  public unsubscribeMarginRiskUserDataStream(
+    wsKey: WsKey = 'main',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'riskDataMargin');
+  }
+
+  /**
+   * --------------------------
+   * End of SPOT market websocket streams
+   * --------------------------
+   **/
+
+  /**
+   * Subscribe to USD-M Futures user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
+   */
+  public async subscribeUsdFuturesUserDataStream(
+    wsKey: WsKey = 'usdm', // usdm | usdmTestnet
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const isTestnet = wsKey === WS_KEY_MAP.usdmTestnet;
+      const restClient = this.restClientCache.getUSDMRestClient(
+        this.getRestClientOptions(),
+        this.options.requestOptions,
+      );
+
+      const { listenKey } = await restClient.getFuturesUserDataListenKey();
+
+      const market: WsMarket = isTestnet ? 'usdmTestnet' : 'usdm';
+
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to USD Futures user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeUsdFuturesUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  public unsubscribeUsdFuturesUserDataStream(
+    wsKey: WsKey = 'usdm',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'usdm');
+  }
+
+  /**
+   * Subscribe to COIN-M Futures user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
+   */
+  public async subscribeCoinFuturesUserDataStream(
+    wsKey: WsKey = 'coinm', // coinm | coinmTestnet
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const isTestnet = wsKey === WS_KEY_MAP.coinmTestnet;
+      const { listenKey } = await this.restClientCache
+        .getCOINMRestClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getFuturesUserDataListenKey();
+
+      const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
+
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to COIN Futures user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribeCoinFuturesUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  public unsubscribeCoinFuturesUserDataStream(
+    wsKey: WsKey = 'coinm',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'coinm');
+  }
+
+  /**
+   * Subscribe to Portfolio Margin user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
+   *
+   * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
+   */
+  public async subscribePortfolioMarginUserDataStream(
+    wsKey: WsKey = 'portfolioMarginUserData',
+    forceNewConnection?: boolean,
+    miscState?: MiscUserDataConnectionState,
+  ): Promise<WSConnectedResult | undefined> {
+    try {
+      const { listenKey } = await this.restClientCache
+        .getPortfolioClient(
+          this.getRestClientOptions(),
+          this.options.requestOptions,
+        )
+        .getPMUserDataListenKey();
+
+      const market: WsMarket = 'portfoliom';
+
+      return this.getUserDataStreamManager().subscribeGeneralUserDataStreamWithListenKey(
+        wsKey,
+        market,
+        listenKey,
+        forceNewConnection,
+        miscState,
+      );
+    } catch (e) {
+      this.logger.error('Failed to connect to Portfolio Margin user data', {
+        ...WS_LOGGER_CATEGORY,
+        error: e,
+      });
+      this.emit('exception', {
+        functionRef: 'subscribePortfolioMarginUserDataStream()',
+        wsKey,
+        forceNewConnection,
+        ...miscState,
+        error: e?.stack || e,
+      });
+    }
+  }
+
+  public unsubscribePortfolioMarginUserDataStream(
+    wsKey: WsKey = 'portfolioMarginUserData',
+  ): Promise<void> {
+    return this.closeUserDataStream(wsKey, 'portfoliom');
+  }
+
+  /**
+   * Close an active, dedicated, user data stream connection.
+   *
+   * @param wsKey - the connection key used to open the connection (excluding any automatic parameters such as the listen key). E.g. 'main' for spot/margin, 'usdm' for futures.
+   * @param wsMarket - the product group, recommended if you're subscribed to both spot and margin (since they're on the same wsKey (main)).
+   */
+  public async closeUserDataStream(
+    wsKey: WsKey,
+    wsMarket: WsMarket,
+    symbol?: string,
+  ): Promise<void> {
+    const wsKeys = this.getWsStore().getKeys();
+    const userDataWsKey = wsKeys.find((key) => {
+      if (key === wsKey) {
+        return true;
+      }
+
+      // built around the assumption in how per-connection listen key wskeys are created
+      // isolatedMargin_userData_BTCUSDC_6RszN123x213x1233x213x1233x213xx123x1uzkTV_main
+      // coinm_userData__WRAVTxGaQa1Nhd1243312kjn13kj12n3m5wRFv6JoFQgwUR5AEFofZtlk_coinm
+      const symbolSuffix = symbol ? '_' + symbol : '';
+      const prefixMatch = wsMarket + '_userData' + symbolSuffix;
+
+      return key.startsWith(prefixMatch) && key.endsWith(wsKey);
+    });
+
+    if (!userDataWsKey) {
+      throw new Error(
+        `No matching connection found with wsKey "${wsKey}". Active connections: ${JSON.stringify(wsKeys)}`,
+      );
+    }
+
+    // todo: close?
+    this.close(userDataWsKey);
+  }
+
+  protected isCustomReconnectionNeeded(wsKey: string): boolean {
+    return wsKey.includes('userData');
+  }
+
+  protected async triggerCustomReconnectionWorkflow(
+    legacyWsKey: string,
+  ): Promise<void> {
+    if (legacyWsKey.includes('userData')) {
+      return this.getUserDataStreamManager().triggerUserDataReconnectionWorkflow(
+        legacyWsKey,
+      );
     }
   }
 
   private async respawnUserDataStream(
+    wsKey: WsKey,
     market: WsMarket,
-    symbol?: string,
-    isTestnet?: boolean,
-    respawnAttempt?: number,
+    context: {
+      symbol?: string;
+      isTestnet?: boolean;
+      respawnAttempt?: number;
+    } = {},
   ): Promise<void> {
+    // Handle corner case where wsKey is still the derived key for some reason...
+    const realWsKey = getRealWsKeyFromDerivedWsKey(wsKey);
+    if (realWsKey !== wsKey) {
+      console.error('Derived key fed into respawn method!! ', {
+        wsKey,
+        market,
+        ...context,
+        realWsKey,
+      });
+      console.trace();
+      process.exit(-1);
+    }
+
     // If another connection attempt is in progress for this listen key, don't initiate a retry or the risk is multiple connections on the same listen key
     const forceNewConnection = false;
-    const isReconnecting = true;
-    let ws: WebSocket | undefined;
+
+    const miscConnectionState: MiscUserDataConnectionState = {
+      isReconnecting: true,
+      respawnAttempt: context?.respawnAttempt,
+    };
+
+    let ws: WSConnectedResult | undefined | void = undefined;
 
     try {
       switch (market) {
         case 'spot':
+        case 'spotTestnet':
           ws = await this.subscribeSpotUserDataStream(
+            realWsKey,
             forceNewConnection,
-            isReconnecting,
+            miscConnectionState,
           );
           break;
-        case 'margin':
-          ws = await this.subscribeMarginUserDataStream(
+        case 'crossMargin':
+          ws = await this.subscribeCrossMarginUserDataStream(
+            realWsKey,
             forceNewConnection,
-            isReconnecting,
+            miscConnectionState,
           );
           break;
         case 'isolatedMargin':
           ws = await this.subscribeIsolatedMarginUserDataStream(
-            symbol!,
+            context.symbol!,
+            realWsKey,
             forceNewConnection,
-            isReconnecting,
+            miscConnectionState,
+          );
+          break;
+        case 'riskDataMargin':
+          ws = await this.subscribeMarginRiskUserDataStream(
+            realWsKey,
+            forceNewConnection,
+            miscConnectionState,
           );
           break;
         case 'usdm':
           ws = await this.subscribeUsdFuturesUserDataStream(
-            isTestnet,
+            realWsKey,
             forceNewConnection,
-            isReconnecting,
+            miscConnectionState,
           );
           break;
         case 'usdmTestnet':
           ws = await this.subscribeUsdFuturesUserDataStream(
-            true,
+            realWsKey,
             forceNewConnection,
-            isReconnecting,
+            miscConnectionState,
           );
           break;
         case 'coinm':
           ws = await this.subscribeCoinFuturesUserDataStream(
-            isTestnet,
+            realWsKey,
             forceNewConnection,
-            isReconnecting,
+            miscConnectionState,
           );
           break;
         case 'coinmTestnet':
           ws = await this.subscribeCoinFuturesUserDataStream(
-            true,
+            realWsKey,
             forceNewConnection,
-            isReconnecting,
+            miscConnectionState,
+          );
+          break;
+        case 'portfoliom':
+          ws = await this.subscribePortfolioMarginUserDataStream(
+            realWsKey,
+            forceNewConnection,
+            miscConnectionState,
           );
           break;
         case 'options':
         case 'optionsTestnet':
           throw new Error(
-            'TODO: respawn other user data streams once subscribe methods have been added',
+            'European options are not supported yet. Please get in touch if you need this.',
           );
         default:
-          throwUnhandledSwitch(
+          throw neverGuard(
             market,
             `Failed to respawn user data stream - unhandled market: ${market}`,
           );
       }
     } catch (e) {
       this.logger.error('Exception trying to spawn user data stream', {
-        ...loggerCategory,
+        ...WS_LOGGER_CATEGORY,
         market,
-        symbol,
-        isTestnet,
+        ...context,
         error: e,
       });
-      this.emit('error', { wsKey: market + '_' + 'userData', error: e });
+
+      this.emit('exception', { wsKey: market + '_' + 'userData', error: e });
     }
 
     if (!ws) {
       const delayInSeconds = 2;
       this.logger.error(
-        'User key respawn failed, trying again with short delay',
+        'Userdata respawn failed, trying again with short delay',
         {
-          ...loggerCategory,
+          ...WS_LOGGER_CATEGORY,
           market,
-          symbol,
-          isTestnet,
-          respawnAttempt,
+          ...context,
           delayInSeconds,
         },
       );
-      setTimeout(
-        () =>
-          this.respawnUserDataStream(
+
+      const respawnTimeoutKey = [
+        market,
+        context?.symbol,
+        context?.isTestnet,
+      ].join('_');
+
+      // Prevent simultaneous timers in same scope
+      if (this.respawnTimeoutCache[respawnTimeoutKey]) {
+        clearTimeout(this.respawnTimeoutCache[respawnTimeoutKey]);
+        delete this.respawnTimeoutCache[respawnTimeoutKey];
+
+        this.logger.error(
+          'Respawn timer already active while trying to queue respawn...delaying existing timer further...',
+          {
+            ...WS_LOGGER_CATEGORY,
             market,
-            symbol,
-            isTestnet,
-            respawnAttempt ? respawnAttempt + 1 : 1,
-          ),
-        1000 * delayInSeconds,
-      );
+            ...context,
+            delayInSeconds,
+          },
+        );
+      }
+
+      // Execute reconnection workflow after short delay
+      this.respawnTimeoutCache[respawnTimeoutKey] = setTimeout(() => {
+        delete this.respawnTimeoutCache[respawnTimeoutKey];
+        this.respawnUserDataStream(realWsKey, market, {
+          ...context,
+          respawnAttempt: context?.respawnAttempt
+            ? context.respawnAttempt + 1
+            : 1,
+        });
+      }, 1000 * delayInSeconds);
     }
   }
+
+  /**
+   * Subscribe to the European Options user data stream - listen key is automatically generated.
+   *
+   * Not supported at this time. Please get in touch if you need this.
+   */
+  // public async subscribeEuropeanOptionsUserData(
+  //   wsKey: WsKey = 'eoptions',
+  //   forceNewConnection?: boolean,
+  //   isReconnecting?: boolean,
+  // ): Promise<WSConnectedResult | undefined> {
+  //   try {
+  //     const { listenKey } = await this.restClientCache
+  //       .getEuropeanOptionsClient(
+  //         this.getRestClientOptions(),
+  //         this.options.requestOptions,
+  //       )
+  //       .getUserDataListenKey();
+
+  //     const market: WsMarket = 'options';
+
+  //     return this.subscribeGeneralUserDataStreamWithListenKey(
+  //       wsKey,
+  //       market,
+  //       listenKey,
+  //       forceNewConnection,
+  //       isReconnecting,
+  //     );
+  //   } catch (e) {
+  //     this.logger.error('Failed to connect to Options user data', {
+  //       ...WS_LOGGER_CATEGORY,
+  //       error: e,
+  //     });
+  //     this.emit('exception', {
+  //       functionRef: 'subscribePortfolioMarginUserDataStream()',
+  //       wsKey,
+  //       forceNewConnection,
+  //       isReconnecting,
+  //       error: e?.stack || e,
+  //     });
+  //   }
+  // }
+
+  /**
+   *
+   *
+   *
+   *
+   * Convenient subscribe methods, similar to the legacy WebsocketClient for Binance.
+   *
+   *
+   *
+   *
+   */
 
   /**
    * --------------------------
@@ -1197,20 +1784,31 @@ export class WebsocketClient extends EventEmitter {
    **/
 
   /**
-   * Subscribe to a universal market websocket stream
+   * Advanced: Subscribe to a universal market websocket stream
+   *
+   * This is NOT recommended unless you're very confident with what you're doing.
    */
-
   public subscribeEndpoint(
     endpoint: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    const wsKey = getWsKeyWithContext(market, endpoint);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${endpoint}`,
-      wsKey,
-      forceNewConnection,
-    );
+  ): Promise<unknown> {
+    const wsBaseEndpoints: Record<WsMarket, string> = {
+      spot: 'wss://stream.binance.com:9443',
+      crossMargin: 'wss://stream.binance.com:9443',
+      isolatedMargin: 'wss://stream.binance.com:9443',
+      usdm: 'wss://fstream.binance.com',
+      usdmTestnet: 'wss://stream.binancefuture.com',
+      coinm: 'wss://dstream.binance.com',
+      coinmTestnet: 'wss://dstream.binancefuture.com',
+      options: 'wss://vstream.binance.com',
+      optionsTestnet: 'wss://testnetws.binanceops.com',
+      riskDataMargin: '',
+      spotTestnet: '',
+      portfoliom: '',
+    };
+
+    const wsKey = getLegacyWsStoreKeyWithContext(market, endpoint);
+    return this.connect(wsKey, wsBaseEndpoints[market] + `/ws/${endpoint}`);
   }
 
   /**
@@ -1219,16 +1817,12 @@ export class WebsocketClient extends EventEmitter {
   public subscribeAggregateTrades(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'aggTrade';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
   /**
@@ -1238,16 +1832,12 @@ export class WebsocketClient extends EventEmitter {
   public subscribeTrades(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'trade';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
   /**
@@ -1256,18 +1846,16 @@ export class WebsocketClient extends EventEmitter {
   public subscribeCoinIndexPrice(
     symbol: string,
     updateSpeedMs: 1000 | 3000 = 3000,
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'indexPrice';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
     const market: WsMarket = 'coinm';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`,
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}${speedSuffix}`,
       wsKey,
-      forceNewConnection,
     );
   }
 
@@ -1278,17 +1866,15 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     market: 'usdm' | 'coinm',
     updateSpeedMs: 1000 | 3000 = 3000,
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'markPrice';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}${speedSuffix}`,
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}${speedSuffix}`,
       wsKey,
-      forceNewConnection,
     );
   }
 
@@ -1298,16 +1884,12 @@ export class WebsocketClient extends EventEmitter {
   public subscribeAllMarketMarkPrice(
     market: 'usdm' | 'coinm',
     updateSpeedMs: 1000 | 3000 = 3000,
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const streamName = '!markPrice@arr';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
-    const wsKey = getWsKeyWithContext(market, streamName);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${streamName}${speedSuffix}`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`${streamName}${speedSuffix}`, wsKey);
   }
 
   /**
@@ -1317,21 +1899,14 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     interval: KlineInterval,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'kline';
-    const wsKey = getWsKeyWithContext(
-      market,
-      streamName,
-      lowerCaseSymbol,
-      interval,
-    );
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
-      forceNewConnection,
     );
   }
 
@@ -1343,21 +1918,14 @@ export class WebsocketClient extends EventEmitter {
     contractType: 'perpetual' | 'current_quarter' | 'next_quarter',
     interval: KlineInterval,
     market: 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'continuousKline';
-    const wsKey = getWsKeyWithContext(
-      market,
-      streamName,
-      lowerCaseSymbol,
-      interval,
-    );
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}_${contractType}@${streamName}_${interval}`,
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}_${contractType}@${streamName}_${interval}`,
       wsKey,
-      forceNewConnection,
     );
   }
 
@@ -1367,22 +1935,15 @@ export class WebsocketClient extends EventEmitter {
   public subscribeIndexKlines(
     symbol: string,
     interval: KlineInterval,
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'indexPriceKline';
     const market: WsMarket = 'coinm';
-    const wsKey = getWsKeyWithContext(
-      market,
-      streamName,
-      lowerCaseSymbol,
-      interval,
-    );
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
-      forceNewConnection,
     );
   }
 
@@ -1392,22 +1953,15 @@ export class WebsocketClient extends EventEmitter {
   public subscribeMarkPriceKlines(
     symbol: string,
     interval: KlineInterval,
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
-    const streamName = 'markPrice_kline';
+    const streamName = 'markPriceKline';
     const market: WsMarket = 'coinm';
-    const wsKey = getWsKeyWithContext(
-      market,
-      streamName,
-      lowerCaseSymbol,
-      interval,
-    );
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}_${interval}`,
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
-      forceNewConnection,
     );
   }
 
@@ -1417,16 +1971,12 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSymbolMini24hrTicker(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'miniTicker';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
   /**
@@ -1434,15 +1984,11 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeAllMini24hrTickers(
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const streamName = 'miniTicker';
-    const wsKey = getWsKeyWithContext(market, streamName);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}@arr`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`!${streamName}@arr`, wsKey);
   }
 
   /**
@@ -1451,16 +1997,12 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSymbol24hrTicker(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'ticker';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
   /**
@@ -1468,15 +2010,11 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeAll24hrTickers(
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const streamName = 'ticker';
-    const wsKey = getWsKeyWithContext(market, streamName);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}@arr`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`!${streamName}@arr`, wsKey);
   }
 
   /**
@@ -1491,14 +2029,11 @@ export class WebsocketClient extends EventEmitter {
   public subscribeAllRollingWindowTickers(
     market: 'spot',
     windowSize: '1h' | '4h' | '1d',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const streamName = 'ticker';
-    const wsKey = getWsKeyWithContext(market, streamName, windowSize);
 
-    const wsUrl =
-      this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}_${windowSize}@arr`;
-    return this.connectToWsUrl(wsUrl, wsKey, forceNewConnection);
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`!${streamName}_${windowSize}@arr`, wsKey);
   }
 
   /**
@@ -1507,32 +2042,22 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSymbolBookTicker(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'bookTicker';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
   /**
    * Subscribe to best bid/ask for all symbols in spot markets.
    */
-  public subscribeAllBookTickers(
-    market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  public subscribeAllBookTickers(market: 'usdm' | 'coinm'): Promise<unknown> {
     const streamName = 'bookTicker';
-    const wsKey = getWsKeyWithContext(market, streamName);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`!${streamName}`, wsKey);
   }
 
   /**
@@ -1541,16 +2066,12 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSymbolLiquidationOrders(
     symbol: string,
     market: 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'forceOrder';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${lowerCaseSymbol}@${streamName}`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
   /**
@@ -1558,15 +2079,11 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeAllLiquidationOrders(
     market: 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const streamName = 'forceOrder@arr';
-    const wsKey = getWsKeyWithContext(market, streamName);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/!${streamName}`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`!${streamName}`, wsKey);
   }
 
   /**
@@ -1575,27 +2092,21 @@ export class WebsocketClient extends EventEmitter {
    * Note:
    * - spot only supports 1000ms or 100ms for updateMs
    * - futures only support 100, 250 or 500ms for updateMs
-   *
-   * Use getContextFromWsKey(data.wsKey) to extract symbol from events
    */
   public subscribePartialBookDepths(
     symbol: string,
     levels: 5 | 10 | 20,
     updateMs: 100 | 250 | 500 | 1000,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'depth';
-    const wsKey = getWsKeyWithContext(market, streamName, lowerCaseSymbol);
 
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
-
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`,
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`,
       wsKey,
-      forceNewConnection,
     );
   }
 
@@ -1606,31 +2117,20 @@ export class WebsocketClient extends EventEmitter {
    *
    * - Spot: https://binance-docs.github.io/apidocs/spot/en/#diff-depth-stream
    * - USDM Futures: https://binance-docs.github.io/apidocs/futures/en/#diff-book-depth-streams
-   *
-   * Use getContextFromWsKey(data.wsKey) to extract symbol from events
    */
   public subscribeDiffBookDepth(
     symbol: string,
     updateMs: 100 | 250 | 500 | 1000 = 100,
     market: 'spot' | 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
-    const streamName = 'depth';
-    const wsKey = getWsKeyWithContext(
-      market,
-      'diffBookDepth',
-      lowerCaseSymbol,
-      String(updateMs),
-    );
+    const streamName = market === 'spot' ? 'depth' : 'diffBookDepth';
 
+    const wsKey = resolveWsKeyForLegacyMarket(market);
     const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
-
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) +
-        `/ws/${lowerCaseSymbol}@${streamName}${updateMsSuffx}`,
+    return this.subscribe(
+      `${lowerCaseSymbol}@${streamName}${updateMsSuffx}`,
       wsKey,
-      forceNewConnection,
     );
   }
 
@@ -1639,15 +2139,11 @@ export class WebsocketClient extends EventEmitter {
    */
   public subscribeContractInfoStream(
     market: 'usdm' | 'coinm',
-    forceNewConnection?: boolean,
-  ): WebSocket {
+  ): Promise<unknown> {
     const streamName = '!contractInfo';
-    const wsKey = getWsKeyWithContext(market, streamName);
-    return this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${streamName}`,
-      wsKey,
-      forceNewConnection,
-    );
+
+    const wsKey = resolveWsKeyForLegacyMarket(market);
+    return this.subscribe(`${streamName}`, wsKey);
   }
 
   /**
@@ -1659,21 +2155,15 @@ export class WebsocketClient extends EventEmitter {
   /**
    * Subscribe to aggregate trades for a symbol in spot markets.
    */
-  public subscribeSpotAggregateTrades(
-    symbol: string,
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    return this.subscribeAggregateTrades(symbol, 'spot', forceNewConnection);
+  public subscribeSpotAggregateTrades(symbol: string): Promise<unknown> {
+    return this.subscribeAggregateTrades(symbol, 'spot');
   }
 
   /**
    * Subscribe to trades for a symbol in spot markets.
    */
-  public subscribeSpotTrades(
-    symbol: string,
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    return this.subscribeTrades(symbol, 'spot', forceNewConnection);
+  public subscribeSpotTrades(symbol: string): Promise<unknown> {
+    return this.subscribeTrades(symbol, 'spot');
   }
 
   /**
@@ -1682,66 +2172,43 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSpotKline(
     symbol: string,
     interval: KlineInterval,
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    return this.subscribeKlines(symbol, interval, 'spot', forceNewConnection);
+  ): Promise<unknown> {
+    return this.subscribeKlines(symbol, interval, 'spot');
   }
 
   /**
    * Subscribe to mini 24hr ticker for a symbol in spot markets.
    */
-  public subscribeSpotSymbolMini24hrTicker(
-    symbol: string,
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    return this.subscribeSymbolMini24hrTicker(
-      symbol,
-      'spot',
-      forceNewConnection,
-    );
+  public subscribeSpotSymbolMini24hrTicker(symbol: string): Promise<unknown> {
+    return this.subscribeSymbolMini24hrTicker(symbol, 'spot');
   }
 
   /**
    * Subscribe to mini 24hr mini ticker in spot markets.
    */
-  public subscribeSpotAllMini24hrTickers(
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    return this.subscribeAllMini24hrTickers('spot', forceNewConnection);
+  public subscribeSpotAllMini24hrTickers(): Promise<unknown> {
+    return this.subscribeAllMini24hrTickers('spot');
   }
 
   /**
    * Subscribe to 24hr ticker for a symbol in spot markets.
    */
-  public subscribeSpotSymbol24hrTicker(
-    symbol: string,
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    return this.subscribeSymbol24hrTicker(symbol, 'spot', forceNewConnection);
+  public subscribeSpotSymbol24hrTicker(symbol: string): Promise<unknown> {
+    return this.subscribeSymbol24hrTicker(symbol, 'spot');
   }
 
   /**
    * Subscribe to 24hr ticker in spot markets.
    */
-  public subscribeSpotAll24hrTickers(forceNewConnection?: boolean): WebSocket {
-    return this.subscribeAll24hrTickers('spot', forceNewConnection);
+  public subscribeSpotAll24hrTickers(): Promise<unknown> {
+    return this.subscribeAll24hrTickers('spot');
   }
 
   /**
    * Subscribe to best bid/ask for symbol in spot markets.
    */
-  public subscribeSpotSymbolBookTicker(
-    symbol: string,
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    return this.subscribeSymbolBookTicker(symbol, 'spot', forceNewConnection);
-  }
-
-  /**
-   * Subscribe to best bid/ask for all symbols in spot markets.
-   */
-  public subscribeSpotAllBookTickers(forceNewConnection?: boolean): WebSocket {
-    return this.subscribeAllBookTickers('spot', forceNewConnection);
+  public subscribeSpotSymbolBookTicker(symbol: string): Promise<unknown> {
+    return this.subscribeSymbolBookTicker(symbol, 'spot');
   }
 
   /**
@@ -1751,15 +2218,8 @@ export class WebsocketClient extends EventEmitter {
     symbol: string,
     levels: 5 | 10 | 20,
     updateMs: 1000 | 100 = 1000,
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    return this.subscribePartialBookDepths(
-      symbol,
-      levels,
-      updateMs,
-      'spot',
-      forceNewConnection,
-    );
+  ): Promise<unknown> {
+    return this.subscribePartialBookDepths(symbol, levels, updateMs, 'spot');
   }
 
   /**
@@ -1768,310 +2228,7 @@ export class WebsocketClient extends EventEmitter {
   public subscribeSpotDiffBookDepth(
     symbol: string,
     updateMs: 1000 | 100 = 1000,
-    forceNewConnection?: boolean,
-  ): WebSocket {
-    return this.subscribeDiffBookDepth(
-      symbol,
-      updateMs,
-      'spot',
-      forceNewConnection,
-    );
-  }
-
-  /**
-   * Subscribe to a spot user data stream. Use REST client to generate and persist listen key.
-   * Supports spot, margin & isolated margin listen keys.
-   */
-  public subscribeSpotUserDataStreamWithListenKey(
-    listenKey: string,
-    forceNewConnection?: boolean,
-    isReconnecting?: boolean,
-  ): WebSocket | undefined {
-    const market: WsMarket = 'spot';
-    const wsKey = getWsKeyWithContext(market, 'userData', undefined, listenKey);
-
-    if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
-      this.logger.silly(
-        'Existing spot user data connection in progress for listen key. Avoiding duplicate',
-      );
-      return this.getWs(wsKey);
-    }
-
-    this.setWsState(
-      wsKey,
-      isReconnecting
-        ? WsConnectionStateEnum.RECONNECTING
-        : WsConnectionStateEnum.CONNECTING,
-    );
-    const ws = this.connectToWsUrl(
-      this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
-      wsKey,
-      forceNewConnection,
-    );
-
-    // Start & store timer to keep alive listen key (and handle expiration)
-    this.setKeepAliveListenKeyTimer(listenKey, market, ws, wsKey);
-
-    return ws;
-  }
-
-  /**
-   * Subscribe to spot user data stream - listen key is automatically generated. Calling multiple times only opens one connection.
-   */
-  public async subscribeSpotUserDataStream(
-    forceNewConnection?: boolean,
-    isReconnecting?: boolean,
-  ): Promise<WebSocket | undefined> {
-    try {
-      const { listenKey } =
-        await this.getSpotRestClient().getSpotUserDataListenKey();
-      return this.subscribeSpotUserDataStreamWithListenKey(
-        listenKey,
-        forceNewConnection,
-        isReconnecting,
-      );
-    } catch (e) {
-      this.logger.error('Failed to connect to spot user data', {
-        ...loggerCategory,
-        error: e,
-      });
-      this.emit('error', { wsKey: 'spot' + '_' + 'userData', error: e });
-    }
-  }
-
-  /**
-   * Subscribe to margin user data stream - listen key is automatically generated.
-   */
-  public async subscribeMarginUserDataStream(
-    forceNewConnection?: boolean,
-    isReconnecting?: boolean,
-  ): Promise<WebSocket> {
-    try {
-      const { listenKey } =
-        await this.getSpotRestClient().getMarginUserDataListenKey();
-
-      const market: WsMarket = 'margin';
-      const wsKey = getWsKeyWithContext(
-        market,
-        'userData',
-        undefined,
-        listenKey,
-      );
-
-      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
-        this.logger.silly(
-          'Existing margin user data connection in progress for listen key. Avoiding duplicate',
-        );
-        return this.getWs(wsKey);
-      }
-
-      this.setWsState(
-        wsKey,
-        isReconnecting
-          ? WsConnectionStateEnum.RECONNECTING
-          : WsConnectionStateEnum.CONNECTING,
-      );
-
-      const ws = this.connectToWsUrl(
-        this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
-        wsKey,
-        forceNewConnection,
-      );
-
-      // Start & store timer to keep alive listen key (and handle expiration)
-      this.setKeepAliveListenKeyTimer(listenKey, market, ws, wsKey);
-
-      return ws;
-    } catch (e) {
-      this.logger.error('Failed to connect to margin user data', {
-        ...loggerCategory,
-        error: e,
-      });
-      this.emit('error', { wsKey: 'margin' + '_' + 'userData', error: e });
-    }
-  }
-
-  /**
-   * Subscribe to isolated margin user data stream - listen key is automatically generated.
-   */
-  public async subscribeIsolatedMarginUserDataStream(
-    symbol: string,
-    forceNewConnection?: boolean,
-    isReconnecting?: boolean,
-  ): Promise<WebSocket> {
-    try {
-      const lowerCaseSymbol = symbol.toLowerCase();
-      const { listenKey } =
-        await this.getSpotRestClient().getIsolatedMarginUserDataListenKey({
-          symbol: lowerCaseSymbol,
-        });
-      const market: WsMarket = 'isolatedMargin';
-      const wsKey = getWsKeyWithContext(
-        market,
-        'userData',
-        lowerCaseSymbol,
-        listenKey,
-      );
-
-      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
-        this.logger.silly(
-          'Existing isolated margin user data connection in progress for listen key. Avoiding duplicate',
-        );
-        return this.getWs(wsKey);
-      }
-
-      this.setWsState(
-        wsKey,
-        isReconnecting
-          ? WsConnectionStateEnum.RECONNECTING
-          : WsConnectionStateEnum.CONNECTING,
-      );
-      const ws = this.connectToWsUrl(
-        this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
-        wsKey,
-        forceNewConnection,
-      );
-
-      // Start & store timer to keep alive listen key (and handle expiration)
-      this.setKeepAliveListenKeyTimer(listenKey, market, ws, wsKey, symbol);
-
-      return ws;
-    } catch (e) {
-      this.logger.error('Failed to connect to isolated margin user data', {
-        ...loggerCategory,
-        error: e,
-        symbol,
-      });
-      this.emit('error', {
-        wsKey: 'isolatedMargin' + '_' + 'userData',
-        error: e,
-      });
-    }
-  }
-
-  /**
-   * --------------------------
-   * End of SPOT market websocket streams
-   * --------------------------
-   **/
-
-  /**
-   * Subscribe to USD-M Futures user data stream - listen key is automatically generated.
-   */
-  public async subscribeUsdFuturesUserDataStream(
-    isTestnet?: boolean,
-    forceNewConnection?: boolean,
-    isReconnecting?: boolean,
-  ): Promise<WebSocket> {
-    try {
-      const restClient = this.getUSDMRestClient(isTestnet);
-      const { listenKey } = await restClient.getFuturesUserDataListenKey();
-
-      const market: WsMarket = isTestnet ? 'usdmTestnet' : 'usdm';
-      const wsKey = getWsKeyWithContext(
-        market,
-        'userData',
-        undefined,
-        listenKey,
-      );
-
-      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
-        this.logger.silly(
-          'Existing usd futures user data connection in progress for listen key. Avoiding duplicate',
-        );
-        return this.getWs(wsKey);
-      }
-
-      // Necessary so client knows this is a reconnect
-      this.setWsState(
-        wsKey,
-        isReconnecting
-          ? WsConnectionStateEnum.RECONNECTING
-          : WsConnectionStateEnum.CONNECTING,
-      );
-      const ws = this.connectToWsUrl(
-        this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
-        wsKey,
-        forceNewConnection,
-      );
-
-      // Start & store timer to keep alive listen key (and handle expiration)
-      this.setKeepAliveListenKeyTimer(
-        listenKey,
-        market,
-        ws,
-        wsKey,
-        undefined,
-        isTestnet,
-      );
-
-      return ws;
-    } catch (e) {
-      this.logger.error('Failed to connect to USD Futures user data', {
-        ...loggerCategory,
-        error: e,
-      });
-      this.emit('error', { wsKey: 'usdm' + '_' + 'userData', error: e });
-    }
-  }
-
-  /**
-   * Subscribe to COIN-M Futures user data stream - listen key is automatically generated.
-   */
-  public async subscribeCoinFuturesUserDataStream(
-    isTestnet?: boolean,
-    forceNewConnection?: boolean,
-    isReconnecting?: boolean,
-  ): Promise<WebSocket> {
-    try {
-      const { listenKey } =
-        await this.getCOINMRestClient(isTestnet).getFuturesUserDataListenKey();
-
-      const market: WsMarket = isTestnet ? 'coinmTestnet' : 'coinm';
-      const wsKey = getWsKeyWithContext(
-        market,
-        'userData',
-        undefined,
-        listenKey,
-      );
-
-      if (!forceNewConnection && this.wsStore.isWsConnecting(wsKey)) {
-        this.logger.silly(
-          'Existing usd futures user data connection in progress for listen key. Avoiding duplicate',
-        );
-        return this.getWs(wsKey);
-      }
-
-      // Necessary so client knows this is a reconnect
-      this.setWsState(
-        wsKey,
-        isReconnecting
-          ? WsConnectionStateEnum.RECONNECTING
-          : WsConnectionStateEnum.CONNECTING,
-      );
-      const ws = this.connectToWsUrl(
-        this.getWsBaseUrl(market, wsKey) + `/ws/${listenKey}`,
-        wsKey,
-        forceNewConnection,
-      );
-
-      // Start & store timer to keep alive listen key (and handle expiration)
-      this.setKeepAliveListenKeyTimer(
-        listenKey,
-        market,
-        ws,
-        wsKey,
-        undefined,
-        isTestnet,
-      );
-
-      return ws;
-    } catch (e) {
-      this.logger.error('Failed to connect to COIN Futures user data', {
-        ...loggerCategory,
-        error: e,
-      });
-      this.emit('error', { wsKey: 'coinm' + '_' + 'userData', error: e });
-    }
+  ): Promise<unknown> {
+    return this.subscribeDiffBookDepth(symbol, updateMs, 'spot');
   }
 }

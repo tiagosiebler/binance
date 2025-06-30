@@ -434,7 +434,7 @@ import {
   SpecialLowLatencyKeyInfo,
   SpecialLowLatencyKeyResponse,
   SpotAlgoOrder,
-  SpotAmendKeepPriority,
+  SpotAmendKeepPriorityResult,
   SpotOrder,
   StakingBasicParams,
   StakingHistory,
@@ -711,45 +711,6 @@ export class MainClient extends BaseRestClient {
     return this.get('api/v3/avgPrice', params);
   }
 
-  /**
-   * @deprecated due to invalid naming
-   * Use get24hrChangeStatistics instead
-   */
-  get24hrChangeStatististics(params?: {
-    symbols?: string[]; // use for multiple symbols
-    type?: 'FULL' | 'MINI'; // default is FULL
-  }): Promise<Ticker24hrResponse[]>;
-
-  /**
-   * @deprecated due to invalid naming
-   * Use get24hrChangeStatistics instead
-   */
-  get24hrChangeStatististics(params: {
-    symbol: string; // use for single symbol
-    type?: 'FULL' | 'MINI'; // default is FULL
-  }): Promise<Ticker24hrResponse>;
-
-  /**
-   * @deprecated due to invalid naming
-   * Use get24hrChangeStatistics instead
-   */
-  get24hrChangeStatististics(params?: {
-    symbol?: string; // use for single symbol
-    symbols?: string[]; // use for multiple symbols
-    type?: 'FULL' | 'MINI'; // default is FULL
-  }): Promise<Ticker24hrResponse | Ticker24hrResponse[]> {
-    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
-      const { symbols, ...otherParams } = params;
-      const symbolsQueryParam = JSON.stringify(symbols);
-
-      return this.get(
-        'api/v3/ticker/24hr?symbols=' + symbolsQueryParam,
-        otherParams,
-      );
-    }
-    return this.get('api/v3/ticker/24hr', params);
-  }
-
   get24hrChangeStatistics(params?: {
     symbols?: string[]; // use for multiple symbols
     type?: 'FULL' | 'MINI'; // default is FULL
@@ -892,7 +853,7 @@ export class MainClient extends BaseRestClient {
    */
   amendOrderKeepPriority(
     params: AmendKeepPriorityParams,
-  ): Promise<SpotAmendKeepPriority> {
+  ): Promise<SpotAmendKeepPriorityResult> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.putPrivate('fapi/v1/order/amend/keepPriority', params);
   }
@@ -2258,17 +2219,6 @@ export class MainClient extends BaseRestClient {
     );
   }
 
-  /**
-   *
-   * @deprecated , use updateAutoInvestmentPlan instead
-   *
-   **/
-  updateAutoInvestmentPlanOld(
-    params: EditInvestmentPlanParams,
-  ): Promise<EditInvestmentPlanResponse> {
-    return this.postPrivate('sapi/v1/lending/auto-invest/plan/edit', params);
-  }
-
   updateAutoInvestmentPlan(
     params: EditInvestmentPlanParams,
   ): Promise<EditInvestmentPlanResponse> {
@@ -2307,16 +2257,6 @@ export class MainClient extends BaseRestClient {
       'sapi/v1/lending/auto-invest/one-off/status',
       params,
     );
-  }
-
-  /**
-   * @deprecated , use submitAutoInvestmentPlan instead
-   *
-   **/
-  submitAutoInvestmentPlanOld(
-    params: CreateInvestmentPlanParams,
-  ): Promise<CreateInvestmentPlanResponse> {
-    return this.postPrivate('sapi/v1/lending/auto-invest/plan/add', params);
   }
 
   submitAutoInvestmentPlan(
@@ -4237,7 +4177,9 @@ export class MainClient extends BaseRestClient {
     return this.delete(`api/v3/userDataStream?listenKey=${listenKey}`);
   }
 
-  // margin
+  /**
+   * Get a cross margin user data listen key
+   */
   getMarginUserDataListenKey(): Promise<{ listenKey: string }> {
     return this.post('sapi/v1/userDataStream');
   }
@@ -4277,6 +4219,20 @@ export class MainClient extends BaseRestClient {
     );
   }
 
+  /**
+   * Get a cross margin risk data listen key
+   */
+  getMarginRiskUserDataListenKey(): Promise<{ listenKey: string }> {
+    return this.post('sapi/v1/margin/listen-key');
+  }
+
+  keepAliveMarginRiskUserDataListenKey(listenKey: string): Promise<object> {
+    return this.put(`sapi/v1/margin/listen-key?listenKey=${listenKey}`);
+  }
+
+  closeMarginRiskUserDataListenKey(): Promise<object> {
+    return this.delete('sapi/v1/margin/listen-key');
+  }
   /**
    *
    * DEPRECATED ENDPOINTS
@@ -4452,8 +4408,3 @@ export class MainClient extends BaseRestClient {
     );
   }
 }
-
-/**
- * @deprecated use MainClient instead of SpotClient (it is the same)
- */
-export const SpotClient = MainClient;

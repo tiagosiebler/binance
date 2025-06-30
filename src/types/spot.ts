@@ -886,7 +886,7 @@ export interface SpotOrder {
   selfTradePreventionMode: SelfTradePreventionMode;
 }
 
-export interface SpotAmendKeepPriority {
+export interface SpotAmendKeepPriorityResult {
   transactTime: number;
   executionId: number;
   amendedOrder: {

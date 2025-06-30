@@ -33,6 +33,7 @@ module.exports = {
     'array-bracket-spacing': ['error', 'never'],
     'linebreak-style': ['error', 'unix'],
     'lines-between-class-members': ['warn', 'always'],
+    allowObjectTypes: 0,
     semi: ['error', 'always'],
     'new-cap': 'off',
     'no-console': 'off',

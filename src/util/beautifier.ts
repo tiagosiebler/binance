@@ -1,14 +1,22 @@
-import { WsFormattedMessage } from '../types/websockets';
+import { WsFormattedMessage } from '../types/websockets/ws-events-formatted';
 import { BEAUTIFIER_EVENT_MAP } from './beautifier-maps';
 
+export interface BeautifierConfig {
+  warnKeyMissingInMap: boolean;
+}
+
 export default class Beautifier {
-  private beautificationMap: Record<string, Record<string, any>>;
+  private beautificationMap: Record<string, Record<string, any> | string> =
+    BEAUTIFIER_EVENT_MAP;
 
   private floatKeys: string[];
 
   private floatKeysHashMap: Record<string, boolean>;
 
-  constructor() {
+  private config: BeautifierConfig;
+
+  constructor(config: BeautifierConfig) {
+    this.config = config;
     this.floatKeys = [
       'accumulatedQuantity',
       'accumulatedRealisedPreFee',
@@ -34,8 +42,15 @@ export default class Beautifier {
       'close',
       'closeQuantity',
       'closeTime',
+      'cmUnrealizedPNL',
+      'cmWalletBalance',
       'commission',
       'commissionAmount',
+      'crossMarginAsset',
+      'crossMarginBorrowed',
+      'crossMarginFree',
+      'crossMarginInterest',
+      'crossMarginLocked',
       'crossWalletBalance',
       'currentClose',
       'cummulativeQuoteAssetTransactedQty',
@@ -51,6 +66,7 @@ export default class Beautifier {
       'ignored',
       'income',
       'indexPrice',
+      'interest',
       'ipoable',
       'ipoing',
       'isolatedMargin',
@@ -79,6 +95,7 @@ export default class Beautifier {
       'multiplierDown',
       'multiplierUp',
       'multiplierDecimal',
+      'negativeBalance',
       'newTraderRebateCommission',
       'notional',
       'oldTraderRebateCommission',
@@ -97,6 +114,7 @@ export default class Beautifier {
       'price',
       'priceChange',
       'priceChangePercent',
+      'principal',
       'quantity',
       'qty',
       'quoteAssetVolume',
@@ -114,13 +132,17 @@ export default class Beautifier {
       'takerCommission',
       'takerQuoteAssetVolume',
       'tickSize',
+      'totalLiability',
       'totalRebateVol',
       'totalTrades',
       'totalTradeVol',
       'totalTradedBaseAssetVolume',
       'totalTradedQuoteAssetVolume',
+      'totalWalletBalance',
       'trailingStopActivationPrice',
       'trailingStopCallbackRate',
+      'umUnrealizedPNL',
+      'umWalletBalance',
       'unrealisedPnl',
       'unRealizedProfit',
       'volume',
@@ -140,11 +162,14 @@ export default class Beautifier {
     this.floatKeys.forEach((keyName) => {
       this.floatKeysHashMap[keyName] = true;
     });
+  }
 
-    this.beautificationMap = BEAUTIFIER_EVENT_MAP;
+  setWarnIfMissing(value: boolean) {
+    this.config.warnKeyMissingInMap = value;
   }
 
   beautifyValueWithKey(key: string | number, val: unknown) {
+    // console.log('beautifier.beautifyValueWithKey()', { key, val });
     if (typeof val === 'string' && this.floatKeysHashMap[key] && val !== '') {
       const result = parseFloat(val);
       if (isNaN(result)) {
@@ -159,6 +184,7 @@ export default class Beautifier {
    * Beautify array or object, recurisvely
    */
   beautifyObjectValues(data: any | any[]) {
+    // console.log('beautifier.beautifyObjectValues()', { data });
     if (Array.isArray(data)) {
       return this.beautifyArrayValues(data);
     }
@@ -178,8 +204,8 @@ export default class Beautifier {
     return beautifedObject;
   }
 
-  // TODO: if not matched return original object....
   beautifyArrayValues(data: any[], parentKey?: string | number) {
+    // console.log('beautifier.beautifyArrayValues()', { data, parentKey });
     const beautifedArray: any[] = [];
     for (const [key, val] of data.entries()) {
       const type = typeof val;
@@ -203,9 +229,27 @@ export default class Beautifier {
       );
       return data;
     }
+
     const knownBeautification = this.beautificationMap[key];
+    // console.log('beautify: ', { key, knownBeautification }, data);
     if (!knownBeautification) {
-      // console.log(`beautify unknown key(..., "${key}")`);
+      const valueType = typeof data;
+      const isPrimitive =
+        valueType === 'string' ||
+        valueType === 'number' ||
+        valueType === 'boolean';
+
+      // Nothing to warn for primitives
+      if (this.config?.warnKeyMissingInMap && !isPrimitive) {
+        console.log(
+          `Beautifier(): event not found in map: key(..., "${key}")`,
+          {
+            valueType,
+            data,
+          },
+        );
+        // process.exit(-1);
+      }
       if (Array.isArray(data)) {
         return this.beautifyArrayValues(data);
       }
@@ -216,18 +260,21 @@ export default class Beautifier {
     }
 
     const newItem = {};
-    for (const key in data) {
-      const value = data[key];
+    for (const propertyKey in data) {
+      const value = data[propertyKey];
       const valueType = typeof value;
 
-      let newKey = knownBeautification[key] || key;
+      let newKey = knownBeautification[propertyKey] || propertyKey;
       if (Array.isArray(newKey)) {
         newKey = newKey[0];
       }
 
       if (!Array.isArray(value)) {
         if (valueType === 'object' && value !== null) {
-          newItem[newKey] = this.beautify(value, knownBeautification[key]);
+          newItem[newKey] = this.beautify(
+            value,
+            knownBeautification[propertyKey],
+          );
         } else {
           newItem[newKey] = this.beautifyValueWithKey(newKey, value);
         }
@@ -236,10 +283,43 @@ export default class Beautifier {
 
       const newArray: any[] = [];
       if (Array.isArray(this.beautificationMap[newKey])) {
+        // console.log('beautify().isArray(): ', {
+        //   newKey,
+        //   arrayFromMap: this.beautificationMap[newKey],
+        // });
         for (const elementValue of value) {
           const mappedBeautification =
-            this.beautificationMap[knownBeautification[key]];
+            this.beautificationMap[knownBeautification[propertyKey]];
+
+          // console.log('mapped meautification: ', {
+          //   knownBeautification: knownBeautification[propertyKey],
+          //   mappedBeautification,
+          //   key,
+          //   subKey: propertyKey,
+          //   newKey,
+          // });
+
+          if (!mappedBeautification) {
+            // console.warn(
+            //   `Beautifier(): found map for "${key}" but property with array ("${propertyKey}") is missing in map: `,
+            //   {
+            //     eventMapKey: key,
+            //     propertyKey: propertyKey,
+            //     elementValue,
+            //     knownBeautification,
+            //     value,
+            //     // beautfTest1: this.beautify(value, propertyKey),
+            //   },
+            // );
+            newArray.push(elementValue);
+
+            continue;
+          }
           const childMapping = mappedBeautification[0];
+          // const childMapping =
+          //   typeof mappedBeautification === 'string' // Pointer to another key
+          //     ? this.beautificationMap[mappedBeautification]
+          //     : mappedBeautification[0];
 
           if (typeof childMapping === 'object' && childMapping !== null) {
             const mappedResult = {};
@@ -266,22 +346,47 @@ export default class Beautifier {
    * Entry point to beautify WS message. EventType is determined automatically unless this is a combined stream event.
    */
   beautifyWsMessage(
-    data: any,
+    event: any,
     eventType?: string,
     isCombined?: boolean,
+    eventMapSuffix?: string,
   ): WsFormattedMessage {
-    if (Array.isArray(data)) {
-      return data.map((event) => {
+    const eventMapSuffixResolved = eventMapSuffix || '';
+    if (event.data) {
+      return this.beautifyWsMessage(
+        event.data,
+        eventType,
+        isCombined,
+        eventMapSuffixResolved,
+      );
+    }
+
+    if (Array.isArray(event)) {
+      return event.map((event) => {
         if (event.e) {
-          return this.beautify(event, event.e + 'Event');
+          return this.beautify(
+            event,
+            event.e + eventMapSuffixResolved + 'Event',
+          );
         }
         return event;
       });
-    } else if (data.e) {
-      return this.beautify(data, data.e + 'Event') as WsFormattedMessage;
-    } else if (isCombined && typeof data === 'object' && data !== null) {
-      return this.beautify(data, eventType) as WsFormattedMessage;
     }
-    return data;
+
+    if (event.e) {
+      return this.beautify(
+        event,
+        event.e + eventMapSuffixResolved + 'Event',
+      ) as WsFormattedMessage;
+    }
+
+    if (isCombined && typeof event === 'object' && event !== null) {
+      return this.beautify(
+        event,
+        eventType + eventMapSuffixResolved,
+      ) as WsFormattedMessage;
+    }
+
+    return event;
   }
 }

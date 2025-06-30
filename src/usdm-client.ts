@@ -103,12 +103,11 @@ export class USDMClient extends BaseRestClient {
   constructor(
     restClientOptions: RestClientOptions = {},
     requestOptions: AxiosRequestConfig = {},
-    useTestnet?: boolean,
   ) {
-    const clientId = useTestnet ? 'usdmtest' : 'usdm';
-    super(clientId, restClientOptions, requestOptions);
+    const baseUrlKey = restClientOptions.testnet ? 'usdmtest' : 'usdm';
+    super(baseUrlKey, restClientOptions, requestOptions);
 
-    this.clientId = clientId;
+    this.clientId = baseUrlKey;
     return this;
   }
 
@@ -193,15 +192,6 @@ export class USDMClient extends BaseRestClient {
 
   getFundingRates(): Promise<FundingRate[]> {
     return this.get('fapi/v1/fundingInfo');
-  }
-
-  /**
-   * @deprecated use get24hrChangeStatistics() instead (method without the typo)
-   */
-  get24hrChangeStatististics(
-    params?: Partial<BasicSymbolParam>,
-  ): Promise<ChangeStats24hr | ChangeStats24hr[]> {
-    return this.get('fapi/v1/ticker/24hr', params);
   }
 
   get24hrChangeStatistics(params: { symbol: string }): Promise<ChangeStats24hr>;
@@ -519,15 +509,6 @@ export class USDMClient extends BaseRestClient {
    **/
   getAccountInformation(): Promise<FuturesAccountInformation> {
     return this.getPrivate('fapi/v2/account');
-  }
-
-  /**
-   * @deprecated Please use `getAccountCommissionRate()` instead. This will be removed in the next major release.
-   */
-  getAccountComissionRate(
-    params: BasicSymbolParam,
-  ): Promise<UserCommissionRate> {
-    return this.getPrivate('fapi/v1/commissionRate', params);
   }
 
   getAccountCommissionRate(params: {

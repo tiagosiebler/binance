@@ -18,6 +18,19 @@ const rollingTickerEventMap = {
   n: 'totalTrades',
 };
 
+/**
+ * The beautifier map defines how specific properties are renamed into a more readable property name.
+ *
+ * At first, it's a simple key:value map. The key is the original property name (e.g. aggTrades or bookTickerEvent (for the top-level name of an event: ("bookTicker" + "Event"))).
+ *
+ * The values have different behaviours:
+ * - Value is an object, each child property is renamed to the value
+ *   e.g. aggTrades: { a: "aggTradeId" } -> aggTrades: { aggTradeId: value }
+ * - Value is a string, this points to another key in the map.
+ *   e.g. klineEvent: { k: "kline" } resolves to
+ *        klineEvent: { kline: { BEAUTIFIER_EVENT_MAP["kline"] } }
+ * - Value is an array, each element in that array is transformed into an object.
+ */
 export const BEAUTIFIER_EVENT_MAP = {
   aggTrades: {
     a: 'aggTradeId',
@@ -31,6 +44,8 @@ export const BEAUTIFIER_EVENT_MAP = {
   },
   bookTickerEvent: {
     e: 'eventType',
+    E: 'eventTime',
+    T: 'transactionTime',
     u: 'updateId',
     s: 'symbol',
     b: 'bidPrice',
@@ -66,12 +81,31 @@ export const BEAUTIFIER_EVENT_MAP = {
       2: 'ignored',
     },
   ],
+  avgPriceEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    s: 'symbol',
+    i: 'interval',
+    w: 'averagePrice',
+    T: 'lastTradeTime',
+  },
   depthUpdateEvent: {
     e: 'eventType',
     E: 'eventTime',
     s: 'symbol',
     U: 'firstUpdateId',
     u: 'lastUpdateId',
+    b: 'bidDepthDelta',
+    a: 'askDepthDelta',
+  },
+  depthOptionsEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    T: 'transactionTime',
+    s: 'symbol',
+    U: 'firstUpdateId',
+    u: 'lastUpdateId',
+    pu: 'lastUpdateId2',
     b: 'bidDepthDelta',
     a: 'askDepthDelta',
   },
@@ -95,18 +129,30 @@ export const BEAUTIFIER_EVENT_MAP = {
     s: 'symbol',
     k: 'kline',
   },
+  klineOptionsEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    s: 'symbol',
+    k: 'kline',
+  },
   continuous_klineEvent: {
     e: 'eventType',
     E: 'eventTime',
     ps: 'symbol',
     ct: 'contractType',
-    k: 'kline',
+    k: 'kline', // pointer to "kline" mapper
   },
   indexPrice_klineEvent: {
     e: 'eventType',
     E: 'eventTime',
     ps: 'symbol',
-    k: 'kline',
+    k: 'kline', // pointer to "kline" mapper
+  },
+  markPrice_klineEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    ps: 'symbol',
+    k: 'kline', // pointer to "kline" mapper
   },
   kline: {
     t: 'startTime',
@@ -126,6 +172,7 @@ export const BEAUTIFIER_EVENT_MAP = {
     V: 'volumeActive',
     Q: 'quoteVolumeActive',
     B: 'ignored',
+    F: 'firstTradeId', // used by european options klines
   },
   aggTradeEvent: {
     e: 'eventType',
@@ -172,6 +219,12 @@ export const BEAUTIFIER_EVENT_MAP = {
     i: 'symbol',
     p: 'indexPrice',
   },
+  indexOptionsEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    s: 'symbol',
+    p: 'indexPrice',
+  },
   listStatusEvent: {
     e: 'eventType',
     E: 'eventTime',
@@ -195,6 +248,38 @@ export const BEAUTIFIER_EVENT_MAP = {
     r: 'fundingRate',
     T: 'nextFundingTime',
   },
+  markPriceEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    s: 'symbol',
+    p: 'markPrice',
+    i: 'indexPrice',
+    P: 'settlePriceEstimate',
+    r: 'fundingRate',
+    T: 'nextFundingTime',
+    mp: 'optionsMarkPrice',
+  },
+  markPriceOptionsEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    s: 'symbol',
+    p: 'markPrice',
+    i: 'indexPrice',
+    P: 'settlePriceEstimate',
+    r: 'fundingRate',
+    T: 'nextFundingTime',
+    mp: 'optionsMarkPrice',
+  },
+  // '!markPrice@arrEvent': {
+  //   e: 'eventType',
+  //   E: 'eventTime',
+  //   s: 'symbol',
+  //   p: 'markPrice',
+  //   i: 'indexPrice',
+  //   P: 'settlePriceEstimate',
+  //   r: 'fundingRate',
+  //   T: 'nextFundingTime',
+  // },
   orders: [
     {
       s: 'symbol',
@@ -245,6 +330,13 @@ export const BEAUTIFIER_EVENT_MAP = {
     i: 'orderId',
     r: 'reason',
   },
+  CONDITIONAL_ORDER_TRADE_UPDATEEvent: {
+    e: 'eventType', // Event Type
+    E: 'eventTime', // Event Time
+    T: 'transactionTime', // Transaction Time
+    fs: 'eventBusinessUnit', // Event business unit
+    so: 'order', // order
+  },
   order: {
     s: 'symbol',
     c: 'clientOrderId',
@@ -254,6 +346,8 @@ export const BEAUTIFIER_EVENT_MAP = {
     q: 'originalQuantity',
     p: 'originalPrice',
     ap: 'averagePrice',
+    si: 'strategyId',
+    st: 'strategyType',
     sp: 'stopPrice',
     x: 'executionType',
     X: 'orderStatus',
@@ -279,6 +373,8 @@ export const BEAUTIFIER_EVENT_MAP = {
     V: 'selfTradePrevention',
     pm: 'priceMatch',
     gtd: 'goodTillDate',
+    os: 'strategyOrderStatus',
+    ut: 'orderUpdateTime', // Order update Time
   },
   ACCOUNT_CONFIG_UPDATEEvent: {
     e: 'eventType',
@@ -286,6 +382,26 @@ export const BEAUTIFIER_EVENT_MAP = {
     T: 'transactionTime',
     ac: 'assetConfiguration',
     ai: 'accountConfiguration',
+  },
+  COIN_SWAP_ORDEREvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    T: 'transactionTime',
+    c: 'coinSwapOrder',
+  },
+  coinSwapOrder: {
+    o: 'orderCreationTime',
+    a: 'asset',
+    qa: 'quoteAsset',
+    // M: '0.16851104',
+    // m: '100',
+    // p: '0',
+    // ma: '0',
+    // sp: '',
+    // bp: '0',
+    // t: 1741998542188,
+    // T: 1741998542189,
+    // s: true
   },
   assetConfiguration: {
     s: 'symbol',
@@ -392,6 +508,21 @@ export const BEAUTIFIER_EVENT_MAP = {
     m: 'maker',
     M: 'ignored',
   },
+  tradeOptionsEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    s: 'symbol',
+    t: 'tradeId',
+    p: 'price',
+    q: 'quantity',
+    b: 'buyerOrderId',
+    a: 'sellerOrderId',
+    T: 'time',
+    m: 'maker',
+    M: 'ignored',
+    S: 'direction',
+    X: 'tradeType',
+  },
   '24hrTickerEvent': {
     e: 'eventType',
     E: 'eventTime',
@@ -417,7 +548,89 @@ export const BEAUTIFIER_EVENT_MAP = {
     L: 'lastTradeId',
     n: 'trades',
   },
+  tickerEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    T: 'transactionTime',
+    s: 'symbol',
+    p: 'priceChange',
+    P: 'priceChangePercent',
+    w: 'weightedAveragePrice',
+    x: 'previousClose',
+    c: 'currentClose',
+    Q: 'closeQuantity',
+    b: 'bestBid',
+    B: 'bestBidQuantity',
+    a: 'bestAskPrice',
+    A: 'bestAskQuantity',
+    bo: 'bestBuyPrice',
+    ao: 'bestSellPrice',
+    bq: 'bestBuyQuantity',
+    aq: 'bestSellQuantity',
+    o: 'open',
+    h: 'high',
+    l: 'low',
+    v: 'baseAssetVolume',
+    q: 'quoteAssetVolume',
+    O: 'openTime',
+    C: 'closeTime',
+    F: 'firstTradeId',
+    L: 'lastTradeId',
+    n: 'trades',
+  },
+  tickerOptionsEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    T: 'transactionTime',
+    s: 'symbol',
+    o: 'open',
+    h: 'high',
+    l: 'low',
+    c: 'currentClose',
+    V: 'contractVolume',
+    A: 'baseAssetVolume',
+    P: 'priceChangePercent',
+    p: 'priceChange',
+    Q: 'lastTradeVolume',
+    F: 'firstTradeId',
+    L: 'lastTradeId',
+    n: 'trades',
+    bo: 'bestBuyPrice',
+    ao: 'bestSellPrice',
+    bq: 'bestBuyQuantity',
+    aq: 'bestSellQuantity',
+    b: 'buyImpliedVolatility',
+    a: 'sellImpliedVolatility',
+    d: 'delta',
+    t: 'theta',
+    g: 'gamma',
+    v: 'vega',
+    vo: 'impliedVolatility',
+    mp: 'markPrice',
+    hl: 'buyMaximumPrice',
+    ll: 'sellMinimumPrice',
+    eep: 'estimatedStrikePrice',
+  },
+  openInterestOptionsEvent: {
+    e: 'eventType',
+    E: 'eventTime',
+    s: 'symbol',
+    o: 'openInterestContracts',
+    h: 'openInterestUSD',
+  },
   '24hrMiniTickerEvent': {
+    e: 'eventType',
+    E: 'eventTime',
+    s: 'symbol',
+    ps: 'contractSymbol',
+    c: 'close',
+    o: 'open',
+    h: 'high',
+    l: 'low',
+    v: 'baseAssetVolume',
+    q: 'quoteAssetVolume',
+  },
+  miniTickerEvent: {
     e: 'eventType',
     E: 'eventTime',
     s: 'symbol',
@@ -450,7 +663,16 @@ export const BEAUTIFIER_EVENT_MAP = {
     z: 'orderFilledAccumulatedQuantity',
     T: 'orderTradeTime',
   },
-
+  liabilityChangeEvent: {
+    e: 'eventType', // Event Type
+    E: 'eventTime', // Event Time
+    a: 'asset', //Asset
+    t: 'type', //Type
+    T: 'transactionId', //Transaction ID
+    p: 'principal', //Principal
+    i: 'interest', //Interest
+    l: 'totalLiability', //Total Liability
+  },
   contractInfoEvent: {
     e: 'eventType', // Event Type
     E: 'eventTime', // Event Time
@@ -473,7 +695,6 @@ export const BEAUTIFIER_EVENT_MAP = {
       ma: 'maxLeverage', // Max leverage for this bracket
     },
   ],
-
   GRID_UPDATEEvent: {
     e: 'eventType', // Event Type
     T: 'transactionTime', // Transaction Time
