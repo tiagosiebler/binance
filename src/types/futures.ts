@@ -398,6 +398,7 @@ export interface HistoricOpenInterest {
   symbol: string;
   sumOpenInterest: string;
   sumOpenInterestValue: string;
+  CMCCirculatingSupply: string;
   timestamp: number;
 }
 
