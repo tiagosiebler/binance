@@ -5866,3 +5866,355 @@ export interface VASPInfo {
   vaspName: string;
   vaspCode: string;
 }
+
+// Institutional Loan types
+export interface InstitutionalLoanLiability {
+  assetName: string;
+  principal: string;
+  interest: string;
+}
+
+export interface InstitutionalLoanWallet {
+  accountType: 'SPOT' | 'PORTFOLIO_MARGIN' | 'CROSS_MARGIN';
+  netEquity: string;
+  maintainMargin: string;
+}
+
+export interface InstitutionalLoanCollateralAccount {
+  email: string;
+  type: 'CREDIT' | 'COLLATERAL';
+  wallets: InstitutionalLoanWallet[];
+}
+
+export interface InstitutionalLoanRiskUnitDetails {
+  groupId: number;
+  parentEmail: string;
+  creditEmail: string;
+  updateTime: number;
+  ltv: string;
+  totalNetEquity: string;
+  totalMaintenanceMargin: string;
+  totalLiability: string;
+  liabilities: InstitutionalLoanLiability[];
+  collateralAccounts: InstitutionalLoanCollateralAccount[];
+}
+
+export interface GetInstitutionalLoanRiskUnitDetailsParams {
+  groupId?: number;
+}
+
+export interface CloseInstitutionalLoanRiskUnitResponse {
+  groupId: number;
+  status: 'CLOSED';
+}
+
+export interface AddInstitutionalLoanCollateralAccountParams {
+  groupId: number;
+  subEmail: string;
+  enableSpot: boolean;
+  enableMargin: boolean;
+}
+
+export interface InstitutionalLoanRiskUnitMember {
+  email: string;
+  type: 'CREDIT' | 'COLLATERAL';
+  enableMargin: boolean;
+  enableSpot: boolean;
+}
+
+export interface ActiveInstitutionalLoanRiskUnit {
+  groupId: number;
+  members: InstitutionalLoanRiskUnitMember[];
+  createTime: number;
+}
+
+// Additional institutional loan types for borrow, repay, and interest history
+export interface InstitutionalLoanBorrowParams {
+  groupId: number;
+  assetName: string;
+  amount: number;
+}
+
+export interface InstitutionalLoanBorrowResponse {
+  transactionId: string;
+  amount: number;
+  status: string;
+}
+
+export interface InstitutionalLoanRepayParams {
+  groupId: number;
+  assetName: string;
+  amount: number;
+}
+
+export interface InstitutionalLoanRepayResponse {
+  transactionId: string;
+  amount: number;
+}
+
+export interface GetInstitutionalLoanInterestHistoryParams {
+  groupId?: number;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface InstitutionalLoanInterestHistoryRecord {
+  groupId: number;
+  assetName: string;
+  principal: string;
+  interestRate: string;
+  interest: string;
+  interestTimestamp: number;
+}
+
+export interface InstitutionalLoanInterestHistoryResponse {
+  total: number;
+  rows: InstitutionalLoanInterestHistoryRecord[];
+}
+
+// On-chain Yields types
+
+export interface OnchainYieldsLockedProductListParams {
+  asset?: string;
+  current?: number;
+  size?: number;
+}
+
+export interface OnchainYieldsLockedProductDetail {
+  asset: string;
+  rewardAsset: string;
+  duration: number;
+  renewable: boolean;
+  isSoldOut: boolean;
+  apr: string;
+  status: 'PREHEATING' | 'PURCHASING';
+  subscriptionStartTime: string;
+  canRedeemToFlex: boolean;
+}
+
+export interface OnchainYieldsLockedProductQuota {
+  totalPersonalQuota: string;
+  minimum: string;
+}
+
+export interface OnchainYieldsLockedProduct {
+  projectId: string;
+  detail: OnchainYieldsLockedProductDetail;
+  quota: OnchainYieldsLockedProductQuota;
+}
+
+export interface OnchainYieldsLockedProductListResponse {
+  rows: OnchainYieldsLockedProduct[];
+  total: number;
+}
+
+export interface OnchainYieldsLockedPersonalLeftQuotaParams {
+  projectId: string;
+}
+
+export interface OnchainYieldsLockedPersonalLeftQuotaResponse {
+  leftPersonalQuota: string;
+}
+
+export interface OnchainYieldsLockedPositionParams {
+  asset?: string;
+  positionId?: number;
+  projectId?: string;
+  current?: number;
+  size?: number;
+}
+
+export interface OnchainYieldsLockedPosition {
+  positionId: string;
+  projectId: string;
+  asset: string;
+  amount: string;
+  purchaseTime: string;
+  duration: string;
+  accrualDays: string;
+  rewardAsset: string;
+  APY: string;
+  rewardAmt: string;
+  nextPay?: string;
+  nextPayDate?: string;
+  payPeriod?: string;
+  rewardsPayDate?: string;
+  rewardsEndDate: string;
+  deliverDate?: string;
+  nextSubscriptionDate?: string;
+  redeemingAmt?: string;
+  redeemTo?: 'FLEXIBLE' | 'SPOT';
+  canRedeemEarly: boolean;
+  autoSubscribe: boolean;
+  type: 'AUTO' | 'NORMAL';
+  status: 'HOLDING' | 'REDEEMING' | 'RENEWING' | 'NEW_TRANSFERRING';
+}
+
+export interface OnchainYieldsLockedPositionResponse {
+  rows: OnchainYieldsLockedPosition[];
+  total: number;
+}
+
+export interface OnchainYieldsAccountResponse {
+  totalAmountInBTC: string;
+  totalAmountInUSDT: string;
+  totalFlexibleAmountInBTC: string;
+  totalFlexibleAmountInUSDT: string;
+  totalLockedInBTC: string;
+  totalLockedInUSDT: string;
+}
+
+// On-chain Yields Earn types
+
+export interface OnchainYieldsLockedSubscriptionPreviewParams {
+  projectId: string;
+  amount: number;
+  autoSubscribe?: boolean;
+}
+
+export interface OnchainYieldsLockedSubscriptionPreviewResponse {
+  rewardAsset: string;
+  totalRewardAmt: string;
+  nextPay?: string;
+  nextPayDate?: string;
+  rewardsPayDate?: string;
+  valueDate: string;
+  rewardsEndDate: string;
+  deliverDate?: string;
+  nextSubscriptionDate?: string;
+}
+
+export interface OnchainYieldsLockedSubscribeParams {
+  projectId: string;
+  amount: number;
+  autoSubscribe?: boolean;
+  sourceAccount?: 'SPOT' | 'FUND' | 'ALL';
+  redeemTo?: 'SPOT' | 'FLEXIBLE';
+  channelId?: string;
+  clientId?: string;
+}
+
+export interface OnchainYieldsLockedSubscribeResponse {
+  purchaseId: number;
+  positionId: string;
+  amount: string;
+  success: boolean;
+}
+
+export interface OnchainYieldsLockedSetAutoSubscribeParams {
+  positionId: string;
+  autoSubscribe: boolean;
+}
+
+export interface OnchainYieldsLockedSetAutoSubscribeResponse {
+  success: boolean;
+}
+
+export interface OnchainYieldsLockedSetRedeemOptionParams {
+  positionId: string;
+  redeemTo: 'SPOT' | 'FLEXIBLE';
+}
+
+export interface OnchainYieldsLockedSetRedeemOptionResponse {
+  success: boolean;
+}
+
+export interface OnchainYieldsLockedRedeemParams {
+  positionId: number;
+  channelId?: string;
+}
+
+export interface OnchainYieldsLockedRedeemResponse {
+  redeemId: number;
+  success: boolean;
+}
+
+// On-chain Yields History types
+
+export interface OnchainYieldsLockedSubscriptionRecordParams {
+  purchaseId?: string;
+  clientId?: string;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface OnchainYieldsLockedSubscriptionRecord {
+  positionId: string;
+  purchaseId: string;
+  projectId: string;
+  clientId: string;
+  time: number;
+  asset: string;
+  amount: string;
+  lockPeriod: string;
+  type: 'NORMAL' | 'AUTO';
+  sourceAccount: 'SPOT' | 'FUNDING' | 'SPOTANDFUNDING';
+  amtFromSpot?: string;
+  amtFromFunding?: string;
+  status: 'PURCHASING' | 'SUCCESS' | 'FAILED';
+}
+
+export interface OnchainYieldsLockedSubscriptionRecordResponse {
+  rows: OnchainYieldsLockedSubscriptionRecord[];
+  total: number;
+}
+
+export interface OnchainYieldsLockedRewardsHistoryParams {
+  positionId?: string;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface OnchainYieldsLockedRewardsRecord {
+  positionId: string;
+  time: number;
+  asset: string;
+  lockPeriod: string;
+  amount: string;
+}
+
+export interface OnchainYieldsLockedRewardsHistoryResponse {
+  rows: OnchainYieldsLockedRewardsRecord[];
+  total: number;
+}
+
+export interface OnchainYieldsLockedRedemptionRecordParams {
+  positionId?: number;
+  redeemId?: string;
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface OnchainYieldsLockedRedemptionRecord {
+  positionId: string;
+  redeemId: number;
+  time: number;
+  asset: string;
+  lockPeriod: string;
+  amount: string;
+  originalAmount: string;
+  type: 'NORMAL' | 'EARLY' | 'CONVERT';
+  deliverDate: string;
+  lossAmount: string;
+  isComplete: boolean;
+  rewardAsset: string;
+  rewardAmt: string;
+  status: 'CREATED' | 'PAID';
+}
+
+export interface OnchainYieldsLockedRedemptionRecordResponse {
+  rows: OnchainYieldsLockedRedemptionRecord[];
+  total: number;
+}

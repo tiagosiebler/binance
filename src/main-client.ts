@@ -30,7 +30,9 @@ import {
   AcceptQuoteRequestParams,
   AccountInfo,
   AccountInformation,
+  ActiveInstitutionalLoanRiskUnit,
   AddBSwapLiquidityParams,
+  AddInstitutionalLoanCollateralAccountParams,
   AddIpRestriction,
   AdjustCryptoLoanLTVParams,
   AdjustCryptoLoanLTVResponse,
@@ -94,6 +96,7 @@ import {
   CheckCollateralRepayRateResponse,
   CheckDualInvestmentAccountsResponse,
   CheckVipCollateralAccountParams,
+  CloseInstitutionalLoanRiskUnitResponse,
   CloudMining,
   CloudMiningHistoryParams,
   CoinMarginedFuturesResponse,
@@ -233,6 +236,8 @@ import {
   GetIndexLinkedPlanPositionDetailsResponse,
   GetIndexLinkedPlanRebalanceHistoryParams,
   GetIndexLinkedPlanRedemptionHistoryParams,
+  GetInstitutionalLoanInterestHistoryParams,
+  GetInstitutionalLoanRiskUnitDetailsParams,
   GetLoanableAssetsDataParams,
   GetLoanBorrowHistoryParams,
   GetLoanCoinPaginatedHistoryParams,
@@ -306,6 +311,12 @@ import {
   HistoricalDataLink,
   HistoricalSpotAlgoOrder,
   IndexLinkedPlanRedemptionRecord,
+  InstitutionalLoanBorrowParams,
+  InstitutionalLoanBorrowResponse,
+  InstitutionalLoanInterestHistoryResponse,
+  InstitutionalLoanRepayParams,
+  InstitutionalLoanRepayResponse,
+  InstitutionalLoanRiskUnitDetails,
   IsolatedMarginAccountInfo,
   IsolatedMarginAccountTransferParams,
   IsolatedMarginFeeData,
@@ -357,6 +368,29 @@ import {
   NftDeposit,
   NftTransaction,
   NftWithdraw,
+  OnchainYieldsAccountResponse,
+  OnchainYieldsLockedPersonalLeftQuotaParams,
+  OnchainYieldsLockedPersonalLeftQuotaResponse,
+  OnchainYieldsLockedPositionParams,
+  OnchainYieldsLockedPositionResponse,
+  OnchainYieldsLockedProductListParams,
+  OnchainYieldsLockedProductListResponse,
+  OnchainYieldsLockedRedeemParams,
+  OnchainYieldsLockedRedeemResponse,
+  OnchainYieldsLockedRedemptionRecordParams,
+  OnchainYieldsLockedRedemptionRecordResponse,
+  OnchainYieldsLockedRewardsHistoryParams,
+  OnchainYieldsLockedRewardsHistoryResponse,
+  OnchainYieldsLockedSetAutoSubscribeParams,
+  OnchainYieldsLockedSetAutoSubscribeResponse,
+  OnchainYieldsLockedSetRedeemOptionParams,
+  OnchainYieldsLockedSetRedeemOptionResponse,
+  OnchainYieldsLockedSubscribeParams,
+  OnchainYieldsLockedSubscribeResponse,
+  OnchainYieldsLockedSubscriptionPreviewParams,
+  OnchainYieldsLockedSubscriptionPreviewResponse,
+  OnchainYieldsLockedSubscriptionRecordParams,
+  OnchainYieldsLockedSubscriptionRecordResponse,
   OrderBookResponse,
   OrderList,
   OrderListResponse,
@@ -2624,6 +2658,115 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
+   * STAKING - Onchain Yields - Account
+   *
+   **/
+
+  getOnchainYieldsLockedProducts(
+    params?: OnchainYieldsLockedProductListParams,
+  ): Promise<OnchainYieldsLockedProductListResponse> {
+    return this.getPrivate('sapi/v1/onchain-yields/locked/list', params);
+  }
+
+  getOnchainYieldsLockedPersonalLeftQuota(
+    params: OnchainYieldsLockedPersonalLeftQuotaParams,
+  ): Promise<OnchainYieldsLockedPersonalLeftQuotaResponse> {
+    return this.getPrivate(
+      'sapi/v1/onchain-yields/locked/personalLeftQuota',
+      params,
+    );
+  }
+
+  getOnchainYieldsLockedPosition(
+    params?: OnchainYieldsLockedPositionParams,
+  ): Promise<OnchainYieldsLockedPositionResponse> {
+    return this.getPrivate('sapi/v1/onchain-yields/locked/position', params);
+  }
+
+  getOnchainYieldsAccount(): Promise<OnchainYieldsAccountResponse> {
+    return this.getPrivate('sapi/v1/onchain-yields/account');
+  }
+
+  /**
+   *
+   * STAKING - Onchain Yields - Earn
+   *
+   **/
+
+  getOnchainYieldsLockedSubscriptionPreview(
+    params: OnchainYieldsLockedSubscriptionPreviewParams,
+  ): Promise<OnchainYieldsLockedSubscriptionPreviewResponse> {
+    return this.getPrivate(
+      'sapi/v1/onchain-yields/locked/subscriptionPreview',
+      params,
+    );
+  }
+
+  subscribeOnchainYieldsLockedProduct(
+    params: OnchainYieldsLockedSubscribeParams,
+  ): Promise<OnchainYieldsLockedSubscribeResponse> {
+    return this.postPrivate('sapi/v1/onchain-yields/locked/subscribe', params);
+  }
+
+  setOnchainYieldsLockedAutoSubscribe(
+    params: OnchainYieldsLockedSetAutoSubscribeParams,
+  ): Promise<OnchainYieldsLockedSetAutoSubscribeResponse> {
+    return this.postPrivate(
+      'sapi/v1/onchain-yields/locked/setAutoSubscribe',
+      params,
+    );
+  }
+
+  setOnchainYieldsLockedRedeemOption(
+    params: OnchainYieldsLockedSetRedeemOptionParams,
+  ): Promise<OnchainYieldsLockedSetRedeemOptionResponse> {
+    return this.postPrivate(
+      'sapi/v1/onchain-yields/locked/setRedeemOption',
+      params,
+    );
+  }
+
+  redeemOnchainYieldsLockedProduct(
+    params: OnchainYieldsLockedRedeemParams,
+  ): Promise<OnchainYieldsLockedRedeemResponse> {
+    return this.postPrivate('sapi/v1/onchain-yields/locked/redeem', params);
+  }
+
+  /**
+   *
+   * STAKING - Onchain Yields - History
+   *
+   **/
+
+  getOnchainYieldsLockedSubscriptionRecord(
+    params?: OnchainYieldsLockedSubscriptionRecordParams,
+  ): Promise<OnchainYieldsLockedSubscriptionRecordResponse> {
+    return this.getPrivate(
+      'sapi/v1/onchain-yields/locked/history/subscriptionRecord',
+      params,
+    );
+  }
+
+  getOnchainYieldsLockedRewardsHistory(
+    params?: OnchainYieldsLockedRewardsHistoryParams,
+  ): Promise<OnchainYieldsLockedRewardsHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/onchain-yields/locked/history/rewardsRecord',
+      params,
+    );
+  }
+
+  getOnchainYieldsLockedRedemptionRecord(
+    params?: OnchainYieldsLockedRedemptionRecordParams,
+  ): Promise<OnchainYieldsLockedRedemptionRecordResponse> {
+    return this.getPrivate(
+      'sapi/v1/onchain-yields/locked/history/redemptionRecord',
+      params,
+    );
+  }
+
+  /**
+   *
    * COPY TRADING Endpoints - Future copy trading
    *
    **/
@@ -3748,6 +3891,59 @@ export class MainClient extends BaseRestClient {
    **/
   getPayTransactions(params: GetPayTradeHistoryParams): Promise<any> {
     return this.getPrivate('sapi/v1/pay/transactions', params);
+  }
+
+  /**
+   *
+   * INSTITUTIONAL LOAN - Account Endpoints
+   *
+   **/
+
+  getInstLoanRiskUnit(
+    params?: GetInstitutionalLoanRiskUnitDetailsParams,
+  ): Promise<InstitutionalLoanRiskUnitDetails[]> {
+    return this.getPrivate('sapi/v1/margin/loan-group/ltv-details', params);
+  }
+
+  closeInstLoanRiskUnit(): Promise<CloseInstitutionalLoanRiskUnitResponse> {
+    return this.deletePrivate('sapi/v1/margin/loan-group');
+  }
+
+  addInstLoanCollateralAccount(
+    params: AddInstitutionalLoanCollateralAccountParams,
+  ): Promise<object> {
+    return this.postPrivate('sapi/v1/margin/loan-group/edit-member', params);
+  }
+
+  getActiveInstLoanRiskUnits(): Promise<ActiveInstitutionalLoanRiskUnit[]> {
+    return this.getPrivate('sapi/v1/margin/loan-groups/activated');
+  }
+
+  /**
+   *
+   * INSTITUTIONAL LOAN - Borrow/Repay Endpoints
+   *
+   **/
+
+  borrowInstitutionalLoan(
+    params: InstitutionalLoanBorrowParams,
+  ): Promise<InstitutionalLoanBorrowResponse> {
+    return this.postPrivate('sapi/v1/margin/loan-group/borrow', params);
+  }
+
+  getInstLoanInterestHistory(
+    params?: GetInstitutionalLoanInterestHistoryParams,
+  ): Promise<InstitutionalLoanInterestHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/margin/loan-group/interest-history',
+      params,
+    );
+  }
+
+  repayInstitutionalLoan(
+    params: InstitutionalLoanRepayParams,
+  ): Promise<InstitutionalLoanRepayResponse> {
+    return this.postPrivate('sapi/v1/margin/loan-group/repay', params);
   }
 
   /**
