@@ -30,6 +30,7 @@ module.exports = {
     '@typescript-eslint/ban-types': 'off',
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
+    'no-param-reassign': ['error'],
     'array-bracket-spacing': ['error', 'never'],
     'linebreak-style': ['error', 'unix'],
     'lines-between-class-members': ['warn', 'always'],
