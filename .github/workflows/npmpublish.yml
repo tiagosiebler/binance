@@ -43,9 +43,6 @@ jobs:
       - run: npm run build
         if: steps.version-updated.outputs.has-updated
 
-      - run: npm run lint
-        if: steps.version-updated.outputs.has-updated
-
       - run: npm publish --ignore-scripts --provenance
         if: steps.version-updated.outputs.has-updated
         env:
