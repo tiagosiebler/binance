@@ -3,6 +3,7 @@
 [![Build & Test](https://github.com/tiagosiebler/binance/actions/workflows/test.yml/badge.svg)](https://github.com/tiagosiebler/binance/actions/workflows/test.yml)
 [![npm version](https://img.shields.io/npm/v/binance)][1]
 [![npm size](https://img.shields.io/bundlephobia/min/binance/latest)][1]
+[![Network Dependents](https://dependents.info/tiagosiebler/binance/badge?label=users)](https://dependents.info/tiagosiebler/binance)
 [![npm downloads](https://img.shields.io/npm/dt/binance)][1]
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/binance)][1]
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/binance/badge)](https://www.codefactor.io/repository/github/tiagosiebler/binance)
@@ -54,15 +55,14 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
 
 ## Table of Contents
 
-- [Installation](#installation)
-- [Examples](#examples)
-  - [REST API Examples](./examples/REST)
-  - [WebSocket Examples](./examples/WebSockets)
-    - [WebSocket Consumers](./examples/WebSockets/)
-    - [WebSocket API](./examples/WebSockets/ws-api-client.ts)
-- [Issues & Discussion](#issues--discussion)
-- [Related Projects](#related-projects)
-- [Documentation Links](#documentation)
+- [Node.js \& JavaScript SDK for Binance REST APIs \& WebSockets](#nodejs--javascript-sdk-for-binance-rest-apis--websockets)
+  - [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+  - [Examples](#examples)
+  - [Issues \& Discussion](#issues--discussion)
+  - [Related projects](#related-projects)
+  - [Documentation](#documentation)
+  - [Structure](#structure)
 - [Usage](#usage)
   - [REST API Clients](#rest-api-clients)
     - [REST Main Client](#rest-main-client)
@@ -72,13 +72,15 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
     - [WebSocket Consumers](#websocket-consumers)
     - [WebSocket API](#websocket-api)
       - [Event Driven API](#event-driven-api)
-      - [Promise Driven API](#async-await-api)
+      - [Async Await API](#async-await-api)
   - [Customise Logging](#customise-logging)
-  - [Frontend Usage](#browserfrontend-usage)
+  - [Browser/Frontend Usage](#browserfrontend-usage)
     - [Import](#import)
     - [Webpack](#webpack)
-- [LLMs & AI](#use-with-llms--ai)
-- [Contributions & Thanks](#contributions--thanks)
+  - [Use with LLMs \& AI](#use-with-llms--ai)
+    - [Contributions \& Thanks](#contributions--thanks)
+    - [Contributions \& Pull Requests](#contributions--pull-requests)
+  - [Star History](#star-history)
 
 ## Installation
 
