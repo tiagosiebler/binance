@@ -77,6 +77,7 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
   - [Frontend Usage](#browserfrontend-usage)
     - [Import](#import)
     - [Webpack](#webpack)
+- [LLMs & AI](#use-with-llms--ai)
 - [Contributions & Thanks](#contributions--thanks)
 
 ## Installation
@@ -612,6 +613,12 @@ Build a bundle using webpack:
 - `npm pack`
 
 The bundle can be found in `dist/`. Altough usage should be largely consistent, smaller differences will exist. Documentation is still TODO.
+
+## Use with LLMs & AI
+
+This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
+
+This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
 
 ---
 
