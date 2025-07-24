@@ -11091,888 +11091,6 @@ export interface WsAPIOperationResponseMap {
    */
 
 ================
-File: examples/WebSockets/ws-public.ts
-================
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  DefaultLogger,
-  isWsAggTradeFormatted,
-  isWsFormatted24hrTicker,
-  isWsFormatted24hrTickerArray,
-  isWsFormattedForceOrder,
-  isWsFormattedKline,
-  isWsFormattedMarkPriceUpdateArray,
-  isWsFormattedMarkPriceUpdateEvent,
-  isWsFormattedRollingWindowTickerArray,
-  isWsFormattedTrade,
-  isWsPartialBookDepthEventFormatted,
-  WebsocketClient,
-} from '../../src';
-⋮----
-// or, with the npm package
-/*
-import {
-  WebsocketClient,
-  DefaultLogger,
-  isWsFormatted24hrTicker,
-  isWsFormattedKline,
-} from 'binance';
-*/
-⋮----
-// Without typescript:
-// const logger = {
-⋮----
-// A simple way to suppress heartbeats but receive all other traces
-// if (params[0].includes('ping') || params[0].includes('pong')) {
-//   return;
-// }
-⋮----
-// Optional: when enabled, the SDK will try to format incoming data into more readable objects.
-// Beautified data is emitted via the "formattedMessage" event
-⋮----
-logger, // Optional: customise logging behaviour by extending or overwriting the default logger implementation
-⋮----
-// Raw unprocessed incoming data, e.g. if you have the beautifier disabled
-⋮----
-// console.log('raw message received ', JSON.stringify(data, null, 2));
-// console.log('raw message received ', JSON.stringify(data));
-⋮----
-// Formatted data that has gone through the beautifier
-⋮----
-/**
-     * Optional: we've included type-guards for many formatted websocket topics.
-     *
-     * These can be used within `if` blocks to narrow down specific event types (even for non-typescript users).
-     */
-// if (isWsAggTradeFormatted(data)) {
-//   console.log('log agg trade: ', data);
-//   return;
-// }
-⋮----
-// // For one symbol
-// if (isWsFormattedMarkPriceUpdateEvent(data)) {
-//   console.log('log mark price: ', data);
-//   return;
-// }
-⋮----
-// // for many symbols
-// if (isWsFormattedMarkPriceUpdateArray(data)) {
-//   console.log('log mark prices: ', data);
-//   return;
-// }
-⋮----
-// if (isWsFormattedKline(data)) {
-//   console.log('log kline: ', data);
-//   return;
-// }
-⋮----
-// if (isWsFormattedTrade(data)) {
-//   return console.log('log trade: ', data);
-// }
-⋮----
-// if (isWsFormattedForceOrder(data)) {
-//   return console.log('log force order: ', data);
-// }
-⋮----
-// if (isWsFormatted24hrTickerArray(data)) {
-//   return console.log('log 24hr ticker array: ', data);
-// }
-⋮----
-// if (isWsFormattedRollingWindowTickerArray(data)) {
-//   return console.log('log rolling window ticker array: ', data);
-// }
-⋮----
-// if (isWsFormatted24hrTicker(data)) {
-//   return console.log('log 24hr ticker: ', data);
-// }
-⋮----
-// if (isWsPartialBookDepthEventFormatted(data)) {
-//   return console.log('log partial book depth event: ', data);
-// }
-⋮----
-// response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
-⋮----
-// No action needed here, unless you need to query the REST API after being reconnected.
-⋮----
-/**
-     * The Websocket Client will automatically manage connectivity and active topics/subscriptions for you.
-     *
-     * Simply call wsClient.subscribe(topic, wsKey) as many times as you want, with or without an array.
-     */
-⋮----
-// // E.g. one at a time, routed to the coinm futures websockets:
-// wsClient.subscribe('btcusd@indexPrice', 'coinm');
-// wsClient.subscribe('btcusd@miniTicker', 'coinm');
-⋮----
-// // Or send many topics at once to a stream, e.g. the usdm futures stream:
-// wsClient.subscribe(
-//   [
-//     'btcusdt@aggTrade',
-//     'btcusdt@markPrice',
-//     '!ticker@arr',
-//     '!miniTicker@arr',
-//   ],
-//   'usdm',
-// );
-⋮----
-/**
-     * Subscribe to each available type of spot market topic, the new way
-     */
-⋮----
-// Aggregate Trade Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#aggregate-trade-streams
-⋮----
-// Trade Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams
-⋮----
-// Kline/Candlestick Streams for UTC
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-for-utc
-⋮----
-// Kline/Candlestick Streams with timezone offset
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-with-timezone-offset
-⋮----
-// Individual Symbol Mini Ticker Stream
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-mini-ticker-stream
-⋮----
-// All Market Mini Tickers Stream
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-mini-tickers-stream
-⋮----
-// Individual Symbol Ticker Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-ticker-streams
-⋮----
-// All Market Tickers Stream
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-tickers-stream
-⋮----
-// Individual Symbol Rolling Window Statistics Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-rolling-window-statistics-streams
-⋮----
-// All Market Rolling Window Statistics Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-rolling-window-statistics-streams
-⋮----
-// Individual Symbol Book Ticker Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams
-⋮----
-// Average Price
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#average-price
-⋮----
-// Partial Book Depth Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#partial-book-depth-streams
-⋮----
-// Diff. Depth Stream
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#diff-depth-stream
-⋮----
-// Look at the `WS_KEY_URL_MAP` for a list of values here:
-// https://github.com/tiagosiebler/binance/blob/master/src/util/websockets/websocket-util.ts
-// "main" connects to wss://stream.binance.com:9443/stream
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
-⋮----
-// Aggregate Trade Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Aggregate-Trade-Streams
-⋮----
-// Mark Price Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream
-⋮----
-// Mark Price Stream for All market
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream-for-All-market
-⋮----
-// Kline/Candlestick Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Kline-Candlestick-Streams
-// 'btcusdt@kline_1m',
-// Continuous Contract Kline/Candlestick Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Continuous-Contract-Kline-Candlestick-Streams
-// 'btcusdt_perpetual@continuousKline_1m', // DOESNT EXIST AS TYPE GUARD, ONLY IN BEAUTIFIER
-// Individual Symbol Mini Ticker Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Mini-Ticker-Stream
-// 'btcusdt@miniTicker', // DOESNT EXIST AS TYPE GUARD, ONLY FOR RAW MESSAGE
-// All Market Mini Tickers Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Mini-Tickers-Stream
-// '!miniTicker@arr', // DOESNT EXIST AS TYPE GUARD
-// Individual Symbol Ticker Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Ticker-Streams
-//'btcusdt@ticker',
-// All Market Tickers Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Tickers-Stream
-// '!ticker@arr', // DOESNT EXIST AS TYPE GUARD
-// Individual Symbol Book Ticker Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Book-Ticker-Streams
-//'btcusdt@bookTicker', // DOESNT EXIST AS TYPE GUARD
-// All Book Tickers Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Book-Tickers-Stream
-// '!bookTicker', // DOESNT EXIST AS TYPE GUARD
-// Liquidation Order Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Liquidation-Order-Streams
-// 'btcusdt@forceOrder',
-// Liquidation Order Stream for All market
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Liquidation-Order-Streams
-//'!forceOrder@arr',
-// Partial Book Depth Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Partial-Book-Depth-Streams
-//'btcusdt@depth5',
-// 'btcusdt@depth10@100ms'
-// Diff. Book Depth Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Diff-Book-Depth-Streams
-// 'btcusdt@depth',
-// 'btcusdt@depth@100ms',
-// 'btcusdt@depth@500ms',
-// 'btcusdt@depth@1000ms'
-// Composite Index Symbol Information Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Composite-Index-Symbol-Information-Streams
-// 'btcusdt@compositeIndex' // DOESNT EXIST AS TYPE GUARD
-// Contract Info Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Contract-Info-Stream
-// '!contractInfo' // DOESNT EXIST AS TYPE GUARD
-// Multi-Assets Mode Asset Index Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Multi-Assets-Mode-Asset-Index
-// '!assetIndex@arr' // DOESNT EXIST AS TYPE GUARD
-// 'btcusdt@assetIndex'
-⋮----
-/**
-     * Subscribe to each available european options market data websocket topic, the new way:
-     *
-     * https://developers.binance.com/docs/derivatives/option/websocket-market-streams/New-Symbol-Info
-     *
-     * https://eapi.binance.com/eapi/v1/exchangeInfo
-     */
-⋮----
-// /**
-//  *
-//  * For those that used the Node.js Binance SDK before the v3 release, you can
-//  * still subscribe to available market topics the "old" way, for convenience
-//  * when migrating from the old WebsocketClient to the new multiplex client):
-//  *
-//  */
-⋮----
-// wsClient.subscribeAggregateTrades(symbol, 'usdm');
-// wsClient.subscribeTrades(symbol, 'spot');
-// wsClient.subscribeTrades(symbol, 'usdm');
-// wsClient.subscribeTrades(coinMSymbol, 'coinm');
-// wsClient.subscribeCoinIndexPrice(coinMSymbol2);
-// wsClient.subscribeAllBookTickers('usdm');
-// wsClient.subscribeSpotKline(symbol, '1m');
-// wsClient.subscribeMarkPrice(symbol, 'usdm');
-// wsClient.subscribeMarkPrice(coinMSymbol, 'coinm');
-// wsClient.subscribeAllMarketMarkPrice('usdm');
-// wsClient.subscribeAllMarketMarkPrice('coinm');
-// wsClient.subscribeKlines(symbol, '1m', 'usdm');
-// wsClient.subscribeContinuousContractKlines(
-//   symbol,
-//   'perpetual',
-//   '1m',
-//   'usdm',
-// );
-// wsClient.subscribeIndexKlines(coinMSymbol2, '1m');
-// wsClient.subscribeMarkPriceKlines(coinMSymbol, '1m');
-// wsClient.subscribeSymbolMini24hrTicker(symbol, 'spot'); // 0116 265 5309, opt 1
-// wsClient.subscribeSymbolMini24hrTicker(symbol, 'usdm');
-// wsClient.subscribeSymbolMini24hrTicker(coinMSymbol, 'coinm');
-// wsClient.subscribeSymbol24hrTicker(symbol, 'spot');
-// wsClient.subscribeSymbol24hrTicker(symbol, 'usdm');
-// wsClient.subscribeSymbol24hrTicker(coinMSymbol, 'coinm');
-// wsClient.subscribeAllMini24hrTickers('spot');
-// wsClient.subscribeAllMini24hrTickers('usdm');
-// wsClient.subscribeAllMini24hrTickers('coinm');
-// wsClient.subscribeAll24hrTickers('spot');
-// wsClient.subscribeAll24hrTickers('usdm');
-// wsClient.subscribeAll24hrTickers('coinm');
-// wsClient.subscribeSymbolLiquidationOrders(symbol, 'usdm');
-// wsClient.subscribeAllLiquidationOrders('usdm');
-// wsClient.subscribeAllLiquidationOrders('coinm');
-// wsClient.subscribeSpotSymbol24hrTicker(symbol);
-// wsClient.subscribeSpotPartialBookDepth('ETHBTC', 5, 1000);
-// wsClient.subscribeAllRollingWindowTickers('spot', '1d');
-// wsClient.subscribeSymbolBookTicker(symbol, 'spot');
-// wsClient.subscribePartialBookDepths(symbol, 5, 100, 'spot');
-// wsClient.subscribeDiffBookDepth(symbol, 100, 'spot');
-// wsClient.subscribeContractInfoStream('usdm');
-// wsClient.subscribeContractInfoStream('coinm');
-
-================
-File: src/types/websockets/ws-api-requests.ts
-================
-import {
-  FuturesOrderType,
-  PositionSide,
-  PriceMatchMode,
-  WorkingType,
-} from '../futures';
-import {
-  BooleanString,
-  BooleanStringCapitalised,
-  KlineInterval,
-  numberInString,
-  OrderSide,
-  OrderTimeInForce,
-  OrderType,
-  SelfTradePreventionMode,
-} from '../shared';
-⋮----
-/**
- * Simple request params with timestamp (required) & recv window (optional)
- */
-export type WSAPIRecvWindowTimestamp = {
-  recvWindow?: number;
-  timestamp: number;
-};
-⋮----
-/**
- *
- * Authentication request types
- *
- */
-export interface WSAPISessionLogonRequest {
-  timestamp: number;
-}
-⋮----
-/**
- *
- * General request types
- *
- */
-export interface WSAPIExchangeInfoRequest {
-  symbol?: string;
-  symbols?: string[];
-  permissions?: string[];
-  showPermissionSets?: boolean;
-  symbolStatus?: string;
-}
-⋮----
-/**
- *
- * Market data request types
- *
- */
-⋮----
-export interface WSAPIOrderBookRequest {
-  symbol: string;
-  limit?: number;
-}
-⋮----
-export interface WSAPITradesRecentRequest {
-  symbol: string;
-  limit?: number;
-}
-⋮----
-export interface WSAPITradesHistoricalRequest {
-  symbol: string;
-  fromId?: number;
-  limit?: number;
-}
-⋮----
-export interface WSAPITradesAggregateRequest {
-  symbol: string;
-  fromId?: number;
-  startTime?: number;
-  endTime?: number;
-  limit?: number;
-}
-⋮----
-export interface WSAPIKlinesRequest {
-  symbol: string;
-  interval: KlineInterval;
-  startTime?: number;
-  endTime?: number;
-  timeZone?: string;
-  limit?: number;
-}
-⋮----
-export interface WSAPIAvgPriceRequest {
-  symbol: string;
-}
-⋮----
-/**
- * Symbol for single symbol, or symbols for multiple symbols
- */
-export interface WSAPITicker24hrRequest {
-  symbol?: string;
-  symbols?: string[];
-  type?: 'FULL' | 'MINI';
-}
-⋮----
-/**
- * Symbol for single symbol, or symbols for multiple symbols
- */
-export interface WSAPITickerTradingDayRequest {
-  symbol?: string;
-  symbols?: string[];
-  timeZone?: string;
-  type?: 'FULL' | 'MINI';
-}
-⋮----
-/**
- * Symbol for single symbol, or symbols for multiple symbols
- */
-export interface WSAPITickerRequest {
-  symbol?: string;
-  symbols?: string[];
-  windowSize?: string; // '1m', '2m' ... '59m', '1h', '2h' ... '23h', '1d', '2d' ... '7d'
-  type?: 'FULL' | 'MINI';
-}
-⋮----
-windowSize?: string; // '1m', '2m' ... '59m', '1h', '2h' ... '23h', '1d', '2d' ... '7d'
-⋮----
-/**
- * Symbol for single symbol, or symbols for multiple symbols
- */
-export interface WSAPITickerPriceRequest {
-  symbol?: string;
-  symbols?: string[];
-}
-⋮----
-/**
- * Symbol for single symbol, or symbols for multiple symbols
- */
-export interface WSAPITickerBookRequest {
-  symbol?: string;
-  symbols?: string[];
-}
-⋮----
-/**
- *
- * Account request types - Spot
- *
- */
-⋮----
-export interface WSAPIAllOrdersRequest {
-  symbol: string;
-  orderId?: number;
-  startTime?: number;
-  endTime?: number;
-  limit?: number;
-}
-⋮----
-export interface WSAPIAllOrderListsRequest {
-  fromId?: number;
-  startTime?: number;
-  endTime?: number;
-  limit?: number;
-}
-⋮----
-export interface WSAPIMyTradesRequest {
-  symbol: string;
-  orderId?: number;
-  startTime?: number;
-  endTime?: number;
-  fromId?: number;
-  limit?: number;
-}
-⋮----
-export interface WSAPIMyPreventedMatchesRequest {
-  symbol: string;
-  preventedMatchId?: number;
-  orderId?: number;
-  fromPreventedMatchId?: number;
-  limit?: number;
-}
-⋮----
-export interface WSAPIMyAllocationsRequest {
-  symbol: string;
-  startTime?: number;
-  endTime?: number;
-  fromAllocationId?: number;
-  limit?: number;
-  orderId?: number;
-}
-⋮----
-/**
- * Trading request types
- */
-⋮----
-export interface WSAPINewSpotOrderRequest {
-  symbol: string;
-  side: OrderSide;
-  type: OrderType;
-  timeInForce?: OrderTimeInForce;
-  price?: numberInString;
-  quantity?: numberInString;
-  quoteOrderQty?: numberInString;
-  newClientOrderId?: string;
-  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  stopPrice?: numberInString;
-  trailingDelta?: number;
-  icebergQty?: numberInString;
-  strategyId?: number;
-  strategyType?: number;
-  selfTradePreventionMode?: string;
-}
-⋮----
-export interface WSAPIOrderTestRequest {
-  symbol: string;
-  side: 'BUY' | 'SELL';
-  type: string;
-  timeInForce?: string;
-  price?: numberInString;
-  quantity?: numberInString;
-  quoteOrderQty?: numberInString;
-  newClientOrderId?: string;
-  stopPrice?: numberInString;
-  trailingDelta?: number;
-  icebergQty?: numberInString;
-  strategyId?: number;
-  strategyType?: number;
-  selfTradePreventionMode?: string;
-  computeCommissionRates?: boolean;
-  timestamp: number;
-  recvWindow?: number;
-}
-⋮----
-export interface WSAPIOrderStatusRequest {
-  symbol: string;
-  orderId?: number;
-  origClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIOrderCancelRequest {
-  symbol: string;
-  orderId?: number;
-  origClientOrderId?: string;
-  newClientOrderId?: string;
-  cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIOrderCancelReplaceRequest {
-  symbol: string;
-  cancelReplaceMode: 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
-  cancelOrderId?: number;
-  cancelOrigClientOrderId?: string;
-  cancelNewClientOrderId?: string;
-  side: 'BUY' | 'SELL';
-  type: string;
-  timeInForce?: string;
-  price?: numberInString;
-  quantity?: numberInString;
-  quoteOrderQty?: numberInString;
-  newClientOrderId?: string;
-  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  stopPrice?: numberInString;
-  trailingDelta?: number;
-  icebergQty?: numberInString;
-  strategyId?: number;
-  strategyType?: number;
-  selfTradePreventionMode?: string;
-  cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
-  orderRateLimitExceededMode?: 'DO_NOTHING' | 'CANCEL_ONLY';
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIOrderAmendKeepPriorityRequest {
-  symbol: string;
-  orderId?: number | string;
-  origClientOrderId?: string;
-  newClientOrderId?: string;
-  newQty?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIOpenOrdersStatusRequest {
-  symbol?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIOpenOrdersCancelAllRequest {
-  symbol: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-/**
- * Order list request types
- */
-export interface WSAPIOrderListPlaceRequest {
-  symbol: string;
-  side: 'BUY' | 'SELL';
-  price: numberInString;
-  quantity: numberInString;
-  listClientOrderId?: string;
-  limitClientOrderId?: string;
-  limitIcebergQty?: numberInString;
-  limitStrategyId?: number;
-  limitStrategyType?: number;
-  stopPrice?: numberInString;
-  trailingDelta?: number;
-  stopClientOrderId?: string;
-  stopLimitPrice?: numberInString;
-  stopLimitTimeInForce?: string;
-  stopIcebergQty?: numberInString;
-  stopStrategyId?: number;
-  stopStrategyType?: number;
-  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  selfTradePreventionMode?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIOrderListPlaceOCORequest {
-  symbol: string;
-  side: 'BUY' | 'SELL';
-  quantity: numberInString;
-  listClientOrderId?: string;
-  aboveType:
-    | 'STOP_LOSS_LIMIT'
-    | 'STOP_LOSS'
-    | 'LIMIT_MAKER'
-    | 'TAKE_PROFIT'
-    | 'TAKE_PROFIT_LIMIT';
-  aboveClientOrderId?: string;
-  aboveIcebergQty?: numberInString;
-  abovePrice?: numberInString;
-  aboveStopPrice?: numberInString;
-  aboveTrailingDelta?: number;
-  aboveTimeInForce?: string;
-  aboveStrategyId?: number;
-  aboveStrategyType?: number;
-  belowType:
-    | 'STOP_LOSS'
-    | 'STOP_LOSS_LIMIT'
-    | 'TAKE_PROFIT'
-    | 'TAKE_PROFIT_LIMIT'
-    | 'LIMIT_MAKER';
-  belowClientOrderId?: string;
-  belowIcebergQty?: numberInString;
-  belowPrice?: numberInString;
-  belowStopPrice?: numberInString;
-  belowTrailingDelta?: number;
-  belowTimeInForce?: string;
-  belowStrategyId?: number;
-  belowStrategyType?: number;
-  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  selfTradePreventionMode?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIOrderListPlaceOTORequest {
-  symbol: string;
-  listClientOrderId?: string;
-  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  selfTradePreventionMode?: string;
-  workingType: 'LIMIT' | 'LIMIT_MAKER';
-  workingSide: 'BUY' | 'SELL';
-  workingClientOrderId?: string;
-  workingPrice: numberInString;
-  workingQuantity: numberInString;
-  workingIcebergQty?: numberInString;
-  workingTimeInForce?: string;
-  workingStrategyId?: number;
-  workingStrategyType?: number;
-  pendingType: string;
-  pendingSide: 'BUY' | 'SELL';
-  pendingClientOrderId?: string;
-  pendingPrice?: numberInString;
-  pendingStopPrice?: numberInString;
-  pendingTrailingDelta?: numberInString;
-  pendingQuantity: numberInString;
-  pendingIcebergQty?: numberInString;
-  pendingTimeInForce?: string;
-  pendingStrategyId?: number;
-  pendingStrategyType?: number;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIOrderListPlaceOTOCORequest {
-  symbol: string;
-  listClientOrderId?: string;
-  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  selfTradePreventionMode?: string;
-  workingType: 'LIMIT' | 'LIMIT_MAKER';
-  workingSide: 'BUY' | 'SELL';
-  workingClientOrderId?: string;
-  workingPrice: numberInString;
-  workingQuantity: numberInString;
-  workingIcebergQty?: numberInString;
-  workingTimeInForce?: string;
-  workingStrategyId?: number;
-  workingStrategyType?: number;
-  pendingSide: 'BUY' | 'SELL';
-  pendingQuantity: number | string;
-  pendingAboveType:
-    | 'STOP_LOSS_LIMIT'
-    | 'STOP_LOSS'
-    | 'LIMIT_MAKER'
-    | 'TAKE_PROFIT'
-    | 'TAKE_PROFIT_LIMIT';
-  pendingAboveClientOrderId?: string;
-  pendingAbovePrice?: numberInString;
-  pendingAboveStopPrice?: numberInString;
-  pendingAboveTrailingDelta?: numberInString;
-  pendingAboveIcebergQty?: numberInString;
-  pendingAboveTimeInForce?: string;
-  pendingAboveStrategyId?: number;
-  pendingAboveStrategyType?: number;
-  pendingBelowType:
-    | 'STOP_LOSS'
-    | 'STOP_LOSS_LIMIT'
-    | 'TAKE_PROFIT'
-    | 'TAKE_PROFIT_LIMIT'
-    | 'LIMIT_MAKER';
-  pendingBelowClientOrderId?: string;
-  pendingBelowPrice?: numberInString;
-  pendingBelowStopPrice?: numberInString;
-  pendingBelowTrailingDelta?: numberInString;
-  pendingBelowIcebergQty?: numberInString;
-  pendingBelowTimeInForce?: string;
-  pendingBelowStrategyId?: number;
-  pendingBelowStrategyType?: number;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIOrderListStatusRequest {
-  origClientOrderId?: string;
-  orderListId?: number;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIOrderListCancelRequest {
-  symbol: string;
-  orderListId?: number;
-  listClientOrderId?: string;
-  newClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-/**
- * SOR request types
- */
-export interface WSAPISOROrderPlaceRequest {
-  symbol: string;
-  side: 'BUY' | 'SELL';
-  type: 'LIMIT' | 'MARKET';
-  timeInForce?: string;
-  price?: numberInString;
-  quantity: numberInString;
-  newClientOrderId?: string;
-  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
-  icebergQty?: numberInString;
-  strategyId?: number;
-  strategyType?: number;
-  selfTradePreventionMode?: string;
-  timestamp: number;
-  recvWindow?: number;
-}
-⋮----
-export type WSAPISOROrderTestRequest = WSAPISOROrderPlaceRequest & {
-  computeCommissionRates?: boolean;
-};
-⋮----
-/**
- * Futures market data request types
- */
-⋮----
-export interface WSAPIFuturesOrderBookRequest {
-  symbol: string;
-  limit?: number;
-}
-⋮----
-export interface WSAPIFuturesTickerPriceRequest {
-  symbol?: string;
-}
-⋮----
-export interface WSAPIFuturesTickerBookRequest {
-  symbol?: string;
-}
-⋮----
-/**
- * Futures trading request types
- */
-⋮----
-export interface WSAPINewFuturesOrderRequest<numberType = numberInString> {
-  symbol: string;
-  side: OrderSide;
-  positionSide?: PositionSide;
-  type: FuturesOrderType;
-  timeInForce?: OrderTimeInForce;
-  quantity?: numberType;
-  reduceOnly?: BooleanString;
-  price?: numberType;
-  newClientOrderId?: string;
-  stopPrice?: numberType;
-  closePosition?: BooleanString;
-  activationPrice?: numberType;
-  callbackRate?: numberType;
-  workingType?: WorkingType;
-  priceProtect?: BooleanStringCapitalised;
-  newOrderRespType?: 'ACK' | 'RESULT';
-  selfTradePreventionMode?: SelfTradePreventionMode;
-  priceMatch?: PriceMatchMode;
-  goodTillDate?: number; // Mandatory when timeInForce is GTD
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-goodTillDate?: number; // Mandatory when timeInForce is GTD
-⋮----
-export interface WSAPIFuturesOrderModifyRequest {
-  symbol: string;
-  orderId?: number;
-  origClientOrderId?: string;
-  side: 'BUY' | 'SELL';
-  quantity: numberInString;
-  price: numberInString;
-  priceMatch?:
-    | 'NONE'
-    | 'OPPONENT'
-    | 'OPPONENT_5'
-    | 'OPPONENT_10'
-    | 'OPPONENT_20'
-    | 'QUEUE'
-    | 'QUEUE_5'
-    | 'QUEUE_10'
-    | 'QUEUE_20';
-  origType?: string;
-  positionSide?: 'BOTH' | 'LONG' | 'SHORT';
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIFuturesOrderCancelRequest {
-  symbol: string;
-  orderId?: number;
-  origClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIFuturesOrderStatusRequest {
-  symbol: string;
-  orderId?: number;
-  origClientOrderId?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIFuturesPositionRequest {
-  symbol?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIFuturesPositionV2Request {
-  symbol?: string;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIAccountInformationRequest {
-  omitZeroBalances?: boolean;
-  recvWindow?: number;
-  timestamp: number;
-}
-⋮----
-export interface WSAPIAccountCommissionWSAPIRequest {
-  symbol: string;
-}
-
-================
 File: src/main-client.ts
 ================
 import { AxiosRequestConfig } from 'axios';
@@ -14924,6 +14042,888 @@ convertBUSD(params: ConvertTransfer): Promise<ConvertTransferResponse>
    * @deprecated
    */
 getConvertBUSDHistory(params: GetConvertBUSDHistoryParams): Promise<
+
+================
+File: examples/WebSockets/ws-public.ts
+================
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  DefaultLogger,
+  isWsAggTradeFormatted,
+  isWsFormatted24hrTicker,
+  isWsFormatted24hrTickerArray,
+  isWsFormattedForceOrder,
+  isWsFormattedKline,
+  isWsFormattedMarkPriceUpdateArray,
+  isWsFormattedMarkPriceUpdateEvent,
+  isWsFormattedRollingWindowTickerArray,
+  isWsFormattedTrade,
+  isWsPartialBookDepthEventFormatted,
+  WebsocketClient,
+} from '../../src';
+⋮----
+// or, with the npm package
+/*
+import {
+  WebsocketClient,
+  DefaultLogger,
+  isWsFormatted24hrTicker,
+  isWsFormattedKline,
+} from 'binance';
+*/
+⋮----
+// Without typescript:
+// const logger = {
+⋮----
+// A simple way to suppress heartbeats but receive all other traces
+// if (params[0].includes('ping') || params[0].includes('pong')) {
+//   return;
+// }
+⋮----
+// Optional: when enabled, the SDK will try to format incoming data into more readable objects.
+// Beautified data is emitted via the "formattedMessage" event
+⋮----
+logger, // Optional: customise logging behaviour by extending or overwriting the default logger implementation
+⋮----
+// Raw unprocessed incoming data, e.g. if you have the beautifier disabled
+⋮----
+// console.log('raw message received ', JSON.stringify(data, null, 2));
+// console.log('raw message received ', JSON.stringify(data));
+⋮----
+// Formatted data that has gone through the beautifier
+⋮----
+/**
+     * Optional: we've included type-guards for many formatted websocket topics.
+     *
+     * These can be used within `if` blocks to narrow down specific event types (even for non-typescript users).
+     */
+// if (isWsAggTradeFormatted(data)) {
+//   console.log('log agg trade: ', data);
+//   return;
+// }
+⋮----
+// // For one symbol
+// if (isWsFormattedMarkPriceUpdateEvent(data)) {
+//   console.log('log mark price: ', data);
+//   return;
+// }
+⋮----
+// // for many symbols
+// if (isWsFormattedMarkPriceUpdateArray(data)) {
+//   console.log('log mark prices: ', data);
+//   return;
+// }
+⋮----
+// if (isWsFormattedKline(data)) {
+//   console.log('log kline: ', data);
+//   return;
+// }
+⋮----
+// if (isWsFormattedTrade(data)) {
+//   return console.log('log trade: ', data);
+// }
+⋮----
+// if (isWsFormattedForceOrder(data)) {
+//   return console.log('log force order: ', data);
+// }
+⋮----
+// if (isWsFormatted24hrTickerArray(data)) {
+//   return console.log('log 24hr ticker array: ', data);
+// }
+⋮----
+// if (isWsFormattedRollingWindowTickerArray(data)) {
+//   return console.log('log rolling window ticker array: ', data);
+// }
+⋮----
+// if (isWsFormatted24hrTicker(data)) {
+//   return console.log('log 24hr ticker: ', data);
+// }
+⋮----
+// if (isWsPartialBookDepthEventFormatted(data)) {
+//   return console.log('log partial book depth event: ', data);
+// }
+⋮----
+// response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
+⋮----
+// No action needed here, unless you need to query the REST API after being reconnected.
+⋮----
+/**
+     * The Websocket Client will automatically manage connectivity and active topics/subscriptions for you.
+     *
+     * Simply call wsClient.subscribe(topic, wsKey) as many times as you want, with or without an array.
+     */
+⋮----
+// // E.g. one at a time, routed to the coinm futures websockets:
+// wsClient.subscribe('btcusd@indexPrice', 'coinm');
+// wsClient.subscribe('btcusd@miniTicker', 'coinm');
+⋮----
+// // Or send many topics at once to a stream, e.g. the usdm futures stream:
+// wsClient.subscribe(
+//   [
+//     'btcusdt@aggTrade',
+//     'btcusdt@markPrice',
+//     '!ticker@arr',
+//     '!miniTicker@arr',
+//   ],
+//   'usdm',
+// );
+⋮----
+/**
+     * Subscribe to each available type of spot market topic, the new way
+     */
+⋮----
+// Aggregate Trade Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#aggregate-trade-streams
+⋮----
+// Trade Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams
+⋮----
+// Kline/Candlestick Streams for UTC
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-for-utc
+⋮----
+// Kline/Candlestick Streams with timezone offset
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-with-timezone-offset
+⋮----
+// Individual Symbol Mini Ticker Stream
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-mini-ticker-stream
+⋮----
+// All Market Mini Tickers Stream
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-mini-tickers-stream
+⋮----
+// Individual Symbol Ticker Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-ticker-streams
+⋮----
+// All Market Tickers Stream
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-tickers-stream
+⋮----
+// Individual Symbol Rolling Window Statistics Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-rolling-window-statistics-streams
+⋮----
+// All Market Rolling Window Statistics Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-rolling-window-statistics-streams
+⋮----
+// Individual Symbol Book Ticker Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams
+⋮----
+// Average Price
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#average-price
+⋮----
+// Partial Book Depth Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#partial-book-depth-streams
+⋮----
+// Diff. Depth Stream
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#diff-depth-stream
+⋮----
+// Look at the `WS_KEY_URL_MAP` for a list of values here:
+// https://github.com/tiagosiebler/binance/blob/master/src/util/websockets/websocket-util.ts
+// "main" connects to wss://stream.binance.com:9443/stream
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
+⋮----
+// Aggregate Trade Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Aggregate-Trade-Streams
+⋮----
+// Mark Price Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream
+⋮----
+// Mark Price Stream for All market
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream-for-All-market
+⋮----
+// Kline/Candlestick Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Kline-Candlestick-Streams
+// 'btcusdt@kline_1m',
+// Continuous Contract Kline/Candlestick Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Continuous-Contract-Kline-Candlestick-Streams
+// 'btcusdt_perpetual@continuousKline_1m', // DOESNT EXIST AS TYPE GUARD, ONLY IN BEAUTIFIER
+// Individual Symbol Mini Ticker Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Mini-Ticker-Stream
+// 'btcusdt@miniTicker', // DOESNT EXIST AS TYPE GUARD, ONLY FOR RAW MESSAGE
+// All Market Mini Tickers Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Mini-Tickers-Stream
+// '!miniTicker@arr', // DOESNT EXIST AS TYPE GUARD
+// Individual Symbol Ticker Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Ticker-Streams
+//'btcusdt@ticker',
+// All Market Tickers Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Tickers-Stream
+// '!ticker@arr', // DOESNT EXIST AS TYPE GUARD
+// Individual Symbol Book Ticker Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Book-Ticker-Streams
+//'btcusdt@bookTicker', // DOESNT EXIST AS TYPE GUARD
+// All Book Tickers Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Book-Tickers-Stream
+// '!bookTicker', // DOESNT EXIST AS TYPE GUARD
+// Liquidation Order Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Liquidation-Order-Streams
+// 'btcusdt@forceOrder',
+// Liquidation Order Stream for All market
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Liquidation-Order-Streams
+//'!forceOrder@arr',
+// Partial Book Depth Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Partial-Book-Depth-Streams
+//'btcusdt@depth5',
+// 'btcusdt@depth10@100ms'
+// Diff. Book Depth Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Diff-Book-Depth-Streams
+// 'btcusdt@depth',
+// 'btcusdt@depth@100ms',
+// 'btcusdt@depth@500ms',
+// 'btcusdt@depth@1000ms'
+// Composite Index Symbol Information Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Composite-Index-Symbol-Information-Streams
+// 'btcusdt@compositeIndex' // DOESNT EXIST AS TYPE GUARD
+// Contract Info Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Contract-Info-Stream
+// '!contractInfo' // DOESNT EXIST AS TYPE GUARD
+// Multi-Assets Mode Asset Index Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Multi-Assets-Mode-Asset-Index
+// '!assetIndex@arr' // DOESNT EXIST AS TYPE GUARD
+// 'btcusdt@assetIndex'
+⋮----
+/**
+     * Subscribe to each available european options market data websocket topic, the new way:
+     *
+     * https://developers.binance.com/docs/derivatives/option/websocket-market-streams/New-Symbol-Info
+     *
+     * https://eapi.binance.com/eapi/v1/exchangeInfo
+     */
+⋮----
+// /**
+//  *
+//  * For those that used the Node.js Binance SDK before the v3 release, you can
+//  * still subscribe to available market topics the "old" way, for convenience
+//  * when migrating from the old WebsocketClient to the new multiplex client):
+//  *
+//  */
+⋮----
+// wsClient.subscribeAggregateTrades(symbol, 'usdm');
+// wsClient.subscribeTrades(symbol, 'spot');
+// wsClient.subscribeTrades(symbol, 'usdm');
+// wsClient.subscribeTrades(coinMSymbol, 'coinm');
+// wsClient.subscribeCoinIndexPrice(coinMSymbol2);
+// wsClient.subscribeAllBookTickers('usdm');
+// wsClient.subscribeSpotKline(symbol, '1m');
+// wsClient.subscribeMarkPrice(symbol, 'usdm');
+// wsClient.subscribeMarkPrice(coinMSymbol, 'coinm');
+// wsClient.subscribeAllMarketMarkPrice('usdm');
+// wsClient.subscribeAllMarketMarkPrice('coinm');
+// wsClient.subscribeKlines(symbol, '1m', 'usdm');
+// wsClient.subscribeContinuousContractKlines(
+//   symbol,
+//   'perpetual',
+//   '1m',
+//   'usdm',
+// );
+// wsClient.subscribeIndexKlines(coinMSymbol2, '1m');
+// wsClient.subscribeMarkPriceKlines(coinMSymbol, '1m');
+// wsClient.subscribeSymbolMini24hrTicker(symbol, 'spot'); // 0116 265 5309, opt 1
+// wsClient.subscribeSymbolMini24hrTicker(symbol, 'usdm');
+// wsClient.subscribeSymbolMini24hrTicker(coinMSymbol, 'coinm');
+// wsClient.subscribeSymbol24hrTicker(symbol, 'spot');
+// wsClient.subscribeSymbol24hrTicker(symbol, 'usdm');
+// wsClient.subscribeSymbol24hrTicker(coinMSymbol, 'coinm');
+// wsClient.subscribeAllMini24hrTickers('spot');
+// wsClient.subscribeAllMini24hrTickers('usdm');
+// wsClient.subscribeAllMini24hrTickers('coinm');
+// wsClient.subscribeAll24hrTickers('spot');
+// wsClient.subscribeAll24hrTickers('usdm');
+// wsClient.subscribeAll24hrTickers('coinm');
+// wsClient.subscribeSymbolLiquidationOrders(symbol, 'usdm');
+// wsClient.subscribeAllLiquidationOrders('usdm');
+// wsClient.subscribeAllLiquidationOrders('coinm');
+// wsClient.subscribeSpotSymbol24hrTicker(symbol);
+// wsClient.subscribeSpotPartialBookDepth('ETHBTC', 5, 1000);
+// wsClient.subscribeAllRollingWindowTickers('spot', '1d');
+// wsClient.subscribeSymbolBookTicker(symbol, 'spot');
+// wsClient.subscribePartialBookDepths(symbol, 5, 100, 'spot');
+// wsClient.subscribeDiffBookDepth(symbol, 100, 'spot');
+// wsClient.subscribeContractInfoStream('usdm');
+// wsClient.subscribeContractInfoStream('coinm');
+
+================
+File: src/types/websockets/ws-api-requests.ts
+================
+import {
+  FuturesOrderType,
+  PositionSide,
+  PriceMatchMode,
+  WorkingType,
+} from '../futures';
+import {
+  BooleanString,
+  BooleanStringCapitalised,
+  KlineInterval,
+  numberInString,
+  OrderSide,
+  OrderTimeInForce,
+  OrderType,
+  SelfTradePreventionMode,
+} from '../shared';
+⋮----
+/**
+ * Simple request params with timestamp (required) & recv window (optional)
+ */
+export type WSAPIRecvWindowTimestamp = {
+  recvWindow?: number;
+  timestamp: number;
+};
+⋮----
+/**
+ *
+ * Authentication request types
+ *
+ */
+export interface WSAPISessionLogonRequest {
+  timestamp: number;
+}
+⋮----
+/**
+ *
+ * General request types
+ *
+ */
+export interface WSAPIExchangeInfoRequest {
+  symbol?: string;
+  symbols?: string[];
+  permissions?: string[];
+  showPermissionSets?: boolean;
+  symbolStatus?: string;
+}
+⋮----
+/**
+ *
+ * Market data request types
+ *
+ */
+⋮----
+export interface WSAPIOrderBookRequest {
+  symbol: string;
+  limit?: number;
+}
+⋮----
+export interface WSAPITradesRecentRequest {
+  symbol: string;
+  limit?: number;
+}
+⋮----
+export interface WSAPITradesHistoricalRequest {
+  symbol: string;
+  fromId?: number;
+  limit?: number;
+}
+⋮----
+export interface WSAPITradesAggregateRequest {
+  symbol: string;
+  fromId?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+⋮----
+export interface WSAPIKlinesRequest {
+  symbol: string;
+  interval: KlineInterval;
+  startTime?: number;
+  endTime?: number;
+  timeZone?: string;
+  limit?: number;
+}
+⋮----
+export interface WSAPIAvgPriceRequest {
+  symbol: string;
+}
+⋮----
+/**
+ * Symbol for single symbol, or symbols for multiple symbols
+ */
+export interface WSAPITicker24hrRequest {
+  symbol?: string;
+  symbols?: string[];
+  type?: 'FULL' | 'MINI';
+}
+⋮----
+/**
+ * Symbol for single symbol, or symbols for multiple symbols
+ */
+export interface WSAPITickerTradingDayRequest {
+  symbol?: string;
+  symbols?: string[];
+  timeZone?: string;
+  type?: 'FULL' | 'MINI';
+}
+⋮----
+/**
+ * Symbol for single symbol, or symbols for multiple symbols
+ */
+export interface WSAPITickerRequest {
+  symbol?: string;
+  symbols?: string[];
+  windowSize?: string; // '1m', '2m' ... '59m', '1h', '2h' ... '23h', '1d', '2d' ... '7d'
+  type?: 'FULL' | 'MINI';
+}
+⋮----
+windowSize?: string; // '1m', '2m' ... '59m', '1h', '2h' ... '23h', '1d', '2d' ... '7d'
+⋮----
+/**
+ * Symbol for single symbol, or symbols for multiple symbols
+ */
+export interface WSAPITickerPriceRequest {
+  symbol?: string;
+  symbols?: string[];
+}
+⋮----
+/**
+ * Symbol for single symbol, or symbols for multiple symbols
+ */
+export interface WSAPITickerBookRequest {
+  symbol?: string;
+  symbols?: string[];
+}
+⋮----
+/**
+ *
+ * Account request types - Spot
+ *
+ */
+⋮----
+export interface WSAPIAllOrdersRequest {
+  symbol: string;
+  orderId?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+⋮----
+export interface WSAPIAllOrderListsRequest {
+  fromId?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+⋮----
+export interface WSAPIMyTradesRequest {
+  symbol: string;
+  orderId?: number;
+  startTime?: number;
+  endTime?: number;
+  fromId?: number;
+  limit?: number;
+}
+⋮----
+export interface WSAPIMyPreventedMatchesRequest {
+  symbol: string;
+  preventedMatchId?: number;
+  orderId?: number;
+  fromPreventedMatchId?: number;
+  limit?: number;
+}
+⋮----
+export interface WSAPIMyAllocationsRequest {
+  symbol: string;
+  startTime?: number;
+  endTime?: number;
+  fromAllocationId?: number;
+  limit?: number;
+  orderId?: number;
+}
+⋮----
+/**
+ * Trading request types
+ */
+⋮----
+export interface WSAPINewSpotOrderRequest {
+  symbol: string;
+  side: OrderSide;
+  type: OrderType;
+  timeInForce?: OrderTimeInForce;
+  price?: numberInString;
+  quantity?: numberInString;
+  quoteOrderQty?: numberInString;
+  newClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  stopPrice?: numberInString;
+  trailingDelta?: number;
+  icebergQty?: numberInString;
+  strategyId?: number;
+  strategyType?: number;
+  selfTradePreventionMode?: string;
+}
+⋮----
+export interface WSAPIOrderTestRequest {
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  type: string;
+  timeInForce?: string;
+  price?: numberInString;
+  quantity?: numberInString;
+  quoteOrderQty?: numberInString;
+  newClientOrderId?: string;
+  stopPrice?: numberInString;
+  trailingDelta?: number;
+  icebergQty?: numberInString;
+  strategyId?: number;
+  strategyType?: number;
+  selfTradePreventionMode?: string;
+  computeCommissionRates?: boolean;
+  timestamp: number;
+  recvWindow?: number;
+}
+⋮----
+export interface WSAPIOrderStatusRequest {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIOrderCancelRequest {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  newClientOrderId?: string;
+  cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIOrderCancelReplaceRequest {
+  symbol: string;
+  cancelReplaceMode: 'STOP_ON_FAILURE' | 'ALLOW_FAILURE';
+  cancelOrderId?: number;
+  cancelOrigClientOrderId?: string;
+  cancelNewClientOrderId?: string;
+  side: 'BUY' | 'SELL';
+  type: string;
+  timeInForce?: string;
+  price?: numberInString;
+  quantity?: numberInString;
+  quoteOrderQty?: numberInString;
+  newClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  stopPrice?: numberInString;
+  trailingDelta?: number;
+  icebergQty?: numberInString;
+  strategyId?: number;
+  strategyType?: number;
+  selfTradePreventionMode?: string;
+  cancelRestrictions?: 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
+  orderRateLimitExceededMode?: 'DO_NOTHING' | 'CANCEL_ONLY';
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIOrderAmendKeepPriorityRequest {
+  symbol: string;
+  orderId?: number | string;
+  origClientOrderId?: string;
+  newClientOrderId?: string;
+  newQty?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIOpenOrdersStatusRequest {
+  symbol?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIOpenOrdersCancelAllRequest {
+  symbol: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+/**
+ * Order list request types
+ */
+export interface WSAPIOrderListPlaceRequest {
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  price: numberInString;
+  quantity: numberInString;
+  listClientOrderId?: string;
+  limitClientOrderId?: string;
+  limitIcebergQty?: numberInString;
+  limitStrategyId?: number;
+  limitStrategyType?: number;
+  stopPrice?: numberInString;
+  trailingDelta?: number;
+  stopClientOrderId?: string;
+  stopLimitPrice?: numberInString;
+  stopLimitTimeInForce?: string;
+  stopIcebergQty?: numberInString;
+  stopStrategyId?: number;
+  stopStrategyType?: number;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  selfTradePreventionMode?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIOrderListPlaceOCORequest {
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  quantity: numberInString;
+  listClientOrderId?: string;
+  aboveType:
+    | 'STOP_LOSS_LIMIT'
+    | 'STOP_LOSS'
+    | 'LIMIT_MAKER'
+    | 'TAKE_PROFIT'
+    | 'TAKE_PROFIT_LIMIT';
+  aboveClientOrderId?: string;
+  aboveIcebergQty?: numberInString;
+  abovePrice?: numberInString;
+  aboveStopPrice?: numberInString;
+  aboveTrailingDelta?: number;
+  aboveTimeInForce?: string;
+  aboveStrategyId?: number;
+  aboveStrategyType?: number;
+  belowType:
+    | 'STOP_LOSS'
+    | 'STOP_LOSS_LIMIT'
+    | 'TAKE_PROFIT'
+    | 'TAKE_PROFIT_LIMIT'
+    | 'LIMIT_MAKER';
+  belowClientOrderId?: string;
+  belowIcebergQty?: numberInString;
+  belowPrice?: numberInString;
+  belowStopPrice?: numberInString;
+  belowTrailingDelta?: number;
+  belowTimeInForce?: string;
+  belowStrategyId?: number;
+  belowStrategyType?: number;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  selfTradePreventionMode?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIOrderListPlaceOTORequest {
+  symbol: string;
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  selfTradePreventionMode?: string;
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: numberInString;
+  workingQuantity: numberInString;
+  workingIcebergQty?: numberInString;
+  workingTimeInForce?: string;
+  workingStrategyId?: number;
+  workingStrategyType?: number;
+  pendingType: string;
+  pendingSide: 'BUY' | 'SELL';
+  pendingClientOrderId?: string;
+  pendingPrice?: numberInString;
+  pendingStopPrice?: numberInString;
+  pendingTrailingDelta?: numberInString;
+  pendingQuantity: numberInString;
+  pendingIcebergQty?: numberInString;
+  pendingTimeInForce?: string;
+  pendingStrategyId?: number;
+  pendingStrategyType?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIOrderListPlaceOTOCORequest {
+  symbol: string;
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  selfTradePreventionMode?: string;
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: numberInString;
+  workingQuantity: numberInString;
+  workingIcebergQty?: numberInString;
+  workingTimeInForce?: string;
+  workingStrategyId?: number;
+  workingStrategyType?: number;
+  pendingSide: 'BUY' | 'SELL';
+  pendingQuantity: number | string;
+  pendingAboveType:
+    | 'STOP_LOSS_LIMIT'
+    | 'STOP_LOSS'
+    | 'LIMIT_MAKER'
+    | 'TAKE_PROFIT'
+    | 'TAKE_PROFIT_LIMIT';
+  pendingAboveClientOrderId?: string;
+  pendingAbovePrice?: numberInString;
+  pendingAboveStopPrice?: numberInString;
+  pendingAboveTrailingDelta?: numberInString;
+  pendingAboveIcebergQty?: numberInString;
+  pendingAboveTimeInForce?: string;
+  pendingAboveStrategyId?: number;
+  pendingAboveStrategyType?: number;
+  pendingBelowType:
+    | 'STOP_LOSS'
+    | 'STOP_LOSS_LIMIT'
+    | 'TAKE_PROFIT'
+    | 'TAKE_PROFIT_LIMIT'
+    | 'LIMIT_MAKER';
+  pendingBelowClientOrderId?: string;
+  pendingBelowPrice?: numberInString;
+  pendingBelowStopPrice?: numberInString;
+  pendingBelowTrailingDelta?: numberInString;
+  pendingBelowIcebergQty?: numberInString;
+  pendingBelowTimeInForce?: string;
+  pendingBelowStrategyId?: number;
+  pendingBelowStrategyType?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIOrderListStatusRequest {
+  origClientOrderId?: string;
+  orderListId?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIOrderListCancelRequest {
+  symbol: string;
+  orderListId?: number;
+  listClientOrderId?: string;
+  newClientOrderId?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+/**
+ * SOR request types
+ */
+export interface WSAPISOROrderPlaceRequest {
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  type: 'LIMIT' | 'MARKET';
+  timeInForce?: string;
+  price?: numberInString;
+  quantity: numberInString;
+  newClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  icebergQty?: numberInString;
+  strategyId?: number;
+  strategyType?: number;
+  selfTradePreventionMode?: string;
+  timestamp: number;
+  recvWindow?: number;
+}
+⋮----
+export type WSAPISOROrderTestRequest = WSAPISOROrderPlaceRequest & {
+  computeCommissionRates?: boolean;
+};
+⋮----
+/**
+ * Futures market data request types
+ */
+⋮----
+export interface WSAPIFuturesOrderBookRequest {
+  symbol: string;
+  limit?: number;
+}
+⋮----
+export interface WSAPIFuturesTickerPriceRequest {
+  symbol?: string;
+}
+⋮----
+export interface WSAPIFuturesTickerBookRequest {
+  symbol?: string;
+}
+⋮----
+/**
+ * Futures trading request types
+ */
+⋮----
+export interface WSAPINewFuturesOrderRequest<numberType = numberInString> {
+  symbol: string;
+  side: OrderSide;
+  positionSide?: PositionSide;
+  type: FuturesOrderType;
+  timeInForce?: OrderTimeInForce;
+  quantity?: numberType;
+  reduceOnly?: BooleanString;
+  price?: numberType;
+  newClientOrderId?: string;
+  stopPrice?: numberType;
+  closePosition?: BooleanString;
+  activationPrice?: numberType;
+  callbackRate?: numberType;
+  workingType?: WorkingType;
+  priceProtect?: BooleanStringCapitalised;
+  newOrderRespType?: 'ACK' | 'RESULT';
+  selfTradePreventionMode?: SelfTradePreventionMode;
+  priceMatch?: PriceMatchMode;
+  goodTillDate?: number; // Mandatory when timeInForce is GTD
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+goodTillDate?: number; // Mandatory when timeInForce is GTD
+⋮----
+export interface WSAPIFuturesOrderModifyRequest {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  side: 'BUY' | 'SELL';
+  quantity: numberInString;
+  price: numberInString;
+  priceMatch?:
+    | 'NONE'
+    | 'OPPONENT'
+    | 'OPPONENT_5'
+    | 'OPPONENT_10'
+    | 'OPPONENT_20'
+    | 'QUEUE'
+    | 'QUEUE_5'
+    | 'QUEUE_10'
+    | 'QUEUE_20';
+  origType?: string;
+  positionSide?: 'BOTH' | 'LONG' | 'SHORT';
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIFuturesOrderCancelRequest {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIFuturesOrderStatusRequest {
+  symbol: string;
+  orderId?: number;
+  origClientOrderId?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIFuturesPositionRequest {
+  symbol?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIFuturesPositionV2Request {
+  symbol?: string;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIAccountInformationRequest {
+  omitZeroBalances?: boolean;
+  recvWindow?: number;
+  timestamp: number;
+}
+⋮----
+export interface WSAPIAccountCommissionWSAPIRequest {
+  symbol: string;
+}
 
 ================
 File: src/types/spot.ts
