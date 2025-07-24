@@ -6,7 +6,8 @@
   "types": "lib/index.d.ts",
   "files": [
     "lib/*",
-    "index.js"
+    "index.js",
+    "llms.txt"
   ],
   "scripts": {
     "test": "jest",
