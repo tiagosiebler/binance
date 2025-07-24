@@ -5,15 +5,15 @@ import { MainClient } from '../../src/index';
 
 // Received after creating a new API key with a self-generated RSA public key on binance
 const api_key =
-  'SIHqWcDeRoj6gkOjLjQh1dnV1CD7IgwQTfL4LVa8wu04zNTYVSmJBIHsjQjgwWqt';
+  'SIHqWcDeRoj6gkOjLjQh1dnV1CD7IEXAMPLELVa8wu04zNTYVSmJBIHsjQjgwWqt';
 
 // The self-generated RSA private key, this is never directly given to binance, but used to generate a signature
 // Note: this MUST include the "BEGIN PRIVATE KEY" header so the SDK understands this is RSA auth
 const rsaPrivateKey = `
 -----BEGIN RSA PRIVATE KEY-----
-MIIJKQIBAAKCAgEA1uWxxOXZUaX6AeZszf4xrBsU6axA5ipwxG7VPihVgssphDrr
+MIIJKQIBAAKCAgEA1uWxxOXZUaX6AeZszfEEEEXAMPLE5ipwxG7VPihVgssphDrr
 SOD0hZqnBmtF2bvT9ee1U0XOfMn+H+J5SH+1jgUpfioqH0L+KXl6wmLoPsadgfJz
-0SiQlFnKTkDXvMmecr6cdMHi2qNEx4CMc68CobvQ4Voz5qqpDwbohGtJh0p10PB/
+0SiQlFnKTkDXvMmecr6cdEXAMPLEEEEEc68CobvQ4Voz5qqpDwbohGtJh0p10PB/
 /0Ejcoz0UwrTDq8BGeFmWa9pL/7h2vHtw+QUUxlnGmt98M8KkKqqvVicMK+IVtng
 /QlDw9ofG2kQcbBkPRaTjNI+8ULtCDH0sOkZnT8PtGm4sEwmWH/dRWtUTWkMnUwC
 zuo/rWPb7WMprW2pKDTrLjUAr9M161t3Xa6WJO03K3NOxupy7ilululLY8d/WKWY
