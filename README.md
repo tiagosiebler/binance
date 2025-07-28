@@ -55,14 +55,15 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
 
 ## Table of Contents
 
-- [Node.js \& JavaScript SDK for Binance REST APIs \& WebSockets](#nodejs--javascript-sdk-for-binance-rest-apis--websockets)
-  - [Table of Contents](#table-of-contents)
-  - [Installation](#installation)
-  - [Examples](#examples)
-  - [Issues \& Discussion](#issues--discussion)
-  - [Related projects](#related-projects)
-  - [Documentation](#documentation)
-  - [Structure](#structure)
+- [Installation](#installation)
+- [Examples](#examples)
+  - [REST API Examples](./examples/REST)
+  - [WebSocket Examples](./examples/WebSockets)
+    - [WebSocket Consumers](./examples/WebSockets/)
+    - [WebSocket API](./examples/WebSockets/ws-api-client.ts)
+- [Issues & Discussion](#issues--discussion)
+- [Related Projects](#related-projects)
+- [Documentation Links](#documentation)
 - [Usage](#usage)
   - [REST API Clients](#rest-api-clients)
     - [REST Main Client](#rest-main-client)
@@ -72,15 +73,19 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
     - [WebSocket Consumers](#websocket-consumers)
     - [WebSocket API](#websocket-api)
       - [Event Driven API](#event-driven-api)
-      - [Async Await API](#async-await-api)
+      - [Promise Driven API](#async-await-api)
   - [Customise Logging](#customise-logging)
-  - [Browser/Frontend Usage](#browserfrontend-usage)
+  - [Frontend Usage](#browserfrontend-usage)
     - [Import](#import)
     - [Webpack](#webpack)
-  - [Use with LLMs \& AI](#use-with-llms--ai)
-    - [Contributions \& Thanks](#contributions--thanks)
-    - [Contributions \& Pull Requests](#contributions--pull-requests)
-  - [Star History](#star-history)
+- [LLMs & AI](#use-with-llms--ai)
+- [Contributions & Thanks](#contributions--thanks)
+
+## Used by
+
+<a href="https://dependents.info/tiagosiebler/binance">
+  <img src="https://dependents.info/tiagosiebler/binance/image" />
+</a>
 
 ## Installation
 
