@@ -650,9 +650,7 @@ Contributions are encouraged, I will review any incoming pull requests. See the 
 
 ## Used by
 
-<a href="https://dependents.info/tiagosiebler/binance">
-  <img src="https://dependents.info/tiagosiebler/binance/image" />
-</a>
+[![Used by](https://dependents.info/tiagosiebler/binance/image)](https://dependents.info/tiagosiebler/binance)
 
 <!-- template_star_history -->
 
