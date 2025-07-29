@@ -81,12 +81,6 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
 - [LLMs & AI](#use-with-llms--ai)
 - [Contributions & Thanks](#contributions--thanks)
 
-## Used by
-
-<a href="https://dependents.info/tiagosiebler/binance">
-  <img src="https://dependents.info/tiagosiebler/binance/image" />
-</a>
-
 ## Installation
 
 `npm install binance --save`
@@ -653,6 +647,12 @@ old ones:
 ### Contributions & Pull Requests
 
 Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
+
+## Used by
+
+<a href="https://dependents.info/tiagosiebler/binance">
+  <img src="https://dependents.info/tiagosiebler/binance/image" />
+</a>
 
 <!-- template_star_history -->
 
