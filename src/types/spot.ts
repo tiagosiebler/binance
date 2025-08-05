@@ -5927,6 +5927,72 @@ export interface ActiveInstitutionalLoanRiskUnit {
   members: InstitutionalLoanRiskUnitMember[];
   createTime: number;
 }
+export interface ClosedInstitutionalLoanRiskUnit {
+  groupId: number;
+  parentEmail: string;
+  creditEmail: string;
+  enabled: boolean;
+  createTime: number;
+  closeTime: number;
+}
+
+export interface GetClosedInstitutionalLoanRiskUnitsParams {
+  current?: number;
+  size?: number;
+}
+
+export interface GetClosedInstitutionalLoanRiskUnitsResponse {
+  total: number;
+  rows: ClosedInstitutionalLoanRiskUnit[];
+}
+
+// Institutional Loan Force Liquidation interfaces
+export interface InstitutionalLoanLiquidationSnapshot {
+  subEmail: string;
+  memberType: 'CREDIT' | 'COLLATERAL';
+  walletType: 'SPOT' | 'PORTFOLIO_MARGIN' | 'CROSS_MARGIN';
+  netEquity: string;
+  maintainMargin: string;
+}
+
+export interface InstitutionalLoanLiquidationSnapshotData {
+  snapshots: InstitutionalLoanLiquidationSnapshot[];
+  liabilities: InstitutionalLoanLiability[];
+}
+
+export interface InstitutionalLoanForceLiquidationRecord {
+  groupId: number;
+  startLtv: number;
+  endLtv: number;
+  liquidationStartTime: number;
+  liquidationEndTime: number;
+  totalNetEquity: string;
+  totalMaintenanceMargin: string;
+  totalLiability: string;
+  liquidationSnapshot: InstitutionalLoanLiquidationSnapshotData;
+}
+
+export interface GetInstitutionalLoanForceLiquidationParams {
+  groupId?: number;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface GetInstitutionalLoanForceLiquidationResponse {
+  total: number;
+  rows: InstitutionalLoanForceLiquidationRecord[];
+}
+
+// Risk Unit Transfer interfaces
+export interface InstitutionalLoanRiskUnitTransferParams {
+  subEmail?: string; // Optional: subEmail can be credit account or collateral account
+  asset: string; // Asset Name
+  amount: number; // Transfer amount of the asset
+}
 
 // Additional institutional loan types for borrow, repay, and interest history
 export interface InstitutionalLoanBorrowParams {
@@ -5973,6 +6039,34 @@ export interface InstitutionalLoanInterestHistoryRecord {
 export interface InstitutionalLoanInterestHistoryResponse {
   total: number;
   rows: InstitutionalLoanInterestHistoryRecord[];
+}
+
+export interface GetInstitutionalLoanBorrowRepayRecordsParams {
+  groupId?: number; // Optional: Risk unit unique identifier
+  type: 'BORROW' | 'REPAY'; // Required: BORROW or REPAY
+  asset?: string; // Optional: Asset name
+  startTime?: number; // Optional: Start time
+  endTime?: number; // Optional: End time
+  current?: number; // Optional: The currently querying page. Start from 1. Default:1
+  size?: number; // Optional: Default:10 Max:100
+  recvWindow?: number; // Optional: The value cannot be greater than 60000
+  timestamp: number; // Required
+}
+
+export interface InstitutionalLoanBorrowRepayRecord {
+  tranId: number; // Transaction ID
+  assetName: string; // Asset name
+  amount: number; // Amount
+  status: 'CONFIRM' | 'FAILED'; // Status
+  type: 'BORROW' | 'REPAY'; // Type
+  timestamp: number; // Create Time
+  principal?: number; // Only present for REPAY type
+  interest?: number; // Only present for REPAY type
+}
+
+export interface GetInstitutionalLoanBorrowRepayRecordsResponse {
+  total: number;
+  rows: InstitutionalLoanBorrowRepayRecord[];
 }
 
 // On-chain Yields types

@@ -199,6 +199,8 @@ import {
   GetBrokerSubAccountParams,
   GetC2CTradeHistoryParams,
   GetC2CTradeHistoryResponse,
+  GetClosedInstitutionalLoanRiskUnitsParams,
+  GetClosedInstitutionalLoanRiskUnitsResponse,
   GetCollateralAssetDataParams,
   GetCollateralRecordParams,
   GetConvertBUSDHistoryParams,
@@ -243,6 +245,10 @@ import {
   GetIndexLinkedPlanPositionDetailsResponse,
   GetIndexLinkedPlanRebalanceHistoryParams,
   GetIndexLinkedPlanRedemptionHistoryParams,
+  GetInstitutionalLoanBorrowRepayRecordsParams,
+  GetInstitutionalLoanBorrowRepayRecordsResponse,
+  GetInstitutionalLoanForceLiquidationParams,
+  GetInstitutionalLoanForceLiquidationResponse,
   GetInstitutionalLoanInterestHistoryParams,
   GetInstitutionalLoanRiskUnitDetailsParams,
   GetLoanableAssetsDataParams,
@@ -324,6 +330,7 @@ import {
   InstitutionalLoanRepayParams,
   InstitutionalLoanRepayResponse,
   InstitutionalLoanRiskUnitDetails,
+  InstitutionalLoanRiskUnitTransferParams,
   IsolatedMarginAccountInfo,
   IsolatedMarginAccountTransferParams,
   IsolatedMarginFeeData,
@@ -3926,6 +3933,38 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/margin/loan-groups/activated');
   }
 
+  getClosedInstLoanRiskUnits(
+    params?: GetClosedInstitutionalLoanRiskUnitsParams,
+  ): Promise<GetClosedInstitutionalLoanRiskUnitsResponse> {
+    return this.getPrivate('sapi/v1/margin/loan-groups/closed', params);
+  }
+
+  /**
+   *
+   * INSTITUTIONAL LOAN - Trade Endpoints
+   *
+   **/
+
+  getInstLoanForceLiquidationRecord(
+    params: GetInstitutionalLoanForceLiquidationParams,
+  ): Promise<GetInstitutionalLoanForceLiquidationResponse> {
+    return this.getPrivate(
+      'sapi/v1/margin/loan-group/force-liquidation',
+      params,
+    );
+  }
+  /**
+   *
+   * INSTITUTIONAL LOAN -  TransferEndpoints
+   *
+   **/
+
+  transferInstLoanRiskUnit(
+    params: InstitutionalLoanRiskUnitTransferParams,
+  ): Promise<null> {
+    return this.postPrivate('sapi/v1/margin/loan-group/transfer-out', params);
+  }
+
   /**
    *
    * INSTITUTIONAL LOAN - Borrow/Repay Endpoints
@@ -3951,6 +3990,12 @@ export class MainClient extends BaseRestClient {
     params: InstitutionalLoanRepayParams,
   ): Promise<InstitutionalLoanRepayResponse> {
     return this.postPrivate('sapi/v1/margin/loan-group/repay', params);
+  }
+
+  getInstLoanBorrowRepayRecords(
+    params: GetInstitutionalLoanBorrowRepayRecordsParams,
+  ): Promise<GetInstitutionalLoanBorrowRepayRecordsResponse> {
+    return this.getPrivate('sapi/v1/margin/loan-group/borrow-repay', params);
   }
 
   /**
