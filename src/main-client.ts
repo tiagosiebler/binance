@@ -43,6 +43,13 @@ import {
   AllCoinsInformationResponse,
   Allocation,
   AllocationsParams,
+  AlphaAggTrade,
+  AlphaAggTradesParams,
+  AlphaExchangeInfo,
+  AlphaKline,
+  AlphaKlinesParams,
+  AlphaTicker,
+  AlphaToken,
   ApiKeyBrokerSubAccount,
   APIPermissions,
   APITradingStatus,
@@ -3944,6 +3951,50 @@ export class MainClient extends BaseRestClient {
     params: InstitutionalLoanRepayParams,
   ): Promise<InstitutionalLoanRepayResponse> {
     return this.postPrivate('sapi/v1/margin/loan-group/repay', params);
+  }
+
+  /**
+   *
+   * ALPHA TRADING - Market Data
+   * https://developers.binance.com/docs/alpha
+   */
+
+  getAlphaTokenList(): Promise<AlphaToken[]> {
+    return this.getForBaseUrl(
+      'bapi/defi/v1/public/wallet-direct/buw/wallet/cex/alpha/all/token/list',
+      'www',
+    );
+  }
+
+  getAlphaExchangeInfo(): Promise<AlphaExchangeInfo> {
+    return this.getForBaseUrl(
+      'bapi/defi/v1/public/alpha-trade/get-exchange-info',
+      'www',
+    );
+  }
+
+  getAlphaAggTrades(params: AlphaAggTradesParams): Promise<AlphaAggTrade[]> {
+    return this.getForBaseUrl(
+      'bapi/defi/v1/public/alpha-trade/agg-trades',
+      'www',
+      params,
+    );
+  }
+
+  getAlphaKlines(params: AlphaKlinesParams): Promise<AlphaKline[]> {
+    return this.getForBaseUrl(
+      'bapi/defi/v1/public/alpha-trade/klines',
+      'www',
+      params,
+    );
+  }
+
+  getAlphaTicker(params: { symbol: string }): Promise<AlphaTicker> {
+    return this.getForBaseUrl(
+      'bapi/defi/v1/public/alpha-trade/ticker',
+      'www',
+      params,
+    );
   }
 
   /**

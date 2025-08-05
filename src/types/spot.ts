@@ -6218,3 +6218,122 @@ export interface OnchainYieldsLockedRedemptionRecordResponse {
   rows: OnchainYieldsLockedRedemptionRecord[];
   total: number;
 }
+
+/**
+ * ALPHA TRADING INTERFACES
+ */
+
+export interface AlphaToken {
+  alphaId: number;
+  symbol: string;
+  name: string;
+  chainId: string;
+  contractAddress: string;
+  decimals?: number;
+}
+
+export interface AlphaExchangeFilter {
+  filterType: string;
+  minPrice?: string;
+  maxPrice?: string;
+  tickSize?: string;
+  stepSize?: string;
+  maxQty?: string;
+  minQty?: string;
+  limit?: number;
+  minNotional?: string;
+  maxNotional?: string;
+  multiplierDown?: string;
+  multiplierUp?: string;
+  bidMultiplierUp?: string;
+  askMultiplierUp?: string;
+  bidMultiplierDown?: string;
+  askMultiplierDown?: string;
+}
+
+export interface AlphaSymbol {
+  symbol: string;
+  status: string;
+  baseAsset: string;
+  quoteAsset: string;
+  pricePrecision: number;
+  quantityPrecision: number;
+  baseAssetPrecision: number;
+  quotePrecision: number;
+  filters: AlphaExchangeFilter[];
+  orderTypes: string[];
+}
+
+export interface AlphaAsset {
+  asset: string;
+}
+
+export interface AlphaExchangeInfo {
+  timezone: string;
+  assets: AlphaAsset[];
+  symbols: AlphaSymbol[];
+}
+
+export interface AlphaAggTradesParams {
+  symbol: string;
+  fromId?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
+export interface AlphaAggTrade {
+  a: number; // aggregate trade ID
+  p: string; // price
+  q: string; // quantity
+  f: number; // first trade ID
+  l: number; // last trade ID
+  T: number; // timestamp
+  m: boolean; // is buyer market maker
+}
+
+export interface AlphaKlinesParams {
+  symbol: string;
+  interval: string; // 1s, 15s, 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M
+  limit?: number;
+  startTime?: number;
+  endTime?: number;
+}
+
+export type AlphaKline = [
+  string, // Open time
+  string, // Open price
+  string, // High price
+  string, // Low price
+  string, // Close price
+  string, // Volume
+  string, // Close time
+  string, // Quote asset volume
+  string, // Number of trades
+  string, // Taker buy base asset volume
+  string, // Taker buy quote asset volume
+  string, // Ignore (always "0")
+];
+
+export interface AlphaTickerParams {
+  symbol: string;
+}
+
+export interface AlphaTicker {
+  symbol: string;
+  priceChange: string;
+  priceChangePercent: string;
+  weightedAvgPrice: string;
+  lastPrice: string;
+  lastQty: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
+  volume: string;
+  quoteVolume: string;
+  openTime: number;
+  closeTime: number;
+  firstId: number;
+  lastId: number;
+  count: number;
+}
