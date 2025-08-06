@@ -162,7 +162,8 @@ Vanilla Options is not yet available. Please get in touch if you're looking for 
 
 ### REST Main Client
 
-The MainClient covers all endpoints under the main "api*.binance.com" subdomains, including but not limited to endpoints in the following product groups:
+The MainClient covers all endpoints under the main "api\*.binance.com" subdomains, including but not limited to endpoints in the following product groups:
+
 - Spot
 - Cross & isolated margin
 - Convert
@@ -180,6 +181,7 @@ The MainClient covers all endpoints under the main "api*.binance.com" subdomains
 - Exchange Link
 
 Refer to the following links for a complete list of available endpoints:
+
 - [Binance Node.js & JavaScript SDK Endpoint Map](https://github.com/tiagosiebler/binance/blob/master/docs/endpointFunctionList.md)
 - [Binance Spot API Docs](https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-endpoints)
 
@@ -264,7 +266,6 @@ client
   .catch((err) => {
     console.error('submitNewOrder error: ', err);
   });
-
 ```
 
 See [usdm-client.ts](./src/usdm-client.ts) for further information.
@@ -322,19 +323,17 @@ const API_SECRET = 'yyy';
  * The WebsocketClient will manage individual connections for you, under the hood.
  * Just make an instance of the WS Client and subscribe to topics. It'll handle the rest.
  */
-const wsClient = new WebsocketClient(
-  {
-    api_key: key,
-    api_secret: secret,
-    // Optional: when enabled, the SDK will try to format incoming data into more readable objects.
-    // Beautified data is emitted via the "formattedMessage" event
-    beautify: true,
-    // Disable ping/pong ws heartbeat mechanism (not recommended)
-    // disableHeartbeat: true,
-    // Connect to testnet environment
-    // testnet: true,
-  },
-);
+const wsClient = new WebsocketClient({
+  api_key: key,
+  api_secret: secret,
+  // Optional: when enabled, the SDK will try to format incoming data into more readable objects.
+  // Beautified data is emitted via the "formattedMessage" event
+  beautify: true,
+  // Disable ping/pong ws heartbeat mechanism (not recommended)
+  // disableHeartbeat: true,
+  // Connect to testnet environment
+  // testnet: true,
+});
 
 // receive raw events
 wsClient.on('message', (data) => {
@@ -381,12 +380,7 @@ wsClient.subscribe('btcusd@miniTicker', 'coinm');
 
 // Or send many topics at once to a stream, e.g. the usdm futures stream:
 wsClient.subscribe(
-  [
-    'btcusdt@aggTrade',
-    'btcusdt@markPrice',
-    '!ticker@arr',
-    '!miniTicker@arr',
-  ],
+  ['btcusdt@aggTrade', 'btcusdt@markPrice', '!ticker@arr', '!miniTicker@arr'],
   'usdm',
 );
 
@@ -650,7 +644,7 @@ Contributions are encouraged, I will review any incoming pull requests. See the 
 
 ## Used By
 
-[![Repository Users Preview Image](https://dependents.info/tiagosiebler/binance/image)](https://dependents.info/tiagosiebler/binance)
+[![Repository Users Preview Image](https://dependents.info/tiagosiebler/binance/image)](https://github.com/tiagosiebler/binance/network/dependents)
 
 <!-- template_star_history -->
 

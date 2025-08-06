@@ -16,7 +16,7 @@ import {
   WSClientConfigurableOptions,
 } from '../types/websockets/ws-general';
 import { DefaultLogger } from './logger';
-import { checkWebCryptoAPISupported } from './webCryptoAPI';
+//import { checkWebCryptoAPISupported } from './webCryptoAPI';
 import {
   getNormalisedTopicRequests,
   safeTerminateWs,
@@ -225,11 +225,12 @@ export abstract class BaseWebsocketClient<
       api_secret: options?.api_secret?.replace(/\\n/g, '\n'),
     };
 
-    if (this.options.api_key && this.options.api_secret) {
+    //  WebCryptoAPI feature
+    /* if (this.options.api_key && this.options.api_secret) {
       // Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
       // A few users have been caught out by using the end-of-life Node.js v18 release.
       checkWebCryptoAPISupported();
-    }
+    } */
   }
 
   /**

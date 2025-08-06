@@ -11,7 +11,7 @@ import {
   RestClientOptions,
   serialiseParams,
 } from './requestUtils';
-import { checkWebCryptoAPISupported } from './webCryptoAPI';
+//import { checkWebCryptoAPISupported } from './webCryptoAPI';
 
 type ApiLimitHeader =
   | 'x-mbx-used-weight'
@@ -117,11 +117,13 @@ export default abstract class BaseRestClient {
       );
     }
 
+    //  WebCryptoAPI feature
+    /* 
     if (this.key && this.secret) {
       // Provide a user friendly error message if the user is using an outdated Node.js version (where Web Crypto API is not available).
       // A few users have been caught out by using the end-of-life Node.js v18 release.
       checkWebCryptoAPISupported();
-    }
+    } */
 
     if (this.options.disableTimeSync !== true) {
       this.syncTime();
