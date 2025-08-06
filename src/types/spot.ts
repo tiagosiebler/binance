@@ -5927,6 +5927,72 @@ export interface ActiveInstitutionalLoanRiskUnit {
   members: InstitutionalLoanRiskUnitMember[];
   createTime: number;
 }
+export interface ClosedInstitutionalLoanRiskUnit {
+  groupId: number;
+  parentEmail: string;
+  creditEmail: string;
+  enabled: boolean;
+  createTime: number;
+  closeTime: number;
+}
+
+export interface GetClosedInstitutionalLoanRiskUnitsParams {
+  current?: number;
+  size?: number;
+}
+
+export interface GetClosedInstitutionalLoanRiskUnitsResponse {
+  total: number;
+  rows: ClosedInstitutionalLoanRiskUnit[];
+}
+
+// Institutional Loan Force Liquidation interfaces
+export interface InstitutionalLoanLiquidationSnapshot {
+  subEmail: string;
+  memberType: 'CREDIT' | 'COLLATERAL';
+  walletType: 'SPOT' | 'PORTFOLIO_MARGIN' | 'CROSS_MARGIN';
+  netEquity: string;
+  maintainMargin: string;
+}
+
+export interface InstitutionalLoanLiquidationSnapshotData {
+  snapshots: InstitutionalLoanLiquidationSnapshot[];
+  liabilities: InstitutionalLoanLiability[];
+}
+
+export interface InstitutionalLoanForceLiquidationRecord {
+  groupId: number;
+  startLtv: number;
+  endLtv: number;
+  liquidationStartTime: number;
+  liquidationEndTime: number;
+  totalNetEquity: string;
+  totalMaintenanceMargin: string;
+  totalLiability: string;
+  liquidationSnapshot: InstitutionalLoanLiquidationSnapshotData;
+}
+
+export interface GetInstitutionalLoanForceLiquidationParams {
+  groupId?: number;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface GetInstitutionalLoanForceLiquidationResponse {
+  total: number;
+  rows: InstitutionalLoanForceLiquidationRecord[];
+}
+
+// Risk Unit Transfer interfaces
+export interface InstitutionalLoanRiskUnitTransferParams {
+  subEmail?: string; // Optional: subEmail can be credit account or collateral account
+  asset: string; // Asset Name
+  amount: number; // Transfer amount of the asset
+}
 
 // Additional institutional loan types for borrow, repay, and interest history
 export interface InstitutionalLoanBorrowParams {
@@ -5973,6 +6039,34 @@ export interface InstitutionalLoanInterestHistoryRecord {
 export interface InstitutionalLoanInterestHistoryResponse {
   total: number;
   rows: InstitutionalLoanInterestHistoryRecord[];
+}
+
+export interface GetInstitutionalLoanBorrowRepayRecordsParams {
+  groupId?: number; // Optional: Risk unit unique identifier
+  type: 'BORROW' | 'REPAY'; // Required: BORROW or REPAY
+  asset?: string; // Optional: Asset name
+  startTime?: number; // Optional: Start time
+  endTime?: number; // Optional: End time
+  current?: number; // Optional: The currently querying page. Start from 1. Default:1
+  size?: number; // Optional: Default:10 Max:100
+  recvWindow?: number; // Optional: The value cannot be greater than 60000
+  timestamp: number; // Required
+}
+
+export interface InstitutionalLoanBorrowRepayRecord {
+  tranId: number; // Transaction ID
+  assetName: string; // Asset name
+  amount: number; // Amount
+  status: 'CONFIRM' | 'FAILED'; // Status
+  type: 'BORROW' | 'REPAY'; // Type
+  timestamp: number; // Create Time
+  principal?: number; // Only present for REPAY type
+  interest?: number; // Only present for REPAY type
+}
+
+export interface GetInstitutionalLoanBorrowRepayRecordsResponse {
+  total: number;
+  rows: InstitutionalLoanBorrowRepayRecord[];
 }
 
 // On-chain Yields types
@@ -6217,4 +6311,123 @@ export interface OnchainYieldsLockedRedemptionRecord {
 export interface OnchainYieldsLockedRedemptionRecordResponse {
   rows: OnchainYieldsLockedRedemptionRecord[];
   total: number;
+}
+
+/**
+ * ALPHA TRADING INTERFACES
+ */
+
+export interface AlphaToken {
+  alphaId: number;
+  symbol: string;
+  name: string;
+  chainId: string;
+  contractAddress: string;
+  decimals?: number;
+}
+
+export interface AlphaExchangeFilter {
+  filterType: string;
+  minPrice?: string;
+  maxPrice?: string;
+  tickSize?: string;
+  stepSize?: string;
+  maxQty?: string;
+  minQty?: string;
+  limit?: number;
+  minNotional?: string;
+  maxNotional?: string;
+  multiplierDown?: string;
+  multiplierUp?: string;
+  bidMultiplierUp?: string;
+  askMultiplierUp?: string;
+  bidMultiplierDown?: string;
+  askMultiplierDown?: string;
+}
+
+export interface AlphaSymbol {
+  symbol: string;
+  status: string;
+  baseAsset: string;
+  quoteAsset: string;
+  pricePrecision: number;
+  quantityPrecision: number;
+  baseAssetPrecision: number;
+  quotePrecision: number;
+  filters: AlphaExchangeFilter[];
+  orderTypes: string[];
+}
+
+export interface AlphaAsset {
+  asset: string;
+}
+
+export interface AlphaExchangeInfo {
+  timezone: string;
+  assets: AlphaAsset[];
+  symbols: AlphaSymbol[];
+}
+
+export interface AlphaAggTradesParams {
+  symbol: string;
+  fromId?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
+export interface AlphaAggTrade {
+  a: number; // aggregate trade ID
+  p: string; // price
+  q: string; // quantity
+  f: number; // first trade ID
+  l: number; // last trade ID
+  T: number; // timestamp
+  m: boolean; // is buyer market maker
+}
+
+export interface AlphaKlinesParams {
+  symbol: string;
+  interval: string; // 1s, 15s, 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M
+  limit?: number;
+  startTime?: number;
+  endTime?: number;
+}
+
+export type AlphaKline = [
+  string, // Open time
+  string, // Open price
+  string, // High price
+  string, // Low price
+  string, // Close price
+  string, // Volume
+  string, // Close time
+  string, // Quote asset volume
+  string, // Number of trades
+  string, // Taker buy base asset volume
+  string, // Taker buy quote asset volume
+  string, // Ignore (always "0")
+];
+
+export interface AlphaTickerParams {
+  symbol: string;
+}
+
+export interface AlphaTicker {
+  symbol: string;
+  priceChange: string;
+  priceChangePercent: string;
+  weightedAvgPrice: string;
+  lastPrice: string;
+  lastQty: string;
+  openPrice: string;
+  highPrice: string;
+  lowPrice: string;
+  volume: string;
+  quoteVolume: string;
+  openTime: number;
+  closeTime: number;
+  firstId: number;
+  lastId: number;
+  count: number;
 }
