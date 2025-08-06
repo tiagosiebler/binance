@@ -384,6 +384,9 @@ const BINANCE_BASE_URLS: Record<BinanceBaseUrlKey, string> = {
 
   // Portfolio Margin
   papi: 'https://papi.binance.com',
+
+  // www - for alpha
+  www: 'https://www.binance.com',
 };
 
 export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
