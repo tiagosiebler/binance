@@ -179,6 +179,7 @@ The MainClient covers all endpoints under the main "api\*.binance.com" subdomain
 - NFTs
 - C2C
 - Exchange Link
+- Alpha trading
 
 Refer to the following links for a complete list of available endpoints:
 
