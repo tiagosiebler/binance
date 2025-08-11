@@ -1,49 +1,63 @@
-name: Publish
+name: Publish to NPM
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'v*.*.*'
 
 permissions:
-  id-token: 'write'
-  contents: 'read'
+  contents: read
+  id-token: write
 
 jobs:
   publish-npm:
-    name: 'Publish NPM'
+    environment: production
     runs-on: ubuntu-latest
     steps:
-      - name: Package Version Updated
-        uses: MontyD/package-json-updated-action@1.0.1
-        id: version-updated
-        with:
-          path: package.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 'Checkout source code'
-        if: steps.version-updated.outputs.has-updated
+      - name: Checkout (no repo token persisted)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
-        if: steps.version-updated.outputs.has-updated
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          registry-url: 'https://registry.npmjs.org/'
+          registry-url: https://registry.npmjs.org/
           cache: 'npm'
 
-      - name: Install
+      - name: Assert latest npm
+        run: npm i -g npm@latest
+
+      - name: Guard - block registry overrides and shady files
+        run: |
+          # fail if any .npmrc exists in repo
+          if git ls-files -z | xargs -0 -I{} bash -lc '[[ "{}" == *.npmrc ]]' | grep -q .; then
+            echo "Repo contains an .npmrc. Refusing to publish."; exit 1;
+          fi
+          # fail if publishConfig.registry set
+          node -e "const p=require('./package.json'); if(p.publishConfig?.registry){console.error('publishConfig.registry present — refuse to publish'); process.exit(1)}"
+          # optional: block workflow/script changes in the release commit
+          # git diff --name-only HEAD~1..HEAD | grep -E '^\.github/(workflows|scripts)/' && { echo 'Workflow/scripts changed in release commit — refuse.'; exit 1; } || true
+          SHA=$(git rev-list -n 1 "$GITHUB_REF_NAME")
+          PARENT=$(git rev-list -n 1 "$SHA^")
+          git diff --name-only "$PARENT" "$SHA" | grep -E '^\.github/(workflows|scripts)/' \
+            && { echo 'Workflow/scripts changed in release commit — refuse.'; exit 1; } || true
+
+      - name: Verify tag matches package version
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG="${GITHUB_REF_NAME#v}"
+          [[ "$PKG_VERSION" == "$TAG" ]] || { echo "Tag v$TAG != package.json $PKG_VERSION"; exit 1; }
+
+      - name: Install deps (no lifecycle scripts)
         run: npm ci --ignore-scripts
-        if: steps.version-updated.outputs.has-updated
 
       - run: npm run clean
-        if: steps.version-updated.outputs.has-updated
-
       - run: npm run build
-        if: steps.version-updated.outputs.has-updated
 
-      - run: npm publish --ignore-scripts --provenance
-        if: steps.version-updated.outputs.has-updated
+      - name: Publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NPM_CONFIG_PROVENANCE: true
+        run: npm publish --access public --ignore-scripts --registry=https://registry.npmjs.org/ --provenance
