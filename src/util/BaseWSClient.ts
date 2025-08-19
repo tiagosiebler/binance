@@ -342,15 +342,6 @@ export abstract class BaseWebsocketClient<
       this.wsStore.addTopic(wsKey, topic);
     }
 
-    // Warn if total topic count for this wsKey exceeds 200
-    const totalTopicsForWsKey = this.wsStore.getTopics(wsKey).size;
-    if (totalTopicsForWsKey > 200) {
-      this.logger.info(
-        `High topic count detected: ${totalTopicsForWsKey} topics subscribed for wsKey "${wsKey}". Consider using fewer topics to avoid performance issues.`,
-        { ...WS_LOGGER_CATEGORY, wsKey, topicCount: totalTopicsForWsKey },
-      );
-    }
-
     const isConnected = this.wsStore.isConnectionState(
       wsKey,
       WsConnectionStateEnum.CONNECTED,
@@ -862,14 +853,14 @@ export abstract class BaseWebsocketClient<
       return;
     }
 
-    // Warn if trying to subscribe to a large batch of topics in one go
+    // Warn if trying to subscribe to a large number of topics
     if (wsTopicRequests.length > 200) {
       this.logger.info(
-        `Large topic batch detected: attempting to subscribe to ${wsTopicRequests.length} topics for wsKey "${wsKey}". This will be automatically batched but may cause performance issues.`,
+        `High topic count warning: subscribing to ${wsTopicRequests.length} topics for wsKey "${wsKey}". You may encounter exchange rate limits and performance degradation. Consider reducing the number of subscriptions.`,
         {
           ...WS_LOGGER_CATEGORY,
           wsKey,
-          topicBatchSize: wsTopicRequests.length,
+          topicCount: wsTopicRequests.length,
         },
       );
     }
