@@ -363,7 +363,7 @@ export function getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
     //   return null;
     // }
     default: {
-      return null;
+      return 250;
       // throw neverGuard(wsKey, 'getMaxTopicsPerSubscribeEvent(): Unhandled wsKey');
     }
   }
