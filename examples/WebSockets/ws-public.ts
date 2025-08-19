@@ -1,5 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { DefaultLogger, WebsocketClient } from '../../src';
+import {
+  DefaultLogger,
+  isWsAggTradeFormatted,
+  isWsFormatted24hrTicker,
+  isWsFormatted24hrTickerArray,
+  isWsFormattedForceOrder,
+  isWsFormattedKline,
+  isWsFormattedMarkPriceUpdateArray,
+  isWsFormattedMarkPriceUpdateEvent,
+  isWsFormattedRollingWindowTickerArray,
+  isWsFormattedTrade,
+  isWsPartialBookDepthEventFormatted,
+  WebsocketClient,
+} from '../../src';
 
 // or, with the npm package
 /*
