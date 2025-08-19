@@ -856,7 +856,7 @@ export abstract class BaseWebsocketClient<
     // Warn if trying to subscribe to a large number of topics
     if (wsTopicRequests.length > 200) {
       this.logger.info(
-        `High topic count warning: subscribing to ${wsTopicRequests.length} topics for wsKey "${wsKey}". You may encounter exchange rate limits and performance degradation. Consider reducing the number of subscriptions.`,
+        `High topic count warning: subscribing to ${wsTopicRequests.length} topics for wsKey "${wsKey}". You may encounter exchange rate limits and performance degradation. Consider reducing the number of subscriptions as Binance has "max topics per connection" limits. If you're repeatedly disconnected by Binance, split your topics per connection by making multiple WebsocketClient instances.`,
         {
           ...WS_LOGGER_CATEGORY,
           wsKey,
