@@ -352,7 +352,30 @@ const wsApiClient = new WebsocketAPIClient({
   useMMEndpoints: true, // Enable market maker endpoints
 });
 ```
+
 **Note:** Market maker endpoints are only available for futures products (USD-M and COIN-M). Spot, margin, and other product groups use the regular endpoints regardless of the `useMMEndpoints` setting. Market maker endpoints are also not available on testnet environments.
+
+### Best practice
+
+Since market maker endpoints are only available for some of the futures endpoints, you may need to use multiple client instances if your algorithm needs to use both regular and MM endpoints.
+
+```javascript
+import { USDMClient } from 'binance';
+
+// MM client for USD-M futures
+const futuresMMClient = new USDMClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMEndpoints: true, // Use MM endpoints for futures
+});
+
+// Regular client for USD-M futures
+const futuresRegularClient = new USDMClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMEndpoints: false, // Use regular endpoints for futures
+});
+```
 
 ## WebSockets
 
