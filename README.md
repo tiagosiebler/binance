@@ -311,7 +311,7 @@ These endpoints provide the same functionality as regular endpoints but with opt
 
 ### Using Market Maker Endpoints
 
-To use market maker endpoints, simply add the `useMMEndpoints: true` option when initializing any client (REST API clients, WebSocket clients, or WebSocket API clients):
+To use market maker endpoints, simply add the `useMMSubdomain: true` option when initializing any client (REST API clients, WebSocket clients, or WebSocket API clients):
 
 #### REST API Clients
 
@@ -322,14 +322,14 @@ import { USDMClient, CoinMClient } from 'binance';
 const usdmClient = new USDMClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
-  useMMEndpoints: true, // Enable market maker endpoints
+  useMMSubdomain: true, // Enable market maker endpoints
 });
 
 // COIN-M Futures with MM endpoints
 const coinmClient = new CoinMClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
-  useMMEndpoints: true, // Enable market maker endpoints
+  useMMSubdomain: true, // Enable market maker endpoints
 });
 ```
 
@@ -342,18 +342,18 @@ import { WebsocketClient, WebsocketAPIClient } from 'binance';
 const wsClient = new WebsocketClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
-  useMMEndpoints: true, // Enable market maker endpoints
+  useMMSubdomain: true, // Enable market maker endpoints
 });
 
 // WebSocket API client with MM endpoints
 const wsApiClient = new WebsocketAPIClient({
   api_key: API_KEY,
   api_secret: API_SECRET,
-  useMMEndpoints: true, // Enable market maker endpoints
+  useMMSubdomain: true, // Enable market maker endpoints
 });
 ```
 
-**Note:** Market maker endpoints are only available for futures products (USD-M and COIN-M). Spot, margin, and other product groups use the regular endpoints regardless of the `useMMEndpoints` setting. Market maker endpoints are also not available on testnet environments.
+**Note:** Market maker endpoints are only available for futures products (USD-M and COIN-M). Spot, margin, and other product groups use the regular endpoints regardless of the `useMMSubdomain` setting. Market maker endpoints are also not available on testnet environments.
 
 ### Best practice
 
