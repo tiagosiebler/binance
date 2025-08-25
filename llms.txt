@@ -1092,6 +1092,63 @@ function onUserDataEvent(data: WsUserDataEvents)
 // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
 
 ================
+File: examples/WebSockets/ws-userdata-listenKey-testnet.ts
+================
+import {
+  DefaultLogger,
+  isWsFormattedFuturesUserDataEvent,
+  isWsFormattedSpotUserDataEvent,
+  isWsFormattedSpotUserDataExecutionReport,
+  isWsFormattedUserDataEvent,
+  WebsocketClient,
+  WsUserDataEvents,
+} from '../../src/index';
+⋮----
+// or
+// import { DefaultLogger, WebsocketClient } from 'binance';
+⋮----
+// console.log('using api credentials: ', { key, secret });
+⋮----
+// Optional, hook and customise logging behavior
+⋮----
+// If you prefer, you can receive raw unprocessed data without the "beautifier":
+// wsClient.on('message', (data) => {
+//   console.log('raw message received ', JSON.stringify(data, null, 2));
+// });
+⋮----
+function onUserDataEvent(data: WsUserDataEvents)
+⋮----
+// the market denotes which API category it came from
+// if (data.wsMarket.includes('spot')) {
+⋮----
+// or use a type guard, if one exists (PRs welcome)
+⋮----
+// Beautified/formatted events from binance:
+⋮----
+// The wsKey can be parsed to determine the type of message (what websocket it came from)
+// if (!Array.isArray(data) && data.wsKey.includes('userData')) {
+//   return onUserDataEvent(data);
+// }
+⋮----
+// or use a type guard if available
+⋮----
+// response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
+⋮----
+// This is a good place to check your own state is still in sync with the account state on the exchange, in case any events were missed while the library was reconnecting:
+// - fetch balances
+// - fetch positions
+// - fetch orders
+⋮----
+// wsClient.subscribeMarginUserDataStream();
+// wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
+// wsClient.subscribeUsdFuturesUserDataStream();
+⋮----
+// setTimeout(() => {
+//   console.log('killing all connections');
+//   wsClient.closeAll();
+// }, 1000 * 15);
+
+================
 File: src/types/websockets/ws-events-formatted.ts
 ================
 import {
@@ -1645,221 +1702,6 @@ export type WsFormattedMessage =
   | WsMessage24hrTickerFormatted[]
   | WsMessageRollingWindowTickerFormatted[]
   | WsMessageMarkPriceUpdateEventFormatted[];
-
-================
-File: src/types/websockets/ws-general.ts
-================
-import { AxiosRequestConfig } from 'axios';
-import WebSocket from 'isomorphic-ws';
-⋮----
-import { RestClientOptions } from '../../util/requestUtils';
-import { WsKey } from '../../util/websockets/websocket-util';
-⋮----
-export interface MessageEventLike {
-  target: WebSocket;
-  type: 'message';
-  data: string;
-}
-⋮----
-export function isMessageEvent(msg: unknown): msg is MessageEventLike
-⋮----
-export type WsMarket =
-  | 'spot'
-  | 'spotTestnet'
-  | 'crossMargin'
-  | 'isolatedMargin'
-  | 'riskDataMargin'
-  | 'usdm'
-  | 'usdmTestnet'
-  | 'coinm'
-  | 'coinmTestnet'
-  | 'options'
-  | 'optionsTestnet'
-  | 'portfoliom';
-⋮----
-export interface WsSharedBase {
-  wsMarket: WsMarket;
-  wsKey: WsKey;
-  streamName: string;
-}
-⋮----
-export interface WsResponse {
-  type: 'message';
-  data: {
-    result: boolean | string[] | null;
-    id: number;
-    isWSAPIResponse: boolean;
-    wsKey: WsKey;
-  };
-}
-⋮----
-// Same as inverse futures
-export type WsPublicInverseTopic =
-  | 'orderBookL2_25'
-  | 'orderBookL2_200'
-  | 'trade'
-  | 'insurance'
-  | 'instrument_info'
-  | 'klineV2';
-⋮----
-export type WsPublicUSDTPerpTopic =
-  | 'orderBookL2_25'
-  | 'orderBookL2_200'
-  | 'trade'
-  | 'insurance'
-  | 'instrument_info'
-  | 'kline';
-⋮----
-export type WsPublicSpotV1Topic =
-  | 'trade'
-  | 'realtimes'
-  | 'kline'
-  | 'depth'
-  | 'mergedDepth'
-  | 'diffDepth';
-⋮----
-export type WsPublicSpotV2Topic =
-  | 'depth'
-  | 'kline'
-  | 'trade'
-  | 'bookTicker'
-  | 'realtimes';
-⋮----
-export type WsPublicTopics =
-  | WsPublicInverseTopic
-  | WsPublicUSDTPerpTopic
-  | WsPublicSpotV1Topic
-  | WsPublicSpotV2Topic
-  | string;
-⋮----
-// Same as inverse futures
-export type WsPrivateInverseTopic =
-  | 'position'
-  | 'execution'
-  | 'order'
-  | 'stop_order';
-⋮----
-export type WsPrivateUSDTPerpTopic =
-  | 'position'
-  | 'execution'
-  | 'order'
-  | 'stop_order'
-  | 'wallet';
-⋮----
-export type WsPrivateSpotTopic =
-  | 'outboundAccountInfo'
-  | 'executionReport'
-  | 'ticketInfo';
-⋮----
-export type WsPrivateTopic =
-  | WsPrivateInverseTopic
-  | WsPrivateUSDTPerpTopic
-  | WsPrivateSpotTopic
-  | string;
-⋮----
-export type WsTopic = WsPublicTopics | WsPrivateTopic;
-⋮----
-export interface WSClientConfigurableOptions {
-  /** Your API key */
-  api_key?: string;
-
-  /** Your API secret */
-  api_secret?: string;
-
-  beautify?: boolean;
-
-  /**
-   * If true, log a warning if the beautifier is missing anything for an event
-   */
-  beautifyWarnIfMissing?: boolean;
-
-  /**
-   * Set to `true` to connect to Binance's testnet environment.
-   *
-   * Notes:
-   * - Not all WebSocket categories support testnet.
-   * - If testing a strategy, this is not recommended. Testnet market data is very different from real market conditions. More guidance here: https://github.com/tiagosiebler/awesome-crypto-examples/wiki/CEX-Testnets
-   */
-  testnet?: boolean;
-
-  /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
-  recvWindow?: number;
-
-  // Disable ping/pong ws heartbeat mechanism (not recommended)
-  disableHeartbeat?: boolean;
-
-  /** How often to check if the connection is alive */
-  pingInterval?: number;
-
-  /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
-  pongTimeout?: number;
-
-  /** Delay in milliseconds before respawning the connection */
-  reconnectTimeout?: number;
-
-  restOptions?: RestClientOptions;
-
-  requestOptions?: AxiosRequestConfig;
-
-  wsOptions?: {
-    protocols?: string[];
-    agent?: any;
-  };
-
-  wsUrl?: string;
-
-  /**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
-}
-⋮----
-/** Your API key */
-⋮----
-/** Your API secret */
-⋮----
-/**
-   * If true, log a warning if the beautifier is missing anything for an event
-   */
-⋮----
-/**
-   * Set to `true` to connect to Binance's testnet environment.
-   *
-   * Notes:
-   * - Not all WebSocket categories support testnet.
-   * - If testing a strategy, this is not recommended. Testnet market data is very different from real market conditions. More guidance here: https://github.com/tiagosiebler/awesome-crypto-examples/wiki/CEX-Testnets
-   */
-⋮----
-/** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
-⋮----
-// Disable ping/pong ws heartbeat mechanism (not recommended)
-⋮----
-/** How often to check if the connection is alive */
-⋮----
-/** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
-⋮----
-/** Delay in milliseconds before respawning the connection */
-⋮----
-/**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-⋮----
-/**
- * WS configuration that's always defined, regardless of user configuration
- * (usually comes from defaults if there's no user-provided values)
- */
-export interface WebsocketClientOptions extends WSClientConfigurableOptions {
-  pongTimeout: number;
-  pingInterval: number;
-  reconnectTimeout: number;
-  recvWindow: number;
-  authPrivateConnectionsOnConnect: boolean;
-  authPrivateRequests: boolean;
-}
 
 ================
 File: src/types/coin.ts
@@ -5706,339 +5548,45 @@ import { DefaultLogger, WebsocketClient } from '../../src/index';
 // arrays also supported:
 
 ================
-File: examples/WebSockets/ws-public.ts
+File: examples/WebSockets/ws-userdata-README.MD
 ================
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { DefaultLogger, WebsocketClient } from '../../src';
-⋮----
-// or, with the npm package
-/*
-import {
-  WebsocketClient,
-  DefaultLogger,
-  isWsFormatted24hrTicker,
-  isWsFormattedKline,
-} from 'binance';
-*/
-⋮----
-// Without typescript:
-// const logger = {
-⋮----
-/* trace: (...params) => {
-      // A simple way to suppress heartbeats but receive all other traces
-      // if (params[0].includes('ping') || params[0].includes('pong')) {
-      //   return;
-      // }
-      console.log('\n', new Date(), 'trace ', ...params);
-    } ,*/
-⋮----
-// Optional: when enabled, the SDK will try to format incoming data into more readable objects.
-// Beautified data is emitted via the "formattedMessage" event
-⋮----
-logger, // Optional: customise logging behaviour by extending or overwriting the default logger implementation
-⋮----
-// Raw unprocessed incoming data, e.g. if you have the beautifier disabled
-⋮----
-// console.log('raw message received ', JSON.stringify(data, null, 2));
-// console.log('raw message received ', JSON.stringify(data));
-//console.log('log rawMessage: ', data);
-⋮----
-// Formatted data that has gone through the beautifier
-⋮----
-//console.log('log formattedMessage: ', data);
-/**
-     * Optional: we've included type-guards for many formatted websocket topics.
-     *
-     * These can be used within `if` blocks to narrow down specific event types (even for non-typescript users).
-     */
-// if (isWsAggTradeFormatted(data)) {
-//   console.log('log agg trade: ', data);
-//   return;
-// }
-// // For one symbol
-// if (isWsFormattedMarkPriceUpdateEvent(data)) {
-//   console.log('log mark price: ', data);
-//   return;
-// }
-// // for many symbols
-// if (isWsFormattedMarkPriceUpdateArray(data)) {
-//   console.log('log mark prices: ', data);
-//   return;
-// }
-// if (isWsFormattedKline(data)) {
-//   console.log('log kline: ', data);
-//   return;
-// }
-// if (isWsFormattedTrade(data)) {
-//   return console.log('log trade: ', data);
-// }
-// if (isWsFormattedForceOrder(data)) {
-//   return console.log('log force order: ', data);
-// }
-// if (isWsFormatted24hrTickerArray(data)) {
-//   return console.log('log 24hr ticker array: ', data);
-// }
-// if (isWsFormattedRollingWindowTickerArray(data)) {
-//   return console.log('log rolling window ticker array: ', data);
-// }
-// if (isWsFormatted24hrTicker(data)) {
-//   return console.log('log 24hr ticker: ', data);
-// }
-// if (isWsPartialBookDepthEventFormatted(data)) {
-//   return console.log('log partial book depth event: ', data);
-// }
-⋮----
-//console.log('log formattedUserDataMessage: ', data);
-⋮----
-// response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
-⋮----
-// No action needed here, unless you need to query the REST API after being reconnected.
-⋮----
-/**
-     * The Websocket Client will automatically manage connectivity and active topics/subscriptions for you.
-     *
-     * Simply call wsClient.subscribe(topic, wsKey) as many times as you want, with or without an array.
-     */
-⋮----
-// // E.g. one at a time, routed to the coinm futures websockets:
-// wsClient.subscribe('btcusd@indexPrice', 'coinm');
-// wsClient.subscribe('btcusd@miniTicker', 'coinm');
-⋮----
-// // Or send many topics at once to a stream, e.g. the usdm futures stream:
-// wsClient.subscribe(
-//   [
-//     'btcusdt@aggTrade',
-//     'btcusdt@markPrice',
-//     '!ticker@arr',
-//     '!miniTicker@arr',
-//   ],
-//   'usdm',
-// );
-⋮----
-/**
-     * Subscribe to each available type of spot market topic, the new way
-     */
-⋮----
-// Aggregate Trade Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#aggregate-trade-streams
-⋮----
-// Trade Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams
-⋮----
-// Kline/Candlestick Streams for UTC
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-for-utc
-⋮----
-// Kline/Candlestick Streams with timezone offset
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-with-timezone-offset
-⋮----
-// Individual Symbol Mini Ticker Stream
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-mini-ticker-stream
-⋮----
-// All Market Mini Tickers Stream
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-mini-tickers-stream
-⋮----
-// Individual Symbol Ticker Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-ticker-streams
-⋮----
-// All Market Tickers Stream
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-tickers-stream
-⋮----
-// Individual Symbol Rolling Window Statistics Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-rolling-window-statistics-streams
-⋮----
-// All Market Rolling Window Statistics Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-rolling-window-statistics-streams
-⋮----
-// Individual Symbol Book Ticker Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams
-⋮----
-// Average Price
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#average-price
-⋮----
-// Partial Book Depth Streams
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#partial-book-depth-streams
-⋮----
-// Diff. Depth Stream
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#diff-depth-stream
-⋮----
-// Look at the `WS_KEY_URL_MAP` for a list of values here:
-// https://github.com/tiagosiebler/binance/blob/master/src/util/websockets/websocket-util.ts
-// "main" connects to wss://stream.binance.com:9443/stream
-// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
-⋮----
-// Aggregate Trade Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Aggregate-Trade-Streams
-⋮----
-// Mark Price Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream
-⋮----
-// Mark Price Stream for All market
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream-for-All-market
-⋮----
-// Kline/Candlestick Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Kline-Candlestick-Streams
-// 'btcusdt@kline_1m',
-// Continuous Contract Kline/Candlestick Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Continuous-Contract-Kline-Candlestick-Streams
-// 'btcusdt_perpetual@continuousKline_1m', // DOESNT EXIST AS TYPE GUARD, ONLY IN BEAUTIFIER
-// Individual Symbol Mini Ticker Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Mini-Ticker-Stream
-// 'btcusdt@miniTicker', // DOESNT EXIST AS TYPE GUARD, ONLY FOR RAW MESSAGE
-// All Market Mini Tickers Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Mini-Tickers-Stream
-// '!miniTicker@arr', // DOESNT EXIST AS TYPE GUARD
-// Individual Symbol Ticker Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Ticker-Streams
-//'btcusdt@ticker',
-// All Market Tickers Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Tickers-Stream
-// '!ticker@arr', // DOESNT EXIST AS TYPE GUARD
-// Individual Symbol Book Ticker Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Book-Ticker-Streams
-//'btcusdt@bookTicker', // DOESNT EXIST AS TYPE GUARD
-// All Book Tickers Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Book-Tickers-Stream
-// '!bookTicker', // DOESNT EXIST AS TYPE GUARD
-// Liquidation Order Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Liquidation-Order-Streams
-// 'btcusdt@forceOrder',
-// Liquidation Order Stream for All market
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Liquidation-Order-Streams
-//'!forceOrder@arr',
-// Partial Book Depth Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Partial-Book-Depth-Streams
-//'btcusdt@depth5',
-// 'btcusdt@depth10@100ms'
-// Diff. Book Depth Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Diff-Book-Depth-Streams
-⋮----
-// Composite Index Symbol Information Streams
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Composite-Index-Symbol-Information-Streams
-// 'btcusdt@compositeIndex' // DOESNT EXIST AS TYPE GUARD
-// Contract Info Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Contract-Info-Stream
-// '!contractInfo' // DOESNT EXIST AS TYPE GUARD
-// Multi-Assets Mode Asset Index Stream
-// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Multi-Assets-Mode-Asset-Index
-// '!assetIndex@arr' // DOESNT EXIST AS TYPE GUARD
-// 'btcusdt@assetIndex'
-⋮----
-/**
-     * Subscribe to each available european options market data websocket topic, the new way:
-     *
-     * https://developers.binance.com/docs/derivatives/option/websocket-market-streams/New-Symbol-Info
-     *
-     * https://eapi.binance.com/eapi/v1/exchangeInfo
-     */
-⋮----
-// /**
-//  *
-//  * For those that used the Node.js Binance SDK before the v3 release, you can
-//  * still subscribe to available market topics the "old" way, for convenience
-//  * when migrating from the old WebsocketClient to the new multiplex client):
-//  *
-//  */
-⋮----
-// wsClient.subscribeAggregateTrades(symbol, 'usdm');
-// wsClient.subscribeTrades(symbol, 'spot');
-// wsClient.subscribeTrades(symbol, 'usdm');
-// wsClient.subscribeTrades(coinMSymbol, 'coinm');
-// wsClient.subscribeCoinIndexPrice(coinMSymbol2);
-// wsClient.subscribeAllBookTickers('usdm');
-// wsClient.subscribeSpotKline(symbol, '1m');
-// wsClient.subscribeMarkPrice(symbol, 'usdm');
-// wsClient.subscribeMarkPrice(coinMSymbol, 'coinm');
-// wsClient.subscribeAllMarketMarkPrice('usdm');
-// wsClient.subscribeAllMarketMarkPrice('coinm');
-// wsClient.subscribeKlines(symbol, '1m', 'usdm');
-// wsClient.subscribeContinuousContractKlines(
-//   symbol,
-//   'perpetual',
-//   '1m',
-//   'usdm',
-// );
-// wsClient.subscribeIndexKlines(coinMSymbol2, '1m');
-// wsClient.subscribeMarkPriceKlines(coinMSymbol, '1m');
-// wsClient.subscribeSymbolMini24hrTicker(symbol, 'spot'); // 0116 265 5309, opt 1
-// wsClient.subscribeSymbolMini24hrTicker(symbol, 'usdm');
-// wsClient.subscribeSymbolMini24hrTicker(coinMSymbol, 'coinm');
-// wsClient.subscribeSymbol24hrTicker(symbol, 'spot');
-// wsClient.subscribeSymbol24hrTicker(symbol, 'usdm');
-// wsClient.subscribeSymbol24hrTicker(coinMSymbol, 'coinm');
-// wsClient.subscribeAllMini24hrTickers('spot');
-// wsClient.subscribeAllMini24hrTickers('usdm');
-// wsClient.subscribeAllMini24hrTickers('coinm');
-// wsClient.subscribeAll24hrTickers('spot');
-// wsClient.subscribeAll24hrTickers('usdm');
-// wsClient.subscribeAll24hrTickers('coinm');
-// wsClient.subscribeSymbolLiquidationOrders(symbol, 'usdm');
-// wsClient.subscribeAllLiquidationOrders('usdm');
-// wsClient.subscribeAllLiquidationOrders('coinm');
-// wsClient.subscribeSpotSymbol24hrTicker(symbol);
-// wsClient.subscribeSpotPartialBookDepth('ETHBTC', 5, 1000);
-// wsClient.subscribeAllRollingWindowTickers('spot', '1d');
-// wsClient.subscribeSymbolBookTicker(symbol, 'spot');
-// wsClient.subscribePartialBookDepths(symbol, 5, 100, 'spot');
-// wsClient.subscribeDiffBookDepth(symbol, 100, 'spot');
-// wsClient.subscribeContractInfoStream('usdm');
-// wsClient.subscribeContractInfoStream('coinm');
+# User Data Streams - Binance
 
-================
-File: examples/WebSockets/ws-userdata-listenKey-testnet.ts
-================
-import {
-  DefaultLogger,
-  isWsFormattedFuturesUserDataEvent,
-  isWsFormattedSpotUserDataEvent,
-  isWsFormattedSpotUserDataExecutionReport,
-  isWsFormattedUserDataEvent,
-  WebsocketClient,
-  WsUserDataEvents,
-} from '../../src/index';
-⋮----
-// or
-// import { DefaultLogger, WebsocketClient } from 'binance';
-⋮----
-// console.log('using api credentials: ', { key, secret });
-⋮----
-// Optional, hook and customise logging behavior
-⋮----
-// If you prefer, you can receive raw unprocessed data without the "beautifier":
-// wsClient.on('message', (data) => {
-//   console.log('raw message received ', JSON.stringify(data, null, 2));
-// });
-⋮----
-function onUserDataEvent(data: WsUserDataEvents)
-⋮----
-// the market denotes which API category it came from
-// if (data.wsMarket.includes('spot')) {
-⋮----
-// or use a type guard, if one exists (PRs welcome)
-⋮----
-// Beautified/formatted events from binance:
-⋮----
-// The wsKey can be parsed to determine the type of message (what websocket it came from)
-// if (!Array.isArray(data) && data.wsKey.includes('userData')) {
-//   return onUserDataEvent(data);
-// }
-⋮----
-// or use a type guard if available
-⋮----
-// response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
-⋮----
-// This is a good place to check your own state is still in sync with the account state on the exchange, in case any events were missed while the library was reconnecting:
-// - fetch balances
-// - fetch positions
-// - fetch orders
-⋮----
-// wsClient.subscribeMarginUserDataStream();
-// wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
-// wsClient.subscribeUsdFuturesUserDataStream();
-⋮----
-// setTimeout(() => {
-//   console.log('killing all connections');
-//   wsClient.closeAll();
-// }, 1000 * 15);
+The user data streams are the WebSocket method for asynchronously receiving events when any changes happen on your account. Including but not limited to:
+- order events (filled/cancelled/updated/etc)
+- position events
+- balance events (deposit/withdraw/etc)
+- misc events (leverage changed, position mode changed, etc)
+
+## Mechanisms
+
+There are currently two key mechanisms for subscribing to user data events
+
+### Mechanisms - Listen Key
+
+The older and original mechanism involves a listen key. This is requested via the REST API and then used when opening a connection to the user data stream.
+
+The listen key can expire and needs a regular "ping" (a REST API call) to keep it alive.
+
+With the "binance" Node.js & JavaScript SDK, you can easily subscribe to the user data stream via the listen key workflow, through just one function call.
+
+The SDK will automatically:
+- fetch a listen key
+- perform regular keep alive requests on the listen key
+- handle listen key expiry/refresh
+- handle reconnects, if a connection is temporarily lost
+
+All you have to do is ask for the user data stream and process incoming events - the SDK will handle the rest!
+
+For a working example, refer to the [ws-userdata-listenkey](./ws-userdata-listenkey.ts) example.
+
+**Deprecation warning: As of April 2025, the listen key workflow is also deprecated for Spot markets (no known ETA for removal).** Refer to the changelog for details: https://developers.binance.com/docs/binance-spot-api-docs/CHANGELOG#2025-04-07
+
+### Mechanisms - WS API User Data Stream
+
+The newer mechanism for the user data stream is via an active WebSocket API connection. This is a simpler mechanism in that it does not require a listen key. You can easily use this new mechanism via the WebsocketClient (or WebsocketAPIClient) within this SDK.
+
+For a working example, refer to the [ws-userdata-wsapi](./ws-userdata-wsapi.ts) example.
 
 ================
 File: examples/WebSockets/ws-userdata-wsapi.ts
@@ -6143,6 +5691,105 @@ async function main()
 WS_KEY_MAP.mainWSAPI, // The `mainWSAPI` wsKey will connect to the "spot" Websocket API on Binance.
 ⋮----
 // Start executing the example workflow
+
+================
+File: examples/README.md
+================
+# Binance API - Examples
+
+This folder contains ready to go examples demonstrating various aspects of this API implementation, written in TypeScript (but they are compatible with pure JavaScript projects).
+
+Found something difficult to implement? Contribute to these examples and help others!
+
+## Getting started
+
+- Clone the project (or download it as a zip, or install the module in your own project `npm install binance`).
+- Edit the sample as needed (some samples require edits, e.g API keys or import statements to import from npm, not src).
+- Execute the sample using tsx: `tsx examples/REST/rest-spot-public.ts`.
+
+Samples that refer to API credentials using `process.env.API_KEY_COM` can be spawned with environment variables. Unix/macOS example:
+```
+APIKEY='apikeypastedhere' APISECRET='apisecretpastedhere' tsx examples/WebSockets/ws-userdata-listenkey.ts
+```
+
+Or edit the example directly to hardcode your API keys.
+
+### WebSockets
+
+All examples relating to WebSockets can be found in the [examples/WebSockets](./WebSockets/) folder. High level summary of available examples:
+
+#### Consumers
+
+These are purely for receiving data from Binance's WebSockets (market data, account updates, etc).
+
+##### Market Data
+
+These examples demonstrate subscribing to & receiving market data from Binance's WebSockets:
+
+- ws-public.ts
+  - Demonstration on general usage of the WebSocket client to subscribe to / unsubscribe from one or more market data topics.
+- ws-public-spot-orderbook.ts
+  - Subscribing to orderbook events for multiple symbols in spot markets.
+-	ws-public-spot-trades.ts
+  - Subscribing to raw trades for multiple symbols in spot markets.
+- ws-unsubscribe.ts
+  - Subscribing to a list of topics, and then unsubscribing from a few topics in that list.
+- ws-public-usdm-funding.ts
+  - Simple example subscribing to a general topic, and how to process incoming events to only extract funding rates from those events.
+
+##### Account Data
+
+These examples demonstrate receiving account update events from Binance's WebSockets:
+
+-	ws-userdata-listenkey.ts
+  - Demonstration on subscribing to various user data streams (spot, margin, futures),
+  - Handling incoming user data events
+  - Using provided type guards to determine which product group the user data event is for (spot, margin, futures, etc).
+- ws-userdata-listenKey-testnet.ts
+  - Similar to above, but on testnet.
+- ws-userdata-connection-safety.ts
+  - Demonstration on extra safety around the first user data stream connection.
+  - Note: this is overkill in most situations...
+
+##### WebSocket API
+
+These examples demonstrate how to send commands using Binance's WebSocket API (e.g. submitting orders). Very similar to the REST API, but using a persisted WebSocket connection instead of HTTP requests.
+
+- ws-api-client.ts
+  - Demonstration of using Binance's WebSocket API in Node.js/JavaScript/TypeScript, using the WebsocketAPIClient.
+  - This WebsocketAPIClient is very similar to a REST client, with one method per available command (endpoint) and fully typed requests & responses.
+  - Routing is automatically handled via the WebsocketClient, including authentication and connection persistence. Just call the functions you need - the SDK does the rest.
+  - From a usage perspective, it feels like a REST API - you can await responses just like a HTTP request.
+- ws-api-raw-promises.ts
+  - More verbose usage of the WebSocket API using the `sendWSAPIRequest()` method.
+  - The `WebsocketAPIClient` uses this method too, so in most cases it is simple to just use the `WebsocketAPIClient` instead.
+- ws-userdata-wsapi.ts
+  - The listenKey workflow for the user data stream is deprecated (in spot markets).
+  - This example demonstrates how to subscribe to the user data stream in spot markets, without a listen key, using the WebSocket API.
+
+##### Misc Workflows
+
+These are miscellaneous examples that cover one or more of the above categories:
+
+- ws-close.ts
+  - Closing the (old listen-key driven) user data stream.
+  - Unsubscribing from various topics.
+- ws-proxy-socks.ts
+  - Using WebSockets over a SOCKS proxy.
+- deprecated-ws-public.ts
+
+
+### REST APIs
+
+All examples relating to REST APIs can be found in the [examples/REST](./REST/) folder. Most examples are named around functionality & product group. Any examples with "private" involve API calls relating to your account (such as changing settings or submitting orders, etc),
+
+High level summary for some of the available examples, but check the folder for a complete list:
+
+#### REST USDM Examples
+
+- `rest-future-bracket-order.ts` Creates three order, entry, TP, SL and submit them all at once using `submitMultipleOrders`
+- `rest-usdm-order.ts` Creates single entry, using `submitNewOrder`
+- `rest-usdm-order-sl.ts` Modify current Stop Loss order(HedgeMode only)
 
 ================
 File: src/types/websockets/ws-api-responses.ts
@@ -8059,6 +7706,236 @@ export type WsRawMessage =
   | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
   | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
   | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw;
+
+================
+File: src/types/websockets/ws-general.ts
+================
+import { AxiosRequestConfig } from 'axios';
+import WebSocket from 'isomorphic-ws';
+⋮----
+import { RestClientOptions } from '../../util/requestUtils';
+import { WsKey } from '../../util/websockets/websocket-util';
+⋮----
+export interface MessageEventLike {
+  target: WebSocket;
+  type: 'message';
+  data: string;
+}
+⋮----
+export function isMessageEvent(msg: unknown): msg is MessageEventLike
+⋮----
+export type WsMarket =
+  | 'spot'
+  | 'spotTestnet'
+  | 'crossMargin'
+  | 'isolatedMargin'
+  | 'riskDataMargin'
+  | 'usdm'
+  | 'usdmTestnet'
+  | 'coinm'
+  | 'coinmTestnet'
+  | 'options'
+  | 'optionsTestnet'
+  | 'portfoliom';
+⋮----
+export interface WsSharedBase {
+  wsMarket: WsMarket;
+  wsKey: WsKey;
+  streamName: string;
+}
+⋮----
+export interface WsResponse {
+  type: 'message';
+  data: {
+    result: boolean | string[] | null;
+    id: number;
+    isWSAPIResponse: boolean;
+    wsKey: WsKey;
+  };
+}
+⋮----
+// Same as inverse futures
+export type WsPublicInverseTopic =
+  | 'orderBookL2_25'
+  | 'orderBookL2_200'
+  | 'trade'
+  | 'insurance'
+  | 'instrument_info'
+  | 'klineV2';
+⋮----
+export type WsPublicUSDTPerpTopic =
+  | 'orderBookL2_25'
+  | 'orderBookL2_200'
+  | 'trade'
+  | 'insurance'
+  | 'instrument_info'
+  | 'kline';
+⋮----
+export type WsPublicSpotV1Topic =
+  | 'trade'
+  | 'realtimes'
+  | 'kline'
+  | 'depth'
+  | 'mergedDepth'
+  | 'diffDepth';
+⋮----
+export type WsPublicSpotV2Topic =
+  | 'depth'
+  | 'kline'
+  | 'trade'
+  | 'bookTicker'
+  | 'realtimes';
+⋮----
+export type WsPublicTopics =
+  | WsPublicInverseTopic
+  | WsPublicUSDTPerpTopic
+  | WsPublicSpotV1Topic
+  | WsPublicSpotV2Topic
+  | string;
+⋮----
+// Same as inverse futures
+export type WsPrivateInverseTopic =
+  | 'position'
+  | 'execution'
+  | 'order'
+  | 'stop_order';
+⋮----
+export type WsPrivateUSDTPerpTopic =
+  | 'position'
+  | 'execution'
+  | 'order'
+  | 'stop_order'
+  | 'wallet';
+⋮----
+export type WsPrivateSpotTopic =
+  | 'outboundAccountInfo'
+  | 'executionReport'
+  | 'ticketInfo';
+⋮----
+export type WsPrivateTopic =
+  | WsPrivateInverseTopic
+  | WsPrivateUSDTPerpTopic
+  | WsPrivateSpotTopic
+  | string;
+⋮----
+export type WsTopic = WsPublicTopics | WsPrivateTopic;
+⋮----
+export interface WSClientConfigurableOptions {
+  /** Your API key */
+  api_key?: string;
+
+  /** Your API secret */
+  api_secret?: string;
+
+  beautify?: boolean;
+
+  /**
+   * If true, log a warning if the beautifier is missing anything for an event
+   */
+  beautifyWarnIfMissing?: boolean;
+
+  /**
+   * Set to `true` to connect to Binance's testnet environment.
+   *
+   * Notes:
+   * - Not all WebSocket categories support testnet.
+   * - If testing a strategy, this is not recommended. Testnet market data is very different from real market conditions. More guidance here: https://github.com/tiagosiebler/awesome-crypto-examples/wiki/CEX-Testnets
+   */
+  testnet?: boolean;
+
+  /**
+   * Default: false. If true, use market maker endpoints when available.
+   * Eligible for high-frequency trading users who have enrolled and qualified
+   * in at least one of the Futures Liquidity Provider Programs.
+   * More info: https://www.binance.com/en/support/faq/detail/7df7f3838c3b49e692d175374c3a3283
+   */
+  useMMEndpoints?: boolean;
+
+  /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
+  recvWindow?: number;
+
+  // Disable ping/pong ws heartbeat mechanism (not recommended)
+  disableHeartbeat?: boolean;
+
+  /** How often to check if the connection is alive */
+  pingInterval?: number;
+
+  /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
+  pongTimeout?: number;
+
+  /** Delay in milliseconds before respawning the connection */
+  reconnectTimeout?: number;
+
+  restOptions?: RestClientOptions;
+
+  requestOptions?: AxiosRequestConfig;
+
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  };
+
+  wsUrl?: string;
+
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+}
+⋮----
+/** Your API key */
+⋮----
+/** Your API secret */
+⋮----
+/**
+   * If true, log a warning if the beautifier is missing anything for an event
+   */
+⋮----
+/**
+   * Set to `true` to connect to Binance's testnet environment.
+   *
+   * Notes:
+   * - Not all WebSocket categories support testnet.
+   * - If testing a strategy, this is not recommended. Testnet market data is very different from real market conditions. More guidance here: https://github.com/tiagosiebler/awesome-crypto-examples/wiki/CEX-Testnets
+   */
+⋮----
+/**
+   * Default: false. If true, use market maker endpoints when available.
+   * Eligible for high-frequency trading users who have enrolled and qualified
+   * in at least one of the Futures Liquidity Provider Programs.
+   * More info: https://www.binance.com/en/support/faq/detail/7df7f3838c3b49e692d175374c3a3283
+   */
+⋮----
+/** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
+⋮----
+// Disable ping/pong ws heartbeat mechanism (not recommended)
+⋮----
+/** How often to check if the connection is alive */
+⋮----
+/** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
+⋮----
+/** Delay in milliseconds before respawning the connection */
+⋮----
+/**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+⋮----
+/**
+ * WS configuration that's always defined, regardless of user configuration
+ * (usually comes from defaults if there's no user-provided values)
+ */
+export interface WebsocketClientOptions extends WSClientConfigurableOptions {
+  pongTimeout: number;
+  pingInterval: number;
+  reconnectTimeout: number;
+  recvWindow: number;
+  authPrivateConnectionsOnConnect: boolean;
+  authPrivateRequests: boolean;
+}
 
 ================
 File: src/types/futures.ts
@@ -10377,105 +10254,6 @@ async function main()
 // FUTURES - Account requests
 ⋮----
 // Start executing the example workflow
-
-================
-File: examples/README.md
-================
-# Binance API - Examples
-
-This folder contains ready to go examples demonstrating various aspects of this API implementation, written in TypeScript (but they are compatible with pure JavaScript projects).
-
-Found something difficult to implement? Contribute to these examples and help others!
-
-## Getting started
-
-- Clone the project (or download it as a zip, or install the module in your own project `npm install binance`).
-- Edit the sample as needed (some samples require edits, e.g API keys or import statements to import from npm, not src).
-- Execute the sample using tsx: `tsx examples/REST/rest-spot-public.ts`.
-
-Samples that refer to API credentials using `process.env.API_KEY_COM` can be spawned with environment variables. Unix/macOS example:
-```
-APIKEY='apikeypastedhere' APISECRET='apisecretpastedhere' tsx examples/WebSockets/ws-userdata-listenkey.ts
-```
-
-Or edit the example directly to hardcode your API keys.
-
-### WebSockets
-
-All examples relating to WebSockets can be found in the [examples/WebSockets](./WebSockets/) folder. High level summary of available examples:
-
-#### Consumers
-
-These are purely for receiving data from Binance's WebSockets (market data, account updates, etc).
-
-##### Market Data
-
-These examples demonstrate subscribing to & receiving market data from Binance's WebSockets:
-
-- ws-public.ts
-  - Demonstration on general usage of the WebSocket client to subscribe to / unsubscribe from one or more market data topics.
-- ws-public-spot-orderbook.ts
-  - Subscribing to orderbook events for multiple symbols in spot markets.
--	ws-public-spot-trades.ts
-  - Subscribing to raw trades for multiple symbols in spot markets.
-- ws-unsubscribe.ts
-  - Subscribing to a list of topics, and then unsubscribing from a few topics in that list.
-- ws-public-usdm-funding.ts
-  - Simple example subscribing to a general topic, and how to process incoming events to only extract funding rates from those events.
-
-##### Account Data
-
-These examples demonstrate receiving account update events from Binance's WebSockets:
-
--	ws-userdata-listenkey.ts
-  - Demonstration on subscribing to various user data streams (spot, margin, futures),
-  - Handling incoming user data events
-  - Using provided type guards to determine which product group the user data event is for (spot, margin, futures, etc).
-- ws-userdata-listenKey-testnet.ts
-  - Similar to above, but on testnet.
-- ws-userdata-connection-safety.ts
-  - Demonstration on extra safety around the first user data stream connection.
-  - Note: this is overkill in most situations...
-
-##### WebSocket API
-
-These examples demonstrate how to send commands using Binance's WebSocket API (e.g. submitting orders). Very similar to the REST API, but using a persisted WebSocket connection instead of HTTP requests.
-
-- ws-api-client.ts
-  - Demonstration of using Binance's WebSocket API in Node.js/JavaScript/TypeScript, using the WebsocketAPIClient.
-  - This WebsocketAPIClient is very similar to a REST client, with one method per available command (endpoint) and fully typed requests & responses.
-  - Routing is automatically handled via the WebsocketClient, including authentication and connection persistence. Just call the functions you need - the SDK does the rest.
-  - From a usage perspective, it feels like a REST API - you can await responses just like a HTTP request.
-- ws-api-raw-promises.ts
-  - More verbose usage of the WebSocket API using the `sendWSAPIRequest()` method.
-  - The `WebsocketAPIClient` uses this method too, so in most cases it is simple to just use the `WebsocketAPIClient` instead.
-- ws-userdata-wsapi.ts
-  - The listenKey workflow for the user data stream is deprecated (in spot markets).
-  - This example demonstrates how to subscribe to the user data stream in spot markets, without a listen key, using the WebSocket API.
-
-##### Misc Workflows
-
-These are miscellaneous examples that cover one or more of the above categories:
-
-- ws-close.ts
-  - Closing the (old listen-key driven) user data stream.
-  - Unsubscribing from various topics.
-- ws-proxy-socks.ts
-  - Using WebSockets over a SOCKS proxy.
-- deprecated-ws-public.ts
-
-
-### REST APIs
-
-All examples relating to REST APIs can be found in the [examples/REST](./REST/) folder. Most examples are named around functionality & product group. Any examples with "private" involve API calls relating to your account (such as changing settings or submitting orders, etc),
-
-High level summary for some of the available examples, but check the folder for a complete list:
-
-#### REST USDM Examples
-
-- `rest-future-bracket-order.ts` Creates three order, entry, TP, SL and submit them all at once using `submitMultipleOrders`
-- `rest-usdm-order.ts` Creates single entry, using `submitNewOrder`
-- `rest-usdm-order-sl.ts` Modify current Stop Loss order(HedgeMode only)
 
 ================
 File: examples/WebSockets/ws-api-raw-promises.ts
@@ -17888,45 +17666,300 @@ export interface AlphaTicker {
 }
 
 ================
-File: examples/WebSockets/ws-userdata-README.MD
+File: examples/WebSockets/ws-public.ts
 ================
-# User Data Streams - Binance
-
-The user data streams are the WebSocket method for asynchronously receiving events when any changes happen on your account. Including but not limited to:
-- order events (filled/cancelled/updated/etc)
-- position events
-- balance events (deposit/withdraw/etc)
-- misc events (leverage changed, position mode changed, etc)
-
-## Mechanisms
-
-There are currently two key mechanisms for subscribing to user data events
-
-### Mechanisms - Listen Key
-
-The older and original mechanism involves a listen key. This is requested via the REST API and then used when opening a connection to the user data stream.
-
-The listen key can expire and needs a regular "ping" (a REST API call) to keep it alive.
-
-With the "binance" Node.js & JavaScript SDK, you can easily subscribe to the user data stream via the listen key workflow, through just one function call.
-
-The SDK will automatically:
-- fetch a listen key
-- perform regular keep alive requests on the listen key
-- handle listen key expiry/refresh
-- handle reconnects, if a connection is temporarily lost
-
-All you have to do is ask for the user data stream and process incoming events - the SDK will handle the rest!
-
-For a working example, refer to the [ws-userdata-listenkey](./ws-userdata-listenkey.ts) example.
-
-**Deprecation warning: As of April 2025, the listen key workflow is also deprecated for Spot markets (no known ETA for removal).** Refer to the changelog for details: https://developers.binance.com/docs/binance-spot-api-docs/CHANGELOG#2025-04-07
-
-### Mechanisms - WS API User Data Stream
-
-The newer mechanism for the user data stream is via an active WebSocket API connection. This is a simpler mechanism in that it does not require a listen key. You can easily use this new mechanism via the WebsocketClient (or WebsocketAPIClient) within this SDK.
-
-For a working example, refer to the [ws-userdata-wsapi](./ws-userdata-wsapi.ts) example.
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  DefaultLogger,
+  isWsAggTradeFormatted,
+  isWsFormatted24hrTicker,
+  isWsFormatted24hrTickerArray,
+  isWsFormattedForceOrder,
+  isWsFormattedKline,
+  isWsFormattedMarkPriceUpdateArray,
+  isWsFormattedMarkPriceUpdateEvent,
+  isWsFormattedRollingWindowTickerArray,
+  isWsFormattedTrade,
+  isWsPartialBookDepthEventFormatted,
+  WebsocketClient,
+} from '../../src';
+⋮----
+// or, with the npm package
+/*
+import {
+  WebsocketClient,
+  DefaultLogger,
+  isWsFormatted24hrTicker,
+  isWsFormattedKline,
+} from 'binance';
+*/
+⋮----
+// Without typescript:
+// const logger = {
+⋮----
+// A simple way to suppress heartbeats but receive all other traces
+// if (params[0].includes('ping') || params[0].includes('pong')) {
+//   return;
+// }
+⋮----
+// Optional: when enabled, the SDK will try to format incoming data into more readable objects.
+// Beautified data is emitted via the "formattedMessage" event
+⋮----
+logger, // Optional: customise logging behaviour by extending or overwriting the default logger implementation
+⋮----
+// Raw unprocessed incoming data, e.g. if you have the beautifier disabled
+⋮----
+// console.log('raw message received ', JSON.stringify(data, null, 2));
+// console.log('raw message received ', JSON.stringify(data));
+⋮----
+// Formatted data that has gone through the beautifier
+⋮----
+/**
+     * Optional: we've included type-guards for many formatted websocket topics.
+     *
+     * These can be used within `if` blocks to narrow down specific event types (even for non-typescript users).
+     */
+// if (isWsAggTradeFormatted(data)) {
+//   console.log('log agg trade: ', data);
+//   return;
+// }
+⋮----
+// // For one symbol
+// if (isWsFormattedMarkPriceUpdateEvent(data)) {
+//   console.log('log mark price: ', data);
+//   return;
+// }
+⋮----
+// // for many symbols
+// if (isWsFormattedMarkPriceUpdateArray(data)) {
+//   console.log('log mark prices: ', data);
+//   return;
+// }
+⋮----
+// if (isWsFormattedKline(data)) {
+//   console.log('log kline: ', data);
+//   return;
+// }
+⋮----
+// if (isWsFormattedTrade(data)) {
+//   return console.log('log trade: ', data);
+// }
+⋮----
+// if (isWsFormattedForceOrder(data)) {
+//   return console.log('log force order: ', data);
+// }
+⋮----
+// if (isWsFormatted24hrTickerArray(data)) {
+//   return console.log('log 24hr ticker array: ', data);
+// }
+⋮----
+// if (isWsFormattedRollingWindowTickerArray(data)) {
+//   return console.log('log rolling window ticker array: ', data);
+// }
+⋮----
+// if (isWsFormatted24hrTicker(data)) {
+//   return console.log('log 24hr ticker: ', data);
+// }
+⋮----
+// if (isWsPartialBookDepthEventFormatted(data)) {
+//   return console.log('log partial book depth event: ', data);
+// }
+⋮----
+// response to command sent via WS stream (e.g LIST_SUBSCRIPTIONS)
+⋮----
+// No action needed here, unless you need to query the REST API after being reconnected.
+⋮----
+/**
+     * The Websocket Client will automatically manage connectivity and active topics/subscriptions for you.
+     *
+     * Simply call wsClient.subscribe(topic, wsKey) as many times as you want, with or without an array.
+     */
+⋮----
+// // E.g. one at a time, routed to the coinm futures websockets:
+// wsClient.subscribe('btcusd@indexPrice', 'coinm');
+// wsClient.subscribe('btcusd@miniTicker', 'coinm');
+⋮----
+// // Or send many topics at once to a stream, e.g. the usdm futures stream:
+// wsClient.subscribe(
+//   [
+//     'btcusdt@aggTrade',
+//     'btcusdt@markPrice',
+//     '!ticker@arr',
+//     '!miniTicker@arr',
+//   ],
+//   'usdm',
+// );
+⋮----
+/**
+     * Subscribe to each available type of spot market topic, the new way
+     */
+⋮----
+// Aggregate Trade Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#aggregate-trade-streams
+⋮----
+// Trade Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#trade-streams
+⋮----
+// Kline/Candlestick Streams for UTC
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-for-utc
+⋮----
+// Kline/Candlestick Streams with timezone offset
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#klinecandlestick-streams-with-timezone-offset
+⋮----
+// Individual Symbol Mini Ticker Stream
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-mini-ticker-stream
+⋮----
+// All Market Mini Tickers Stream
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-mini-tickers-stream
+⋮----
+// Individual Symbol Ticker Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-ticker-streams
+⋮----
+// All Market Tickers Stream
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-tickers-stream
+⋮----
+// Individual Symbol Rolling Window Statistics Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-rolling-window-statistics-streams
+⋮----
+// All Market Rolling Window Statistics Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-rolling-window-statistics-streams
+⋮----
+// Individual Symbol Book Ticker Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams
+⋮----
+// Average Price
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#average-price
+⋮----
+// Partial Book Depth Streams
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#partial-book-depth-streams
+⋮----
+// Diff. Depth Stream
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#diff-depth-stream
+⋮----
+// Look at the `WS_KEY_URL_MAP` for a list of values here:
+// https://github.com/tiagosiebler/binance/blob/master/src/util/websockets/websocket-util.ts
+// "main" connects to wss://stream.binance.com:9443/stream
+// https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams
+⋮----
+// Aggregate Trade Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Aggregate-Trade-Streams
+⋮----
+// Mark Price Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream
+⋮----
+// Mark Price Stream for All market
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream-for-All-market
+⋮----
+// Kline/Candlestick Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Kline-Candlestick-Streams
+// 'btcusdt@kline_1m',
+// Continuous Contract Kline/Candlestick Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Continuous-Contract-Kline-Candlestick-Streams
+// 'btcusdt_perpetual@continuousKline_1m', // DOESNT EXIST AS TYPE GUARD, ONLY IN BEAUTIFIER
+// Individual Symbol Mini Ticker Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Mini-Ticker-Stream
+// 'btcusdt@miniTicker', // DOESNT EXIST AS TYPE GUARD, ONLY FOR RAW MESSAGE
+// All Market Mini Tickers Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Mini-Tickers-Stream
+// '!miniTicker@arr', // DOESNT EXIST AS TYPE GUARD
+// Individual Symbol Ticker Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Ticker-Streams
+//'btcusdt@ticker',
+// All Market Tickers Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Tickers-Stream
+// '!ticker@arr', // DOESNT EXIST AS TYPE GUARD
+// Individual Symbol Book Ticker Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Book-Ticker-Streams
+//'btcusdt@bookTicker', // DOESNT EXIST AS TYPE GUARD
+// All Book Tickers Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Book-Tickers-Stream
+// '!bookTicker', // DOESNT EXIST AS TYPE GUARD
+// Liquidation Order Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Liquidation-Order-Streams
+// 'btcusdt@forceOrder',
+// Liquidation Order Stream for All market
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Liquidation-Order-Streams
+//'!forceOrder@arr',
+// Partial Book Depth Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Partial-Book-Depth-Streams
+//'btcusdt@depth5',
+// 'btcusdt@depth10@100ms'
+// Diff. Book Depth Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Diff-Book-Depth-Streams
+// 'btcusdt@depth',
+// 'btcusdt@depth@100ms',
+// 'btcusdt@depth@500ms',
+// 'btcusdt@depth@1000ms'
+// Composite Index Symbol Information Streams
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Composite-Index-Symbol-Information-Streams
+// 'btcusdt@compositeIndex' // DOESNT EXIST AS TYPE GUARD
+// Contract Info Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Contract-Info-Stream
+// '!contractInfo' // DOESNT EXIST AS TYPE GUARD
+// Multi-Assets Mode Asset Index Stream
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Multi-Assets-Mode-Asset-Index
+// '!assetIndex@arr' // DOESNT EXIST AS TYPE GUARD
+// 'btcusdt@assetIndex'
+⋮----
+/**
+     * Subscribe to each available european options market data websocket topic, the new way:
+     *
+     * https://developers.binance.com/docs/derivatives/option/websocket-market-streams/New-Symbol-Info
+     *
+     * https://eapi.binance.com/eapi/v1/exchangeInfo
+     */
+⋮----
+// /**
+//  *
+//  * For those that used the Node.js Binance SDK before the v3 release, you can
+//  * still subscribe to available market topics the "old" way, for convenience
+//  * when migrating from the old WebsocketClient to the new multiplex client):
+//  *
+//  */
+⋮----
+// wsClient.subscribeAggregateTrades(symbol, 'usdm');
+// wsClient.subscribeTrades(symbol, 'spot');
+// wsClient.subscribeTrades(symbol, 'usdm');
+// wsClient.subscribeTrades(coinMSymbol, 'coinm');
+// wsClient.subscribeCoinIndexPrice(coinMSymbol2);
+// wsClient.subscribeAllBookTickers('usdm');
+// wsClient.subscribeSpotKline(symbol, '1m');
+// wsClient.subscribeMarkPrice(symbol, 'usdm');
+// wsClient.subscribeMarkPrice(coinMSymbol, 'coinm');
+// wsClient.subscribeAllMarketMarkPrice('usdm');
+// wsClient.subscribeAllMarketMarkPrice('coinm');
+// wsClient.subscribeKlines(symbol, '1m', 'usdm');
+// wsClient.subscribeContinuousContractKlines(
+//   symbol,
+//   'perpetual',
+//   '1m',
+//   'usdm',
+// );
+// wsClient.subscribeIndexKlines(coinMSymbol2, '1m');
+// wsClient.subscribeMarkPriceKlines(coinMSymbol, '1m');
+// wsClient.subscribeSymbolMini24hrTicker(symbol, 'spot'); // 0116 265 5309, opt 1
+// wsClient.subscribeSymbolMini24hrTicker(symbol, 'usdm');
+// wsClient.subscribeSymbolMini24hrTicker(coinMSymbol, 'coinm');
+// wsClient.subscribeSymbol24hrTicker(symbol, 'spot');
+// wsClient.subscribeSymbol24hrTicker(symbol, 'usdm');
+// wsClient.subscribeSymbol24hrTicker(coinMSymbol, 'coinm');
+// wsClient.subscribeAllMini24hrTickers('spot');
+// wsClient.subscribeAllMini24hrTickers('usdm');
+// wsClient.subscribeAllMini24hrTickers('coinm');
+// wsClient.subscribeAll24hrTickers('spot');
+// wsClient.subscribeAll24hrTickers('usdm');
+// wsClient.subscribeAll24hrTickers('coinm');
+// wsClient.subscribeSymbolLiquidationOrders(symbol, 'usdm');
+// wsClient.subscribeAllLiquidationOrders('usdm');
+// wsClient.subscribeAllLiquidationOrders('coinm');
+// wsClient.subscribeSpotSymbol24hrTicker(symbol);
+// wsClient.subscribeSpotPartialBookDepth('ETHBTC', 5, 1000);
+// wsClient.subscribeAllRollingWindowTickers('spot', '1d');
+// wsClient.subscribeSymbolBookTicker(symbol, 'spot');
+// wsClient.subscribePartialBookDepths(symbol, 5, 100, 'spot');
+// wsClient.subscribeDiffBookDepth(symbol, 100, 'spot');
+// wsClient.subscribeContractInfoStream('usdm');
+// wsClient.subscribeContractInfoStream('coinm');
 
 ================
 File: src/main-client.ts
@@ -22147,6 +22180,80 @@ client
 
 See [coinm-client.ts](./src/coinm-client.ts) for further information.
 
+## Market Maker Endpoints
+
+Binance provides specialized market maker endpoints for qualified high-frequency trading users who have enrolled in at least one of the Futures Liquidity Provider Programs, including the USDⓈ-M Futures Maker Program, COIN-M Futures Maker Program, and USDⓈ-M Futures Taker Program.
+
+These endpoints provide the same functionality as regular endpoints but with optimized routing for market makers. For more information about eligibility and enrollment, visit: https://www.binance.com/en/support/faq/detail/7df7f3838c3b49e692d175374c3a3283
+
+### Using Market Maker Endpoints
+
+To use market maker endpoints, simply add the `useMMEndpoints: true` option when initializing any client (REST API clients, WebSocket clients, or WebSocket API clients):
+
+#### REST API Clients
+
+```javascript
+import { USDMClient, CoinMClient } from 'binance';
+
+// USD-M Futures with MM endpoints
+const usdmClient = new USDMClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMEndpoints: true, // Enable market maker endpoints
+});
+
+// COIN-M Futures with MM endpoints
+const coinmClient = new CoinMClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMEndpoints: true, // Enable market maker endpoints
+});
+```
+
+#### WebSocket Clients
+
+```javascript
+import { WebsocketClient, WebsocketAPIClient } from 'binance';
+
+// WebSocket consumer with MM endpoints
+const wsClient = new WebsocketClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMEndpoints: true, // Enable market maker endpoints
+});
+
+// WebSocket API client with MM endpoints
+const wsApiClient = new WebsocketAPIClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMEndpoints: true, // Enable market maker endpoints
+});
+```
+
+**Note:** Market maker endpoints are only available for futures products (USD-M and COIN-M). Spot, margin, and other product groups use the regular endpoints regardless of the `useMMEndpoints` setting. Market maker endpoints are also not available on testnet environments.
+
+### Best practice
+
+Since market maker endpoints are only available for some of the futures endpoints, you may need to use multiple client instances if your algorithm needs to use both regular and MM endpoints.
+
+```javascript
+import { USDMClient } from 'binance';
+
+// MM client for USD-M futures
+const futuresMMClient = new USDMClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMEndpoints: true, // Use MM endpoints for futures
+});
+
+// Regular client for USD-M futures
+const futuresRegularClient = new USDMClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMEndpoints: false, // Use regular endpoints for futures
+});
+```
+
 ## WebSockets
 
 ### WebSocket Consumers
@@ -23529,7 +23636,7 @@ File: package.json
 ================
 {
   "name": "binance",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "Professional Node.js & JavaScript SDK for Binance REST APIs & WebSockets, with TypeScript & end-to-end tests.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -23623,6 +23730,7 @@ File: package.json
   },
   "homepage": "https://github.com/tiagosiebler/binance#readme"
 }
+
 
 
 
