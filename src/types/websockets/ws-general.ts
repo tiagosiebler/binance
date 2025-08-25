@@ -138,6 +138,14 @@ export interface WSClientConfigurableOptions {
    */
   testnet?: boolean;
 
+  /**
+   * Default: false. If true, use market maker endpoints when available.
+   * Eligible for high-frequency trading users who have enrolled and qualified
+   * in at least one of the Futures Liquidity Provider Programs.
+   * More info: https://www.binance.com/en/support/faq/detail/7df7f3838c3b49e692d175374c3a3283
+   */
+  useMMEndpoints?: boolean;
+
   /** Define a recv window when preparing a private websocket signature. This is in milliseconds, so 5000 == 5 seconds */
   recvWindow?: number;
 

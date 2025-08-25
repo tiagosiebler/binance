@@ -53,6 +53,14 @@ export interface RestClientOptions {
    */
   testnet?: boolean;
 
+  /**
+   * Default: false. If true, use market maker endpoints when available.
+   * Eligible for high-frequency trading users who have enrolled and qualified
+   * in at least one of the Futures Liquidity Provider Programs.
+   * More info: https://www.binance.com/en/support/faq/detail/7df7f3838c3b49e692d175374c3a3283
+   */
+  useMMEndpoints?: boolean;
+
   // /**
   //  * Default: true.
   //  *
@@ -389,6 +397,34 @@ const BINANCE_BASE_URLS: Record<BinanceBaseUrlKey, string> = {
   www: 'https://www.binance.com',
 };
 
+const BINANCE_MM_BASE_URLS: Record<BinanceBaseUrlKey, string | undefined> = {
+  // spot/margin/savings/mining - no MM endpoints
+  spot: undefined,
+  spot1: undefined,
+  spot2: undefined,
+  spot3: undefined,
+  spot4: undefined,
+  spottest: undefined,
+
+  // USDM Futures MM endpoints
+  usdm: 'https://fapi-mm.binance.com',
+  usdmtest: undefined, // No MM endpoint for testnet
+
+  // COINM Futures MM endpoints
+  coinm: 'https://dapi-mm.binance.com',
+  coinmtest: undefined, // No MM endpoint for testnet
+
+  // Vanilla Options - no MM endpoints
+  voptions: undefined,
+  voptionstest: undefined,
+
+  // Portfolio Margin - no MM endpoints
+  papi: undefined,
+
+  // www - no MM endpoints
+  www: undefined,
+};
+
 export function getServerTimeEndpoint(urlKey: BinanceBaseUrlKey): string {
   switch (urlKey) {
     case 'spot':
@@ -449,11 +485,17 @@ export function getRestBaseUrl(
     return restClientOptions.baseUrl;
   }
 
-  if (restClientOptions.baseUrlKey) {
-    return BINANCE_BASE_URLS[restClientOptions.baseUrlKey];
+  const urlKey = restClientOptions.baseUrlKey || clientType;
+
+  // Use MM endpoints if requested and available
+  if (restClientOptions.useMMEndpoints) {
+    const mmUrl = BINANCE_MM_BASE_URLS[urlKey];
+    if (mmUrl) {
+      return mmUrl;
+    }
   }
 
-  return BINANCE_BASE_URLS[clientType];
+  return BINANCE_BASE_URLS[urlKey];
 }
 
 export function isPublicEndpoint(endpoint: string): boolean {

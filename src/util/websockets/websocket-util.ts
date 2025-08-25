@@ -177,6 +177,37 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   portfolioMarginProUserData: 'wss://fstream.binance.com',
 };
 
+export const WS_KEY_MM_URL_MAP: Record<WsKey, string | undefined> = {
+  // Spot connections - no MM endpoints
+  main: undefined,
+  main2: undefined,
+  main3: undefined,
+  mainTestnetPublic: undefined,
+  mainTestnetUserData: undefined,
+  mainWSAPI: undefined,
+  mainWSAPI2: undefined,
+  mainWSAPITestnet: undefined,
+  marginRiskUserData: undefined,
+
+  // USDM Futures MM endpoints
+  usdm: 'wss://fstream-mm.binance.com',
+  usdmTestnet: undefined, // No MM endpoint for testnet
+  usdmWSAPI: 'wss://ws-fapi-mm.binance.com',
+  usdmWSAPITestnet: undefined, // No MM endpoint for testnet
+
+  // COINM Futures MM endpoints
+  coinm: 'wss://dstream-mm.binance.com',
+  coinm2: undefined, // No MM endpoint for coinm2
+  coinmTestnet: undefined, // No MM endpoint for testnet
+  coinmWSAPI: 'wss://ws-dapi-mm.binance.com',
+  coinmWSAPITestnet: undefined, // No MM endpoint for testnet
+
+  // Other connections - no MM endpoints
+  eoptions: undefined,
+  portfolioMarginUserData: undefined,
+  portfolioMarginProUserData: undefined,
+};
+
 export function getWsURLSuffix(
   wsKey: WsKey,
   connectionType: 'market' | 'userData',
@@ -348,10 +379,19 @@ export function getWsUrl(
   }
 
   const isTestnet = !!wsClientOptions.testnet;
+  const useMMEndpoints = !!wsClientOptions.useMMEndpoints;
 
-  const resolvedUrl =
-    WS_KEY_URL_MAP[isTestnet ? getTestnetWsKey(wsKey) : wsKey];
-  return resolvedUrl;
+  const resolvedWsKey = isTestnet ? getTestnetWsKey(wsKey) : wsKey;
+
+  // Use MM endpoints if requested and available
+  if (useMMEndpoints && !isTestnet) {
+    const mmUrl = WS_KEY_MM_URL_MAP[resolvedWsKey];
+    if (mmUrl) {
+      return mmUrl;
+    }
+  }
+
+  return WS_KEY_URL_MAP[resolvedWsKey];
 }
 
 export function getMaxTopicsPerSubscribeEvent(wsKey: WsKey): number | null {
