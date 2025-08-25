@@ -74,6 +74,9 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
     - [WebSocket API](#websocket-api)
       - [Event Driven API](#event-driven-api)
       - [Promise Driven API](#async-await-api)
+  - [Market Maker Endpoints](#market-maker-endpoints)
+    - [Using Market Maker Endpoints](#using-market-maker-endpoints)
+    - [Best practice](#best-practice)
   - [Customise Logging](#customise-logging)
   - [Frontend Usage](#browserfrontend-usage)
     - [Import](#import)
@@ -303,80 +306,6 @@ client
 
 See [coinm-client.ts](./src/coinm-client.ts) for further information.
 
-## Market Maker Endpoints
-
-Binance provides specialized market maker endpoints for qualified high-frequency trading users who have enrolled in at least one of the Futures Liquidity Provider Programs, including the USDⓈ-M Futures Maker Program, COIN-M Futures Maker Program, and USDⓈ-M Futures Taker Program.
-
-These endpoints provide the same functionality as regular endpoints but with optimized routing for market makers. For more information about eligibility and enrollment, visit: https://www.binance.com/en/support/faq/detail/7df7f3838c3b49e692d175374c3a3283
-
-### Using Market Maker Endpoints
-
-To use market maker endpoints, simply add the `useMMSubdomain: true` option when initializing any client (REST API clients, WebSocket clients, or WebSocket API clients):
-
-#### REST API Clients
-
-```javascript
-import { USDMClient, CoinMClient } from 'binance';
-
-// USD-M Futures with MM endpoints
-const usdmClient = new USDMClient({
-  api_key: API_KEY,
-  api_secret: API_SECRET,
-  useMMSubdomain: true, // Enable market maker endpoints
-});
-
-// COIN-M Futures with MM endpoints
-const coinmClient = new CoinMClient({
-  api_key: API_KEY,
-  api_secret: API_SECRET,
-  useMMSubdomain: true, // Enable market maker endpoints
-});
-```
-
-#### WebSocket Clients
-
-```javascript
-import { WebsocketClient, WebsocketAPIClient } from 'binance';
-
-// WebSocket consumer with MM endpoints
-const wsClient = new WebsocketClient({
-  api_key: API_KEY,
-  api_secret: API_SECRET,
-  useMMSubdomain: true, // Enable market maker endpoints
-});
-
-// WebSocket API client with MM endpoints
-const wsApiClient = new WebsocketAPIClient({
-  api_key: API_KEY,
-  api_secret: API_SECRET,
-  useMMSubdomain: true, // Enable market maker endpoints
-});
-```
-
-**Note:** Market maker endpoints are only available for futures products (USD-M and COIN-M). Spot, margin, and other product groups use the regular endpoints regardless of the `useMMSubdomain` setting. Market maker endpoints are also not available on testnet environments.
-
-### Best practice
-
-Since market maker endpoints are only available for some of the futures endpoints, you may need to use multiple client instances if your algorithm needs to use both regular and MM endpoints.
-
-```javascript
-import { USDMClient } from 'binance';
-
-// MM client for USD-M futures
-const futuresMMClient = new USDMClient({
-  api_key: API_KEY,
-  api_secret: API_SECRET,
-  useMMEndpoints: true, // Use MM endpoints for futures
-});
-
-// Regular client for USD-M futures
-const futuresRegularClient = new USDMClient({
-  api_key: API_KEY,
-  api_secret: API_SECRET,
-  useMMEndpoints: false, // Use regular endpoints for futures
-});
-```
-
 ## WebSockets
 
 ### WebSocket Consumers
@@ -594,6 +523,80 @@ wsClient
 ```
 
 ---
+
+## Market Maker Endpoints
+
+Binance provides specialized market maker endpoints for qualified high-frequency trading users who have enrolled in at least one of the Futures Liquidity Provider Programs, including the USDⓈ-M Futures Maker Program, COIN-M Futures Maker Program, and USDⓈ-M Futures Taker Program.
+
+These endpoints provide the same functionality as regular endpoints but with optimized routing for market makers. For more information about eligibility and enrollment, visit: https://www.binance.com/en/support/faq/detail/7df7f3838c3b49e692d175374c3a3283
+
+### Using Market Maker Endpoints
+
+To use market maker endpoints, simply add the `useMMSubdomain: true` option when initializing any client (REST API clients, WebSocket clients, or WebSocket API clients):
+
+#### Market Maker REST API Clients
+
+```javascript
+import { USDMClient, CoinMClient } from 'binance';
+
+// USD-M Futures with MM endpoints
+const usdmClient = new USDMClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMSubdomain: true, // Enable market maker endpoints
+});
+
+// COIN-M Futures with MM endpoints
+const coinmClient = new CoinMClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMSubdomain: true, // Enable market maker endpoints
+});
+```
+
+#### Market Maker WebSocket Clients
+
+```javascript
+import { WebsocketClient, WebsocketAPIClient } from 'binance';
+
+// WebSocket consumer with MM endpoints
+const wsClient = new WebsocketClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMSubdomain: true, // Enable market maker endpoints
+});
+
+// WebSocket API client with MM endpoints
+const wsApiClient = new WebsocketAPIClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMSubdomain: true, // Enable market maker endpoints
+});
+```
+
+**Note:** Market maker endpoints are only available for futures products (USD-M and COIN-M). Spot, margin, and other product groups use the regular endpoints regardless of the `useMMSubdomain` setting. Market maker endpoints are also not available on testnet environments.
+
+### Best practice
+
+Since market maker endpoints are only available for some of the futures endpoints, you may need to use multiple client instances if your algorithm needs to use both regular and MM endpoints.
+
+```javascript
+import { USDMClient } from 'binance';
+
+// MM client for USD-M futures
+const futuresMMClient = new USDMClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMEndpoints: true, // Use MM endpoints for futures
+});
+
+// Regular client for USD-M futures
+const futuresRegularClient = new USDMClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  useMMEndpoints: false, // Use regular endpoints for futures
+});
+```
 
 ## Customise Logging
 
