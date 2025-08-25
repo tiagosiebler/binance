@@ -59,7 +59,7 @@ export interface RestClientOptions {
    * in at least one of the Futures Liquidity Provider Programs.
    * More info: https://www.binance.com/en/support/faq/detail/7df7f3838c3b49e692d175374c3a3283
    */
-  useMMEndpoints?: boolean;
+  useMMSubdomain?: boolean;
 
   // /**
   //  * Default: true.
@@ -488,7 +488,7 @@ export function getRestBaseUrl(
   const urlKey = restClientOptions.baseUrlKey || clientType;
 
   // Use MM endpoints if requested and available
-  if (restClientOptions.useMMEndpoints) {
+  if (restClientOptions.useMMSubdomain) {
     const mmUrl = BINANCE_MM_BASE_URLS[urlKey];
     if (mmUrl) {
       return mmUrl;

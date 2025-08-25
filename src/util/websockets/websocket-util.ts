@@ -379,12 +379,12 @@ export function getWsUrl(
   }
 
   const isTestnet = !!wsClientOptions.testnet;
-  const useMMEndpoints = !!wsClientOptions.useMMEndpoints;
+  const useMMSubdomain = !!wsClientOptions.useMMSubdomain;
 
   const resolvedWsKey = isTestnet ? getTestnetWsKey(wsKey) : wsKey;
 
   // Use MM endpoints if requested and available
-  if (useMMEndpoints && !isTestnet) {
+  if (useMMSubdomain && !isTestnet) {
     const mmUrl = WS_KEY_MM_URL_MAP[resolvedWsKey];
     if (mmUrl) {
       return mmUrl;
