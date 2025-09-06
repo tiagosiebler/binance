@@ -1464,6 +1464,13 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/capital/withdraw/address/list');
   }
 
+  getWithdrawQuota(): Promise<{
+    wdQuota: string;
+    usedWdQuota: string;
+  }> {
+    return this.getPrivate('sapi/v1/capital/withdraw/quota');
+  }
+
   getDepositHistory(params?: DepositHistoryParams): Promise<DepositHistory[]> {
     return this.getPrivate('sapi/v1/capital/deposit/hisrec', params);
   }
@@ -3795,12 +3802,20 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/portfolio/balance', params);
   }
 
+  /**
+   * @deprecated
+   * Check Simple Earn endpoints for new way of doing it
+   */
   mintPortfolioMarginBFUSD(
     params: PMProMintBFUSDParams,
   ): Promise<PMProMintBFUSDResponse> {
     return this.postPrivate('sapi/v1/portfolio/mint', params);
   }
 
+  /**
+   * @deprecated
+   * Check Simple Earn endpointsfor new way of doing it
+   */
   redeemPortfolioMarginBFUSD(params: {
     fromAsset: string; // BFUSD only
     targetAsset: string; // USDT only
