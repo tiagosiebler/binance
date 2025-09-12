@@ -35,7 +35,7 @@
     "0xSmartCrypto <0xsmartcrypto@gmail.com> (https://twitter.com/0xSmartCrypto)"
   ],
   "dependencies": {
-    "axios": "^1.10.0",
+    "axios": "^1.12.0",
     "isomorphic-ws": "^4.0.1",
     "nanoid": "^3.3.11",
     "ws": "^7.4.0"
