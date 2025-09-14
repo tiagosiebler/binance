@@ -448,6 +448,7 @@ export interface NewSpotOrderParams<
   newOrderRespType?: RT;
   isIsolated?: StringBoolean;
   sideEffectType?: SideEffects;
+  autoRepayAtCancel?: StringBoolean;
 }
 
 export type CancelRestrictions = 'ONLY_NEW' | 'ONLY_PARTIALLY_FILLED';
@@ -6430,4 +6431,69 @@ export interface AlphaTicker {
   firstId: number;
   lastId: number;
   count: number;
+}
+
+/**
+ * Soft Staking interfaces
+ */
+export interface GetSoftStakingProductListParams {
+  asset?: string;
+  current?: number;
+  size?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface SoftStakingProduct {
+  asset: string;
+  minAmount: string;
+  maxCap: string;
+  apr: string;
+  stakedAmount: string;
+  totalProfit: string;
+}
+
+export interface GetSoftStakingProductListResponse {
+  status: boolean;
+  totalRewardsUsdt: string;
+  rows: SoftStakingProduct[];
+  total: number;
+}
+
+export interface SetSoftStakingParams {
+  softStaking: boolean;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface SetSoftStakingResponse {
+  success: boolean;
+}
+
+export interface GetSoftStakingRewardsHistoryParams {
+  asset?: string;
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface SoftStakingRewardsRecord {
+  asset: string;
+  rewards: string;
+  rewardAsset: string;
+  avgAmount: string;
+  time: number;
+}
+
+export interface GetSoftStakingRewardsHistoryResponse {
+  rows: SoftStakingRewardsRecord[];
+  total: number;
+}
+
+export interface RiskUnitMM {
+  asset: string;
+  uniMaintainUsd: string;
 }
