@@ -297,6 +297,10 @@ import {
   GetRateHistory,
   GetRateHistoryParams,
   GetSmallLiabilityExchangeHistoryParams,
+  GetSoftStakingProductListParams,
+  GetSoftStakingProductListResponse,
+  GetSoftStakingRewardsHistoryParams,
+  GetSoftStakingRewardsHistoryResponse,
   GetSolStakingHistoryReq,
   GetSourceAssetListParams,
   GetSourceAssetListResponse,
@@ -457,6 +461,8 @@ import {
   ReplaceSpotOrderResultSuccess,
   RollingWindowTickerParams,
   SetAutoSubscribeParams,
+  SetSoftStakingParams,
+  SetSoftStakingResponse,
   SimpleEarnAccountResponse,
   SimpleEarnFlexibleProduct,
   SimpleEarnFlexibleProductPositionParams,
@@ -2782,6 +2788,33 @@ export class MainClient extends BaseRestClient {
   ): Promise<OnchainYieldsLockedRedemptionRecordResponse> {
     return this.getPrivate(
       'sapi/v1/onchain-yields/locked/history/redemptionRecord',
+      params,
+    );
+  }
+
+  /**
+   *
+   * STAKING - Soft staking
+   *
+   **/
+
+  getSoftStakingProductList(
+    params?: GetSoftStakingProductListParams,
+  ): Promise<GetSoftStakingProductListResponse> {
+    return this.getPrivate('sapi/v1/soft-staking/list', params);
+  }
+
+  setSoftStaking(
+    params: SetSoftStakingParams,
+  ): Promise<SetSoftStakingResponse> {
+    return this.getPrivate('sapi/v1/soft-staking/set', params);
+  }
+
+  getSoftStakingRewardsHistory(
+    params?: GetSoftStakingRewardsHistoryParams,
+  ): Promise<GetSoftStakingRewardsHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/soft-staking/history/rewardsRecord',
       params,
     );
   }
