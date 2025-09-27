@@ -51,6 +51,7 @@ import {
   MiscUserDataConnectionState,
   parseEventTypeFromMessage,
   parseRawWsMessage,
+  createParseRawWsMessage,
   resolveUserDataMarketForWsKey,
   resolveWsKeyForLegacyMarket,
   WS_AUTH_ON_CONNECT_KEYS,
@@ -101,12 +102,19 @@ export class WebsocketClient extends BaseWebsocketClient<
   private respawnTimeoutCache: Record<string, ReturnType<typeof setTimeout>> =
     {};
 
+  private readonly _parseRaw: (event: any) => any;
+
   constructor(options?: WSClientConfigurableOptions, logger?: DefaultLogger) {
     super(options, logger);
 
     if (options?.beautifyWarnIfMissing) {
       this.beautifier.setWarnIfMissing(options.beautifyWarnIfMissing);
     }
+
+    // Bind a specialised parser once to avoid hot-path branching
+    this._parseRaw = options?.parseWsMessageFn
+      ? createParseRawWsMessage(options.parseWsMessageFn)
+      : parseRawWsMessage;
 
     /**
      * Binance uses native WebSocket ping/pong frames, which cannot be directly used in
@@ -780,7 +788,7 @@ export class WebsocketClient extends BaseWebsocketClient<
        * Extract event from JSON
        *
        */
-      const parsedEvent = parseRawWsMessage(event);
+      const parsedEvent = this._parseRaw(event);
 
       /**
        *

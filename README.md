@@ -333,6 +333,8 @@ const wsClient = new WebsocketClient({
   // Optional: when enabled, the SDK will try to format incoming data into more readable objects.
   // Beautified data is emitted via the "formattedMessage" event
   beautify: true,
+  // Optional: custom JSON parser for incoming WS messages (e.g. to preserve big integers)
+  // parseWsMessageFn: JSONbig({ useNativeBigInt: true }).parse,
   // Disable ping/pong ws heartbeat mechanism (not recommended)
   // disableHeartbeat: true,
   // Connect to testnet environment
@@ -427,6 +429,32 @@ wsClient.subscribeUsdFuturesUserDataStream();
 ```
 
 See [websocket-client.ts](./src/websocket-client.ts) for further information. Also see [ws-userdata.ts](./examples/ws-userdata.ts) for user data examples.
+
+#### Preserving large integers in WebSocket messages
+
+By default, messages are parsed using `JSON.parse`, which cannot precisely represent integers larger than `Number.MAX_SAFE_INTEGER`.
+If you need to preserve large integers (e.g., order IDs), provide a custom parser via `parseWsMessageFn`.
+
+Example using `json-bigint` (not included by default):
+
+```ts
+import JSONbig from 'json-bigint';
+import { WebsocketClient } from 'binance';
+
+// Recommended: keep large integers as strings for compatibility with JSON.stringify
+const ws = new WebsocketClient({
+  parseWsMessageFn: JSONbig({ storeAsString: true }).parse,
+});
+
+ws.on('message', (msg) => {
+  console.log(msg);
+});
+
+// If you prefer native BigInt, beware JSON.stringify will throw on BigInt values.
+// Use a custom replacer or JSONbig.stringify if you need to log/serialize:
+// const replacer = (_k: string, v: unknown) => typeof v === 'bigint' ? v.toString() : v;
+// console.log(JSON.stringify(msg, replacer));
+```
 
 ### WebSocket API
 
