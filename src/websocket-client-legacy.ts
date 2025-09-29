@@ -30,7 +30,6 @@ import {
   WS_LOGGER_CATEGORY,
   WsKey,
 } from './util/websockets/websocket-util';
-import { createParseRawWsMessageLegacy } from './util/websockets/websocket-util';
 import { WsStore } from './util/websockets/WsStore';
 import { WsConnectionStateEnum } from './util/websockets/WsStore.types';
 
@@ -100,8 +99,6 @@ export class WebsocketClientV1 extends EventEmitter {
 
   private wsUrlKeyMap: Record<string, WsKey | string>;
 
-  private _parseRawLegacy: (event: any) => any;
-
   constructor(
     options: WSClientConfigurableOptions,
     logger?: typeof DefaultLogger,
@@ -129,11 +126,6 @@ export class WebsocketClientV1 extends EventEmitter {
 
     // add default error handling so this doesn't crash node (if the user didn't set a handler)
     this.on('error', () => {});
-
-    // Bind a specialised parser once to avoid hot-path branching
-    this._parseRawLegacy = options?.parseWsMessageFn
-      ? createParseRawWsMessageLegacy(options.parseWsMessageFn)
-      : parseRawWsMessageLegacy;
   }
 
   private getRestClientOptions(): RestClientOptions {
@@ -339,7 +331,7 @@ export class WebsocketClientV1 extends EventEmitter {
     try {
       this.clearPongTimer(wsKey);
 
-      const msg = this._parseRawLegacy(event);
+      const msg = parseRawWsMessageLegacy(event, this.options);
 
       // Edge case where raw event does not include event type, detect using wsKey and mutate msg.e
       const eventType = parseEventTypeFromMessage(wsKey as any, msg);
