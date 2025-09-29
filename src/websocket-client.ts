@@ -780,7 +780,7 @@ export class WebsocketClient extends BaseWebsocketClient<
        * Extract event from JSON
        *
        */
-      const parsedEvent = parseRawWsMessage(event);
+      const parsedEvent = parseRawWsMessage(event, this.options);
 
       /**
        *

@@ -428,6 +428,51 @@ wsClient.subscribeUsdFuturesUserDataStream();
 
 See [websocket-client.ts](./src/websocket-client.ts) for further information. Also see [ws-userdata.ts](./examples/ws-userdata.ts) for user data examples.
 
+#### Preserving large integers in WebSocket messages
+
+By default, messages are parsed using `JSON.parse`, which cannot precisely represent integers larger than `Number.MAX_SAFE_INTEGER`.
+If you need to preserve large integers (e.g., order IDs), provide a custom parser via `customParseJSONFn`.
+
+Example using RegEx below, although alternatives are possible too if desired. For more exampes check [ws-custom-parser.ts](./examples/WebSockets/ws-custom-parser.ts) in the examples folder:
+
+```ts
+import { WebsocketClient } from 'binance';
+
+/**
+ * ETHUSDT in futures can have unusually large orderId values, sent as numbers. See this thread for more details:
+ * https://github.com/tiagosiebler/binance/issues/208
+ *
+ * If this is a problem for you, you can set a custom JSON parsing alternative using the customParseJSONFn hook injected into the WebsocketClient's constructor, as below:
+ */
+const ws = new WebsocketClient({
+  // Default behaviour, if you don't include this:
+  // customParseJSONFn: (rawEvent) => {
+  //   return JSON.parse(rawEvent);
+  // },
+
+  // Or, pre-process the raw event using RegEx, before using the same workflow:
+  customParseJSONFn: (rawEvent) => {
+    return JSON.parse(
+      rawEvent.replace(/"orderId":\s*(\d+)/g, '"orderId":"$1"'),
+    );
+  },
+
+  // Or, use a 3rd party library such as json-bigint:
+  // customParseJSONFn: (rawEvent) => {
+  //   return JSONbig({ storeAsString: true }).parse(rawEvent);
+  // },
+});
+
+ws.on('message', (msg) => {
+  console.log(msg);
+});
+
+// If you prefer native BigInt, beware JSON.stringify will throw on BigInt values.
+// Use a custom replacer or JSONbig.stringify if you need to log/serialize:
+// const replacer = (_k: string, v: unknown) => typeof v === 'bigint' ? v.toString() : v;
+// console.log(JSON.stringify(msg, replacer));
+```
+
 ### WebSocket API
 
 Some of the product groups available on Binance also support sending requests (commands) over an active WebSocket connection. This is called the WebSocket API.

@@ -4,6 +4,7 @@ import WebSocket from 'isomorphic-ws';
 import { WsRequestOperationBinance } from '../../types/websockets/ws-api';
 import {
   WebsocketClientOptions,
+  WSClientConfigurableOptions,
   WsMarket,
   WsTopic,
 } from '../../types/websockets/ws-general';
@@ -623,14 +624,20 @@ export function resolveWsKeyForLegacyMarket(
     }
   }
 }
-export function parseRawWsMessageLegacy(event: any) {
+export function parseRawWsMessageLegacy(
+  event: any,
+  options: WSClientConfigurableOptions,
+) {
   if (typeof event === 'string') {
-    const parsedEvent = JSON.parse(event);
+    const parsedEvent =
+      typeof options.customParseJSONFn === 'function'
+        ? options.customParseJSONFn(event)
+        : JSON.parse(event);
 
     // WS events are wrapped into "data"
     if (parsedEvent.data) {
       if (typeof parsedEvent.data === 'string') {
-        return parseRawWsMessageLegacy(parsedEvent.data);
+        return parseRawWsMessageLegacy(parsedEvent.data, options);
       }
 
       return parsedEvent.data;
@@ -645,7 +652,7 @@ export function parseRawWsMessageLegacy(event: any) {
     return parsedEvent;
   }
   if (event?.data) {
-    return parseRawWsMessageLegacy(event.data);
+    return parseRawWsMessageLegacy(event.data, options);
   }
   return event;
 }
@@ -655,10 +662,13 @@ export function parseRawWsMessageLegacy(event: any) {
  *
  * Any mapping or additonal handling should not be done here.
  */
-export function parseRawWsMessage(event: any): any {
+export function parseRawWsMessage(
+  event: any,
+  options: WSClientConfigurableOptions,
+): any {
   // WS MessageLike->data (contains JSON as a string)
   if (event?.data) {
-    return parseRawWsMessage(event.data);
+    return parseRawWsMessage(event.data, options);
   }
 
   if (typeof event === 'string') {
@@ -668,8 +678,11 @@ export function parseRawWsMessage(event: any): any {
     // - user data, via ws api (Without listen key)
     // - ws api responses
 
-    const parsedEvent = JSON.parse(event);
+    if (typeof options.customParseJSONFn === 'function') {
+      return options.customParseJSONFn(event);
+    }
 
+    const parsedEvent = JSON.parse(event);
     return parsedEvent;
   }
 
