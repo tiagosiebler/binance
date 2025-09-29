@@ -333,8 +333,6 @@ const wsClient = new WebsocketClient({
   // Optional: when enabled, the SDK will try to format incoming data into more readable objects.
   // Beautified data is emitted via the "formattedMessage" event
   beautify: true,
-  // Optional: custom JSON parser for incoming WS messages (e.g. to preserve big integers)
-  // parseWsMessageFn: JSONbig({ useNativeBigInt: true }).parse,
   // Disable ping/pong ws heartbeat mechanism (not recommended)
   // disableHeartbeat: true,
   // Connect to testnet environment
@@ -433,7 +431,7 @@ See [websocket-client.ts](./src/websocket-client.ts) for further information. Al
 #### Preserving large integers in WebSocket messages
 
 By default, messages are parsed using `JSON.parse`, which cannot precisely represent integers larger than `Number.MAX_SAFE_INTEGER`.
-If you need to preserve large integers (e.g., order IDs), provide a custom parser via `parseWsMessageFn`.
+If you need to preserve large integers (e.g., order IDs), provide a custom parser via `customParseJSONFn`.
 
 Example using RegEx below, although alternatives are possible too if desired. For more exampes check [ws-custom-parser.ts](./examples/WebSockets/ws-custom-parser.ts) in the examples folder:
 
