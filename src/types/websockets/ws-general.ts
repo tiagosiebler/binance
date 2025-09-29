@@ -173,17 +173,17 @@ export interface WSClientConfigurableOptions {
   wsUrl?: string;
 
   /**
-   * Optional custom JSON parser used for incoming WS messages.
-   * Defaults to JSON.parse.
-   */
-  customParseJSONFn?: (raw: string) => object;
-
-  /**
    * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
    *
    * Look in the examples folder for a demonstration on using node's createHmac instead.
    */
   customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+
+  /**
+   * Optional custom JSON parser used for incoming WS messages.
+   * Defaults to JSON.parse.
+   */
+  customParseJSONFn?: (raw: string) => object;
 }
 
 /**
