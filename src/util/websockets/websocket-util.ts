@@ -4,6 +4,7 @@ import WebSocket from 'isomorphic-ws';
 import { WsRequestOperationBinance } from '../../types/websockets/ws-api';
 import {
   WebsocketClientOptions,
+  WSClientConfigurableOptions,
   WsMarket,
   WsTopic,
 } from '../../types/websockets/ws-general';
@@ -623,14 +624,20 @@ export function resolveWsKeyForLegacyMarket(
     }
   }
 }
-export function parseRawWsMessageLegacy(event: any) {
+export function parseRawWsMessageLegacy(
+  event: any,
+  options: WSClientConfigurableOptions,
+) {
   if (typeof event === 'string') {
-    const parsedEvent = JSON.parse(event);
+    const parsedEvent =
+      typeof options.customParseJSONFn === 'function'
+        ? options.customParseJSONFn(event)
+        : JSON.parse(event);
 
     // WS events are wrapped into "data"
     if (parsedEvent.data) {
       if (typeof parsedEvent.data === 'string') {
-        return parseRawWsMessageLegacy(parsedEvent.data);
+        return parseRawWsMessageLegacy(parsedEvent.data, options);
       }
 
       return parsedEvent.data;
@@ -645,34 +652,9 @@ export function parseRawWsMessageLegacy(event: any) {
     return parsedEvent;
   }
   if (event?.data) {
-    return parseRawWsMessageLegacy(event.data);
+    return parseRawWsMessageLegacy(event.data, options);
   }
   return event;
-}
-
-export function createParseRawWsMessageLegacy(parseFn: (raw: string) => any) {
-  return function parse(event: any): any {
-    if (typeof event === 'string') {
-      const parsedEvent = parseFn(event);
-
-      if (parsedEvent.data) {
-        if (typeof parsedEvent.data === 'string') {
-          return parse(parsedEvent.data);
-        }
-        return parsedEvent.data;
-      }
-
-      if (parsedEvent.event) {
-        const { event, ...other } = parsedEvent;
-        return { ...other, ...event };
-      }
-      return parsedEvent;
-    }
-    if (event?.data) {
-      return parse(event.data);
-    }
-    return event;
-  };
 }
 
 /**
@@ -680,10 +662,13 @@ export function createParseRawWsMessageLegacy(parseFn: (raw: string) => any) {
  *
  * Any mapping or additonal handling should not be done here.
  */
-export function parseRawWsMessage(event: any): any {
+export function parseRawWsMessage(
+  event: any,
+  options: WSClientConfigurableOptions,
+): any {
   // WS MessageLike->data (contains JSON as a string)
   if (event?.data) {
-    return parseRawWsMessage(event.data);
+    return parseRawWsMessage(event.data, options);
   }
 
   if (typeof event === 'string') {
@@ -693,24 +678,15 @@ export function parseRawWsMessage(event: any): any {
     // - user data, via ws api (Without listen key)
     // - ws api responses
 
-    const parsedEvent = JSON.parse(event);
+    if (typeof options.customParseJSONFn === 'function') {
+      return options.customParseJSONFn(event);
+    }
 
+    const parsedEvent = JSON.parse(event);
     return parsedEvent;
   }
 
   return event;
-}
-
-export function createParseRawWsMessage(parseFn: (raw: string) => any) {
-  return function parse(event: any): any {
-    if (event?.data) {
-      return parse(event.data);
-    }
-    if (typeof event === 'string') {
-      return parseFn(event);
-    }
-    return event;
-  };
 }
 
 export interface MiscUserDataConnectionState {
