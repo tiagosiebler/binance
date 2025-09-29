@@ -1,4 +1,4 @@
-import { parseRawWsMessage } from '../src';
+import { parseRawWsMessage, createParseRawWsMessage } from '../src';
 
 describe('websocket-client', () => {
   describe('parseRawWsMessage()', () => {
@@ -8,6 +8,16 @@ describe('websocket-client', () => {
       const result = parseRawWsMessage({ data: event });
       expect(typeof result).toBe('object');
       expect(result.stream).toBe('!forceOrder@arr');
+    });
+
+    it('factory parser should use provided parse function', () => {
+      const spy = jest.fn(JSON.parse);
+      const parse = createParseRawWsMessage(spy);
+      const raw = '{"a":1}';
+      const result = parse(raw);
+      expect(result).toEqual({ a: 1 });
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(raw);
     });
   });
 });

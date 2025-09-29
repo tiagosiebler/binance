@@ -650,6 +650,31 @@ export function parseRawWsMessageLegacy(event: any) {
   return event;
 }
 
+export function createParseRawWsMessageLegacy(parseFn: (raw: string) => any) {
+  return function parse(event: any): any {
+    if (typeof event === 'string') {
+      const parsedEvent = parseFn(event);
+
+      if (parsedEvent.data) {
+        if (typeof parsedEvent.data === 'string') {
+          return parse(parsedEvent.data);
+        }
+        return parsedEvent.data;
+      }
+
+      if (parsedEvent.event) {
+        const { event, ...other } = parsedEvent;
+        return { ...other, ...event };
+      }
+      return parsedEvent;
+    }
+    if (event?.data) {
+      return parse(event.data);
+    }
+    return event;
+  };
+}
+
 /**
  * One simple purpose - extract JSON event from raw WS Message.
  *
@@ -674,6 +699,18 @@ export function parseRawWsMessage(event: any): any {
   }
 
   return event;
+}
+
+export function createParseRawWsMessage(parseFn: (raw: string) => any) {
+  return function parse(event: any): any {
+    if (event?.data) {
+      return parse(event.data);
+    }
+    if (typeof event === 'string') {
+      return parseFn(event);
+    }
+    return event;
+  };
 }
 
 export interface MiscUserDataConnectionState {
