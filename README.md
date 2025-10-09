@@ -69,6 +69,7 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
     - [REST Main Client](#rest-main-client)
     - [REST USD-M Futures](#rest-usd-m-futures)
     - [REST COIN-M Futures](#rest-coin-m-futures)
+    - [REST Portfolio Margin](#rest-portfolio-margin)
   - [WebSockets](#websockets)
     - [WebSocket Consumers](#websocket-consumers)
     - [WebSocket API](#websocket-api)
@@ -306,6 +307,52 @@ client
 
 See [coinm-client.ts](./src/coinm-client.ts) for further information.
 
+### REST Portfolio Margin
+
+Start by importing the Portfolio client. API credentials are optional, though an error is thrown when attempting any private API calls without credentials.
+
+```javascript
+import { PortfolioClient } from 'binance';
+
+// or, if you prefer `require()`:
+// const { PortfolioClient } = require('binance');
+
+const API_KEY = 'xxx';
+const API_SECRET = 'yyy';
+
+const client = new PortfolioClient({
+  api_key: API_KEY,
+  api_secret: API_SECRET,
+  // Connect to testnet environment
+  // testnet: true,
+});
+
+client
+  .getBalance()
+  .then((result) => {
+    console.log('getBalance result: ', result);
+  })
+  .catch((err) => {
+    console.error('getBalance error: ', err);
+  });
+
+client
+  .submitNewUMOrder({
+    side: 'SELL',
+    symbol: 'BTCUSDT',
+    type: 'MARKET',
+    quantity: 0.001,
+  })
+  .then((result) => {
+    console.log('submitNewUMOrder result: ', result);
+  })
+  .catch((err) => {
+    console.error('submitNewUMOrder error: ', err);
+  });
+```
+
+See [portfolio-client.ts](./src/portfolio-client.ts) for further information.
+
 ## WebSockets
 
 ### WebSocket Consumers
@@ -424,6 +471,7 @@ wsClient.subscribeSpotUserDataStream();
 wsClient.subscribeMarginUserDataStream();
 wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDT');
 wsClient.subscribeUsdFuturesUserDataStream();
+wsClient.subscribePortfolioMarginUserDataStream();
 ```
 
 See [websocket-client.ts](./src/websocket-client.ts) for further information. Also see [ws-userdata.ts](./examples/ws-userdata.ts) for user data examples.
