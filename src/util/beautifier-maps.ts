@@ -92,9 +92,11 @@ export const BEAUTIFIER_EVENT_MAP = {
   depthUpdateEvent: {
     e: 'eventType',
     E: 'eventTime',
+    T: 'transactionTime',
     s: 'symbol',
     U: 'firstUpdateId',
     u: 'lastUpdateId',
+    pu: 'finalUpdateId', // Final update Id in last stream(ie `u` in last stream)
     b: 'bidDepthDelta',
     a: 'askDepthDelta',
   },
