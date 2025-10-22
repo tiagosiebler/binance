@@ -184,11 +184,11 @@ export interface WsMessagePartialBookDepthUpdateEventFormatted
   extends WsSharedBase {
   eventType: 'depthUpdate';
   eventTime: number;
-  transactionTime: number;
+  transactionTime: number; // futures only
   symbol: string;
   firstUpdateId: number;
   lastUpdateId: number;
-  finalUpdateId: number;
+  finalUpdateId: number; // futures only
   bidDepthDelta: { price: number; quantity: number }[];
   askDepthDelta: { price: number; quantity: number }[];
 }
