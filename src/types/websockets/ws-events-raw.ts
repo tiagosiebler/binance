@@ -148,6 +148,18 @@ export interface WsMessagePartialBookDepthEventRaw extends WsSharedBase {
   asks: OrderBookRow[];
 }
 
+export interface WsMessagePartialBookDepthUpdateEventRaw extends WsSharedBase {
+  e: 'depthUpdate';
+  E: number;
+  T: number; // futures only
+  s: string;
+  U: number;
+  u: number;
+  pu: number; // futures only
+  b: OrderBookRow[];
+  a: OrderBookRow[];
+}
+
 /**
  * USER DATA WS EVENTS
  **/
@@ -506,6 +518,7 @@ export type WsRawMessage =
   | WsMessageRollingWindowTickerRaw[]
   | WsMessageBookTickerEventRaw
   | WsMessagePartialBookDepthEventRaw
+  | WsMessagePartialBookDepthUpdateEventRaw
   | WsMessageForceOrderRaw
   | WsRawSpotUserDataEventRaw
   | WsMessageIndexPriceUpdateEventRaw

@@ -180,6 +180,19 @@ export interface WsMessagePartialBookDepthEventFormatted extends WsSharedBase {
   asks: OrderBookRowFormatted[];
 }
 
+export interface WsMessagePartialBookDepthUpdateEventFormatted
+  extends WsSharedBase {
+  eventType: 'depthUpdate';
+  eventTime: number;
+  transactionTime: number; // futures only
+  symbol: string;
+  firstUpdateId: number;
+  lastUpdateId: number;
+  finalUpdateId: number; // futures only
+  bidDepthDelta: { price: number; quantity: number }[];
+  askDepthDelta: { price: number; quantity: number }[];
+}
+
 /**
  * USER DATA WS EVENTS
  **/
@@ -531,6 +544,7 @@ export type WsFormattedMessage =
   | WsMessage24hrTickerFormatted
   | WsMessageBookTickerEventFormatted
   | WsMessagePartialBookDepthEventFormatted
+  | WsMessagePartialBookDepthUpdateEventFormatted
   | WsMessageIndexPriceUpdateEventFormatted
   | WsMessageMarkPriceUpdateEventFormatted
   | WsMessageForceOrderFormatted
