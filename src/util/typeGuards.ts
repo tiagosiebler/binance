@@ -2,6 +2,7 @@ import {
   WsFormattedMessage,
   WsMessage24hrTickerFormatted,
   WsMessageAggTradeFormatted,
+  WsMessageDiffBookDepthEventFormatted,
   WsMessageForceOrderFormatted,
   WsMessageFuturesUserDataAccountConfigUpdateEventFormatted,
   WsMessageFuturesUserDataAccountUpdateFormatted,
@@ -11,7 +12,7 @@ import {
   WsMessageFuturesUserDataMarginCallFormatted,
   WsMessageFuturesUserDataTradeUpdateEventFormatted,
   WsMessageKlineFormatted,
-  WsMessageMarkPriceUpdateEventFormatted,
+  WsMessageMarkPriceEventFormatted,
   WsMessagePartialBookDepthEventFormatted,
   WsMessageSpotBalanceUpdateFormatted,
   WsMessageSpotOutboundAccountPositionFormatted,
@@ -100,13 +101,13 @@ export function isWSAPIWsKey(wsKey: WsKey): wsKey is WSAPIWsKey {
 
 export function isWsFormattedMarkPriceUpdateEvent(
   data: WsFormattedMessage,
-): data is WsMessageMarkPriceUpdateEventFormatted {
+): data is WsMessageMarkPriceEventFormatted {
   return !Array.isArray(data) && data.eventType === 'markPriceUpdate';
 }
 
 export function isWsFormattedMarkPriceUpdateArray(
   data: WsFormattedMessage,
-): data is WsMessageMarkPriceUpdateEventFormatted[] {
+): data is WsMessageMarkPriceEventFormatted[] {
   return (
     Array.isArray(data) &&
     data.length !== 0 &&
@@ -117,7 +118,7 @@ export function isWsFormattedMarkPriceUpdateArray(
 /** @deprecated, use isWsFormattedMarkPriceUpdateEvent or isWsFormattedMarkPriceUpdateArray */
 export function isWsFormattedMarkPriceUpdate(
   data: WsFormattedMessage,
-): data is WsMessageMarkPriceUpdateEventFormatted[] {
+): data is WsMessageMarkPriceEventFormatted[] {
   return isWsFormattedMarkPriceUpdateArray(data);
 }
 
@@ -218,6 +219,16 @@ export function isWsPartialBookDepthEventFormatted(
   return (
     !Array.isArray(data) && partialBookDepthEventTypeMap.has(data.eventType)
   );
+}
+
+/**
+ * https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Diff-Book-Depth-Streams
+ * <symbol>@depth OR <symbol>@depth@500ms OR <symbol>@depth@100ms
+ */
+export function isWsDiffBookDepthEventFormatted(
+  data: WsFormattedMessage,
+): data is WsMessageDiffBookDepthEventFormatted {
+  return !Array.isArray(data) && data.eventType === 'depthUpdate';
 }
 
 /**

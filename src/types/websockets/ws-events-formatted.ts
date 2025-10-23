@@ -180,8 +180,7 @@ export interface WsMessagePartialBookDepthEventFormatted extends WsSharedBase {
   asks: OrderBookRowFormatted[];
 }
 
-export interface WsMessagePartialBookDepthUpdateEventFormatted
-  extends WsSharedBase {
+export interface WsMessageDiffBookDepthEventFormatted extends WsSharedBase {
   eventType: 'depthUpdate';
   eventTime: number;
   transactionTime: number; // futures only
@@ -426,7 +425,7 @@ export interface WsMessageIndexPriceUpdateEventFormatted extends WsSharedBase {
   indexPrice: number;
 }
 
-export interface WsMessageMarkPriceUpdateEventFormatted extends WsSharedBase {
+export interface WsMessageMarkPriceEventFormatted extends WsSharedBase {
   eventType: 'markPriceUpdate';
   eventTime: number;
   symbol: string;
@@ -544,11 +543,11 @@ export type WsFormattedMessage =
   | WsMessage24hrTickerFormatted
   | WsMessageBookTickerEventFormatted
   | WsMessagePartialBookDepthEventFormatted
-  | WsMessagePartialBookDepthUpdateEventFormatted
+  | WsMessageDiffBookDepthEventFormatted
   | WsMessageIndexPriceUpdateEventFormatted
-  | WsMessageMarkPriceUpdateEventFormatted
+  | WsMessageMarkPriceEventFormatted
   | WsMessageForceOrderFormatted
   | WsMessage24hrMiniTickerFormatted[]
   | WsMessage24hrTickerFormatted[]
   | WsMessageRollingWindowTickerFormatted[]
-  | WsMessageMarkPriceUpdateEventFormatted[];
+  | WsMessageMarkPriceEventFormatted[];

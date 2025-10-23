@@ -105,9 +105,13 @@ import {
     //   return console.log('log 24hr ticker: ', data);
     // }
 
-    // if (isWsPartialBookDepthEventFormatted(data)) {
-    //   return console.log('log partial book depth event: ', data);
-    // }
+    if (isWsPartialBookDepthEventFormatted(data)) {
+      return console.log('log partial book depth event: ', data);
+    }
+
+    if (isWsDiffBookDepthEventFormatted(data)) {
+      return console.log('log diff book depthUpdate event: ', data);
+    }
   });
 
   wsClient.on('formattedUserDataMessage', (data) => {
