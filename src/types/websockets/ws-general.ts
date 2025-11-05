@@ -1,4 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
+import { ClientRequestArgs } from 'http';
 import WebSocket from 'isomorphic-ws';
 
 import { RestClientOptions } from '../../util/requestUtils';
@@ -168,7 +169,7 @@ export interface WSClientConfigurableOptions {
   wsOptions?: {
     protocols?: string[];
     agent?: any;
-  };
+  } & Partial<WebSocket.ClientOptions | ClientRequestArgs>;
 
   wsUrl?: string;
 

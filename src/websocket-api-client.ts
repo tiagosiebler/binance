@@ -1237,7 +1237,17 @@ export class WebsocketAPIClient {
           console.info(new Date(), 'ws has authenticated ', data?.wsKey);
         })
         .on('exception', (data) => {
-          console.error(new Date(), 'ws exception: ', JSON.stringify(data));
+          try {
+            // Blind JSON.stringify can fail on circular references
+            console.error(
+              new Date(),
+              'ws exception: ',
+              JSON.stringify(data),
+              // JSON.stringify({ ...data, target: 'WebSocket' }),
+            );
+          } catch {
+            console.error(new Date(), 'ws exception: ', data);
+          }
         });
     }
   }
