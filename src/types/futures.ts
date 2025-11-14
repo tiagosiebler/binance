@@ -973,17 +973,17 @@ export interface FuturesConvertOrderStatus {
  * USDⓈ-M Futures conditional orders migrate to Algo Service
  */
 
-export type AlgoOrderType = 'CONDITIONAL';
+export type FuturesAlgoOrderType = 'CONDITIONAL';
 
-export type AlgoOrderStatus =
+export type FuturesAlgoOrderStatus =
   | 'NEW'
   | 'CANCELED'
   | 'TRIGGERED'
   | 'EXPIRED'
   | 'FINISHED';
 
-export interface NewAlgoOrderParams {
-  algoType: AlgoOrderType;
+export interface FuturesNewAlgoOrderParams {
+  algoType: FuturesAlgoOrderType;
   symbol: string;
   side: OrderSide;
   positionSide?: PositionSide;
@@ -1004,17 +1004,17 @@ export interface NewAlgoOrderParams {
   goodTillDate?: number;
 }
 
-export interface AlgoOrderResponse {
+export interface FuturesAlgoOrderResponse {
   algoId: number;
   clientAlgoId: string;
-  algoType: AlgoOrderType;
+  algoType: FuturesAlgoOrderType;
   orderType: FuturesOrderType;
   symbol: string;
   side: OrderSide;
   positionSide: PositionSide;
   timeInForce: OrderTimeInForce;
   quantity: numberInString;
-  algoStatus: AlgoOrderStatus;
+  algoStatus: FuturesAlgoOrderStatus;
   triggerPrice?: numberInString;
   price?: numberInString;
   icebergQuantity: numberInString | null;
@@ -1032,29 +1032,30 @@ export interface AlgoOrderResponse {
   goodTillDate: number;
 }
 
-export interface CancelAlgoOrderParams {
+export interface FuturesCancelAlgoOrderParams {
   algoId?: number;
   clientAlgoId?: string;
 }
 
-export interface CancelAlgoOrderResponse {
+export interface FuturesCancelAlgoOrderResponse {
   algoId: number;
   clientAlgoId: string;
   code: string;
   msg: string;
 }
 
-export interface CancelAllAlgoOpenOrdersResponse {
+export interface FuturesCancelAllAlgoOpenOrdersResponse {
   code: number;
   msg: string;
 }
 
-export interface QueryAlgoOrderParams {
+export interface FuturesQueryAlgoOrderParams {
   algoId?: number;
   clientAlgoId?: string;
 }
 
-export interface QueryAlgoOrderResponse extends AlgoOrderResponse {
+export interface FuturesQueryAlgoOrderResponse
+  extends FuturesAlgoOrderResponse {
   actualOrderId: numberInString;
   actualPrice: numberInString;
   tpTriggerPrice?: numberInString;
@@ -1064,13 +1065,13 @@ export interface QueryAlgoOrderResponse extends AlgoOrderResponse {
   tpOrderType?: string;
 }
 
-export interface QueryOpenAlgoOrdersParams {
-  algoType?: AlgoOrderType;
+export interface FuturesQueryOpenAlgoOrdersParams {
+  algoType?: FuturesAlgoOrderType;
   symbol?: string;
   algoId?: number;
 }
 
-export interface QueryAllAlgoOrdersParams {
+export interface FuturesQueryAllAlgoOrdersParams {
   symbol: string;
   algoId?: number;
   startTime?: number;

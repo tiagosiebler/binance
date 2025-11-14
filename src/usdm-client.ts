@@ -3,12 +3,8 @@ import { AxiosRequestConfig } from 'axios';
 import { FundingRate } from './types/coin';
 import {
   AggregateFuturesTrade,
-  AlgoOrderResponse,
   Basis,
   BasisParams,
-  CancelAlgoOrderParams,
-  CancelAlgoOrderResponse,
-  CancelAllAlgoOpenOrdersResponse,
   CancelAllOpenOrdersResult,
   CancelFuturesOrderResult,
   CancelMultipleOrdersParams,
@@ -20,16 +16,25 @@ import {
   FuturesAccountBalance,
   FuturesAccountConfig,
   FuturesAccountInformation,
+  FuturesAlgoOrderResponse,
+  FuturesCancelAlgoOrderParams,
+  FuturesCancelAlgoOrderResponse,
+  FuturesCancelAllAlgoOpenOrdersResponse,
   FuturesConvertOrderStatus,
   FuturesConvertPair,
   FuturesConvertQuote,
   FuturesConvertQuoteRequest,
   FuturesDataPaginatedParams,
   FuturesExchangeInfo,
+  FuturesNewAlgoOrderParams,
   FuturesOrderBook,
   FuturesPosition,
   FuturesPositionTrade,
   FuturesPositionV3,
+  FuturesQueryAlgoOrderParams,
+  FuturesQueryAlgoOrderResponse,
+  FuturesQueryAllAlgoOrdersParams,
+  FuturesQueryOpenAlgoOrdersParams,
   FuturesSymbolOrderBookTicker,
   FuturesTradeHistoryDownloadId,
   FuturesTransactionDownloadLink,
@@ -49,7 +54,6 @@ import {
   ModifyOrderParams,
   MultiAssetModeResponse,
   MultiAssetsMode,
-  NewAlgoOrderParams,
   NewFuturesOrderParams,
   NewOrderError,
   NewOrderResult,
@@ -59,10 +63,6 @@ import {
   PositionModeParams,
   PositionModeResponse,
   QuarterlyContractSettlementPrice,
-  QueryAlgoOrderParams,
-  QueryAlgoOrderResponse,
-  QueryAllAlgoOrdersParams,
-  QueryOpenAlgoOrdersParams,
   RawFuturesTrade,
   RebateDataOverview,
   SetCancelTimeoutResult,
@@ -628,36 +628,40 @@ export class USDMClient extends BaseRestClient {
    *
    **/
 
-  submitNewAlgoOrder(params: NewAlgoOrderParams): Promise<AlgoOrderResponse> {
+  submitNewAlgoOrder(
+    params: FuturesNewAlgoOrderParams,
+  ): Promise<FuturesAlgoOrderResponse> {
     this.validateOrderId(params, 'clientAlgoId');
     return this.postPrivate('fapi/v1/algoOrder', params);
   }
 
   cancelAlgoOrder(
-    params: CancelAlgoOrderParams,
-  ): Promise<CancelAlgoOrderResponse> {
+    params: FuturesCancelAlgoOrderParams,
+  ): Promise<FuturesCancelAlgoOrderResponse> {
     return this.deletePrivate('fapi/v1/algoOrder', params);
   }
 
   cancelAllAlgoOpenOrders(params: {
     symbol: string;
-  }): Promise<CancelAllAlgoOpenOrdersResponse> {
+  }): Promise<FuturesCancelAllAlgoOpenOrdersResponse> {
     return this.deletePrivate('fapi/v1/algoOpenOrders', params);
   }
 
-  getAlgoOrder(params: QueryAlgoOrderParams): Promise<QueryAlgoOrderResponse> {
+  getAlgoOrder(
+    params: FuturesQueryAlgoOrderParams,
+  ): Promise<FuturesQueryAlgoOrderResponse> {
     return this.getPrivate('fapi/v1/algoOrder', params);
   }
 
   getOpenAlgoOrders(
-    params?: QueryOpenAlgoOrdersParams,
-  ): Promise<AlgoOrderResponse[]> {
+    params?: FuturesQueryOpenAlgoOrdersParams,
+  ): Promise<FuturesAlgoOrderResponse[]> {
     return this.getPrivate('fapi/v1/openAlgoOrders', params);
   }
 
   getAllAlgoOrders(
-    params: QueryAllAlgoOrdersParams,
-  ): Promise<QueryAlgoOrderResponse[]> {
+    params: FuturesQueryAllAlgoOrdersParams,
+  ): Promise<FuturesQueryAlgoOrderResponse[]> {
     return this.getPrivate('fapi/v1/allAlgoOrders', params);
   }
 
@@ -853,7 +857,7 @@ export class USDMClient extends BaseRestClient {
   private validateOrderId(
     params:
       | NewFuturesOrderParams
-      | NewAlgoOrderParams
+      | FuturesNewAlgoOrderParams
       | CancelOrderParams
       | NewOCOParams
       | CancelOCOParams,
