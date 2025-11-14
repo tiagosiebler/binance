@@ -16,16 +16,25 @@ import {
   FuturesAccountBalance,
   FuturesAccountConfig,
   FuturesAccountInformation,
+  FuturesAlgoOrderResponse,
+  FuturesCancelAlgoOrderParams,
+  FuturesCancelAlgoOrderResponse,
+  FuturesCancelAllAlgoOpenOrdersResponse,
   FuturesConvertOrderStatus,
   FuturesConvertPair,
   FuturesConvertQuote,
   FuturesConvertQuoteRequest,
   FuturesDataPaginatedParams,
   FuturesExchangeInfo,
+  FuturesNewAlgoOrderParams,
   FuturesOrderBook,
   FuturesPosition,
   FuturesPositionTrade,
   FuturesPositionV3,
+  FuturesQueryAlgoOrderParams,
+  FuturesQueryAlgoOrderResponse,
+  FuturesQueryAllAlgoOrdersParams,
+  FuturesQueryOpenAlgoOrdersParams,
   FuturesSymbolOrderBookTicker,
   FuturesTradeHistoryDownloadId,
   FuturesTransactionDownloadLink,
@@ -614,6 +623,50 @@ export class USDMClient extends BaseRestClient {
 
   /**
    *
+   * Algo Order Endpoints (Effective 2025-12-02)
+   * Conditional orders migrate to Algo Service
+   *
+   **/
+
+  submitNewAlgoOrder(
+    params: FuturesNewAlgoOrderParams,
+  ): Promise<FuturesAlgoOrderResponse> {
+    this.validateOrderId(params, 'clientAlgoId');
+    return this.postPrivate('fapi/v1/algoOrder', params);
+  }
+
+  cancelAlgoOrder(
+    params: FuturesCancelAlgoOrderParams,
+  ): Promise<FuturesCancelAlgoOrderResponse> {
+    return this.deletePrivate('fapi/v1/algoOrder', params);
+  }
+
+  cancelAllAlgoOpenOrders(params: {
+    symbol: string;
+  }): Promise<FuturesCancelAllAlgoOpenOrdersResponse> {
+    return this.deletePrivate('fapi/v1/algoOpenOrders', params);
+  }
+
+  getAlgoOrder(
+    params: FuturesQueryAlgoOrderParams,
+  ): Promise<FuturesQueryAlgoOrderResponse> {
+    return this.getPrivate('fapi/v1/algoOrder', params);
+  }
+
+  getOpenAlgoOrders(
+    params?: FuturesQueryOpenAlgoOrdersParams,
+  ): Promise<FuturesAlgoOrderResponse[]> {
+    return this.getPrivate('fapi/v1/openAlgoOrders', params);
+  }
+
+  getAllAlgoOrders(
+    params: FuturesQueryAllAlgoOrdersParams,
+  ): Promise<FuturesQueryAlgoOrderResponse[]> {
+    return this.getPrivate('fapi/v1/allAlgoOrders', params);
+  }
+
+  /**
+   *
    * Convert Endpoints
    *
    **/
@@ -804,6 +857,7 @@ export class USDMClient extends BaseRestClient {
   private validateOrderId(
     params:
       | NewFuturesOrderParams
+      | FuturesNewAlgoOrderParams
       | CancelOrderParams
       | NewOCOParams
       | CancelOCOParams,

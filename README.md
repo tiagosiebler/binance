@@ -431,7 +431,7 @@ wsClient.subscribe('btcusd@miniTicker', 'coinm');
 
 // Or send many topics at once to a stream, e.g. the usdm futures stream:
 wsClient.subscribe(
-  ['btcusdt@aggTrade', 'btcusdt@markPrice', '!ticker@arr', '!miniTicker@arr'],
+  ['btcusdt@aggTrade', 'btcusdt@markPrice', '!miniTicker@arr'],
   'usdm',
 );
 

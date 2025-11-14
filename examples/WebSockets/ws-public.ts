@@ -1,15 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   DefaultLogger,
-  isWsAggTradeFormatted,
-  isWsFormatted24hrTicker,
-  isWsFormatted24hrTickerArray,
-  isWsFormattedForceOrder,
-  isWsFormattedKline,
-  isWsFormattedMarkPriceUpdateArray,
-  isWsFormattedMarkPriceUpdateEvent,
-  isWsFormattedRollingWindowTickerArray,
-  isWsFormattedTrade,
+  isWsDiffBookDepthEventFormatted,
   isWsPartialBookDepthEventFormatted,
   WebsocketClient,
 } from '../../src';
@@ -188,9 +180,10 @@ import {
         // Individual Symbol Ticker Streams
         // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-ticker-streams
         'btcusdt@ticker',
-        // All Market Tickers Stream
+        // All Market Tickers Stream - DEPRECATED (2025-11-14)
         // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#all-market-tickers-stream
-        '!ticker@arr',
+        // '!ticker@arr', // DEPRECATED: Use '<symbol>@ticker' or '!miniTicker@arr' instead
+        // Recommended alternative: '!miniTicker@arr' for all market mini tickers (already subscribed above)
         // Individual Symbol Rolling Window Statistics Streams
         // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-rolling-window-statistics-streams
         'btcusdt@ticker_1h',

@@ -967,3 +967,115 @@ export interface FuturesConvertOrderStatus {
   inverseRatio: string;
   createTime: number;
 }
+
+/**
+ * Algo Order Types (Effective 2025-12-02)
+ * USDⓈ-M Futures conditional orders migrate to Algo Service
+ */
+
+export type FuturesAlgoOrderType = 'CONDITIONAL';
+
+export type FuturesAlgoOrderStatus =
+  | 'NEW'
+  | 'CANCELED'
+  | 'TRIGGERED'
+  | 'EXPIRED'
+  | 'FINISHED';
+
+export interface FuturesNewAlgoOrderParams {
+  algoType: FuturesAlgoOrderType;
+  symbol: string;
+  side: OrderSide;
+  positionSide?: PositionSide;
+  type: FuturesOrderType;
+  timeInForce?: OrderTimeInForce;
+  quantity?: numberInString;
+  price?: numberInString;
+  triggerPrice?: numberInString;
+  workingType?: WorkingType;
+  priceMatch?: PriceMatchMode;
+  closePosition?: BooleanString;
+  priceProtect?: BooleanString;
+  reduceOnly?: BooleanString;
+  activationPrice?: numberInString;
+  callbackRate?: numberInString;
+  clientAlgoId?: string; // ^[\.A-Z\:/a-z0-9_-]{1,36}$
+  selfTradePreventionMode?: SelfTradePreventionMode;
+  goodTillDate?: number;
+}
+
+export interface FuturesAlgoOrderResponse {
+  algoId: number;
+  clientAlgoId: string;
+  algoType: FuturesAlgoOrderType;
+  orderType: FuturesOrderType;
+  symbol: string;
+  side: OrderSide;
+  positionSide: PositionSide;
+  timeInForce: OrderTimeInForce;
+  quantity: numberInString;
+  algoStatus: FuturesAlgoOrderStatus;
+  triggerPrice?: numberInString;
+  price?: numberInString;
+  icebergQuantity: numberInString | null;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  workingType: WorkingType;
+  priceMatch: PriceMatchMode;
+  closePosition: boolean;
+  priceProtect: boolean;
+  reduceOnly: boolean;
+  activatePrice?: numberInString;
+  callbackRate?: numberInString;
+  createTime: number;
+  updateTime: number;
+  triggerTime: number;
+  goodTillDate: number;
+}
+
+export interface FuturesCancelAlgoOrderParams {
+  algoId?: number;
+  clientAlgoId?: string;
+}
+
+export interface FuturesCancelAlgoOrderResponse {
+  algoId: number;
+  clientAlgoId: string;
+  code: string;
+  msg: string;
+}
+
+export interface FuturesCancelAllAlgoOpenOrdersResponse {
+  code: number;
+  msg: string;
+}
+
+export interface FuturesQueryAlgoOrderParams {
+  algoId?: number;
+  clientAlgoId?: string;
+}
+
+export interface FuturesQueryAlgoOrderResponse
+  extends FuturesAlgoOrderResponse {
+  actualOrderId: numberInString;
+  actualPrice: numberInString;
+  tpTriggerPrice?: numberInString;
+  tpPrice?: numberInString;
+  slTriggerPrice?: numberInString;
+  slPrice?: numberInString;
+  tpOrderType?: string;
+}
+
+export interface FuturesQueryOpenAlgoOrdersParams {
+  algoType?: FuturesAlgoOrderType;
+  symbol?: string;
+  algoId?: number;
+}
+
+export interface FuturesQueryAllAlgoOrdersParams {
+  symbol: string;
+  algoId?: number;
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  limit?: number; // Default 500; max 1000
+}

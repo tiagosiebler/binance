@@ -38,4 +38,5 @@ ws.on('message', (msg) => {
 });
 
 // Subscribe to a couple of topics
-ws.subscribe(['btcusdt@trade', '!ticker@arr'], 'main');
+// Note: '!ticker@arr' has been deprecated (2025-11-14). Using '!miniTicker@arr' instead.
+ws.subscribe(['btcusdt@trade', '!miniTicker@arr'], 'main');

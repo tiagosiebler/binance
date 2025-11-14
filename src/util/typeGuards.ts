@@ -148,6 +148,10 @@ export function isWsFormattedForceOrder(
 
 /**
  * !ticker@arr
+ *
+ * @deprecated The '!ticker@arr' stream has been deprecated by Binance (2025-11-14).
+ * Use '<symbol>@ticker' for single symbol or '!miniTicker@arr' for all symbols instead.
+ *
  * @param data
  * @returns
  */

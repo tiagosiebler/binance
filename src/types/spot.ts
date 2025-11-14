@@ -2439,6 +2439,7 @@ export interface TradingDayTickerParams {
   symbols?: string[];
   timeZone?: string;
   type?: 'FULL' | 'MINI';
+  symbolStatus?: string;
 }
 
 export interface TradingDayTickerFull {
@@ -2487,6 +2488,7 @@ export interface RollingWindowTickerParams {
   symbols?: string[];
   windowSize?: string;
   type?: 'FULL' | 'MINI';
+  symbolStatus?: string;
 }
 
 export interface NewOrderListOTOParams {
