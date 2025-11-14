@@ -56,6 +56,7 @@ export type OrderIdProperty =
   | 'listClientOrderId'
   | 'limitClientOrderId'
   | 'stopClientOrderId'
+  | 'clientAlgoId'
   | 'aboveClientOrderId'
   | 'belowClientOrderId'
   | 'workingClientOrderId'
@@ -146,6 +147,7 @@ export interface SymbolPrice {
 export interface OrderBookParams {
   symbol: string;
   limit?: 5 | 10 | 20 | 50 | 100 | 500 | 1000 | 5000;
+  symbolStatus?: string;
 }
 
 export type KlineInterval =

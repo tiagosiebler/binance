@@ -54,6 +54,7 @@ export interface WSAPIExchangeInfoRequest {
 export interface WSAPIOrderBookRequest {
   symbol: string;
   limit?: number;
+  symbolStatus?: string;
 }
 
 export interface WSAPITradesRecentRequest {
@@ -95,6 +96,7 @@ export interface WSAPITicker24hrRequest {
   symbol?: string;
   symbols?: string[];
   type?: 'FULL' | 'MINI';
+  symbolStatus?: string;
 }
 
 /**
@@ -105,6 +107,7 @@ export interface WSAPITickerTradingDayRequest {
   symbols?: string[];
   timeZone?: string;
   type?: 'FULL' | 'MINI';
+  symbolStatus?: string;
 }
 
 /**
@@ -115,6 +118,7 @@ export interface WSAPITickerRequest {
   symbols?: string[];
   windowSize?: string; // '1m', '2m' ... '59m', '1h', '2h' ... '23h', '1d', '2d' ... '7d'
   type?: 'FULL' | 'MINI';
+  symbolStatus?: string;
 }
 
 /**
@@ -123,6 +127,7 @@ export interface WSAPITickerRequest {
 export interface WSAPITickerPriceRequest {
   symbol?: string;
   symbols?: string[];
+  symbolStatus?: string;
 }
 
 /**
@@ -131,6 +136,7 @@ export interface WSAPITickerPriceRequest {
 export interface WSAPITickerBookRequest {
   symbol?: string;
   symbols?: string[];
+  symbolStatus?: string;
 }
 
 /**

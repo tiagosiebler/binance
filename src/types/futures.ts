@@ -967,3 +967,114 @@ export interface FuturesConvertOrderStatus {
   inverseRatio: string;
   createTime: number;
 }
+
+/**
+ * Algo Order Types (Effective 2025-12-02)
+ * USDⓈ-M Futures conditional orders migrate to Algo Service
+ */
+
+export type AlgoOrderType = 'CONDITIONAL';
+
+export type AlgoOrderStatus =
+  | 'NEW'
+  | 'CANCELED'
+  | 'TRIGGERED'
+  | 'EXPIRED'
+  | 'FINISHED';
+
+export interface NewAlgoOrderParams {
+  algoType: AlgoOrderType;
+  symbol: string;
+  side: OrderSide;
+  positionSide?: PositionSide;
+  type: FuturesOrderType;
+  timeInForce?: OrderTimeInForce;
+  quantity?: numberInString;
+  price?: numberInString;
+  triggerPrice?: numberInString;
+  workingType?: WorkingType;
+  priceMatch?: PriceMatchMode;
+  closePosition?: BooleanString;
+  priceProtect?: BooleanString;
+  reduceOnly?: BooleanString;
+  activationPrice?: numberInString;
+  callbackRate?: numberInString;
+  clientAlgoId?: string; // ^[\.A-Z\:/a-z0-9_-]{1,36}$
+  selfTradePreventionMode?: SelfTradePreventionMode;
+  goodTillDate?: number;
+}
+
+export interface AlgoOrderResponse {
+  algoId: number;
+  clientAlgoId: string;
+  algoType: AlgoOrderType;
+  orderType: FuturesOrderType;
+  symbol: string;
+  side: OrderSide;
+  positionSide: PositionSide;
+  timeInForce: OrderTimeInForce;
+  quantity: numberInString;
+  algoStatus: AlgoOrderStatus;
+  triggerPrice?: numberInString;
+  price?: numberInString;
+  icebergQuantity: numberInString | null;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  workingType: WorkingType;
+  priceMatch: PriceMatchMode;
+  closePosition: boolean;
+  priceProtect: boolean;
+  reduceOnly: boolean;
+  activatePrice?: numberInString;
+  callbackRate?: numberInString;
+  createTime: number;
+  updateTime: number;
+  triggerTime: number;
+  goodTillDate: number;
+}
+
+export interface CancelAlgoOrderParams {
+  algoId?: number;
+  clientAlgoId?: string;
+}
+
+export interface CancelAlgoOrderResponse {
+  algoId: number;
+  clientAlgoId: string;
+  code: string;
+  msg: string;
+}
+
+export interface CancelAllAlgoOpenOrdersResponse {
+  code: number;
+  msg: string;
+}
+
+export interface QueryAlgoOrderParams {
+  algoId?: number;
+  clientAlgoId?: string;
+}
+
+export interface QueryAlgoOrderResponse extends AlgoOrderResponse {
+  actualOrderId: numberInString;
+  actualPrice: numberInString;
+  tpTriggerPrice?: numberInString;
+  tpPrice?: numberInString;
+  slTriggerPrice?: numberInString;
+  slPrice?: numberInString;
+  tpOrderType?: string;
+}
+
+export interface QueryOpenAlgoOrdersParams {
+  algoType?: AlgoOrderType;
+  symbol?: string;
+  algoId?: number;
+}
+
+export interface QueryAllAlgoOrdersParams {
+  symbol: string;
+  algoId?: number;
+  startTime?: number;
+  endTime?: number;
+  page?: number;
+  limit?: number; // Default 500; max 1000
+}
