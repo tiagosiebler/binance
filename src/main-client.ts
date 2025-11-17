@@ -768,17 +768,20 @@ export class MainClient extends BaseRestClient {
   get24hrChangeStatistics(params?: {
     symbols?: string[]; // use for multiple symbols
     type?: 'FULL' | 'MINI'; // default is FULL
+    symbolStatus?: string;
   }): Promise<Ticker24hrResponse[]>;
 
   get24hrChangeStatistics(params: {
     symbol: string; // use for single symbol
     type?: 'FULL' | 'MINI'; // default is FULL
+    symbolStatus?: string;
   }): Promise<Ticker24hrResponse>;
 
   get24hrChangeStatistics(params?: {
     symbol?: string; // use for single symbol
     symbols?: string[]; // use for multiple symbols
     type?: 'FULL' | 'MINI'; // default is FULL
+    symbolStatus?: string;
   }): Promise<Ticker24hrResponse | Ticker24hrResponse[]> {
     if (params && params['symbols'] && Array.isArray(params['symbols'])) {
       const { symbols, ...otherParams } = params;
@@ -810,6 +813,7 @@ export class MainClient extends BaseRestClient {
   getSymbolPriceTicker(params?: {
     symbol?: string; // use for single symbol
     symbols?: string[]; // use for multiple symbols
+    symbolStatus?: string;
   }): Promise<SymbolPrice | SymbolPrice[]> {
     if (params && params['symbols'] && Array.isArray(params['symbols'])) {
       const { symbols, ...otherParams } = params;
@@ -826,6 +830,7 @@ export class MainClient extends BaseRestClient {
   getSymbolOrderBookTicker(params?: {
     symbol?: string; // use for single symbol
     symbols?: string[]; // use for multiple symbols
+    symbolStatus?: string;
   }): Promise<SymbolOrderBookTicker | SymbolOrderBookTicker[]> {
     if (params && params['symbols'] && Array.isArray(params['symbols'])) {
       const { symbols, ...otherParams } = params;

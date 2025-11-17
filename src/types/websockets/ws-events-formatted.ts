@@ -114,6 +114,10 @@ export interface WsMessage24hrMiniTickerFormatted extends WsSharedBase {
 }
 
 export interface WsMessage24hrTickerFormatted extends WsSharedBase {
+  /**
+   * @deprecated '!ticker@arr' stream has been deprecated by Binance (2025-11-14).
+   * Use '<symbol>@ticker' for single symbol or '!miniTicker@arr' for all symbols instead.
+   */
   eventType: '24hrTicker' | '!ticker@arr';
   eventTime: number;
   symbol: string;
@@ -398,6 +402,7 @@ export interface WsMessageFuturesUserDataTradeUpdateEventFormatted
     realisedProfit: number;
     trailingStopActivationPrice?: number;
     trailingStopCallbackRate?: number;
+    orderExpireReason?: string; // Order expire reason
     pP?: boolean; // ignore
     si?: number; // ignore
     ss?: number; // ignore
@@ -512,6 +517,39 @@ export interface WsMessageFuturesUserDataContractInfoFormatted
   }[];
 }
 
+export interface WsMessageFuturesUserDataAlgoUpdateFormatted
+  extends WsSharedBase {
+  eventType: 'ALGO_UPDATE';
+  eventTime: number;
+  transactionTime: number;
+  algoOrder: {
+    algoId: number;
+    clientAlgoId: string;
+    side: string;
+    positionSide: string;
+    algoStatus: string;
+    algoType: string;
+    orderType: string;
+    timeInForce: string;
+    workingType: string;
+    quantity: string;
+    activationPrice: string;
+    triggerPrice: string;
+    price: string;
+    callbackRate: string;
+    priceMatch: string;
+    closePosition: boolean;
+    priceProtect: boolean;
+    reduceOnly: boolean;
+    isOrderOnBook: boolean;
+    selfTradePreventionMode: string;
+    createTime: number;
+    updateTime: number;
+    triggerTime: number;
+    goodTillDate: number;
+  };
+}
+
 export type WsMessageSpotUserDataEventFormatted =
   | WsMessageSpotUserDataExecutionReportEventFormatted
   | WsMessageSpotOutboundAccountPositionFormatted
@@ -528,7 +566,8 @@ export type WsMessageFuturesUserDataEventFormatted =
   | WsMessageFuturesUserDataTradeLiteEventFormatted
   | WsMessageFuturesUserDataStrategyUpdateFormatted
   | WsMessageFuturesUserDataGridUpdateFormatted
-  | WsMessageFuturesUserDataContractInfoFormatted;
+  | WsMessageFuturesUserDataContractInfoFormatted
+  | WsMessageFuturesUserDataAlgoUpdateFormatted;
 
 export type WsUserDataEvents =
   | WsMessageSpotUserDataEventFormatted
