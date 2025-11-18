@@ -2124,7 +2124,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     market: 'spot' | 'usdm' | 'coinm',
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
-    const streamName = market === 'spot' ? 'depth' : 'diffBookDepth';
+    const streamName = 'depth';
 
     const wsKey = resolveWsKeyForLegacyMarket(market);
     const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
