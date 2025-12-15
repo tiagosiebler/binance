@@ -65,15 +65,18 @@ import {
   QuarterlyContractSettlementPrice,
   RawFuturesTrade,
   RebateDataOverview,
+  RpiOrderBook,
   SetCancelTimeoutResult,
   SetIsolatedMarginParams,
   SetIsolatedMarginResult,
   SetLeverageParams,
   SetLeverageResult,
   SetMarginTypeParams,
+  SymbolAdlRisk,
   SymbolConfig,
   SymbolKlinePaginatedParams,
   SymbolLeverageBracketsResult,
+  TradingSchedule,
   UserCommissionRate,
   UserForceOrder,
 } from './types/futures';
@@ -145,6 +148,13 @@ export class USDMClient extends BaseRestClient {
 
   getOrderBook(params: OrderBookParams): Promise<FuturesOrderBook> {
     return this.get('fapi/v1/depth', params);
+  }
+
+  getRpiOrderBook(params: {
+    symbol: string;
+    limit?: number;
+  }): Promise<RpiOrderBook> {
+    return this.get('fapi/v1/rpiDepth', params);
   }
 
   getRecentTrades(params: RecentTradesParams): Promise<RawFuturesTrade[]> {
@@ -312,6 +322,10 @@ export class USDMClient extends BaseRestClient {
     symbol?: string;
   }): Promise<InsuranceFundBalance | InsuranceFundBalance[]> {
     return this.get('fapi/v1/insuranceBalance', params);
+  }
+
+  getTradingSchedule(): Promise<TradingSchedule> {
+    return this.get('fapi/v1/tradingSchedule');
   }
 
   /**
@@ -484,6 +498,16 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/adlQuantile', params);
   }
 
+  getSymbolAdlRisk(params: { symbol: string }): Promise<SymbolAdlRisk>;
+
+  getSymbolAdlRisk(): Promise<SymbolAdlRisk[]>;
+
+  getSymbolAdlRisk(params?: {
+    symbol?: string;
+  }): Promise<SymbolAdlRisk | SymbolAdlRisk[]> {
+    return this.get('fapi/v1/symbolAdlRisk', params);
+  }
+
   getPositionMarginChangeHistory(
     params: GetPositionMarginChangeHistoryParams,
   ): Promise<any> {
@@ -614,6 +638,10 @@ export class USDMClient extends BaseRestClient {
     feeBurn: boolean;
   }> {
     return this.getPrivate('fapi/v1/feeBurn');
+  }
+
+  signTradFiPerpsContract(): Promise<{ code: number; msg: string }> {
+    return this.postPrivate('fapi/v1/stock/contract');
   }
 
   testOrder(params: NewFuturesOrderParams): Promise<any> {

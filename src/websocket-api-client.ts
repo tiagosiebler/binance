@@ -32,6 +32,8 @@ import {
   WSAPIOrderCancelRequest,
   WSAPIOrderListCancelRequest,
   WSAPIOrderListPlaceOCORequest,
+  WSAPIOrderListPlaceOPOCORequest,
+  WSAPIOrderListPlaceOPORequest,
   WSAPIOrderListPlaceOTOCORequest,
   WSAPIOrderListPlaceOTORequest,
   WSAPIOrderListPlaceRequest,
@@ -671,6 +673,36 @@ export class WebsocketAPIClient {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'orderList.place.otoco',
+      params,
+    );
+  }
+
+  /**
+   * Place a new OPO (One-Pays-the-Other) order list
+   * Note: One order pays for the other - when the working order is filled, the pending order is placed
+   */
+  placeSpotOPOOrderList(
+    params: WSAPIOrderListPlaceOPORequest,
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<WSAPIOrderListPlaceResponse>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'orderList.place.opo',
+      params,
+    );
+  }
+
+  /**
+   * Place a new OPOCO (One-Pays-One-Cancels-the-Other) order list
+   * Note: Combines OPO and OCO - working order pays for two pending orders, one cancels the other
+   */
+  placeSpotOPOCOOrderList(
+    params: WSAPIOrderListPlaceOPOCORequest,
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<WSAPIOrderListPlaceResponse>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'orderList.place.opoco',
       params,
     );
   }

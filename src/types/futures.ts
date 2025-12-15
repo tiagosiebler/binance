@@ -746,6 +746,7 @@ export interface UserCommissionRate {
   symbol: string;
   makerCommissionRate: numberInString;
   takerCommissionRate: numberInString;
+  rpiCommissionRate?: numberInString;
 }
 
 export interface FuturesAccountConfig {
@@ -1078,4 +1079,36 @@ export interface FuturesQueryAllAlgoOrdersParams {
   endTime?: number;
   page?: number;
   limit?: number; // Default 500; max 1000
+}
+
+export interface SymbolAdlRisk {
+  symbol: string;
+  adlRisk: 'low' | 'medium' | 'high';
+  updateTime: number;
+}
+
+export interface TradingSession {
+  startTime: number;
+  endTime: number;
+  type: 'PRE_MARKET' | 'REGULAR' | 'AFTER_MARKET' | 'OVERNIGHT' | 'NO_TRADING';
+}
+
+export interface MarketSchedule {
+  sessions: TradingSession[];
+}
+
+export interface TradingSchedule {
+  updateTime: number;
+  marketSchedules: {
+    EQUITY?: MarketSchedule;
+    COMMODITY?: MarketSchedule;
+  };
+}
+
+export interface RpiOrderBook {
+  lastUpdateId: number;
+  E: number; // Message output time
+  T: number; // Transaction time
+  bids: [numberInString, numberInString][];
+  asks: [numberInString, numberInString][];
 }
