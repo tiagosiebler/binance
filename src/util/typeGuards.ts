@@ -6,6 +6,7 @@ import {
   WsMessageForceOrderFormatted,
   WsMessageFuturesUserDataAccountConfigUpdateEventFormatted,
   WsMessageFuturesUserDataAccountUpdateFormatted,
+  WsMessageFuturesUserDataAlgoUpdateFormatted,
   WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted,
   WsMessageFuturesUserDataEventFormatted,
   WsMessageFuturesUserDataListenKeyExpiredFormatted,
@@ -26,6 +27,7 @@ import {
   WsMessage24hrMiniTickerRaw,
   WsMessageFuturesUserDataAccountConfigUpdateEventRaw,
   WsMessageFuturesUserDataAccountUpdateRaw,
+  WsMessageFuturesUserDataAlgoUpdateRaw,
   WsMessageFuturesUserDataOrderTradeUpdateEventRaw,
   WsMessageKlineRaw,
   WsMessageRollingWindowTickerRaw,
@@ -340,6 +342,14 @@ export function isWsFormattedFuturesUserDataTradeUpdateEvent(
   );
 }
 
+export function isWsFormattedFuturesAlgoUpdateEvent(
+  data: WsFormattedMessage,
+): data is WsMessageFuturesUserDataAlgoUpdateFormatted {
+  return (
+    isWsFormattedFuturesUserDataEvent(data) && data.eventType === 'ALGO_UPDATE'
+  );
+}
+
 export function isWsFormattedFuturesUserDataCondOrderTriggerRejectEvent(
   data: WsFormattedMessage,
 ): data is WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted {
@@ -412,6 +422,15 @@ export function isOrderTradeUpdateRaw(
   data: WsRawMessage,
 ): data is WsMessageFuturesUserDataOrderTradeUpdateEventRaw {
   return !Array.isArray(data) && data.e === 'ORDER_TRADE_UPDATE';
+}
+
+/**
+ * Typeguard to validate a single ALOG_UPDATE raw event
+ */
+export function isAlgoUpdateRaw(
+  data: WsRawMessage,
+): data is WsMessageFuturesUserDataAlgoUpdateRaw {
+  return !Array.isArray(data) && data.e === 'ALGO_UPDATE';
 }
 
 /**

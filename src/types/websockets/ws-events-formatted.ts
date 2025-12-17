@@ -1,12 +1,12 @@
 import {
-  type FuturesAlgoConditionalOrderTypes,
-  type FuturesAlgoOrderStatus,
-  type FuturesAlgoOrderType,
+  FuturesAlgoConditionalOrderTypes,
+  FuturesAlgoOrderStatus,
+  FuturesAlgoOrderType,
   FuturesContractType,
   FuturesOrderType,
   MarginType,
   PositionSide,
-  type PriceMatchMode,
+  PriceMatchMode,
   WorkingType,
 } from '../futures';
 import {
@@ -532,6 +532,7 @@ export interface WsMessageFuturesUserDataAlgoUpdateFormatted
     algoType: FuturesAlgoOrderType;
     orderType: FuturesAlgoConditionalOrderTypes;
     symbol: string;
+    side: OrderSide;
     positionSide: PositionSide;
     timeInForce: OrderTimeInForce;
     quantity: numberInString;
@@ -564,13 +565,13 @@ export type WsMessageFuturesUserDataEventFormatted =
   | WsMessageFuturesUserDataListenKeyExpiredFormatted
   | WsMessageFuturesUserDataMarginCallFormatted
   | WsMessageFuturesUserDataTradeUpdateEventFormatted
+  | WsMessageFuturesUserDataAlgoUpdateFormatted
   | WsMessageFuturesUserDataAccountConfigUpdateEventFormatted
   | WsMessageFuturesUserDataCondOrderTriggerRejectEventFormatted
   | WsMessageFuturesUserDataTradeLiteEventFormatted
   | WsMessageFuturesUserDataStrategyUpdateFormatted
   | WsMessageFuturesUserDataGridUpdateFormatted
-  | WsMessageFuturesUserDataContractInfoFormatted
-  | WsMessageFuturesUserDataAlgoUpdateFormatted;
+  | WsMessageFuturesUserDataContractInfoFormatted;
 
 export type WsUserDataEvents =
   | WsMessageSpotUserDataEventFormatted

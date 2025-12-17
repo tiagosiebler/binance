@@ -8,9 +8,9 @@ import type {
 } from '../futures.js';
 import {
   numberInString,
-  type OrderSide,
-  type OrderTimeInForce,
-  type SelfTradePreventionMode,
+  OrderSide,
+  OrderTimeInForce,
+  SelfTradePreventionMode,
 } from '../shared';
 import { OrderResponse } from '../spot';
 
