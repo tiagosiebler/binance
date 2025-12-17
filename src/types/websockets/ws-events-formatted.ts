@@ -1,8 +1,12 @@
 import {
+  type FuturesAlgoConditionalOrderTypes,
+  type FuturesAlgoOrderStatus,
+  type FuturesAlgoOrderType,
   FuturesContractType,
   FuturesOrderType,
   MarginType,
   PositionSide,
+  type PriceMatchMode,
   WorkingType,
 } from '../futures';
 import {
@@ -523,28 +527,27 @@ export interface WsMessageFuturesUserDataAlgoUpdateFormatted
   eventTime: number;
   transactionTime: number;
   algoOrder: {
-    algoId: number;
     clientAlgoId: string;
-    side: string;
-    positionSide: string;
-    algoStatus: string;
-    algoType: string;
-    orderType: string;
-    timeInForce: string;
-    workingType: string;
-    quantity: string;
-    activationPrice: string;
-    triggerPrice: string;
-    price: string;
-    callbackRate: string;
-    priceMatch: string;
+    algoId: number;
+    algoType: FuturesAlgoOrderType;
+    orderType: FuturesAlgoConditionalOrderTypes;
+    symbol: string;
+    positionSide: PositionSide;
+    timeInForce: OrderTimeInForce;
+    quantity: numberInString;
+    algoStatus: FuturesAlgoOrderStatus;
+    orderId: string;
+    averagePrice: numberInString;
+    executedQty: numberInString;
+    actualOrderType: numberInString; // TODO unsure if it's FuturesOrderType
+    triggerPrice: numberInString;
+    price: numberInString;
+    selfTradePreventionMode: SelfTradePreventionMode;
+    workingType: WorkingType;
+    priceMatch: PriceMatchMode;
     closePosition: boolean;
     priceProtect: boolean;
     reduceOnly: boolean;
-    isOrderOnBook: boolean;
-    selfTradePreventionMode: string;
-    createTime: number;
-    updateTime: number;
     triggerTime: number;
     goodTillDate: number;
   };

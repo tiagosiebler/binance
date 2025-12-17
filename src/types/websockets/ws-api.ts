@@ -8,6 +8,7 @@ import {
   WSAPIAllOrdersRequest,
   WSAPIAvgPriceRequest,
   WSAPIExchangeInfoRequest,
+  WSAPIFuturesAlgoOrderCancelRequest,
   WSAPIFuturesOrderBookRequest,
   WSAPIFuturesOrderCancelRequest,
   WSAPIFuturesOrderModifyRequest,
@@ -18,6 +19,7 @@ import {
   WSAPIMyAllocationsRequest,
   WSAPIMyPreventedMatchesRequest,
   WSAPIMyTradesRequest,
+  WSAPINewFuturesAlgoOrderRequest,
   WSAPINewFuturesOrderRequest,
   WSAPINewSpotOrderRequest,
   WSAPIOpenOrdersCancelAllRequest,
@@ -57,6 +59,8 @@ import {
   WSAPIFullTicker,
   WSAPIFuturesAccountBalanceItem,
   WSAPIFuturesAccountStatus,
+  WSAPIFuturesAlgoOrder,
+  WSAPIFuturesAlgoOrderCancelResponse,
   WSAPIFuturesBookTicker,
   WSAPIFuturesOrder,
   WSAPIFuturesOrderBook,
@@ -146,6 +150,8 @@ export const WS_API_Operations = [
   'order.modify',
   'openOrders.status',
   'openOrders.cancelAll',
+  'algoOrder.place',
+  'algoOrder.cancel',
   // Order list commands
   'orderList.place',
   'orderList.place.oco',
@@ -366,11 +372,13 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
     ? WSAPIFuturesOrderCancelRequest
     : WSAPIOrderCancelRequest;
   'order.modify': WSAPIFuturesOrderModifyRequest; // order.modify only futures
-
   'order.cancelReplace': WSAPIOrderCancelReplaceRequest;
   'order.amend.keepPriority': WSAPIOrderAmendKeepPriorityRequest;
   'openOrders.status': WSAPIOpenOrdersStatusRequest;
   'openOrders.cancelAll': WSAPIOpenOrdersCancelAllRequest;
+
+  'algoOrder.place': WSAPINewFuturesAlgoOrderRequest;
+  'algoOrder.cancel': WSAPIFuturesAlgoOrderCancelRequest;
 
   /**
    * Order list requests & parameters:
@@ -521,7 +529,8 @@ export interface WsAPIOperationResponseMap {
   'openOrders.cancelAll': WSAPIResponse<
     (WSAPIOrderCancel | WSAPIOrderListCancelResponse)[]
   >;
-
+  'algoOrder.place': WSAPIResponse<WSAPIFuturesAlgoOrder>;
+  'algoOrder.cancel': WSAPIResponse<WSAPIFuturesAlgoOrderCancelResponse>;
   /**
    * Order list responses
    */

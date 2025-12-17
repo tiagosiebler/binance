@@ -1,4 +1,17 @@
-import { numberInString } from '../shared';
+import type {
+  FuturesAlgoConditionalOrderTypes,
+  FuturesAlgoOrderStatus,
+  FuturesAlgoOrderType,
+  PositionSide,
+  PriceMatchMode,
+  WorkingType,
+} from '../futures.js';
+import {
+  numberInString,
+  type OrderSide,
+  type OrderTimeInForce,
+  type SelfTradePreventionMode,
+} from '../shared';
 import { OrderResponse } from '../spot';
 
 /**
@@ -539,6 +552,37 @@ export interface WSAPIFuturesPositionV2 {
   bidNotional: string;
   askNotional: string;
   updateTime: number;
+}
+
+export interface WSAPIFuturesAlgoOrder {
+  algoId: number;
+  clientAlgoId: string;
+  algoType: FuturesAlgoOrderType;
+  orderType: FuturesAlgoConditionalOrderTypes;
+  symbol: string;
+  side: OrderSide;
+  positionSide: PositionSide;
+  timeInForce: OrderTimeInForce;
+  quantity: numberInString;
+  algoStatus: FuturesAlgoOrderStatus;
+  triggerPrice: numberInString;
+  price: numberInString;
+  icebergQuantity: numberInString | null;
+  selfTradePreventionMode: SelfTradePreventionMode;
+  workingType: WorkingType;
+  priceMatch: PriceMatchMode;
+  closePosition: boolean;
+  priceProtect: boolean;
+  reduceOnly: boolean;
+  createTime: number;
+  updateTime: number;
+  triggerTime: number;
+  goodTillDate: number;
+}
+
+export interface WSAPIFuturesAlgoOrderCancelResponse extends ErrorResponse {
+  algoId: number;
+  clientAlgoId: string;
 }
 
 /**

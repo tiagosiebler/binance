@@ -1,4 +1,6 @@
 import {
+  FuturesAlgoConditionalOrderTypes,
+  FuturesAlgoOrderType,
   FuturesOrderType,
   PositionSide,
   PriceMatchMode,
@@ -9,6 +11,7 @@ import {
   BooleanStringCapitalised,
   KlineInterval,
   numberInString,
+  OrderResponseType,
   OrderSide,
   OrderTimeInForce,
   OrderType,
@@ -581,4 +584,42 @@ export interface WSAPIAccountInformationRequest {
 
 export interface WSAPIAccountCommissionWSAPIRequest {
   symbol: string;
+}
+
+/**
+ * Ref: https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/websocket-api
+ */
+export interface WSAPINewFuturesAlgoOrderRequest<numberType = numberInString> {
+  algoType: FuturesAlgoOrderType;
+  symbol: string;
+  side: OrderSide;
+  positionSide?: PositionSide;
+  type: FuturesAlgoConditionalOrderTypes;
+  timeInForce?: OrderTimeInForce;
+  quantity?: numberType;
+  reduceOnly?: BooleanString;
+  price?: numberInString;
+  newClientOrderId?: string;
+  stopPrice?: numberInString;
+  closePosition?: BooleanString;
+  activationPrice?: numberInString;
+  callbackRate?: numberInString;
+  workingType?: WorkingType;
+  priceProtect?: BooleanStringCapitalised;
+  newOrderRespType?: OrderResponseType;
+  priceMatch?: PriceMatchMode;
+  selfTradePreventionMode?: SelfTradePreventionMode;
+  goodTillDate?: number; // Mandatory when timeInForce is GTD
+  recvWindow?: number;
+  timestamp: number;
+}
+
+/**
+ * Ref: https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/websocket-api/Cancel-Algo-Order
+ */
+export interface WSAPIFuturesAlgoOrderCancelRequest {
+  algoid?: number;
+  clientalgoid?: string;
+  recvWindow?: number;
+  timestamp: number;
 }
