@@ -11,7 +11,7 @@ const client = new USDMClient({
   api_secret: 'insert_api_secret_here',
 });
 
-client.signTradFiPerpsContract(params)
+client.signTradFiPerpsAgreement(params)
   .then((response) => {
     console.log(response);
   })
