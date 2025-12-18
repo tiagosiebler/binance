@@ -28,6 +28,8 @@ import {
   WSAPIOrderCancelRequest,
   WSAPIOrderListCancelRequest,
   WSAPIOrderListPlaceOCORequest,
+  WSAPIOrderListPlaceOPOCORequest,
+  WSAPIOrderListPlaceOPORequest,
   WSAPIOrderListPlaceOTOCORequest,
   WSAPIOrderListPlaceOTORequest,
   WSAPIOrderListPlaceRequest,
@@ -151,6 +153,8 @@ export const WS_API_Operations = [
   'orderList.place.oco',
   'orderList.place.oto',
   'orderList.place.otoco',
+  'orderList.place.opo',
+  'orderList.place.opoco',
   'orderList.status',
   'orderList.cancel',
   'openOrderLists.status',
@@ -379,6 +383,8 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   'orderList.place.oco': WSAPIOrderListPlaceOCORequest;
   'orderList.place.oto': WSAPIOrderListPlaceOTORequest;
   'orderList.place.otoco': WSAPIOrderListPlaceOTOCORequest;
+  'orderList.place.opo': WSAPIOrderListPlaceOPORequest;
+  'orderList.place.opoco': WSAPIOrderListPlaceOPOCORequest;
   'orderList.status': WSAPIOrderListStatusRequest;
   'orderList.cancel': WSAPIOrderListCancelRequest;
 
@@ -529,6 +535,8 @@ export interface WsAPIOperationResponseMap {
   'orderList.place.oco': WSAPIResponse<WSAPIOrderListPlaceResponse>;
   'orderList.place.oto': WSAPIResponse<WSAPIOrderListPlaceResponse>;
   'orderList.place.otoco': WSAPIResponse<WSAPIOrderListPlaceResponse>;
+  'orderList.place.opo': WSAPIResponse<WSAPIOrderListPlaceResponse>;
+  'orderList.place.opoco': WSAPIResponse<WSAPIOrderListPlaceResponse>;
   'orderList.status': WSAPIResponse<WSAPIOrderListStatusResponse>;
   'orderList.cancel': WSAPIResponse<WSAPIOrderListCancelResponse>;
   'openOrderLists.status': WSAPIResponse<WSAPIOrderListStatusResponse[]>;

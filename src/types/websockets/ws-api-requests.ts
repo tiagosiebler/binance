@@ -437,6 +437,95 @@ export interface WSAPIOrderListPlaceOTOCORequest {
   timestamp: number;
 }
 
+export interface WSAPIOrderListPlaceOPORequest {
+  symbol: string;
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  selfTradePreventionMode?: string;
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: numberInString;
+  workingQuantity: numberInString;
+  workingIcebergQty?: numberInString;
+  workingTimeInForce?: string;
+  workingStrategyId?: number;
+  workingStrategyType?: number;
+  workingPegPriceType?: string;
+  workingPegOffsetType?: string;
+  workingPegOffsetValue?: number;
+  pendingType: string;
+  pendingSide: 'BUY' | 'SELL';
+  pendingClientOrderId?: string;
+  pendingPrice?: numberInString;
+  pendingStopPrice?: numberInString;
+  pendingTrailingDelta?: numberInString;
+  pendingIcebergQty?: numberInString;
+  pendingTimeInForce?: string;
+  pendingStrategyId?: number;
+  pendingStrategyType?: number;
+  pendingPegPriceType?: string;
+  pendingPegOffsetType?: string;
+  pendingPegOffsetValue?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
+export interface WSAPIOrderListPlaceOPOCORequest {
+  symbol: string;
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT' | 'FULL';
+  selfTradePreventionMode?: string;
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: numberInString;
+  workingQuantity: numberInString;
+  workingIcebergQty?: numberInString;
+  workingTimeInForce?: string;
+  workingStrategyId?: number;
+  workingStrategyType?: number;
+  workingPegPriceType?: string;
+  workingPegOffsetType?: string;
+  workingPegOffsetValue?: number;
+  pendingSide: 'BUY' | 'SELL';
+  pendingAboveType:
+    | 'STOP_LOSS_LIMIT'
+    | 'STOP_LOSS'
+    | 'LIMIT_MAKER'
+    | 'TAKE_PROFIT'
+    | 'TAKE_PROFIT_LIMIT';
+  pendingAboveClientOrderId?: string;
+  pendingAbovePrice?: numberInString;
+  pendingAboveStopPrice?: numberInString;
+  pendingAboveTrailingDelta?: numberInString;
+  pendingAboveIcebergQty?: numberInString;
+  pendingAboveTimeInForce?: string;
+  pendingAboveStrategyId?: number;
+  pendingAboveStrategyType?: number;
+  pendingAbovePegPriceType?: string;
+  pendingAbovePegOffsetType?: string;
+  pendingAbovePegOffsetValue?: number;
+  pendingBelowType?:
+    | 'STOP_LOSS'
+    | 'STOP_LOSS_LIMIT'
+    | 'TAKE_PROFIT'
+    | 'TAKE_PROFIT_LIMIT';
+  pendingBelowClientOrderId?: string;
+  pendingBelowPrice?: numberInString;
+  pendingBelowStopPrice?: numberInString;
+  pendingBelowTrailingDelta?: numberInString;
+  pendingBelowIcebergQty?: numberInString;
+  pendingBelowTimeInForce?: string;
+  pendingBelowStrategyId?: number;
+  pendingBelowStrategyType?: number;
+  pendingBelowPegPriceType?: string;
+  pendingBelowPegOffsetType?: string;
+  pendingBelowPegOffsetValue?: number;
+  recvWindow?: number;
+  timestamp: number;
+}
+
 export interface WSAPIOrderListStatusRequest {
   origClientOrderId?: string;
   orderListId?: number;
