@@ -619,7 +619,7 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [getFuturesTradeDownloadLink()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L625) | :closed_lock_with_key:  | GET | `fapi/v1/trade/asyn/id` |
 | [setBNBBurnEnabled()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L631) | :closed_lock_with_key:  | POST | `fapi/v1/feeBurn` |
 | [getBNBBurnStatus()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L637) | :closed_lock_with_key:  | GET | `fapi/v1/feeBurn` |
-| [signTradFiPerpsContract()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L643) | :closed_lock_with_key:  | POST | `fapi/v1/stock/contract` |
+| [signTradFiPerpsAgreement()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L643) | :closed_lock_with_key:  | POST | `fapi/v1/stock/contract` |
 | [testOrder()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L647) | :closed_lock_with_key:  | POST | `fapi/v1/order/test` |
 | [submitNewAlgoOrder()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L659) | :closed_lock_with_key:  | POST | `fapi/v1/algoOrder` |
 | [cancelAlgoOrder()](https://github.com/tiagosiebler/binance/blob/master/src/usdm-client.ts#L666) | :closed_lock_with_key:  | DELETE | `fapi/v1/algoOrder` |

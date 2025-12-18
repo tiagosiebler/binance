@@ -640,7 +640,7 @@ export class USDMClient extends BaseRestClient {
     return this.getPrivate('fapi/v1/feeBurn');
   }
 
-  signTradFiPerpsContract(): Promise<{ code: number; msg: string }> {
+  signTradFiPerpsAgreement(): Promise<{ code: number; msg: string }> {
     return this.postPrivate('fapi/v1/stock/contract');
   }
 
