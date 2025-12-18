@@ -195,6 +195,21 @@ function getWSAPINewOrderIdProperties(
           'pendingBelowClientOrderId',
         ];
       }
+      if (operation === 'orderList.place.opo') {
+        return [
+          'listClientOrderId',
+          'workingClientOrderId',
+          'pendingClientOrderId',
+        ];
+      }
+      if (operation === 'orderList.place.opoco') {
+        return [
+          'listClientOrderId',
+          'workingClientOrderId',
+          'pendingAboveClientOrderId',
+          'pendingBelowClientOrderId',
+        ];
+      }
       return [];
     }
     default: {
