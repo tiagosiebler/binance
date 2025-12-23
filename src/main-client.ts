@@ -375,6 +375,10 @@ import {
   MarginOTOOrder,
   MarginTransactionResponse,
   NewFutureAccountTransferParams,
+  NewOrderListOPOCOParams,
+  NewOrderListOPOCOResponse,
+  NewOrderListOPOParams,
+  NewOrderListOPOResponse,
   NewOrderListOTOCOParams,
   NewOrderListOTOCOResponse,
   NewOrderListOTOParams,
@@ -961,6 +965,25 @@ export class MainClient extends BaseRestClient {
     this.validateOrderId(params, 'pendingAboveClientOrderId');
     this.validateOrderId(params, 'pendingBelowClientOrderId');
     return this.postPrivate('api/v3/orderList/otoco', params);
+  }
+
+  submitNewOrderListOPO(
+    params: NewOrderListOPOParams,
+  ): Promise<NewOrderListOPOResponse> {
+    this.validateOrderId(params, 'listClientOrderId');
+    this.validateOrderId(params, 'workingClientOrderId');
+    this.validateOrderId(params, 'pendingClientOrderId');
+    return this.postPrivate('api/v3/orderList/opo', params);
+  }
+
+  submitNewOrderListOPOCO(
+    params: NewOrderListOPOCOParams,
+  ): Promise<NewOrderListOPOCOResponse> {
+    this.validateOrderId(params, 'listClientOrderId');
+    this.validateOrderId(params, 'workingClientOrderId');
+    this.validateOrderId(params, 'pendingAboveClientOrderId');
+    this.validateOrderId(params, 'pendingBelowClientOrderId');
+    return this.postPrivate('api/v3/orderList/opoco', params);
   }
 
   cancelOCO(params: CancelOCOParams): Promise<CancelOrderListResult> {
@@ -4253,7 +4276,7 @@ export class MainClient extends BaseRestClient {
 
   /**
    *
-   * EXCHANGE LINK - Account Endpoints
+   * EXCHANGE LINK - Asset Endpoints
    * https://developers.binance.com/docs/binance_link
    */
 

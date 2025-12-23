@@ -548,6 +548,7 @@ export interface SymbolExchangeInfo {
   orderTypes: OrderType[];
   icebergAllowed: boolean;
   ocoAllowed: boolean;
+  opoAllowed: boolean;
   quoteOrderQtyMarketAllowed: boolean;
   allowTrailingStop: boolean;
   cancelReplaceAllowed: boolean;
@@ -2608,6 +2609,158 @@ export interface NewOrderListOTOCOResponse {
     price: string;
     origQty: string;
     executedQty: string;
+    cummulativeQuoteQty: string;
+    status: string;
+    timeInForce: string;
+    type: string;
+    side: string;
+    stopPrice?: string;
+    workingTime: number;
+    selfTradePreventionMode: string;
+  }[];
+}
+
+export interface NewOrderListOPOParams {
+  symbol: string;
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'FULL' | 'RESULT';
+  selfTradePreventionMode?: string;
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: string;
+  workingQuantity: string;
+  workingIcebergQty?: string;
+  workingTimeInForce?: 'FOK' | 'IOC' | 'GTC';
+  workingStrategyId?: number;
+  workingStrategyType?: number;
+  workingPegPriceType?: string;
+  workingPegOffsetType?: string;
+  workingPegOffsetValue?: number;
+  pendingType: string;
+  pendingSide: 'BUY' | 'SELL';
+  pendingClientOrderId?: string;
+  pendingPrice?: string;
+  pendingStopPrice?: string;
+  pendingTrailingDelta?: string;
+  pendingIcebergQty?: string;
+  pendingTimeInForce?: 'GTC' | 'FOK' | 'IOC';
+  pendingStrategyId?: number;
+  pendingStrategyType?: number;
+  pendingPegPriceType?: string;
+  pendingPegOffsetType?: string;
+  pendingPegOffsetValue?: number;
+}
+
+export interface NewOrderListOPOResponse {
+  orderListId: number;
+  contingencyType: string;
+  listStatusType: string;
+  listOrderStatus: string;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+  orderReports: {
+    symbol: string;
+    orderId: number;
+    orderListId: number;
+    clientOrderId: string;
+    transactTime: number;
+    price: string;
+    origQty?: string;
+    executedQty: string;
+    origQuoteOrderQty: string;
+    cummulativeQuoteQty: string;
+    status: string;
+    timeInForce: string;
+    type: string;
+    side: string;
+    workingTime: number;
+    selfTradePreventionMode: string;
+  }[];
+}
+
+export interface NewOrderListOPOCOParams {
+  symbol: string;
+  listClientOrderId?: string;
+  newOrderRespType?: 'ACK' | 'FULL' | 'RESULT';
+  selfTradePreventionMode?: string;
+  workingType: 'LIMIT' | 'LIMIT_MAKER';
+  workingSide: 'BUY' | 'SELL';
+  workingClientOrderId?: string;
+  workingPrice: string;
+  workingQuantity: string;
+  workingIcebergQty?: string;
+  workingTimeInForce?: 'GTC' | 'IOC' | 'FOK';
+  workingStrategyId?: number;
+  workingStrategyType?: number;
+  workingPegPriceType?: string;
+  workingPegOffsetType?: string;
+  workingPegOffsetValue?: number;
+  pendingSide: 'BUY' | 'SELL';
+  pendingAboveType:
+    | 'STOP_LOSS_LIMIT'
+    | 'STOP_LOSS'
+    | 'LIMIT_MAKER'
+    | 'TAKE_PROFIT'
+    | 'TAKE_PROFIT_LIMIT';
+  pendingAboveClientOrderId?: string;
+  pendingAbovePrice?: string;
+  pendingAboveStopPrice?: string;
+  pendingAboveTrailingDelta?: string;
+  pendingAboveIcebergQty?: string;
+  pendingAboveTimeInForce?: 'GTC' | 'FOK' | 'IOC';
+  pendingAboveStrategyId?: number;
+  pendingAboveStrategyType?: number;
+  pendingAbovePegPriceType?: string;
+  pendingAbovePegOffsetType?: string;
+  pendingAbovePegOffsetValue?: number;
+  pendingBelowType?:
+    | 'STOP_LOSS'
+    | 'STOP_LOSS_LIMIT'
+    | 'TAKE_PROFIT'
+    | 'TAKE_PROFIT_LIMIT';
+  pendingBelowClientOrderId?: string;
+  pendingBelowPrice?: string;
+  pendingBelowStopPrice?: string;
+  pendingBelowTrailingDelta?: string;
+  pendingBelowIcebergQty?: string;
+  pendingBelowTimeInForce?: 'GTC' | 'FOK' | 'IOC';
+  pendingBelowStrategyId?: number;
+  pendingBelowStrategyType?: number;
+  pendingBelowPegPriceType?: string;
+  pendingBelowPegOffsetType?: string;
+  pendingBelowPegOffsetValue?: number;
+}
+
+export interface NewOrderListOPOCOResponse {
+  orderListId: number;
+  contingencyType: string;
+  listStatusType: string;
+  listOrderStatus: string;
+  listClientOrderId: string;
+  transactionTime: number;
+  symbol: string;
+  orders: {
+    symbol: string;
+    orderId: number;
+    clientOrderId: string;
+  }[];
+  orderReports: {
+    symbol: string;
+    orderId: number;
+    orderListId: number;
+    clientOrderId: string;
+    transactTime: number;
+    price: string;
+    origQty?: string;
+    executedQty: string;
+    origQuoteOrderQty: string;
     cummulativeQuoteQty: string;
     status: string;
     timeInForce: string;
