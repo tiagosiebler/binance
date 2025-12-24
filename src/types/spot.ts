@@ -4490,7 +4490,7 @@ export interface GetFiatPaymentsHistoryResponse {
   success: boolean;
 }
 
-export interface IBinanceAccountInfo {
+export interface FiatWithdrawAccountInfo {
     accountNumber: string;
     agency: string;
     bankCodeForPix: string;
@@ -4501,7 +4501,7 @@ export interface WithdrawFiatParams {
     currency: string;
     apiPaymentMethod: string;
     amount: number;
-    accountInfo?: IBinanceAccountInfo;
+    accountInfo?: FiatWithdrawAccountInfo;
 }
 
 export interface GetC2CTradeHistoryParams {
