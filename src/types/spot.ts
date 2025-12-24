@@ -4491,17 +4491,17 @@ export interface GetFiatPaymentsHistoryResponse {
 }
 
 export interface WithdrawFiatAccountInfo {
-    accountNumber: string;
-    agency: string;
-    bankCodeForPix: string;
-    accountType: string;
+  accountNumber: string;
+  agency: string;
+  bankCodeForPix: string;
+  accountType: string;
 }
 
 export interface WithdrawFiatParams {
-    currency: string;
-    apiPaymentMethod: string;
-    amount: number;
-    accountInfo?: WithdrawFiatAccountInfo;
+  currency: string;
+  apiPaymentMethod: string;
+  amount: number;
+  accountInfo?: WithdrawFiatAccountInfo;
 }
 
 export interface GetC2CTradeHistoryParams {
