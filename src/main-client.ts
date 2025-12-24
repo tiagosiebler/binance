@@ -616,6 +616,7 @@ import {
   WalletBalance,
   WithdrawAddress,
   WithdrawAssetsFromManagedSubAccountParams,
+  WithdrawFiatParams,
   WithdrawHistory,
   WithdrawHistoryParams,
   WithdrawParams,
@@ -3745,6 +3746,10 @@ export class MainClient extends BaseRestClient {
     params: GetFiatOrderHistoryParams,
   ): Promise<GetFiatPaymentsHistoryResponse> {
     return this.getPrivate('sapi/v1/fiat/payments', params);
+  }
+
+  fiatWithdraw(params: WithdrawFiatParams): Promise<{ id: string }> {
+    return this.postPrivate('/sapi/v2/fiat/withdraw', params);
   }
 
   /**

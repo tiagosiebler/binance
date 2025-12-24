@@ -4490,6 +4490,20 @@ export interface GetFiatPaymentsHistoryResponse {
   success: boolean;
 }
 
+export interface WithdrawFiatAccountInfo {
+    accountNumber: string;
+    agency: string;
+    bankCodeForPix: string;
+    accountType: string;
+}
+
+export interface WithdrawFiatParams {
+    currency: string;
+    apiPaymentMethod: string;
+    amount: number;
+    accountInfo?: WithdrawFiatAccountInfo;
+}
+
 export interface GetC2CTradeHistoryParams {
   tradeType: string;
   startTimestamp?: number;
