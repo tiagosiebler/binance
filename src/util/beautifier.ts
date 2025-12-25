@@ -141,6 +141,7 @@ export default class Beautifier {
       'totalWalletBalance',
       'trailingStopActivationPrice',
       'trailingStopCallbackRate',
+      'triggerPrice',
       'umUnrealizedPNL',
       'umWalletBalance',
       'unrealisedPnl',
