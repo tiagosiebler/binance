@@ -102,22 +102,23 @@ Refer to the [examples](./examples) folder for implementation demos.
 
 <!-- template_related_projects -->
 
-## Related projects
+## Related Projects
 
 Check out my related JavaScript/TypeScript/Node.js projects:
 
-- Try my REST API & WebSocket SDKs:
-  - [Bybit-api Node.js SDK](https://www.npmjs.com/package/bybit-api)
-  - [Okx-api Node.js SDK](https://www.npmjs.com/package/okx-api)
-  - [Binance Node.js SDK](https://www.npmjs.com/package/binance)
-  - [Gateio-api Node.js SDK](https://www.npmjs.com/package/gateio-api)
-  - [Bitget-api Node.js SDK](https://www.npmjs.com/package/bitget-api)
-  - [Kucoin-api Node.js SDK](https://www.npmjs.com/package/kucoin-api)
-  - [Coinbase-api Node.js SDK](https://www.npmjs.com/package/coinbase-api)
-  - [Bitmart-api Node.js SDK](https://www.npmjs.com/package/bitmart-api)
+- Try our REST API & WebSocket SDKs published on npmjs:
+  - [Bybit Node.js SDK: bybit-api](https://www.npmjs.com/package/bybit-api)
+  - [Kraken Node.js SDK: @siebly/kraken-api](https://www.npmjs.com/package/coinbase-api)
+  - [OKX Node.js SDK: okx-api](https://www.npmjs.com/package/okx-api)
+  - [Binance Node.js SDK: binance](https://www.npmjs.com/package/binance)
+  - [Gate (gate.com) Node.js SDK: gateio-api](https://www.npmjs.com/package/gateio-api)
+  - [Bitget Node.js SDK: bitget-api](https://www.npmjs.com/package/bitget-api)
+  - [Kucoin Node.js SDK: kucoin-api](https://www.npmjs.com/package/kucoin-api)
+  - [Coinbase Node.js SDK: coinbase-api](https://www.npmjs.com/package/coinbase-api)
+  - [Bitmart Node.js SDK: bitmart-api](https://www.npmjs.com/package/bitmart-api)
 - Try my misc utilities:
-  - [OrderBooks Node.js](https://www.npmjs.com/package/orderbooks)
-  - [Crypto Exchange Account State Cache](https://www.npmjs.com/package/accountstate)
+  - [OrderBooks Node.js: orderbooks](https://www.npmjs.com/package/orderbooks)
+  - [Crypto Exchange Account State Cache: accountstate](https://www.npmjs.com/package/accountstate)
 - Check out my examples:
   - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
   <!-- template_related_projects_end -->
@@ -799,6 +800,11 @@ Have my projects helped you? Share the love, there are many ways you can show yo
 - Have an interesting project? Get in touch & invite me to it.
 - Or buy me all the coffee:
   - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
+- Sign up with my referral links:
+  - OKX (receive a 20% fee discount!): https://www.okx.com/join/42013004
+  - Binance (receive a 20% fee discount!): https://accounts.binance.com/register?ref=OKFFGIJJ
+  - HyperLiquid (receive a 4% fee discount!): https://app.hyperliquid.xyz/join/SDK
+  - Gate: https://www.gate.io/signup/NODESDKS?ref_type=103
 
 <!---
 old ones:
@@ -806,6 +812,8 @@ old ones:
   - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
   - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
   - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
+  - gate: https://www.gate.io/signup/AVNNU1WK?ref_type=103
+
 -->
 <!-- template_contributions_end -->
 
