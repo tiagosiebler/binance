@@ -1,9 +1,9 @@
 name: Publish to NPM
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  release:
+    types:
+      - published
 
 permissions:
   contents: read
@@ -13,12 +13,16 @@ jobs:
   publish-npm:
     environment: production
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+      IS_PRERELEASE: ${{ github.event.release.prerelease }}
     steps:
       - name: Checkout (no repo token persisted)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
+          ref: ${{ github.event.release.tag_name }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -39,16 +43,15 @@ jobs:
           # fail if publishConfig.registry set
           node -e "const p=require('./package.json'); if(p.publishConfig?.registry){console.error('publishConfig.registry present — refuse to publish'); process.exit(1)}"
           # optional: block workflow/script changes in the release commit
-          # git diff --name-only HEAD~1..HEAD | grep -E '^\.github/(workflows|scripts)/' && { echo 'Workflow/scripts changed in release commit — refuse.'; exit 1; } || true
-          SHA=$(git rev-list -n 1 "$GITHUB_REF_NAME")
+          SHA=$(git rev-list -n 1 "$RELEASE_TAG")
           PARENT=$(git rev-list -n 1 "$SHA^")
-          git diff --name-only "$PARENT" "$SHA" | grep -E '^\.github/(workflows|scripts)/' \
+          git diff --name-only "$PARENT" "$SHA" | grep -E '^\\.github/(workflows|scripts)/' \
             && { echo 'Workflow/scripts changed in release commit — refuse.'; exit 1; } || true
 
       - name: Verify tag matches package version
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
-          TAG="${GITHUB_REF_NAME#v}"
+          TAG="${RELEASE_TAG#v}"
           [[ "$PKG_VERSION" == "$TAG" ]] || { echo "Tag v$TAG != package.json $PKG_VERSION"; exit 1; }
 
       - name: Install deps (no lifecycle scripts)
@@ -57,7 +60,17 @@ jobs:
       - run: npm run clean
       - run: npm run build
 
+      - name: Resolve dist-tag
+        id: dist
+        run: |
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            echo "tag=beta" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish
         env:
           NPM_CONFIG_PROVENANCE: true
-        run: npm publish --access public --ignore-scripts --registry=https://registry.npmjs.org/ --provenance
+          DIST_TAG: ${{ steps.dist.outputs.tag }}
+        run: npm publish --access public --ignore-scripts --registry=https://registry.npmjs.org/ --provenance --tag "$DIST_TAG"
