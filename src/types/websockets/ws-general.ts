@@ -140,6 +140,17 @@ export interface WSClientConfigurableOptions {
   testnet?: boolean;
 
   /**
+   * Set to `true` to use Binance's demo trading WebSocket endpoints.
+   * Demo trading uses real market data but simulated trading.
+   * More info: https://demo.binance.com/
+   *
+   * Notes:
+   * - If demo trading, `testnet` should be set to false!
+   * - If testing a strategy, use demo trading instead. Testnet market data is very different from real market conditions.
+   */
+  demoTrading?: boolean;
+
+  /**
    * Default: false. If true, use market maker endpoints when available.
    * Eligible for high-frequency trading users who have enrolled and qualified
    * in at least one of the Futures Liquidity Provider Programs.

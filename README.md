@@ -65,6 +65,7 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
 - [Related Projects](#related-projects)
 - [Documentation Links](#documentation)
 - [Usage](#usage)
+  - [Demo Trading vs Testnet](#demo-trading-vs-testnet)
   - [REST API Clients](#rest-api-clients)
     - [REST Main Client](#rest-main-client)
     - [REST USD-M Futures](#rest-usd-m-futures)
@@ -153,6 +154,16 @@ Create API credentials at Binance
 - [Livenet](https://www.binance.com/en/support/faq/360002502072?ref=IVRLUZJO)
 - [Testnet](https://testnet.binance.vision/).
 - [Testnet Futures](testnet.binancefuture.com).
+- [Demo Trading](https://www.binance.com/en/support/faq/how-to-test-my-functions-on-binance-spot-test-network-ab78f9a1b8824cf0a106b4229c76496d) - Uses real market data with simulated trading.
+
+### Demo Trading vs Testnet
+
+Binance offers two testing environments:
+
+- **Demo Trading**: Uses real market data but simulated trading. This is ideal for testing strategies since market conditions match production. Available for Spot, USD-M Futures, and COIN-M Futures.
+- **Testnet**: Separate environment with simulated market data. Market conditions are very different from real markets and not recommended for strategy testing.
+
+To use demo trading, simply set `demoTrading: true` in the client options. See the [demo trading examples](./examples/REST/rest-spot-demo.ts) for more information.
 
 ## REST API Clients
 

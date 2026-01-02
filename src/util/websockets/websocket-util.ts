@@ -3,10 +3,10 @@ import WebSocket from 'isomorphic-ws';
 
 import { WsRequestOperationBinance } from '../../types/websockets/ws-api';
 import {
-  WebsocketClientOptions,
-  WSClientConfigurableOptions,
-  WsMarket,
-  WsTopic,
+    WebsocketClientOptions,
+    WSClientConfigurableOptions,
+    WsMarket,
+    WsTopic,
 } from '../../types/websockets/ws-general';
 import { DefaultLogger } from '../logger';
 import { neverGuard } from '../typeGuards';
@@ -209,6 +209,42 @@ export const WS_KEY_MM_URL_MAP: Record<WsKey, string | undefined> = {
   portfolioMarginProUserData: undefined,
 };
 
+// Demo Trading WebSocket URLs
+export const WS_KEY_DEMO_URL_MAP: Record<WsKey, string | undefined> = {
+  // Demo Trading - Spot
+  main: 'wss://demo-stream.binance.com:9443',
+  main2: 'wss://demo-stream.binance.com:443',
+  main3: 'wss://demo-stream-sbe.binance.com', // Alternative stream
+  mainTestnetPublic: undefined, // No demo for testnet
+  mainTestnetUserData: undefined, // No demo for testnet
+
+  // Demo Trading - Spot WebSocket API
+  mainWSAPI: 'wss://demo-ws-api.binance.com:443',
+  mainWSAPI2: 'wss://demo-ws-api.binance.com:9443',
+  mainWSAPITestnet: undefined, // No demo for testnet
+
+  // Margin Risk - no demo endpoint
+  marginRiskUserData: undefined,
+
+  // Demo Trading - USDM Futures
+  usdm: 'wss://fstream.binancefuture.com',
+  usdmTestnet: undefined, // No demo for testnet
+  usdmWSAPI: 'wss://testnet.binancefuture.com',
+  usdmWSAPITestnet: undefined, // No demo for testnet
+
+  // Demo Trading - COINM Futures
+  coinm: 'wss://dstream.binancefuture.com',
+  coinm2: undefined, // No demo for coinm2
+  coinmTestnet: undefined, // No demo for testnet
+  coinmWSAPI: 'wss://testnet.binancefuture.com',
+  coinmWSAPITestnet: undefined, // No demo for testnet
+
+  // Other connections - no demo endpoints
+  eoptions: undefined,
+  portfolioMarginUserData: undefined,
+  portfolioMarginProUserData: undefined,
+};
+
 export function getWsURLSuffix(
   wsKey: WsKey,
   connectionType: 'market' | 'userData',
@@ -380,9 +416,18 @@ export function getWsUrl(
   }
 
   const isTestnet = !!wsClientOptions.testnet;
+  const isDemoTrading = !!wsClientOptions.demoTrading;
   const useMMSubdomain = !!wsClientOptions.useMMSubdomain;
 
   const resolvedWsKey = isTestnet ? getTestnetWsKey(wsKey) : wsKey;
+
+  // Use demo trading endpoints if requested and available
+  if (isDemoTrading && !isTestnet) {
+    const demoUrl = WS_KEY_DEMO_URL_MAP[resolvedWsKey];
+    if (demoUrl) {
+      return demoUrl;
+    }
+  }
 
   // Use MM endpoints if requested and available
   if (useMMSubdomain && !isTestnet) {
