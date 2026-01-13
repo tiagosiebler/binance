@@ -22,7 +22,10 @@ function generateConfig(name) {
           path.resolve(__dirname, "../lib/util/browser-support.js"),
       },
       fallback: {
-        https: false,
+        // Node.js core modules not available in browsers
+        // The REST client's https.Agent (for keepAlive) is Node.js-only and won't work in browsers
+        "http": false,
+        "https": false,
       }
     },
     module: {
