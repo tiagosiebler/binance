@@ -1,5 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
-import { ClientRequestArgs } from 'http';
+import type { ClientRequestArgs } from 'http';
 import WebSocket from 'isomorphic-ws';
 
 import { RestClientOptions } from '../../util/requestUtils';
