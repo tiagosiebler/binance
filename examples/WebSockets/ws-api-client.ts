@@ -689,6 +689,33 @@ async function main() {
   } catch (e) {
     console.log('getFuturesAccountStatus error: ', e);
   }
+
+  try {
+    const response = await wsClient.submitNewFuturesAlgoOrder({
+      algoType: 'CONDITIONAL',
+      symbol: 'BTCUSDT',
+      side: 'BUY',
+      type: 'STOP',
+      timeInForce: 'GTC',
+      price: '100000.10000000',
+      stopPrice: '100000.10000000',
+      quantity: '0.00847000',
+      timestamp: Date.now(),
+    });
+    console.log('submitNewFuturesAlgoOrder response: ', response);
+  } catch (e) {
+    console.log('submitNewFuturesAlgoOrder error: ', e);
+  }
+
+  try {
+    const response = await wsClient.cancelFuturesAlgoOrder({
+      algoid: 1028312903,
+      timestamp: Date.now(),
+    });
+    console.log('cancelFuturesAlgoOrder response: ', response);
+  } catch (e) {
+    console.log('cancelFuturesAlgoOrder error: ', e);
+  }
 }
 
 // Start executing the example workflow

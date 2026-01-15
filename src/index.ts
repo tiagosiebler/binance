@@ -7,6 +7,7 @@ export * from './types/portfolio-margin';
 export * from './types/shared';
 export * from './types/spot';
 export * from './types/websockets/ws-api';
+export * from './types/websockets/ws-api-requests';
 export * from './types/websockets/ws-api-responses';
 export * from './types/websockets/ws-events-formatted';
 export * from './types/websockets/ws-events-raw';

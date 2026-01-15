@@ -62,8 +62,7 @@ export type OrderIdProperty =
   | 'workingClientOrderId'
   | 'pendingAboveClientOrderId'
   | 'pendingBelowClientOrderId'
-  | 'pendingClientOrderId'
-  | 'clientAlgoId';
+  | 'pendingClientOrderId';
 
 export type OrderSide = 'BUY' | 'SELL';
 
