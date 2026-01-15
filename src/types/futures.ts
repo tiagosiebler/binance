@@ -976,19 +976,31 @@ export interface FuturesConvertOrderStatus {
 
 export type FuturesAlgoOrderType = 'CONDITIONAL';
 
+export type FuturesAlgoConditionalOrderTypes =
+  | 'STOP_MARKET'
+  | 'TAKE_PROFIT_MARKET'
+  | 'STOP'
+  | 'TAKE_PROFIT'
+  | 'TRAILING_STOP_MARKET';
+
+/**
+ * Ref: https://developers.binance.com/docs/derivatives/usds-margined-futures/user-data-streams/Event-Algo-Order-Update
+ */
 export type FuturesAlgoOrderStatus =
   | 'NEW'
   | 'CANCELED'
+  | 'TRIGGERING'
   | 'TRIGGERED'
-  | 'EXPIRED'
-  | 'FINISHED';
+  | 'FINISHED'
+  | 'REJECTED'
+  | 'EXPIRED';
 
 export interface FuturesNewAlgoOrderParams {
   algoType: FuturesAlgoOrderType;
   symbol: string;
   side: OrderSide;
   positionSide?: PositionSide;
-  type: FuturesOrderType;
+  type: FuturesAlgoConditionalOrderTypes;
   timeInForce?: OrderTimeInForce;
   quantity?: numberInString;
   price?: numberInString;
@@ -1009,7 +1021,7 @@ export interface FuturesAlgoOrderResponse {
   algoId: number;
   clientAlgoId: string;
   algoType: FuturesAlgoOrderType;
-  orderType: FuturesOrderType;
+  orderType: FuturesAlgoConditionalOrderTypes;
   symbol: string;
   side: OrderSide;
   positionSide: PositionSide;

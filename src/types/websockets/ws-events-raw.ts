@@ -1,7 +1,11 @@
 import {
+  FuturesAlgoConditionalOrderTypes,
+  FuturesAlgoOrderStatus,
+  FuturesAlgoOrderType,
   FuturesOrderType,
   MarginType,
   PositionSide,
+  PriceMatchMode,
   WorkingType,
 } from '../futures';
 import {
@@ -370,6 +374,36 @@ export interface WsMessageFuturesUserDataOrderTradeUpdateEventRaw
     er?: string; // Order expire reason (available effective 2025-10-23)
   };
 }
+
+export interface WsMessageFuturesUserDataAlgoUpdateRaw extends WsSharedBase {
+  e: 'ALGO_UPDATE';
+  E: number;
+  T: number;
+  o: {
+    caid: string;
+    aid: number;
+    at: FuturesAlgoOrderType;
+    o: FuturesAlgoConditionalOrderTypes;
+    s: string;
+    S: OrderSide;
+    ps: PositionSide;
+    f: OrderTimeInForce;
+    q: numberInString;
+    X: FuturesAlgoOrderStatus;
+    ai: string;
+    tp: numberInString;
+    p: numberInString;
+    V: SelfTradePreventionMode;
+    wt: WorkingType;
+    pm: PriceMatchMode;
+    cp: boolean;
+    pP: boolean;
+    R: boolean;
+    tt: number;
+    gtd: number;
+  };
+}
+
 export interface WsMessageFuturesUserDataTradeLiteEventRaw
   extends WsSharedBase {
   e: 'TRADE_LITE'; // Event Type
@@ -490,38 +524,6 @@ export interface WsMessageFuturesUserDataContractInfoRaw extends WsSharedBase {
   }[];
 }
 
-export interface WsMessageFuturesUserDataAlgoUpdateRaw extends WsSharedBase {
-  e: 'ALGO_UPDATE'; // Event Type
-  E: number; // Event Time
-  T: number; // Transaction Time
-  ao: {
-    si: number; // Algo ID
-    c: string; // Client Algo ID
-    S: string; // Side
-    ps: string; // Position Side
-    st: string; // Algo Status
-    at: string; // Algo Type
-    ot: string; // Order Type
-    tif: string; // Time in Force
-    iw: string; // Working Type
-    q: string; // Original Quantity
-    ap: string; // Activation Price
-    tp: string; // Trigger Price
-    p: string; // Price
-    cr: string; // Callback Rate
-    pM: string; // Price Match
-    cp: boolean; // Close Position
-    pp: boolean; // Price Protect
-    R: boolean; // Reduce Only
-    so: boolean; // Is the order on the book
-    V: string; // Self Trade Prevention Mode
-    C: number; // Create Time
-    U: number; // Update Time
-    T: number; // Trigger Time
-    gtd: number; // Good Till Date
-  };
-}
-
 export type WsRawSpotUserDataEventRaw =
   | WsMessageSpotUserDataExecutionReportEventRaw
   | WsMessageSpotOutboundAccountPositionRaw
@@ -533,15 +535,20 @@ export type WsMessageFuturesUserDataEventRaw =
   | WsMessageFuturesUserDataListenKeyExpiredRaw
   | WsMessageFuturesUserDataMarginCallRaw
   | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
+  | WsMessageFuturesUserDataAlgoUpdateRaw
   | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
   | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw
   | WsMessageFuturesUserDataTradeLiteEventRaw
   | WsMessageFuturesUserDataStrategyUpdateRaw
   | WsMessageFuturesUserDataGridUpdateRaw
-  | WsMessageFuturesUserDataContractInfoRaw
-  | WsMessageFuturesUserDataAlgoUpdateRaw;
+  | WsMessageFuturesUserDataContractInfoRaw;
+
+export type WsUserDataEventsRaw =
+  | WsRawSpotUserDataEventRaw
+  | WsMessageFuturesUserDataEventRaw;
 
 export type WsRawMessage =
+  | WsUserDataEventsRaw
   | WsMessageKlineRaw
   | WsMessageAggTradeRaw
   | WsMessageTradeRaw
@@ -555,10 +562,4 @@ export type WsRawMessage =
   | WsMessageDiffBookDepthEventRaw
   | WsMessageForceOrderRaw
   | WsRawSpotUserDataEventRaw
-  | WsMessageIndexPriceUpdateEventRaw
-  | WsMessageFuturesUserDataAccountUpdateRaw
-  | WsMessageFuturesUserDataListenKeyExpiredRaw
-  | WsMessageFuturesUserDataMarginCallRaw
-  | WsMessageFuturesUserDataOrderTradeUpdateEventRaw
-  | WsMessageFuturesUserDataAccountConfigUpdateEventRaw
-  | WsMessageFuturesUserDataCondOrderTriggerRejectEventRaw;
+  | WsMessageIndexPriceUpdateEventRaw;

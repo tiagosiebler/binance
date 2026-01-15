@@ -10,6 +10,7 @@ import {
   WSAPIAllOrdersRequest,
   WSAPIAvgPriceRequest,
   WSAPIExchangeInfoRequest,
+  WSAPIFuturesAlgoOrderCancelRequest,
   WSAPIFuturesOrderBookRequest,
   WSAPIFuturesOrderCancelRequest,
   WSAPIFuturesOrderModifyRequest,
@@ -22,6 +23,7 @@ import {
   WSAPIMyAllocationsRequest,
   WSAPIMyPreventedMatchesRequest,
   WSAPIMyTradesRequest,
+  WSAPINewFuturesAlgoOrderRequest,
   WSAPINewFuturesOrderRequest,
   WSAPINewSpotOrderRequest,
   WSAPIOpenOrdersCancelAllRequest,
@@ -62,6 +64,8 @@ import {
   WSAPIFullTicker,
   WSAPIFuturesAccountBalanceItem,
   WSAPIFuturesAccountStatus,
+  WSAPIFuturesAlgoOrder,
+  WSAPIFuturesAlgoOrderCancelResponse,
   WSAPIFuturesBookTicker,
   WSAPIFuturesOrder,
   WSAPIFuturesOrderBook,
@@ -1062,6 +1066,37 @@ export class WebsocketAPIClient {
     return this.wsClient.sendWSAPIRequest(
       getFuturesMarketWsKey(market),
       'account.position',
+      params,
+    );
+  }
+
+  /**
+   * Send in a new algo order
+   *
+   * Ref: https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/websocket-api/New-Algo-Order
+   */
+  submitNewFuturesAlgoOrder(
+    params: WSAPINewFuturesAlgoOrderRequest,
+  ): Promise<WSAPIResponse<WSAPIFuturesAlgoOrder>> {
+    return this.wsClient.sendWSAPIRequest(
+      WS_KEY_MAP.usdmWSAPI,
+      'algoOrder.place',
+      params,
+    );
+  }
+
+  /**
+   * Cancel an active algo order.
+   *
+   * Ref: https://developers.binance.com/docs/derivatives/usds-margined-futures/trade/websocket-api/Cancel-Algo-Order
+   * @param params
+   */
+  cancelFuturesAlgoOrder(
+    params: WSAPIFuturesAlgoOrderCancelRequest,
+  ): Promise<WSAPIResponse<WSAPIFuturesAlgoOrderCancelResponse>> {
+    return this.wsClient.sendWSAPIRequest(
+      WS_KEY_MAP.usdmWSAPI,
+      'algoOrder.cancel',
       params,
     );
   }
