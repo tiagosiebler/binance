@@ -546,6 +546,9 @@ export function getRestBaseUrl(
     if (demoUrl) {
       return demoUrl;
     }
+    throw new Error(
+      `Demo trading is currently not supported for the product group "${urlKey}". If demo trading should be available here, please open an issue on GitHub.`,
+    );
   }
 
   // Use MM endpoints if requested and available

@@ -3,10 +3,10 @@ import WebSocket from 'isomorphic-ws';
 
 import { WsRequestOperationBinance } from '../../types/websockets/ws-api';
 import {
-    WebsocketClientOptions,
-    WSClientConfigurableOptions,
-    WsMarket,
-    WsTopic,
+  WebsocketClientOptions,
+  WSClientConfigurableOptions,
+  WsMarket,
+  WsTopic,
 } from '../../types/websockets/ws-general';
 import { DefaultLogger } from '../logger';
 import { neverGuard } from '../typeGuards';
@@ -427,6 +427,9 @@ export function getWsUrl(
     if (demoUrl) {
       return demoUrl;
     }
+    throw new Error(
+      `Demo trading is currently not supported for the WebSocket key "${resolvedWsKey}". If demo trading should be available here, please open an issue on GitHub.`,
+    );
   }
 
   // Use MM endpoints if requested and available
