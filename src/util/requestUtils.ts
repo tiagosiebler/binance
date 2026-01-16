@@ -100,21 +100,26 @@ export type GenericAPIResponse<T = any> = Promise<T>;
 //   throw new Error(msg);
 // }
 
-export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
+export function getOrderIdPrefix(
+  network: BinanceBaseUrlKey,
+  prefixVersion: 'v1' | 'v2', // = 'v2',
+): string {
   switch (network) {
     case 'spot':
     case 'spot1':
     case 'spot2':
     case 'spot3':
     case 'spot4':
-      return 'U5D79M5B';
+      return prefixVersion === 'v2' ? 'QJ6WSMZX' : 'U5D79M5B';
+    // return 'U5D79M5B';
 
     case 'usdm':
     case 'usdmtest':
     case 'coinm':
     case 'coinmtest':
     case 'papi':
-      return '15PC4ZJy';
+      return prefixVersion === 'v2' ? 'r1wQQsTn' : '15PC4ZJy';
+    // return '15PC4ZJy';
 
     case 'voptions':
     case 'voptionstest':
@@ -122,13 +127,13 @@ export function getOrderIdPrefix(network: BinanceBaseUrlKey): string {
 
     default:
       // throwUnhandledSwitch(network, `"${network}" unhandled`);
-      return 'U5D79M5B';
+      return prefixVersion === 'v2' ? 'QJ6WSMZX' : 'U5D79M5B';
   }
 }
 
 export function generateNewOrderId(network: BinanceBaseUrlKey): string {
   const id = nanoid(22); // must pass ^[\.A-Z\:/a-z0-9_-]{1,32}$ with prefix
-  const prefixedId = 'x-' + getOrderIdPrefix(network) + id;
+  const prefixedId = 'x-' + getOrderIdPrefix(network, 'v2') + id;
 
   return prefixedId;
 }
@@ -288,9 +293,17 @@ export function validateWSAPINewClientOID(
       continue;
     }
 
-    const expectedOrderIdPrefix = `x-${getOrderIdPrefix(baseUrlKey)}`;
-    if (!request.params[orderIdProperty].startsWith(expectedOrderIdPrefix)) {
-      logInvalidOrderId(orderIdProperty, expectedOrderIdPrefix, request.params);
+    const expectedOrderIdPrefix1 = `x-${getOrderIdPrefix(baseUrlKey, 'v1')}`;
+    const expectedOrderIdPrefix2 = `x-${getOrderIdPrefix(baseUrlKey, 'v2')}`;
+    if (
+      !request.params[orderIdProperty].startsWith(expectedOrderIdPrefix1) ||
+      !request.params[orderIdProperty].startsWith(expectedOrderIdPrefix2)
+    ) {
+      logInvalidOrderId(
+        orderIdProperty,
+        expectedOrderIdPrefix2,
+        request.params,
+      );
     }
   }
 }
