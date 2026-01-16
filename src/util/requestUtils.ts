@@ -54,6 +54,13 @@ export interface RestClientOptions {
   testnet?: boolean;
 
   /**
+   * Set to `true` to use Binance's demo trading endpoints.
+   * Demo trading uses real market data but simulated trading.
+   * More info: https://demo.binance.com/
+   */
+  demoTrading?: boolean;
+
+  /**
    * Default: false. If true, use market maker endpoints when available.
    * Eligible for high-frequency trading users who have enrolled and qualified
    * in at least one of the Futures Liquidity Provider Programs.
@@ -427,6 +434,35 @@ const BINANCE_BASE_URLS: Record<BinanceBaseUrlKey, string> = {
   www: 'https://www.binance.com',
 };
 
+// Demo Trading URLs
+const BINANCE_DEMO_BASE_URLS: Record<BinanceBaseUrlKey, string | undefined> = {
+  // Demo Trading - Spot
+  spot: 'https://demo-api.binance.com',
+  spot1: 'https://demo-api.binance.com',
+  spot2: 'https://demo-api.binance.com',
+  spot3: 'https://demo-api.binance.com',
+  spot4: 'https://demo-api.binance.com',
+  spottest: undefined, // No demo for testnet (testnet already is a demo)
+
+  // Demo Trading - UM Futures
+  usdm: 'https://demo-fapi.binance.com',
+  usdmtest: undefined, // No demo for testnet
+
+  // Demo Trading - CM Futures
+  coinm: 'https://demo-dapi.binance.com',
+  coinmtest: undefined, // No demo for testnet
+
+  // Vanilla Options - no demo endpoints
+  voptions: undefined,
+  voptionstest: undefined,
+
+  // Portfolio Margin - no demo endpoints
+  papi: undefined,
+
+  // www - no demo endpoints
+  www: undefined,
+};
+
 const BINANCE_MM_BASE_URLS: Record<BinanceBaseUrlKey, string | undefined> = {
   // spot/margin/savings/mining - no MM endpoints
   spot: undefined,
@@ -516,6 +552,17 @@ export function getRestBaseUrl(
   }
 
   const urlKey = restClientOptions.baseUrlKey || clientType;
+
+  // Use demo trading endpoints if requested and available
+  if (restClientOptions.demoTrading) {
+    const demoUrl = BINANCE_DEMO_BASE_URLS[urlKey];
+    if (demoUrl) {
+      return demoUrl;
+    }
+    throw new Error(
+      `Demo trading is currently not supported for the product group "${urlKey}". If demo trading should be available here, please open an issue on GitHub.`,
+    );
+  }
 
   // Use MM endpoints if requested and available
   if (restClientOptions.useMMSubdomain) {
