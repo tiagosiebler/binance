@@ -378,6 +378,35 @@ export const BEAUTIFIER_EVENT_MAP = {
     os: 'strategyOrderStatus',
     ut: 'orderUpdateTime', // Order update Time
   },
+  ALGO_UPDATEEvent: {
+    e: 'eventType',
+    T: 'transactionTime', // Transaction Time
+    E: 'eventTime', // Event Time
+    o: 'algoOrder',
+  },
+  algoOrder: {
+    caid: 'clientAlgoId',
+    aid: 'algoId',
+    at: 'algoType',
+    o: 'orderType',
+    s: 'symbol',
+    S: 'side',
+    ps: 'positionSide',
+    f: 'timeInForce',
+    q: 'quantity',
+    X: 'algoStatus',
+    ai: 'orderId',
+    tp: 'triggerPrice',
+    p: 'price',
+    V: 'selfTradePreventionMode',
+    wt: 'workingType',
+    pm: 'priceMatch',
+    cp: 'closePosition',
+    pP: 'priceProtect',
+    R: 'reduceOnly',
+    tt: 'triggerTime',
+    gtd: 'goodTillDate',
+  },
   ACCOUNT_CONFIG_UPDATEEvent: {
     e: 'eventType',
     E: 'eventTime',

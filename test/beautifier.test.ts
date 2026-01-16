@@ -1,3 +1,7 @@
+import type {
+  WsMessageFuturesUserDataAlgoUpdateFormatted,
+  WsMessageFuturesUserDataAlgoUpdateRaw,
+} from '../src/index.js';
 import Beautifier from '../src/util/beautifier';
 
 describe('Beautifier', () => {
@@ -854,6 +858,65 @@ describe('Beautifier', () => {
             trailingStopCallbackRate: 5,
           },
           transactionTime: 1568879465650,
+        });
+      });
+
+      it('should beautify USDM futures ALGO_UPDATE events', () => {
+        const data = {
+          e: 'ALGO_UPDATE',
+          T: 1568879465650, // Transaction Time
+          E: 1568879465651, // Event Time
+          o: {
+            caid: 'x-lkj4h2u1h415ipj12oi35j1o2i3j512h',
+            aid: 30000000784828,
+            at: 'CONDITIONAL',
+            o: 'STOP',
+            s: 'BTCUSDT',
+            S: 'BUY',
+            ps: 'BOTH',
+            f: 'GTC',
+            q: '0.003',
+            X: 'NEW',
+            ai: '',
+            tp: '88407.6',
+            p: '88409.6',
+            V: 'EXPIRE_MAKER',
+            wt: 'CONTRACT_PRICE',
+            pm: 'NONE',
+            cp: false,
+            pP: false,
+            R: false,
+            tt: 0,
+            gtd: 0,
+          } as WsMessageFuturesUserDataAlgoUpdateRaw['o'],
+        };
+        expect(beautifier.beautifyWsMessage(data, data.e)).toStrictEqual({
+          eventType: 'ALGO_UPDATE',
+          transactionTime: 1568879465650, // Transaction Time
+          eventTime: 1568879465651, // Event Time
+          algoOrder: {
+            clientAlgoId: 'x-lkj4h2u1h415ipj12oi35j1o2i3j512h',
+            algoId: 30000000784828,
+            algoType: 'CONDITIONAL',
+            orderType: 'STOP',
+            symbol: 'BTCUSDT',
+            side: 'BUY',
+            positionSide: 'BOTH',
+            timeInForce: 'GTC',
+            quantity: 0.003,
+            algoStatus: 'NEW',
+            orderId: '',
+            triggerPrice: 88407.6,
+            price: 88409.6,
+            selfTradePreventionMode: 'EXPIRE_MAKER',
+            workingType: 'CONTRACT_PRICE',
+            priceMatch: 'NONE',
+            closePosition: false,
+            priceProtect: false,
+            reduceOnly: false,
+            triggerTime: 0,
+            goodTillDate: 0,
+          } as WsMessageFuturesUserDataAlgoUpdateFormatted['algoOrder'],
         });
       });
 
