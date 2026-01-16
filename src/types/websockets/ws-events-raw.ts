@@ -561,5 +561,4 @@ export type WsRawMessage =
   | WsMessagePartialBookDepthEventRaw
   | WsMessageDiffBookDepthEventRaw
   | WsMessageForceOrderRaw
-  | WsRawSpotUserDataEventRaw
   | WsMessageIndexPriceUpdateEventRaw;

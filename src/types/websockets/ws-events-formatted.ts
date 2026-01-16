@@ -42,7 +42,7 @@ export interface WsMessageKlineFormatted extends WsSharedBase {
     low: number;
     volume: number;
     trades: number;
-    final: false;
+    final: boolean;
     quoteVolume: number;
     volumeActive: number;
     quoteVolumeActive: number;
@@ -68,7 +68,7 @@ export interface WsMessageContinuousKlineFormatted extends WsSharedBase {
     low: number;
     volume: number;
     trades: number;
-    final: false;
+    final: boolean;
     quoteVolume: number;
     volumeActive: number;
     quoteVolumeActive: number;
@@ -253,8 +253,8 @@ export interface WsMessageSpotUserDataExecutionReportEventFormatted
   tradeTime: number;
   tradeId: number;
   ignoreThis1: number;
-  isOrderOnBook: false;
-  isMaker: false;
+  isOrderOnBook: boolean;
+  isMaker: boolean;
   ignoreThis2: true;
   orderCreationTime: number;
   cummulativeQuoteAssetTransactedQty: number;
