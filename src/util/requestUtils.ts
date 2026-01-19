@@ -109,7 +109,7 @@ export type GenericAPIResponse<T = any> = Promise<T>;
 
 export function getOrderIdPrefix(
   network: BinanceBaseUrlKey,
-  prefixVersion: 'v1' | 'v2', // = 'v2',
+  prefixVersion: 'v1' | 'v2',
 ): string {
   switch (network) {
     case 'spot':
@@ -118,7 +118,6 @@ export function getOrderIdPrefix(
     case 'spot3':
     case 'spot4':
       return prefixVersion === 'v2' ? 'QJ6WSMZX' : 'U5D79M5B';
-    // return 'U5D79M5B';
 
     case 'usdm':
     case 'usdmtest':
@@ -126,7 +125,6 @@ export function getOrderIdPrefix(
     case 'coinmtest':
     case 'papi':
       return prefixVersion === 'v2' ? 'r1wQQsTn' : '15PC4ZJy';
-    // return '15PC4ZJy';
 
     case 'voptions':
     case 'voptionstest':
