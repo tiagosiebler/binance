@@ -44,7 +44,7 @@ export type SignAlgorithm = 'SHA-256' | 'SHA-512';
 //   }
 // }
 
-type KeyType = 'HMAC' | 'RSASSA-PKCS1-v1_5' | 'Ed25519';
+export type KeyType = 'HMAC' | 'RSASSA-PKCS1-v1_5' | 'Ed25519';
 
 export function getSignKeyType(secret: string): KeyType {
   if (secret.includes('PRIVATE KEY')) {

@@ -219,6 +219,10 @@ export class WebsocketAPIClient {
     return this.getWSClient().setTimeOffsetMs(newOffset);
   }
 
+  public getKeyType() {
+    return this.wsClient.getKeyType();
+  }
+
   /*
    *
    * SPOT - General requests

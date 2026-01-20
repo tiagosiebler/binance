@@ -60,6 +60,7 @@ import {
   WsTopicRequest,
 } from './util/websockets/websocket-util';
 import { WSConnectedResult } from './util/websockets/WsStore.types';
+import type { KeyType } from './util/webCryptoAPI';
 
 const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
 
@@ -154,6 +155,10 @@ export class WebsocketClient extends BaseWebsocketClient<
     });
   }
 
+  public getKeyType(): KeyType | undefined {
+    return this.keyType;
+  }
+
   private getUserDataStreamManager(): UserDataStreamManager {
     return this.userDataStreamManager;
   }
@@ -205,7 +210,7 @@ export class WebsocketClient extends BaseWebsocketClient<
    * it can accelerate the first request (by preparing the connection in advance).
    */
   public connectWSAPI(wsKey: WSAPIWsKey, skipAuth?: boolean): Promise<unknown> {
-    if (skipAuth) {
+    if (skipAuth || this.keyType !== 'Ed25519') {
       return this.assertIsConnected(wsKey);
     }
 
@@ -303,7 +308,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     // if this throws a type error, probably forgot to add a new operation to WsAPITopicRequestParamMap
     TWSParams extends Exact<WsAPITopicRequestParamMap<TWSKey>[TWSOperation]>,
     TWSAPIResponse extends
-      WsAPIOperationResponseMap[TWSOperation] = WsAPIOperationResponseMap[TWSOperation],
+    WsAPIOperationResponseMap[TWSOperation] = WsAPIOperationResponseMap[TWSOperation],
   >(
     wsKey: TWSKey,
     operation: TWSOperation,
@@ -316,7 +321,7 @@ export class WebsocketClient extends BaseWebsocketClient<
     TWSOperation extends WsAPIWsKeyTopicMap[TWSKey],
     TWSParams extends Exact<WsAPITopicRequestParamMap<TWSKey>[TWSOperation]>,
     TWSAPIResponse extends
-      WsAPIOperationResponseMap[TWSOperation] = WsAPIOperationResponseMap[TWSOperation],
+    WsAPIOperationResponseMap[TWSOperation] = WsAPIOperationResponseMap[TWSOperation],
   >(
     wsKey: WsKey,
     operation: TWSOperation,
@@ -340,18 +345,26 @@ export class WebsocketClient extends BaseWebsocketClient<
     // this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
 
     // Some commands don't require authentication.
-    if (requestFlags?.authIsOptional !== true) {
+    if (requestFlags?.authIsOptional !== true && this.keyType === 'Ed25519') {
       // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
       await this.assertIsAuthenticated(resolvedWsKey);
       // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
     }
     const timestampAfterAuth = Date.now();
 
+    // For non-Ed25519 keys (HMAC/RSA), automatically enable per-request signing
+    // unless authentication is optional or user explicitly disabled it
+    const shouldSignRequest =
+      params?.signRequest !== undefined
+        ? params.signRequest
+        : requestFlags?.authIsOptional !== true && this.keyType !== 'Ed25519';
+
     const request: WsRequestOperationBinance<string> = {
       id: this.getNewRequestId(),
       method: operation,
       params: {
         ...params,
+        ...(shouldSignRequest && { signRequest: true }),
       },
     };
 
@@ -498,8 +511,8 @@ export class WebsocketClient extends BaseWebsocketClient<
       const signature = await this.signMessage(
         serialisedParams,
         this.options.api_secret!,
-        'base64',
-        'SHA-256',
+        this.keyType === 'HMAC' ? 'hex' : 'base64',
+        this.keyType === 'Ed25519' ? 'SHA-512' : 'SHA-256',
       );
 
       return {
@@ -552,11 +565,12 @@ export class WebsocketClient extends BaseWebsocketClient<
         filterUndefinedParams,
       );
 
+      // only ed25519 keys should enter here
       const signature = await this.signMessage(
         serialisedParams,
         this.options.api_secret,
-        'base64',
-        'SHA-256',
+        this.keyType === 'HMAC' ? 'hex' : 'base64',
+        this.keyType === 'Ed25519' ? 'SHA-512' : 'SHA-256',
       );
 
       const request: WsRequestOperationBinance<string> = {

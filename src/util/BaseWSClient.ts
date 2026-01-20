@@ -29,6 +29,7 @@ import {
   WSConnectedResult,
   WsConnectionStateEnum,
 } from './websockets/WsStore.types';
+import { getSignKeyType, type KeyType } from '../util/webCryptoAPI';
 
 type WsEventInternalSrc = 'event' | 'function';
 
@@ -188,6 +189,8 @@ export abstract class BaseWebsocketClient<
 
   protected options: WebsocketClientOptions;
 
+  protected keyType: KeyType | undefined;
+
   private wsApiRequestId: number = 0;
 
   private timeOffsetMs: number = 0;
@@ -224,6 +227,24 @@ export abstract class BaseWebsocketClient<
       api_key: options?.api_key?.replace(/\\n/g, '\n'),
       api_secret: options?.api_secret?.replace(/\\n/g, '\n'),
     };
+
+    this.keyType = options?.api_secret ? getSignKeyType(options.api_secret) : undefined;
+
+    if (options?.api_secret && this.keyType !== 'Ed25519') {
+      console.warn('\n========================================');
+      console.warn('NOTICE: Non-Ed25519 API Key Detected');
+      console.warn('========================================');
+      console.warn(`Detected Key Type: ${this.keyType}`);
+      console.warn('');
+      console.warn('Your API key will work correctly, but with the following differences:');
+      console.warn('- Each request will be individually signed (per-request signing mode)');
+      console.warn('- Session authentication is NOT available for HMAC/RSA keys');
+      console.warn('- This may result in slightly higher latency per request');
+      console.warn('');
+      console.warn('For optimal performance, consider using Ed25519 keys.');
+      console.warn('========================================\n');
+    }
+
 
     //  WebCryptoAPI feature
     /* if (this.options.api_key && this.options.api_secret) {
@@ -1072,7 +1093,8 @@ export abstract class BaseWebsocketClient<
     // Some websockets require an auth packet to be sent after opening the connection
     if (
       this.isAuthOnConnectWsKey(wsKey) &&
-      this.options.authPrivateConnectionsOnConnect
+      this.options.authPrivateConnectionsOnConnect &&
+      this.keyType === 'Ed25519'
     ) {
       await this.assertIsAuthenticated(wsKey);
     }
