@@ -231,18 +231,20 @@ export abstract class BaseWebsocketClient<
     this.keyType = options?.api_secret ? getSignKeyType(options.api_secret) : undefined;
 
     if (options?.api_secret && this.keyType !== 'Ed25519') {
-      console.warn('\n========================================');
-      console.warn('NOTICE: Non-Ed25519 API Key Detected');
-      console.warn('========================================');
-      console.warn(`Detected Key Type: ${this.keyType}`);
-      console.warn('');
-      console.warn('Your API key will work correctly, but with the following differences:');
-      console.warn('- Each request will be individually signed (per-request signing mode)');
-      console.warn('- Session authentication is NOT available for HMAC/RSA keys');
-      console.warn('- This may result in slightly higher latency per request');
-      console.warn('');
-      console.warn('For optimal performance, consider using Ed25519 keys.');
-      console.warn('========================================\n');
+      console.warn(`
+      ========================================
+      NOTICE: Non-Ed25519 API Key Detected
+      ========================================
+      Detected Key Type: ${this.keyType}
+
+      Your API key will work correctly, but with the following differences:
+      - Each request will be individually signed (per-request signing mode)
+      - Session authentication is NOT available for HMAC/RSA keys
+      - This may result in slightly higher latency per request
+
+      For optimal performance, consider using Ed25519 keys.
+      ========================================
+      `);
     }
 
 
