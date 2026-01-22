@@ -4504,6 +4504,44 @@ export interface WithdrawFiatParams {
   accountInfo?: WithdrawFiatAccountInfo;
 }
 
+export interface FiatDepositParams {
+  currency: string;
+  apiPaymentMethod: string;
+  amount: number;
+  ext?: object;
+  recvWindow?: number;
+  timestamp?: number;
+}
+
+export interface FiatDepositResponse {
+  code: string;
+  message: string;
+  data: {
+    orderId: string;
+  };
+}
+
+export interface GetFiatOrderDetailParams {
+  orderNo: string;
+  recvWindow?: number;
+  timestamp?: number;
+}
+
+export interface GetFiatOrderDetailResponse {
+  code: string;
+  message: string;
+  data: {
+    orderId: string;
+    orderStatus: string;
+    amount: string;
+    fee: string;
+    fiatCurrency: string;
+    errorCode: string;
+    errorMessage: string;
+    ext: object;
+  };
+}
+
 export interface GetC2CTradeHistoryParams {
   tradeType: string;
   startTimestamp?: number;
