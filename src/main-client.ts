@@ -166,6 +166,8 @@ import {
   EthStakingHistory,
   ExchangeInfo,
   ExchangeInfoParams,
+  FiatDepositParams,
+  FiatDepositResponse,
   FixedAndActivityProjectParams,
   FixedAndActivityProjectPositionParams,
   FlexibleCryptoLoanBorrowHistory,
@@ -220,6 +222,8 @@ import {
   GetEthStakingQuotaResponse,
   GetExtraBonusListParams,
   GetExtraBonusListResponse,
+  GetFiatOrderDetailParams,
+  GetFiatOrderDetailResponse,
   GetFiatOrderHistoryParams,
   GetFiatOrderHistoryResponse,
   GetFiatPaymentsHistoryResponse,
@@ -3750,6 +3754,16 @@ export class MainClient extends BaseRestClient {
 
   fiatWithdraw(params: WithdrawFiatParams): Promise<{ id: string }> {
     return this.postPrivate('/sapi/v2/fiat/withdraw', params);
+  }
+
+  fiatDeposit(params: FiatDepositParams): Promise<FiatDepositResponse> {
+    return this.postPrivate('sapi/v1/fiat/deposit', params);
+  }
+
+  getFiatOrderDetail(
+    params: GetFiatOrderDetailParams,
+  ): Promise<GetFiatOrderDetailResponse> {
+    return this.getPrivate('sapi/v1/fiat/get-order-detail', params);
   }
 
   /**

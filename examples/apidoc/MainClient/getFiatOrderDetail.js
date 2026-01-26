@@ -2,8 +2,8 @@ const { MainClient } = require('binance');
 
   // This example shows how to call this Binance API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "binance" for Binance exchange
   // This Binance API SDK is available on npm via "npm install binance"
-  // ENDPOINT: /sapi/v2/fiat/withdraw
-  // METHOD: POST
+  // ENDPOINT: sapi/v1/fiat/get-order-detail
+  // METHOD: GET
   // PUBLIC: NO
 
 const client = new MainClient({
@@ -11,7 +11,7 @@ const client = new MainClient({
   api_secret: 'insert_api_secret_here',
 });
 
-client.fiatWithdraw(params)
+client.getFiatOrderDetail(params)
   .then((response) => {
     console.log(response);
   })

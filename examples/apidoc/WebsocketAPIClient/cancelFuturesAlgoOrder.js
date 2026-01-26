@@ -2,7 +2,7 @@ const { WebsocketAPIClient } = require('binance');
 
 // This example shows how to call this Binance WebSocket API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "binance" for Binance exchange
 // This Binance API SDK is available on npm via "npm install binance"
-// WS API ENDPOINT: order.cancel
+// WS API ENDPOINT: algoOrder.cancel
 // METHOD: WebSocket API
 // PUBLIC: YES
 
@@ -15,7 +15,7 @@ const client = new WebsocketAPIClient({
 // The WebSocket connection is established automatically when needed
 // You can use the client to make requests immediately
 
-// Example use of the cancelFuturesOrder method
+// Example use of the cancelFuturesAlgoOrder method
 client.cancelFuturesAlgoOrder(params)
   .then((response) => {
     console.log(response);
