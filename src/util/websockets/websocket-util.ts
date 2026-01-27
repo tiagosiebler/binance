@@ -167,9 +167,10 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   coinmWSAPI: 'wss://ws-dapi.binance.com',
   coinmWSAPITestnet: 'coinmWSAPITestnet',
 
-  // https://developers.binance.com/docs/derivatives/option/websocket-market-streams
-  // https://developers.binance.com/docs/derivatives/option/user-data-streams
-  eoptions: 'wss://nbstream.binance.com/eoptions',
+  // https://developers.binance.com/docs/derivatives/options-trading/websocket-market-streams
+  // https://developers.binance.com/docs/derivatives/options-trading/user-data-streams
+  eoptions: 'wss://fstream.binance.com',
+  // eoptions: 'wss://nbstream.binance.com/eoptions',
   // optionsTestnet: 'wss://testnetws.binanceops.com',
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin/user-data-streams
@@ -303,9 +304,9 @@ export function getWsURLSuffix(
     case 'eoptions':
       switch (connectionType) {
         case 'market':
-          return '/stream';
+          return '/market/stream';
         case 'userData':
-          return '/ws';
+          return '/private/ws';
         default: {
           throw neverGuard(
             connectionType,

@@ -279,28 +279,44 @@ import {
     );
 
     /**
-     * Subscribe to each available european options market data websocket topic, the new way:
+     * Subscribe to each available options market data websocket topic, the new way:
      *
-     * https://developers.binance.com/docs/derivatives/option/websocket-market-streams/New-Symbol-Info
-     *
+     * https://developers.binance.com/docs/derivatives/options-trading/websocket-market-streams/New-Symbol-Info
      * https://eapi.binance.com/eapi/v1/exchangeInfo
      */
-    const optionsAsset = 'ETH';
-    const optionsExpiration = '250328';
-    const optionsSymbol = 'BTC-250328-140000-C';
+
+    const optionsAsset = 'ethusdt';
+    const optionsExpiration = '260128'; // YYMMDD
+    const optionsSymbol = 'ETH-260128-3000-C';
+    const optionsSymbol2 = 'ETH-260129-2950-C';
+    const KlineInterval = '1m';
     await wsClient.subscribe(
       [
-        'option_pair',
+        '!optionSymbol',
         `${optionsAsset}@openInterest@${optionsExpiration}`,
-        `${optionsAsset}@markPrice`,
-        `${optionsSymbol}@kline_1m`,
-        `${optionsAsset}@ticker@${optionsExpiration}`,
-        `${symbol}@index`,
-        `${optionsAsset}@trade`,
-        `${optionsSymbol}@depth100`,
+        `${optionsAsset}@optionMarkPrice`,
+        `${optionsSymbol}@kline_${KlineInterval}`,
+        `${optionsSymbol2}@kline_${KlineInterval}`,
+        '!index@arr',
+        `${symbol}@bookTicker`,
+        `${symbol}@optionTicker`,
+        `${symbol}@optionTrade`,
+        `${symbol}@depth5@100ms`,
+        `${symbol}@depth@100ms`,
       ],
       'eoptions',
     );
+
+    // You can send raw commands, such as asking for list of active subscriptions after 5 seconds. Use with caution:
+    // setTimeout(() => {
+    //   wsClient.tryWsSend(
+    //     'eoptions',
+    //     JSON.stringify({
+    //       method: 'LIST_SUBSCRIPTIONS',
+    //       id: Date.now(),
+    //     }),
+    //   );
+    // }, 1000 * 5);
 
     // /**
     //  *
