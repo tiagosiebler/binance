@@ -301,7 +301,7 @@ export function validateWSAPINewClientOID(
     const expectedOrderIdPrefix1 = `x-${getOrderIdPrefix(baseUrlKey, 'v1')}`;
     const expectedOrderIdPrefix2 = `x-${getOrderIdPrefix(baseUrlKey, 'v2')}`;
     if (
-      !request.params[orderIdProperty].startsWith(expectedOrderIdPrefix1) ||
+      !request.params[orderIdProperty].startsWith(expectedOrderIdPrefix1) &&
       !request.params[orderIdProperty].startsWith(expectedOrderIdPrefix2)
     ) {
       logInvalidOrderId(
