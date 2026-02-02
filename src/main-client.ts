@@ -4542,7 +4542,7 @@ export class MainClient extends BaseRestClient {
     const expectedOrderIdPrefix1 = `x-${getOrderIdPrefix(apiCategory, 'v1')}`;
     const expectedOrderIdPrefix2 = `x-${getOrderIdPrefix(apiCategory, 'v2')}`;
     if (
-      !params[orderIdProperty].startsWith(expectedOrderIdPrefix1) ||
+      !params[orderIdProperty].startsWith(expectedOrderIdPrefix1) &&
       !params[orderIdProperty].startsWith(expectedOrderIdPrefix2)
     ) {
       logInvalidOrderId(orderIdProperty, expectedOrderIdPrefix2, params);
