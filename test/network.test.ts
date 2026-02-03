@@ -95,7 +95,7 @@ describe('Test advanced https agent configuration', () => {
     });
   });
 
-  describe.only('mismatching pinned certificate', () => {
+  describe('mismatching pinned certificate', () => {
     it('getServerTime() should throw since the pinned certificate did not match', async () => {
       const badPinClient = new MainClient(
         {

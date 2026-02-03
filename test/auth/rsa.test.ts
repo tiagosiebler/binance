@@ -1,4 +1,5 @@
 import { DefaultLogger, MainClient, WebsocketAPIClient } from '../../src';
+import { getTestProxy } from '../proxy.util';
 
 describe('Auth with RSA keys', () => {
   const api_key = process.env.API_RSA_KEY_COM as string;
@@ -10,11 +11,14 @@ describe('Auth with RSA keys', () => {
   });
 
   describe('REST API', () => {
-    const restClient = new MainClient({
-      api_key,
-      api_secret,
-      recvWindow: 15000,
-    });
+    const restClient = new MainClient(
+      {
+        api_key,
+        api_secret,
+        recvWindow: 15000,
+      },
+      getTestProxy(),
+    );
 
     it('should successfully call a public endpoint', async () => {
       const time = await restClient.getServerTime();
@@ -40,6 +44,7 @@ describe('Auth with RSA keys', () => {
         api_key,
         api_secret,
         attachEventListeners: false,
+        requestOptions: getTestProxy(),
       },
       {
         ...DefaultLogger,
