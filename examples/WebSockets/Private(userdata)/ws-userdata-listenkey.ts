@@ -16,18 +16,9 @@ import {
   isWsFormattedSpotUserDataExecutionReport,
   isWsFormattedUserDataEvent,
   WebsocketClient,
+  WsConnectionStateEnum,
   WsUserDataEvents,
 } from '../../../src/index';
-
-enum WsConnectionStateEnum {
-  INITIAL = 0,
-  CONNECTING = 1,
-  CONNECTED = 2,
-  CLOSING = 3,
-  RECONNECTING = 4,
-  // ERROR_RECONNECTING = 5,
-  ERROR = 5,
-}
 
 (async () => {
   const key = process.env.API_KEY_COM || 'APIKEY';
