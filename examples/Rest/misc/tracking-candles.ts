@@ -38,7 +38,7 @@ const ignoredTraceLogMsgs = [
 ];
 const customLogger = {
   ...DefaultLogger,
-  trace: (msg, context) => {
+  trace: (msg: string, context?: any) => {
     if (ignoredTraceLogMsgs.includes(msg)) {
       return;
     }
@@ -309,9 +309,12 @@ wsClient.on('formattedMessage', (data) => {
   console.log('log formattedMessage: ', data);
 });
 
-wsClient.on('open', async (data) => {
-  console.log('connection opened open:', data.wsKey, data.wsUrl);
-});
+wsClient.on(
+  'open',
+  async (data: { wsKey: string; wsUrl: string; ws: any; event: any }) => {
+    console.log('connection opened open:', data.wsKey, data.wsUrl);
+  },
+);
 
 // response to command sent via WS stream (e.g. subscription confirmation)
 // this will automatically trigger a backfill for that symbol.
@@ -320,7 +323,7 @@ wsClient.on('response', (data) => {
 
   // empty response result === success
   if (!data.result && data.request.method === 'SUBSCRIBE') {
-    data.request.params.forEach(async (topic) => {
+    data.request.params.forEach(async (topic: string) => {
       console.log('Successfully subscribed to topic: ', topic);
 
       // btcusdt@kline_1m -> btcusdt, kline_1m
@@ -330,7 +333,7 @@ wsClient.on('response', (data) => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [topicName, interval] = topicWithInterval.split('_');
 
-      await backfillCandles(symbol.toUpperCase(), interval);
+      await backfillCandles(symbol.toUpperCase(), interval as KlineInterval);
     });
   }
 });

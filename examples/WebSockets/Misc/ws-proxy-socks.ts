@@ -6,9 +6,10 @@ import { WebsocketClient } from '../../../src/index';
 // or
 // import { WebsocketClient } from 'binance';
 
-const { SocksProxyAgent } = require('socks-proxy-agent');
+import { SocksProxyAgent } from 'socks-proxy-agent';
+// const { SocksProxyAgent } = require('socks-proxy-agent');
 
-const agent = new SocksProxyAgent(process.env.http_proxy);
+const agent = new SocksProxyAgent(process.env.http_proxy || '');
 const wsClient = new WebsocketClient({
   beautify: true,
   wsOptions: {
