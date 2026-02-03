@@ -28,6 +28,29 @@ export function getTestProxy(): AxiosRequestConfig {
   };
 }
 
+export function getWSTestProxy():
+  | { wsOptions?: undefined }
+  | { wsOptions: { agent: any } } {
+  if (process.env.PROXY_ENABLED !== 'true') {
+    return {};
+  }
+  const host = process.env.PROXY_HOST;
+  const port = process.env.PROXY_PORT;
+  const user = process.env.PROXY_USER;
+  const pass = process.env.PROXY_PASS;
+  if (!host || !port || !user || !pass) {
+    throw new Error('One or more env vars missing for proxy support');
+  }
+
+  console.log('WS Test proxy enabled...');
+
+  return {
+    wsOptions: {
+      agent: getWsProxyAgent(host, port, user, pass),
+    },
+  };
+}
+
 /**
  * Returns an axios & websocket compatible proxy config using brightdata credentials
  */

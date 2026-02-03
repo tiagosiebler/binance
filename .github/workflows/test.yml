@@ -29,6 +29,9 @@ jobs:
       - name: Check Lint
         run: npm run lint
 
+      - name: Install socks proxy agent
+        run: npm install socks-proxy-agent
+
       - name: Test
         run: npm run test
         env:

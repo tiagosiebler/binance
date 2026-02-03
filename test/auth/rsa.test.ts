@@ -1,5 +1,5 @@
 import { DefaultLogger, MainClient, WebsocketAPIClient } from '../../src';
-import { getTestProxy } from '../proxy.util';
+import { getTestProxy, getWSTestProxy } from '../proxy.util';
 
 describe('Auth with RSA keys', () => {
   const api_key = process.env.API_RSA_KEY_COM as string;
@@ -45,6 +45,7 @@ describe('Auth with RSA keys', () => {
         api_secret,
         attachEventListeners: false,
         requestOptions: getTestProxy(),
+        wsOptions: getWSTestProxy(),
       },
       {
         ...DefaultLogger,
