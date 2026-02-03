@@ -46,7 +46,7 @@ export function getWSTestProxy():
 
   return {
     wsOptions: {
-      agent: getWsProxyAgent(host, port, user, pass),
+      agent: getHttpsProxyAgent(host, port, user, pass),
     },
   };
 }
