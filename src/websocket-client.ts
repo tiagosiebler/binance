@@ -31,7 +31,7 @@ import {
   validateWSAPINewClientOID,
 } from './util/requestUtils';
 import { neverGuard } from './util/typeGuards';
-import { SignAlgorithm } from './util/webCryptoAPI';
+import { SignAlgorithm, SignEncodeMethod } from './util/webCryptoAPI';
 import { RestClientCache } from './util/websockets/rest-client-cache';
 import { UserDataStreamManager } from './util/websockets/user-data-stream-manager';
 import {
@@ -340,7 +340,11 @@ export class WebsocketClient extends BaseWebsocketClient<
     // this.logger.trace('sendWSAPIRequest(): assertIsConnected(${wsKey}) ok');
 
     // Some commands don't require authentication.
-    if (requestFlags?.authIsOptional !== true) {
+    if (
+      // Only if authOnConnect is enabled (aka using Ed25519 keys)
+      this.options.authPrivateConnectionsOnConnect &&
+      requestFlags?.authIsOptional !== true
+    ) {
       // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey})...');
       await this.assertIsAuthenticated(resolvedWsKey);
       // this.logger.trace('sendWSAPIRequest(): assertIsAuthenticated(${wsKey}) ok');
@@ -422,6 +426,7 @@ export class WebsocketClient extends BaseWebsocketClient<
 
     this.logger.trace(
       `sendWSAPIRequest(): sent "${operation}" event with promiseRef(${promiseRef})`,
+      { ...WS_LOGGER_CATEGORY, wsKey },
     );
 
     // Return deferred promise, so caller can await this call
@@ -478,7 +483,7 @@ export class WebsocketClient extends BaseWebsocketClient<
      * after authentication can then be sent without sign for maximum speed.
      */
     const { signRequest, ...otherParams } = requestEvent.params;
-    if (signRequest) {
+    if (signRequest || this.options.authPrivateRequestsIndividually) {
       const strictParamValidation = true;
       const encodeValues = true;
       const filterUndefinedParams = true;
@@ -495,12 +500,44 @@ export class WebsocketClient extends BaseWebsocketClient<
         filterUndefinedParams,
       );
 
-      const signature = await this.signMessage(
-        serialisedParams,
-        this.options.api_secret!,
-        'base64',
-        'SHA-256',
-      );
+      let signature: string;
+      const signKeyType = this.getSignKeyType();
+
+      switch (signKeyType) {
+        case 'Ed25519':
+        case 'RSASSA-PKCS1-v1_5': {
+          signature = await this.signMessage(
+            serialisedParams,
+            this.options.api_secret!,
+            'base64',
+            'SHA-256',
+          );
+          break;
+        }
+        case 'HMAC': {
+          const signMethod: SignEncodeMethod = 'hex';
+          const signAlgorithm: SignAlgorithm = 'SHA-256';
+
+          signature = await this.signMessage(
+            serialisedParams,
+            this.options.api_secret!,
+            signMethod,
+            signAlgorithm,
+          );
+          break;
+        }
+        case undefined: {
+          throw new Error(
+            'API secret missing, unable to sign WS API request without valid API keys.',
+          );
+        }
+        default: {
+          throw neverGuard(
+            signKeyType,
+            `Unhandled sign key type for WS API request signing: "${signKeyType}"`,
+          );
+        }
+      }
 
       return {
         ...requestEvent,

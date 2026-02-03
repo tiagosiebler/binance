@@ -4,9 +4,8 @@ import { MainClient } from '../main-client';
 import { BinanceBaseUrlKey, OrderIdProperty } from '../types/shared';
 import { WsRequestOperationBinance } from '../types/websockets/ws-api';
 import { USDMClient } from '../usdm-client';
-import { signMessage } from './node-support';
 import { neverGuard } from './typeGuards';
-import { SignAlgorithm, SignEncodeMethod } from './webCryptoAPI';
+import { SignAlgorithm, SignEncodeMethod, signMessage } from './webCryptoAPI';
 import {
   parseEventTypeFromMessage,
   WS_KEY_MAP,
@@ -367,6 +366,7 @@ export async function getRESTRequestSignature(
     };
 
     const signMethod: SignEncodeMethod = 'hex';
+    const signMethodPEM: SignEncodeMethod = 'base64'; // needed for RSA/Ed25519
     const signAlgorithm: SignAlgorithm = 'SHA-256';
 
     const serialisedParams = serialiseParams(
@@ -386,6 +386,7 @@ export async function getRESTRequestSignature(
         secret,
         signMethod,
         signAlgorithm,
+        signMethodPEM,
       );
       signature = encodeURIComponent(signature);
     }

@@ -16,6 +16,7 @@ import {
   WSClientConfigurableOptions,
 } from '../types/websockets/ws-general';
 import { DefaultLogger } from './logger';
+import { getSignKeyType, SignKeyType } from './webCryptoAPI';
 //import { checkWebCryptoAPISupported } from './webCryptoAPI';
 import {
   getNormalisedTopicRequests,
@@ -200,6 +201,8 @@ export abstract class BaseWebsocketClient<
     Record<string, TWSRequestEvent>
   > = {};
 
+  private signKeyType: SignKeyType | undefined = undefined;
+
   constructor(
     options?: WSClientConfigurableOptions,
     logger?: typeof DefaultLogger,
@@ -218,12 +221,17 @@ export abstract class BaseWebsocketClient<
       // Automatically send an authentication op/request after a connection opens, for private connections.
       authPrivateConnectionsOnConnect: true,
       // Individual requests do not require a signature, so this is disabled.
-      authPrivateRequests: false,
+      authPrivateRequestsIndividually: false, // TODO: toggle this if keys are not ed25519
       ...options,
 
       api_key: options?.api_key?.replace(/\\n/g, '\n'),
       api_secret: options?.api_secret?.replace(/\\n/g, '\n'),
     };
+
+    // Determine signing key type. This might influence how we sign requests, e.g. for binance WS API, we can only login with Ed25519 keys. Individual requests must be individually signed if not using Ed25519.
+    this.signKeyType = this.options.api_secret
+      ? getSignKeyType(this.options.api_secret)
+      : undefined;
 
     //  WebCryptoAPI feature
     /* if (this.options.api_key && this.options.api_secret) {
@@ -231,6 +239,10 @@ export abstract class BaseWebsocketClient<
       // A few users have been caught out by using the end-of-life Node.js v18 release.
       checkWebCryptoAPISupported();
     } */
+  }
+
+  public getSignKeyType(): SignKeyType | undefined {
+    return this.signKeyType;
   }
 
   /**
@@ -316,6 +328,16 @@ export abstract class BaseWebsocketClient<
 
   public setTimeOffsetMs(newOffset: number) {
     this.timeOffsetMs = newOffset;
+  }
+
+  public setAuthOnConnect(enabled: boolean): this {
+    this.options.authPrivateConnectionsOnConnect = enabled;
+    return this;
+  }
+
+  public setAuthEveryRequest(enabled: boolean): this {
+    this.options.authPrivateRequestsIndividually = enabled;
+    return this;
   }
 
   /**

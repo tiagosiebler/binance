@@ -96,7 +96,7 @@ import {
 } from './types/websockets/ws-api-responses';
 import { WSClientConfigurableOptions } from './types/websockets/ws-general';
 import { DefaultLogger } from './util/logger';
-import { isWSAPIWsKey } from './util/typeGuards';
+import { isWSAPIWsKey, neverGuard } from './util/typeGuards';
 import {
   getTestnetWsKey,
   WS_KEY_MAP,
@@ -209,6 +209,33 @@ export class WebsocketAPIClient {
     this.wsClient.on('reconnected', ({ wsKey }) => {
       this.handleWSReconnectedEvent({ wsKey });
     });
+
+    const signKeyType = this.wsClient.getSignKeyType();
+    switch (signKeyType) {
+      case undefined:
+      case 'Ed25519': {
+        break;
+      }
+      case 'HMAC':
+      case 'RSASSA-PKCS1-v1_5': {
+        this.wsClient.setAuthOnConnect(false).setAuthEveryRequest(true);
+        this.logger.info(
+          `NOTICE: Detected "${signKeyType}" API Keys.
+
+Your API key will work correctly, but with the following differences:
+- Each request will be individually signed (per-request signing mode)
+- Session authentication is NOT available for HMAC/RSA keys
+- This may result in slightly higher latency per request
+
+If you are latency sensitive, consider using Ed25519 keys instead. For more information refer to the readme: https://github.com/tiagosiebler/binance?tab=readme-ov-file#websocket-api`,
+          { ...WS_LOGGER_CATEGORY, signKeyType },
+        );
+        break;
+      }
+      default: {
+        neverGuard(signKeyType, `Unhandled sign key type "${signKeyType}"`);
+      }
+    }
   }
 
   public getWSClient(): WebsocketClient {
@@ -217,6 +244,10 @@ export class WebsocketAPIClient {
 
   public setTimeOffsetMs(newOffset: number): void {
     return this.getWSClient().setTimeOffsetMs(newOffset);
+  }
+
+  public async disconnectAll(): Promise<void> {
+    await this.wsClient.closeAll();
   }
 
   /*
