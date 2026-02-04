@@ -55,11 +55,15 @@ lkmlkm123lkms1s12s+lkmlkm123lkms1s12s
 
 const ed25519APIKey = 'lkmlkm123lkms1s12slkmlkm123lkms1s12slkmlkm123lkms1s12s';
 
-
-const client = new MainClient({
+const restClient = new MainClient({
   api_key: ed25519APIKey,
   api_secret: ed25519PrivateKey,
   beautifyResponses: true,
+});
+
+const wsApiClient = new WebsocketAPIClient({
+  api_key: ed25519APIKey,
+  api_secret: ed25519PrivateKey,
 });
 ```
 

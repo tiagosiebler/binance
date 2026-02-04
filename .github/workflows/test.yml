@@ -1,4 +1,4 @@
-name: "Build, Lint & Test"
+name: 'Build, Lint & Test'
 
 on:
   push:
@@ -34,6 +34,10 @@ jobs:
         env:
           API_KEY_COM: ${{ secrets.API_KEY_COM }}
           API_SECRET_COM: ${{ secrets.API_SECRET_COM }}
+          API_RSA_KEY_COM: ${{ secrets.API_RSA_KEY_COM }}
+          API_RSA_SECRET_COM: ${{ secrets.API_RSA_SECRET_COM }}
+          API_ED25519_KEY_COM: ${{ secrets.API_ED25519_KEY_COM }}
+          API_ED25519_SECRET_COM: ${{ secrets.API_ED25519_SECRET_COM }}
           PROXY_ENABLED: ${{ secrets.PROXY_ENABLED }}
           PROXY_HOST: ${{ secrets.PROXY_HOST }}
           PROXY_PORT: ${{ secrets.PROXY_PORT }}

@@ -16,7 +16,8 @@ import {
 } from '../../../src';
 
 /**
- * The WS API only works with an Ed25519 API key.
+ * Note: the WebSocket API is fastest with Ed25519 keys. HMAC & RSA will
+ * require each command to be individually signed.
  *
  * Check the rest-private-ed25519.md in this folder for more guidance
  * on preparing this Ed25519 API key.

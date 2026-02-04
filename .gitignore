@@ -14,3 +14,4 @@ dist
 localtest.ts
 repomix.sh
 doc
+*.pem

@@ -118,7 +118,7 @@ export class WebsocketClientV1 extends EventEmitter {
       // Automatically send an authentication op/request after a connection opens, for private connections.
       authPrivateConnectionsOnConnect: false,
       // Individual requests require a signature
-      authPrivateRequests: true,
+      authPrivateRequestsIndividually: true,
       ...options,
     };
 

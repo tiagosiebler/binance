@@ -44,9 +44,9 @@ export type SignAlgorithm = 'SHA-256' | 'SHA-512';
 //   }
 // }
 
-type KeyType = 'HMAC' | 'RSASSA-PKCS1-v1_5' | 'Ed25519';
+export type SignKeyType = 'HMAC' | 'RSASSA-PKCS1-v1_5' | 'Ed25519';
 
-export function getSignKeyType(secret: string): KeyType {
+export function getSignKeyType(secret: string): SignKeyType {
   if (secret.includes('PRIVATE KEY')) {
     // Sometimes, not always, RSA keys include "RSA" in the header. That's a definite RSA key.
     if (secret.includes('RSA PRIVATE KEY')) {
@@ -65,7 +65,7 @@ export function getSignKeyType(secret: string): KeyType {
 
 async function importKey(
   pem: string,
-  type: KeyType,
+  type: SignKeyType,
   algorithm: SignAlgorithm,
   encoder: TextEncoder,
 ): Promise<CryptoKey> {
@@ -132,6 +132,7 @@ export async function signMessage(
   const encoder = new TextEncoder();
 
   const signKeyType = getSignKeyType(secret);
+  const signMethod = signKeyType === 'HMAC' ? method : pemEncodeMethod;
 
   const key = await importKey(secret, signKeyType, algorithm, encoder);
 
@@ -141,7 +142,7 @@ export async function signMessage(
     encoder.encode(message),
   );
 
-  switch (method) {
+  switch (signMethod) {
     case 'hex': {
       return Array.from(new Uint8Array(buffer))
         .map((byte) => byte.toString(16).padStart(2, '0'))
@@ -151,7 +152,7 @@ export async function signMessage(
       return bufferToB64(buffer);
     }
     default: {
-      throw neverGuard(method, `Unhandled sign method: "${method}"`);
+      throw neverGuard(signMethod, `Unhandled sign method: "${signMethod}"`);
     }
   }
 }
