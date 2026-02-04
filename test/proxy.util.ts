@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 import { AxiosRequestConfig } from 'axios';
 
+import { WSClientConfigurableOptions } from '../src';
+
+/** Returns a WS proxy configuration used by end-to-end tests in Github Actions */
 export function getTestProxy(): AxiosRequestConfig {
   if (process.env.PROXY_ENABLED !== 'true') {
     return {};
@@ -28,9 +31,8 @@ export function getTestProxy(): AxiosRequestConfig {
   };
 }
 
-export function getWSTestProxy():
-  | { wsOptions?: undefined }
-  | { wsOptions: { agent: any } } {
+/** Returns a WS proxy configuration used by end-to-end tests in Github Actions */
+export function getWSTestProxy(): Partial<WSClientConfigurableOptions> {
   if (process.env.PROXY_ENABLED !== 'true') {
     return {};
   }

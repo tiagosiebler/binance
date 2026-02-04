@@ -29,9 +29,6 @@ jobs:
       - name: Check Lint
         run: npm run lint
 
-      - name: Install https proxy agent
-        run: npm install https-proxy-agent
-
       - name: Test
         run: npm run test
         env:
@@ -39,6 +36,8 @@ jobs:
           API_SECRET_COM: ${{ secrets.API_SECRET_COM }}
           API_RSA_KEY_COM: ${{ secrets.API_RSA_KEY_COM }}
           API_RSA_SECRET_COM: ${{ secrets.API_RSA_SECRET_COM }}
+          API_ED25519_KEY_COM: ${{ secrets.API_ED25519_KEY_COM }}
+          API_ED25519_SECRET_COM: ${{ secrets.API_ED25519_SECRET_COM }}
           PROXY_ENABLED: ${{ secrets.PROXY_ENABLED }}
           PROXY_HOST: ${{ secrets.PROXY_HOST }}
           PROXY_PORT: ${{ secrets.PROXY_PORT }}

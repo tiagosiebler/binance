@@ -1,11 +1,11 @@
 import { DefaultLogger, MainClient, WebsocketAPIClient } from '../../src';
 import { getTestProxy, getWSTestProxy } from '../proxy.util';
 
-describe('Auth with RSA keys', () => {
-  const api_key = process.env.API_RSA_KEY_COM as string;
-  const api_secret = process.env.API_RSA_SECRET_COM as string;
+describe('Auth with ED25519 keys', () => {
+  const api_key = process.env.API_ED25519_KEY_COM as string;
+  const api_secret = process.env.API_ED25519_SECRET_COM as string;
 
-  it('should have RSA keys', () => {
+  it('should have ED25519 keys', () => {
     expect(api_key).toBeDefined();
     expect(api_secret).toBeDefined();
   });
@@ -43,7 +43,9 @@ describe('Auth with RSA keys', () => {
         api_key,
         api_secret,
         attachEventListeners: false,
+        // Inject proxy for WS
         ...getWSTestProxy(),
+        // Inject proxy for REST requests made by WS client
         requestOptions: getTestProxy(),
       },
       {
