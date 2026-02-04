@@ -10,7 +10,7 @@ import {
 } from './WsStore.types';
 
 /**
- * Simple comparison of two objects, only checks 1-level deep (nested objects won't match)
+ * Simple comparison of two objects, recursive for nested objects
  */
 export function isDeepObjectMatch(object1: unknown, object2: unknown): boolean {
   if (typeof object1 === 'string' && typeof object2 === 'string') {
@@ -21,11 +21,35 @@ export function isDeepObjectMatch(object1: unknown, object2: unknown): boolean {
     return false;
   }
 
+  if (object1 === null || object2 === null) {
+    return object1 === object2;
+  }
+
+  const keys1 = Object.keys(object1).sort();
+  const keys2 = Object.keys(object2).sort();
+
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+
+  if (!keys1.every((val, i) => val === keys2[i])) {
+    return false;
+  }
+
   for (const key in object1) {
     const value1 = (object1 as any)[key];
     const value2 = (object2 as any)[key];
 
-    if (value1 !== value2) {
+    if (
+      typeof value1 === 'object' &&
+      typeof value2 === 'object' &&
+      value1 !== null &&
+      value2 !== null
+    ) {
+      if (!isDeepObjectMatch(value1, value2)) {
+        return false;
+      }
+    } else if (value1 !== value2) {
       return false;
     }
   }

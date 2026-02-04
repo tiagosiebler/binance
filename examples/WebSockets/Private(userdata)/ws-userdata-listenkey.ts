@@ -16,9 +16,9 @@ import {
   isWsFormattedSpotUserDataExecutionReport,
   isWsFormattedUserDataEvent,
   WebsocketClient,
+  WsConnectionStateEnum,
   WsUserDataEvents,
 } from '../../../src/index';
-import { WsConnectionStateEnum } from '../../../src/util/websockets/WsStore.types';
 
 (async () => {
   const key = process.env.API_KEY_COM || 'APIKEY';
@@ -35,7 +35,7 @@ import { WsConnectionStateEnum } from '../../../src/util/websockets/WsStore.type
   // Optional, hook and customise logging behavior
   const logger = {
     ...DefaultLogger,
-    trace: (msg, context) => {
+    trace: (msg: string, context?: any) => {
       if (ignoredTraceLogMsgs.includes(msg)) {
         return;
       }
