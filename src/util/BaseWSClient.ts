@@ -221,7 +221,8 @@ export abstract class BaseWebsocketClient<
       // Automatically send an authentication op/request after a connection opens, for private connections.
       authPrivateConnectionsOnConnect: true,
       // Individual requests do not require a signature, so this is disabled.
-      authPrivateRequestsIndividually: false, // TODO: toggle this if keys are not ed25519
+      authPrivateRequestsIndividually: false,
+
       ...options,
 
       api_key: options?.api_key?.replace(/\\n/g, '\n'),

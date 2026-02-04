@@ -561,6 +561,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   > {
     try {
       // Note: Only Ed25519 keys are supported for this feature.
+      // RSA & HMAC keys will automatically sign each individual request instead.
 
       // If you do not want to specify apiKey and signature in each individual request, you can authenticate your API key for the active WebSocket session.
 

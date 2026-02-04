@@ -32,7 +32,7 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
 - Support for all authentication mechanisms available on Binance:
   - HMAC
   - RSA
-  - Ed25519 (required for WS API).
+  - Ed25519 (required for WS API login, else each request is signed).
   - Passing a private key as a secret will automatically detect whether to switch to RSA or Ed25519 authentication.
 - Supports WebSockets for all available product groups on Binance including Spot, Margin, Isolated Margin, Portfolio, Options, USDM & CoinM Futures.
   - Event driven messaging.
@@ -537,7 +537,11 @@ ws.on('message', (msg) => {
 
 Some of the product groups available on Binance also support sending requests (commands) over an active WebSocket connection. This is called the WebSocket API.
 
-Note: the WebSocket API requires the use of Ed25519 keys. HMAC & RSA keys are not supported by Binance for the WebSocket API (as of Apr 2025).
+#### Authentication
+
+HMAC, RSA and Ed25519 keys are supported for the WebSocket API. However, only Ed25519 keys support WebSocket API login. When using HMAC or RSA keys, each WebSocket API command will need to be individually signed.
+
+This is no issue for most use cases, but if you are latency sensitive, you should consider using Ed25519 keys. This will allow the WebSocket API client to authenticate once after the connection opens, and all commands can then be sent without additional request signatures.
 
 #### Event Driven API
 
@@ -560,7 +564,8 @@ import { WebsocketAPIClient } from 'binance';
 // const { WebsocketAPIClient } = require('binance');
 
 /**
- * The WS API only works with an Ed25519 API key.
+ * Note: the WebSocket API is fastest with Ed25519 keys. HMAC & RSA will
+ * require each command to be individually signed.
  *
  * Check the rest-private-ed25519.md in this folder for more guidance
  * on preparing this Ed25519 API key.
