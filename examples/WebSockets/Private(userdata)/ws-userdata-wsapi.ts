@@ -137,7 +137,7 @@ async function main() {
     beautify: true,
 
     // Enforce testnet ws connections, regardless of supplied wsKey:
-    testnet: true,
+    // testnet: true,
 
     // Note: unless you set this to false, the SDK will automatically call
     // the `subscribeUserDataStream()` method again if reconnected (if you called it before):

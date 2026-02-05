@@ -1266,10 +1266,23 @@ If you are latency sensitive, consider using Ed25519 keys instead. For more info
   ): Promise<WSAPIResponse<object>> {
     const resolvedWsKey = this.options.testnet ? getTestnetWsKey(wsKey) : wsKey;
 
-    const res = await this.wsClient.sendWSAPIRequest(
-      resolvedWsKey,
-      'userDataStream.subscribe',
-    );
+    const keyType = this.getWSClient().getSignKeyType();
+
+    let res: WSAPIResponse<object>;
+    if (keyType === 'Ed25519') {
+      // for Ed25519 keys, no signature is needed, we should already be authenticated in session
+      res = await this.wsClient.sendWSAPIRequest(
+        resolvedWsKey,
+        'userDataStream.subscribe',
+      );
+    } else {
+      // for HMAC & RSA keys, request will be signed and sent to a dedicated topic
+      res = await this.wsClient.sendWSAPIRequest(
+        resolvedWsKey,
+        'userDataStream.subscribe.signature',
+        { timestamp: Date.now() },
+      );
+    }
 
     // Used to track whether this connection had the general "userDataStream.subscribe" called.
     // Used as part of `resubscribeUserDataStreamAfterReconnect` to know which connections to resub.

@@ -172,6 +172,7 @@ export const WS_API_Operations = [
   'userDataStream.ping',
   'userDataStream.stop',
   'userDataStream.subscribe',
+  'userDataStream.subscribe.signature',
   'userDataStream.unsubscribe',
 ] as const;
 
@@ -419,6 +420,7 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   'userDataStream.ping': WSAPIUserDataListenKeyRequest;
   'userDataStream.stop': WSAPIUserDataListenKeyRequest;
   'userDataStream.subscribe': void;
+  'userDataStream.subscribe.signature': { timestamp: number };
   'userDataStream.unsubscribe': void;
 }
 /**
@@ -562,5 +564,6 @@ export interface WsAPIOperationResponseMap {
   'userDataStream.ping': WSAPIResponse<object>;
   'userDataStream.stop': WSAPIResponse<object>;
   'userDataStream.subscribe': WSAPIResponse<object>;
+  'userDataStream.subscribe.signature': WSAPIResponse<object>;
   'userDataStream.unsubscribe': WSAPIResponse<object>;
 }
