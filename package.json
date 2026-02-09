@@ -1,6 +1,6 @@
 {
   "name": "binance",
-  "version": "3.3.2",
+  "version": "3.3.3",
   "description": "Professional Node.js & JavaScript SDK for Binance REST APIs & WebSockets, with TypeScript & end-to-end tests.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -21,7 +21,7 @@
     "prepublishOnly": "npm run build:clean",
     "betapublish": "npm publish --tag beta"
   },
-  "author": "Tiago Siebler (https://github.com/tiagosiebler)",
+  "author": "Tiago Siebler (https://siebly.io)",
   "contributors": [
     "Zoey Garvey",
     "Clifford Roche <clifford.roche@gmail.com> (http://www.cliffordroche.ca)",
