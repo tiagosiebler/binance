@@ -188,6 +188,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       this.connect(WS_KEY_MAP.usdm),
       this.connect(WS_KEY_MAP.coinm),
       this.connect(WS_KEY_MAP.eoptions),
+      this.connect(WS_KEY_MAP.alpha),
     ];
   }
 
@@ -1729,6 +1730,10 @@ export class WebsocketClient extends BaseWebsocketClient<
           throw new Error(
             'European options are not supported yet. Please get in touch if you need this.',
           );
+        case 'alpha':
+          throw new Error(
+            'Alpha WebSocket has no user data streams - market data only.',
+          );
         default:
           throw neverGuard(
             market,
@@ -1862,19 +1867,42 @@ export class WebsocketClient extends BaseWebsocketClient<
     endpoint: string,
     market: 'spot' | 'usdm' | 'coinm',
   ): Promise<unknown> {
+    const isDemoTrading = !!this.options.demoTrading;
+    const isTestnet = !!this.options.testnet;
+
     const wsBaseEndpoints: Record<WsMarket, string> = {
-      spot: 'wss://stream.binance.com:9443',
-      crossMargin: 'wss://stream.binance.com:9443',
-      isolatedMargin: 'wss://stream.binance.com:9443',
-      usdm: 'wss://fstream.binance.com',
+      spot:
+        isDemoTrading && !isTestnet
+          ? 'wss://demo-stream.binance.com:9443'
+          : isTestnet
+            ? 'wss://stream.testnet.binance.vision'
+            : 'wss://stream.binance.com:9443',
+      crossMargin:
+        isDemoTrading && !isTestnet
+          ? 'wss://demo-stream.binance.com:9443'
+          : isTestnet
+            ? 'wss://stream.testnet.binance.vision'
+            : 'wss://stream.binance.com:9443',
+      isolatedMargin:
+        isDemoTrading && !isTestnet
+          ? 'wss://demo-stream.binance.com:9443'
+          : isTestnet
+            ? 'wss://stream.testnet.binance.vision'
+            : 'wss://stream.binance.com:9443',
+      usdm: isTestnet
+        ? 'wss://stream.binancefuture.com'
+        : 'wss://fstream.binance.com',
       usdmTestnet: 'wss://stream.binancefuture.com',
-      coinm: 'wss://dstream.binance.com',
+      coinm: isTestnet
+        ? 'wss://dstream.binancefuture.com'
+        : 'wss://dstream.binance.com',
       coinmTestnet: 'wss://dstream.binancefuture.com',
       options: 'wss://vstream.binance.com',
       optionsTestnet: 'wss://testnetws.binanceops.com',
       riskDataMargin: '',
-      spotTestnet: '',
+      spotTestnet: isTestnet ? 'wss://stream.testnet.binance.vision' : '',
       portfoliom: '',
+      alpha: 'wss://nbstream.binance.com/w3w/wsa/stream',
     };
 
     const wsKey = getLegacyWsStoreKeyWithContext(market, endpoint);
@@ -2073,6 +2101,66 @@ export class WebsocketClient extends BaseWebsocketClient<
 
     const wsKey = resolveWsKeyForLegacyMarket(market);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
+  }
+
+  /**
+   * Subscribe to Alpha Trading WebSocket Market Data streams.
+   * Base URL: wss://nbstream.binance.com/w3w/wsa/stream
+   */
+  public subscribeAlpha(
+    topics: string | string[],
+  ): Promise<unknown> {
+    const topicList = Array.isArray(topics) ? topics : [topics];
+    return this.subscribe(topicList, WS_KEY_MAP.alpha);
+  }
+
+  /**
+   * Subscribe to Alpha all tokens 24h ticker (came@allTokens@ticker24)
+   */
+  public subscribeAlphaAllTokensTicker24(): Promise<unknown> {
+    return this.subscribe('came@allTokens@ticker24', WS_KEY_MAP.alpha);
+  }
+
+  /**
+   * Subscribe to Alpha aggregate trades for a symbol
+   * @param symbol e.g. ALPHA_474USDT
+   */
+  public subscribeAlphaAggTrade(symbol: string): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    return this.subscribe(`${lowerCaseSymbol}@aggTrade`, WS_KEY_MAP.alpha);
+  }
+
+  /**
+   * Subscribe to Alpha full depth for a symbol
+   * @param symbol e.g. ALPHA_474USDT
+   * @param intervalMs 0, 100, or 500
+   */
+  public subscribeAlphaFulldepth(
+    symbol: string,
+    intervalMs: 0 | 100 | 500 = 500,
+  ): Promise<unknown> {
+    const lowerCaseSymbol = symbol.toLowerCase();
+    return this.subscribe(
+      `${lowerCaseSymbol}@fulldepth@${intervalMs}ms`,
+      WS_KEY_MAP.alpha,
+    );
+  }
+
+  /**
+   * Subscribe to Alpha klines for a contract
+   * @param contractAddress Contract address
+   * @param chainId Chain ID (e.g. CT_501, 56)
+   * @param interval 1s, 1m, 5m, 15m, 1h, 4h, 1d
+   */
+  public subscribeAlphaKline(
+    contractAddress: string,
+    chainId: string,
+    interval: '1s' | '1m' | '5m' | '15m' | '1h' | '4h' | '1d',
+  ): Promise<unknown> {
+    return this.subscribe(
+      `came@${contractAddress}@${chainId}@kline_${interval}`,
+      WS_KEY_MAP.alpha,
+    );
   }
 
   /**

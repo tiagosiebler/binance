@@ -509,6 +509,10 @@ export class UserDataStreamManager {
             this.getWsClientOptionsfn().requestOptions,
           )
           .keepAlivePMUserDataListenKey();
+      case 'alpha':
+        throw new Error(
+          'Alpha WebSocket has no user data streams - market data only.',
+        );
       default:
         throw neverGuard(
           market,

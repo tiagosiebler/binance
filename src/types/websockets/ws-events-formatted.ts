@@ -120,6 +120,7 @@ export interface WsMessage24hrMiniTickerFormatted extends WsSharedBase {
 export interface WsMessage24hrTickerFormatted extends WsSharedBase {
   /**
    * @deprecated '!ticker@arr' stream has been deprecated by Binance (2025-11-14).
+   * Will be retired on 2026-03-26.
    * Use '<symbol>@ticker' for single symbol or '!miniTicker@arr' for all symbols instead.
    */
   eventType: '24hrTicker' | '!ticker@arr';
