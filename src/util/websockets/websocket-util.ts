@@ -83,6 +83,9 @@ export const WS_KEY_MAP = {
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
   portfolioMarginProUserData: 'portfolioMarginProUserData',
+
+  // Alpha Trading WebSocket Market Data - wss://nbstream.binance.com/w3w/wsa/stream
+  alpha: 'alpha',
 } as const;
 
 export const WS_KEYS_SPOT = [
@@ -187,6 +190,10 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
 
   // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
   portfolioMarginProUserData: 'wss://fstream.binance.com',
+
+  // Alpha Trading WebSocket Market Data - https://developers.binance.com/docs/alpha-trading
+  // Base URL includes full path; no suffix
+  alpha: 'wss://nbstream.binance.com/w3w/wsa/stream',
 };
 
 export const WS_KEY_MM_URL_MAP: Record<WsKey, string | undefined> = {
@@ -219,6 +226,9 @@ export const WS_KEY_MM_URL_MAP: Record<WsKey, string | undefined> = {
   eoptions: undefined,
   portfolioMarginUserData: undefined,
   portfolioMarginProUserData: undefined,
+
+  // Alpha - no MM endpoint
+  alpha: undefined,
 };
 
 // Demo Trading WebSocket URLs
@@ -256,6 +266,9 @@ export const WS_KEY_DEMO_URL_MAP: Record<WsKey, string | undefined> = {
   eoptions: undefined,
   portfolioMarginUserData: undefined,
   portfolioMarginProUserData: undefined,
+
+  // Alpha - no demo endpoint documented
+  alpha: undefined,
 };
 
 export function getWsURLSuffix(
@@ -332,6 +345,9 @@ export function getWsURLSuffix(
       return '/pm/ws'; // pm/ws/listenKeyHere
     case 'portfolioMarginProUserData':
       return '/pm-classic/ws';
+    case 'alpha':
+      // Alpha WS base URL is complete: wss://nbstream.binance.com/w3w/wsa/stream
+      return '';
     default: {
       throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
     }
@@ -412,7 +428,8 @@ export function getTestnetWsKey(wsKey: WsKey): WsKey {
     case WS_KEY_MAP.marginUserData:
     case WS_KEY_MAP.eoptions:
     case WS_KEY_MAP.portfolioMarginUserData:
-    case WS_KEY_MAP.portfolioMarginProUserData: {
+    case WS_KEY_MAP.portfolioMarginProUserData:
+    case WS_KEY_MAP.alpha: {
       throw new Error(`Testnet not supported for "${wsKey}"`);
     }
     default:
@@ -662,6 +679,8 @@ export function resolveUserDataMarketForWsKey(wsKey: WsKey): WsMarket {
       return 'portfoliom';
     case 'marginUserData':
       return 'crossMargin';
+    case 'alpha':
+      return 'alpha';
     default: {
       throw neverGuard(
         wsKey,

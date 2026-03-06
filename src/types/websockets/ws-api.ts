@@ -246,6 +246,8 @@ export interface WsAPIWsKeyTopicMap {
   [WS_KEY_MAP.portfolioMarginUserData]: WsOperation;
   [WS_KEY_MAP.portfolioMarginProUserData]: WsOperation;
 
+  [WS_KEY_MAP.alpha]: WsOperation;
+
   [WS_KEY_MAP.mainWSAPI]: WsAPIOperation;
   [WS_KEY_MAP.mainWSAPI2]: WsAPIOperation;
   [WS_KEY_MAP.mainWSAPITestnet]: WsAPIOperation;

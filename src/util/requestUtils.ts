@@ -267,6 +267,7 @@ export function requiresWSAPINewClientOID(
     case WS_KEY_MAP.portfolioMarginUserData:
     case WS_KEY_MAP.portfolioMarginProUserData:
     case WS_KEY_MAP.marginUserData:
+    case WS_KEY_MAP.alpha:
       return false;
 
     default: {

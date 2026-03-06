@@ -90,7 +90,8 @@ export function isWSAPIWsKey(wsKey: WsKey): wsKey is WSAPIWsKey {
     case 'eoptions':
     case 'coinm2':
     case 'portfolioMarginUserData':
-    case 'portfolioMarginProUserData': {
+    case 'portfolioMarginProUserData':
+    case 'alpha': {
       return false;
     }
     default: {
@@ -154,6 +155,7 @@ export function isWsFormattedForceOrder(
  * !ticker@arr
  *
  * @deprecated The '!ticker@arr' stream has been deprecated by Binance (2025-11-14).
+ * Will be retired on 2026-03-26.
  * Use '<symbol>@ticker' for single symbol or '!miniTicker@arr' for all symbols instead.
  *
  * @param data
