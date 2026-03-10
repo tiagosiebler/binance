@@ -2107,9 +2107,7 @@ export class WebsocketClient extends BaseWebsocketClient<
    * Subscribe to Alpha Trading WebSocket Market Data streams.
    * Base URL: wss://nbstream.binance.com/w3w/wsa/stream
    */
-  public subscribeAlpha(
-    topics: string | string[],
-  ): Promise<unknown> {
+  public subscribeAlpha(topics: string | string[]): Promise<unknown> {
     const topicList = Array.isArray(topics) ? topics : [topics];
     return this.subscribe(topicList, WS_KEY_MAP.alpha);
   }
