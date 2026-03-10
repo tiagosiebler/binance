@@ -6075,9 +6075,9 @@ export interface TravelRuleDepositHistoryRecord {
 
 export interface VASPInfo {
   vaspName: string;
-  vaspCode: string;
+  vaspCode?: string;
   /** For populating the `vasp` field in deposit/withdrawal questionnaire. Use this instead of vaspCode. Both accepted until 28 May 2026. */
-  identifier: string;
+  identifier?: string;
 }
 
 // Institutional Loan types

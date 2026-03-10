@@ -84,7 +84,7 @@ export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/derivatives/portfolio-margin-pro/portfolio-margin-pro-user-data-stream
   portfolioMarginProUserData: 'portfolioMarginProUserData',
 
-  // Alpha Trading WebSocket Market Data - wss://nbstream.binance.com/w3w/wsa/stream
+  // Alpha Trading WebSocket Market Data - https://developers.binance.com/docs/alpha/change-log
   alpha: 'alpha',
 } as const;
 
@@ -192,8 +192,8 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   portfolioMarginProUserData: 'wss://fstream.binance.com',
 
   // Alpha Trading WebSocket Market Data - https://developers.binance.com/docs/alpha-trading
-  // Base URL includes full path; no suffix
-  alpha: 'wss://nbstream.binance.com/w3w/wsa/stream',
+  // Base URL is domain only; suffix in getWsURLSuffix
+  alpha: 'wss://nbstream.binance.com',
 };
 
 export const WS_KEY_MM_URL_MAP: Record<WsKey, string | undefined> = {
@@ -346,8 +346,8 @@ export function getWsURLSuffix(
     case 'portfolioMarginProUserData':
       return '/pm-classic/ws';
     case 'alpha':
-      // Alpha WS base URL is complete: wss://nbstream.binance.com/w3w/wsa/stream
-      return '';
+      // wss://nbstream.binance.com/w3w/wsa/stream
+      return '/w3w/wsa/stream';
     default: {
       throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
     }

@@ -47,7 +47,7 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
   riskDataMargin: '',
   spotTestnet: '',
   portfoliom: '',
-  alpha: 'wss://nbstream.binance.com/w3w/wsa/stream',
+  alpha: '', // Legacy client: alpha not supported; use WebsocketClient for alpha streams
 };
 
 type WsEventInternalSrc = 'event' | 'function';
