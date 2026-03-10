@@ -47,6 +47,7 @@ const wsBaseEndpoints: Record<WsMarket, string> = {
   riskDataMargin: '',
   spotTestnet: '',
   portfoliom: '',
+  alpha: '', // Legacy client: alpha not supported; use WebsocketClient for alpha streams
 };
 
 type WsEventInternalSrc = 'event' | 'function';
@@ -870,6 +871,11 @@ export class WebsocketClientV1 extends EventEmitter {
           'Unsupported user data stream. Use the new "WebsocketClient" to use this stream.',
         );
       }
+      case 'alpha': {
+        throw new Error(
+          'Alpha WebSocket has no user data streams - market data only.',
+        );
+      }
       default:
         throw neverGuard(
           market,
@@ -1051,6 +1057,11 @@ export class WebsocketClientV1 extends EventEmitter {
         case 'riskDataMargin': {
           throw new Error(
             'Unsupported user data stream. Use the new "WebsocketClient" to use this stream.',
+          );
+        }
+        case 'alpha': {
+          throw new Error(
+            'Alpha WebSocket has no user data streams - market data only.',
           );
         }
         default:

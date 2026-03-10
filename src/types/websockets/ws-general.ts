@@ -32,7 +32,8 @@ export type WsMarket =
   | 'coinmTestnet'
   | 'options'
   | 'optionsTestnet'
-  | 'portfoliom';
+  | 'portfoliom'
+  | 'alpha';
 
 export interface WsSharedBase {
   wsMarket: WsMarket;

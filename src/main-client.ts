@@ -1811,7 +1811,9 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
-   * Fetch the onboarded VASP list for local entities that require travel rule
+   * Fetch the onboarded VASP list for local entities that require travel rule.
+   * Use the `identifier` field (not vaspCode) for the `vasp` param in deposit/withdrawal questionnaires.
+   * Both vaspCode and identifier accepted until 28 May 2026.
    */
   getOnboardedVASPList(): Promise<VASPInfo[]> {
     return this.getPrivate('sapi/v1/localentity/vasp');
