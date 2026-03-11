@@ -386,6 +386,10 @@ export function isPrivateWsTopic(topic: string): boolean {
   return PRIVATE_TOPICS.includes(topic);
 }
 
+export function getTestnetWsKey(wsKey: WSAPIWsKeyMain): WSAPIWsKeyMain;
+export function getTestnetWsKey(wsKey: WSAPIWsKeyFutures): WSAPIWsKeyFutures;
+export function getTestnetWsKey(wsKey: WSAPIWsKey): WSAPIWsKey;
+export function getTestnetWsKey(wsKey: WsKey): WsKey;
 export function getTestnetWsKey(wsKey: WsKey): WsKey {
   switch (wsKey) {
     case WS_KEY_MAP.mainTestnetPublic:
