@@ -166,7 +166,11 @@ export class UserDataStreamManager {
 
     // Begin the connection process with the active listen key
     try {
-      const wsBaseUrl = await this.getWsUrlFn(wsKey, 'private');
+      let wsBaseUrl = await this.getWsUrlFn(wsKey, 'private');
+      if (!wsBaseUrl.endsWith('/') && !wsBaseUrl.endsWith('=')) {
+        wsBaseUrl += '/';
+      }
+
       const wsURL = wsBaseUrl + `${listenKey}`;
 
       const throwOnConnectionError = true;

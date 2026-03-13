@@ -157,23 +157,14 @@ import {
    */
 
   /**
-   * Example 1: Spot, by default, routes to the "main" wss domain "wss://stream.binance.com:9443".
-   * No parameters needed, just call the subscribe function.
-   *
-   * Note: the listen key workflow is deprecated for "spot" markets. Use the
+   * Note: for spot markets, the listen key workflow is deprecated. Use the
    * WebSocket API `userDataStream.subscribe` workflow instead (only available
    * in spot right now). See `subscribeUserDataStream()` in the WebsocketAPIClient.
    */
-  // wsClient.subscribeSpotUserDataStream();
-
-  // // Example 2: Optional: subscribe to spot via other wss domains
-  // wsClient.subscribeSpotUserDataStream('main2'); // routed to "wss://stream.binance.com:443"
-
-  // // Example 3: cross margin
-  // wsClient.subscribeCrossMarginUserDataStream();
-
-  // // Example 4: isolated margin
-  // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDC');
+  // Deprecated, see above: wsClient.subscribeSpotUserDataStream();
+  // Deprecated, see above: wsClient.subscribeSpotUserDataStream('main2');
+  // Deprecated, see above: wsClient.subscribeCrossMarginUserDataStream();
+  // Deprecated, see above: wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDC');
 
   /**
    * Futures
@@ -202,14 +193,6 @@ import {
     try {
       // console.log('killing all connections');
       // wsClient.closeAll();
-      // Example 1:
-      wsClient.unsubscribeSpotUserDataStream();
-      // Example 2: use the wsKey to route to another domain
-      wsClient.unsubscribeSpotUserDataStream('main2');
-      // Example 3: cross margin
-      wsClient.unsubscribeCrossMarginUserDataStream();
-      // Example 4: isolated margin
-      wsClient.unsubscribeIsolatedMarginUserDataStream('BTCUSDC');
       // Example 5: usdm futures
       wsClient.unsubscribeUsdFuturesUserDataStream();
       // Example 6: coinm futures
