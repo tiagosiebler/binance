@@ -85,6 +85,10 @@ wsClient.subscribe(['btcusdt@aggTrade', 'btcusdt@forceOrder'], wsKeyUsdmMarket);
 wsClient.subscribeUsdFuturesUserDataStream();
 ```
 
+#### Legacy `wsClient.subscribe*()` methods
+
+If you're using any of the per-topic convenience methods, such as `wsClient.subscribeAggregateTrades(...)`, no change is required. The SDK will automatically route the topic subscription request to the appropriate WS URL.
+
 ## Further Reading
 
 For detailed examples, refer to the examples in this folder, as well as the following documentation:
