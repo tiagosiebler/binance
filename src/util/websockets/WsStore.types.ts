@@ -39,7 +39,6 @@ export interface WsStoredState<TWSTopicSubscribeEvent extends string | object> {
    *
    * This promise will resolve once connected (and will then get removed);
    */
-  // connectionInProgressPromise?: DeferredPromise | undefined;
   deferredPromiseStore: Record<string, DeferredPromise>;
   /**
    * All the topics we are expected to be subscribed to on this connection (and we automatically resubscribe to if the connection drops)

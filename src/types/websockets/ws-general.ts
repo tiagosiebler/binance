@@ -72,22 +72,34 @@ export type WsPublicSpotV1Topic =
   | 'trade'
   | 'realtimes'
   | 'kline'
-  | 'depth'
   | 'mergedDepth'
   | 'diffDepth';
 
-export type WsPublicSpotV2Topic =
-  | 'depth'
+export type WsPublicSpotV2Topic = 'depth' | 'kline' | 'trade' | 'realtimes';
+
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Important-WebSocket-Change-Notice#public-high-frequency-public-data
+export type WsPublicUSDMTopic = 'bookTicker' | 'depth';
+
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Important-WebSocket-Change-Notice#market-regular-market-data
+export type WsMarketUSDMTopic =
+  | 'aggTrade'
+  | 'markPrice'
   | 'kline'
-  | 'trade'
-  | 'bookTicker'
-  | 'realtimes';
+  | 'continuousKline'
+  | 'miniTicker'
+  | 'ticker'
+  | 'forceOrder'
+  | 'compositeIndex'
+  | 'contractInfo'
+  | 'assetIndex';
 
 export type WsPublicTopics =
   | WsPublicInverseTopic
   | WsPublicUSDTPerpTopic
   | WsPublicSpotV1Topic
   | WsPublicSpotV2Topic
+  | WsMarketUSDMTopic
+  | WsPublicUSDMTopic
   | string;
 
 // Same as inverse futures

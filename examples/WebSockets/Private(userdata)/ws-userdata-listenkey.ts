@@ -35,7 +35,7 @@ import {
   // Optional, hook and customise logging behavior
   const logger = {
     ...DefaultLogger,
-    trace: (msg: string, context?: any) => {
+    trace: (msg: string, context?: unknown) => {
       if (ignoredTraceLogMsgs.includes(msg)) {
         return;
       }
@@ -156,18 +156,24 @@ import {
    * Once subscribed, you don't need to do anything else. Listen-key keep-alive, refresh, reconnects, etc are all automatically handled by the SDK.
    */
 
-  // Example 1: Spot, by default, routes to the "main" wss domain "wss://stream.binance.com:9443".
-  // No parameters needed, just call the subscribe function.
-  wsClient.subscribeSpotUserDataStream();
+  /**
+   * Example 1: Spot, by default, routes to the "main" wss domain "wss://stream.binance.com:9443".
+   * No parameters needed, just call the subscribe function.
+   *
+   * Note: the listen key workflow is deprecated for "spot" markets. Use the
+   * WebSocket API `userDataStream.subscribe` workflow instead (only available
+   * in spot right now). See `subscribeUserDataStream()` in the WebsocketAPIClient.
+   */
+  // wsClient.subscribeSpotUserDataStream();
 
   // // Example 2: Optional: subscribe to spot via other wss domains
-  wsClient.subscribeSpotUserDataStream('main2'); // routed to "wss://stream.binance.com:443"
+  // wsClient.subscribeSpotUserDataStream('main2'); // routed to "wss://stream.binance.com:443"
 
   // // Example 3: cross margin
-  wsClient.subscribeCrossMarginUserDataStream();
+  // wsClient.subscribeCrossMarginUserDataStream();
 
-  // Example 4: isolated margin
-  wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDC');
+  // // Example 4: isolated margin
+  // wsClient.subscribeIsolatedMarginUserDataStream('BTCUSDC');
 
   /**
    * Futures
@@ -180,10 +186,10 @@ import {
   wsClient.subscribeCoinFuturesUserDataStream();
 
   // Example 7: portfolio margin
-  // wsClient.subscribePortfolioMarginUserDataStream();
+  wsClient.subscribePortfolioMarginUserDataStream();
 
   // Example 8: portfolio margin pro
-  // wsClient.subscribePortfolioMarginUserDataStream('portfolioMarginProUserData');
+  wsClient.subscribePortfolioMarginUserDataStream('portfolioMarginProUserData');
 
   // after 15 seconds, kill user data connections one by one (or all at once)
   setTimeout(() => {

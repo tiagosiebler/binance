@@ -43,6 +43,7 @@ import {
   getPromiseRefForWSAPIRequest,
   getRealWsKeyFromDerivedWsKey,
   getTestnetWsKey,
+  getWsKeyForProductGroup,
   getWsUrl,
   getWsURLSuffix,
   isPrivateWsTopic,
@@ -52,10 +53,10 @@ import {
   parseEventTypeFromMessage,
   parseRawWsMessage,
   resolveUserDataMarketForWsKey,
-  resolveWsKeyForLegacyMarket,
   WS_AUTH_ON_CONNECT_KEYS,
   WS_KEY_MAP,
   WSAPIWsKey,
+  WSConnectionCategory,
   WsKey,
   WsTopicRequest,
 } from './util/websockets/websocket-util';
@@ -140,7 +141,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       ) => {
         return this.respawnUserDataStream(wsKey, market, context);
       },
-      getWsUrlFn: (wsKey: WsKey, connectionType: 'market' | 'userData') => {
+      getWsUrlFn: (wsKey: WsKey, connectionType: WSConnectionCategory) => {
         return this.getWsUrl(wsKey, connectionType);
       },
       getRestClientOptionsFn: () => this.getRestClientOptions(),
@@ -447,7 +448,7 @@ export class WebsocketClient extends BaseWebsocketClient<
    */
   async getWsUrl(
     wsKey: WsKey,
-    connectionType: 'market' | 'userData' = 'market',
+    connectionType: 'public' | 'market' | 'private' = 'market',
   ): Promise<string> {
     const wsBaseURL =
       getWsUrl(wsKey, this.options, this.logger) +
@@ -1436,12 +1437,15 @@ export class WebsocketClient extends BaseWebsocketClient<
    * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
    */
   public async subscribeUsdFuturesUserDataStream(
-    wsKey: WsKey = 'usdm', // usdm | usdmTestnet
+    wsKey: WsKey = WS_KEY_MAP.usdmPrivate, // usdm | usdmPrivate | usdmTestnet
     forceNewConnection?: boolean,
     miscState?: MiscUserDataConnectionState,
   ): Promise<WSConnectedResult | undefined> {
     try {
-      const isTestnet = wsKey === WS_KEY_MAP.usdmTestnet;
+      const isTestnet =
+        wsKey === WS_KEY_MAP.usdmTestnet ||
+        wsKey === WS_KEY_MAP.usdmTestnetPrivate;
+
       const restClient = this.restClientCache.getUSDMRestClient(
         this.getRestClientOptions(),
         this.options.requestOptions,
@@ -1474,7 +1478,7 @@ export class WebsocketClient extends BaseWebsocketClient<
   }
 
   public unsubscribeUsdFuturesUserDataStream(
-    wsKey: WsKey = 'usdm',
+    wsKey: WsKey = WS_KEY_MAP.usdmPrivate,
   ): Promise<void> {
     return this.closeUserDataStream(wsKey, 'usdm');
   }
@@ -1915,11 +1919,12 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeAggregateTrades(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'aggTrade';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -1930,11 +1935,12 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeTrades(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'trade';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -1944,13 +1950,14 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeCoinIndexPrice(
     symbol: string,
     updateSpeedMs: 1000 | 3000 = 3000,
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'indexPrice';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
     const market: WsMarket = 'coinm';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}${speedSuffix}`,
       wsKey,
@@ -1964,12 +1971,13 @@ export class WebsocketClient extends BaseWebsocketClient<
     symbol: string,
     market: 'usdm' | 'coinm',
     updateSpeedMs: 1000 | 3000 = 3000,
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'markPrice';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}${speedSuffix}`,
       wsKey,
@@ -1982,11 +1990,12 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeAllMarketMarkPrice(
     market: 'usdm' | 'coinm',
     updateSpeedMs: 1000 | 3000 = 3000,
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const streamName = '!markPrice@arr';
     const speedSuffix = updateSpeedMs === 1000 ? '@1s' : '';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`${streamName}${speedSuffix}`, wsKey);
   }
 
@@ -1997,11 +2006,12 @@ export class WebsocketClient extends BaseWebsocketClient<
     symbol: string,
     interval: KlineInterval,
     market: 'spot' | 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'kline';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
@@ -2016,11 +2026,12 @@ export class WebsocketClient extends BaseWebsocketClient<
     contractType: 'perpetual' | 'current_quarter' | 'next_quarter',
     interval: KlineInterval,
     market: 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'continuousKline';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(
       `${lowerCaseSymbol}_${contractType}@${streamName}_${interval}`,
       wsKey,
@@ -2033,12 +2044,13 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeIndexKlines(
     symbol: string,
     interval: KlineInterval,
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'indexPriceKline';
     const market: WsMarket = 'coinm';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
@@ -2051,12 +2063,13 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeMarkPriceKlines(
     symbol: string,
     interval: KlineInterval,
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'markPriceKline';
     const market: WsMarket = 'coinm';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}_${interval}`,
       wsKey,
@@ -2069,11 +2082,12 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeSymbolMini24hrTicker(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'miniTicker';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -2082,10 +2096,11 @@ export class WebsocketClient extends BaseWebsocketClient<
    */
   public subscribeAllMini24hrTickers(
     market: 'spot' | 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const streamName = 'miniTicker';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`!${streamName}@arr`, wsKey);
   }
 
@@ -2095,11 +2110,12 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeSymbol24hrTicker(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'ticker';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -2166,10 +2182,11 @@ export class WebsocketClient extends BaseWebsocketClient<
    */
   public subscribeAll24hrTickers(
     market: 'spot' | 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const streamName = 'ticker';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`!${streamName}@arr`, wsKey);
   }
 
@@ -2185,10 +2202,11 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeAllRollingWindowTickers(
     market: 'spot',
     windowSize: '1h' | '4h' | '1d',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const streamName = 'ticker';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`!${streamName}_${windowSize}@arr`, wsKey);
   }
 
@@ -2198,21 +2216,25 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeSymbolBookTicker(
     symbol: string,
     market: 'spot' | 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'bookTicker';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
   /**
    * Subscribe to best bid/ask for all symbols in spot markets.
    */
-  public subscribeAllBookTickers(market: 'usdm' | 'coinm'): Promise<unknown> {
+  public subscribeAllBookTickers(
+    market: 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
+  ): Promise<unknown> {
     const streamName = 'bookTicker';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`!${streamName}`, wsKey);
   }
 
@@ -2222,11 +2244,12 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeSymbolLiquidationOrders(
     symbol: string,
     market: 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'forceOrder';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`${lowerCaseSymbol}@${streamName}`, wsKey);
   }
 
@@ -2235,10 +2258,11 @@ export class WebsocketClient extends BaseWebsocketClient<
    */
   public subscribeAllLiquidationOrders(
     market: 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const streamName = 'forceOrder@arr';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`!${streamName}`, wsKey);
   }
 
@@ -2254,11 +2278,12 @@ export class WebsocketClient extends BaseWebsocketClient<
     levels: 5 | 10 | 20,
     updateMs: 100 | 250 | 500 | 1000,
     market: 'spot' | 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'depth';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}${levels}${updateMsSuffx}`,
@@ -2278,11 +2303,12 @@ export class WebsocketClient extends BaseWebsocketClient<
     symbol: string,
     updateMs: 100 | 250 | 500 | 1000 = 100,
     market: 'spot' | 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const lowerCaseSymbol = symbol.toLowerCase();
     const streamName = 'depth';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     const updateMsSuffx = typeof updateMs === 'number' ? `@${updateMs}ms` : '';
     return this.subscribe(
       `${lowerCaseSymbol}@${streamName}${updateMsSuffx}`,
@@ -2295,10 +2321,11 @@ export class WebsocketClient extends BaseWebsocketClient<
    */
   public subscribeContractInfoStream(
     market: 'usdm' | 'coinm',
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
     const streamName = '!contractInfo';
 
-    const wsKey = resolveWsKeyForLegacyMarket(market);
+    const wsKey = wsKeyOverride || getWsKeyForProductGroup(market, streamName);
     return this.subscribe(`${streamName}`, wsKey);
   }
 
@@ -2311,15 +2338,21 @@ export class WebsocketClient extends BaseWebsocketClient<
   /**
    * Subscribe to aggregate trades for a symbol in spot markets.
    */
-  public subscribeSpotAggregateTrades(symbol: string): Promise<unknown> {
-    return this.subscribeAggregateTrades(symbol, 'spot');
+  public subscribeSpotAggregateTrades(
+    symbol: string,
+    wsKeyOverride?: WsKey,
+  ): Promise<unknown> {
+    return this.subscribeAggregateTrades(symbol, 'spot', wsKeyOverride);
   }
 
   /**
    * Subscribe to trades for a symbol in spot markets.
    */
-  public subscribeSpotTrades(symbol: string): Promise<unknown> {
-    return this.subscribeTrades(symbol, 'spot');
+  public subscribeSpotTrades(
+    symbol: string,
+    wsKeyOverride?: WsKey,
+  ): Promise<unknown> {
+    return this.subscribeTrades(symbol, 'spot', wsKeyOverride);
   }
 
   /**
@@ -2328,43 +2361,55 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeSpotKline(
     symbol: string,
     interval: KlineInterval,
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
-    return this.subscribeKlines(symbol, interval, 'spot');
+    return this.subscribeKlines(symbol, interval, 'spot', wsKeyOverride);
   }
 
   /**
    * Subscribe to mini 24hr ticker for a symbol in spot markets.
    */
-  public subscribeSpotSymbolMini24hrTicker(symbol: string): Promise<unknown> {
-    return this.subscribeSymbolMini24hrTicker(symbol, 'spot');
+  public subscribeSpotSymbolMini24hrTicker(
+    symbol: string,
+    wsKeyOverride?: WsKey,
+  ): Promise<unknown> {
+    return this.subscribeSymbolMini24hrTicker(symbol, 'spot', wsKeyOverride);
   }
 
   /**
    * Subscribe to mini 24hr mini ticker in spot markets.
    */
-  public subscribeSpotAllMini24hrTickers(): Promise<unknown> {
-    return this.subscribeAllMini24hrTickers('spot');
+  public subscribeSpotAllMini24hrTickers(
+    wsKeyOverride?: WsKey,
+  ): Promise<unknown> {
+    return this.subscribeAllMini24hrTickers('spot', wsKeyOverride);
   }
 
   /**
    * Subscribe to 24hr ticker for a symbol in spot markets.
    */
-  public subscribeSpotSymbol24hrTicker(symbol: string): Promise<unknown> {
-    return this.subscribeSymbol24hrTicker(symbol, 'spot');
+  public subscribeSpotSymbol24hrTicker(
+    symbol: string,
+    wsKeyOverride?: WsKey,
+  ): Promise<unknown> {
+    return this.subscribeSymbol24hrTicker(symbol, 'spot', wsKeyOverride);
   }
 
   /**
    * Subscribe to 24hr ticker in spot markets.
    */
-  public subscribeSpotAll24hrTickers(): Promise<unknown> {
-    return this.subscribeAll24hrTickers('spot');
+  public subscribeSpotAll24hrTickers(wsKeyOverride?: WsKey): Promise<unknown> {
+    return this.subscribeAll24hrTickers('spot', wsKeyOverride);
   }
 
   /**
    * Subscribe to best bid/ask for symbol in spot markets.
    */
-  public subscribeSpotSymbolBookTicker(symbol: string): Promise<unknown> {
-    return this.subscribeSymbolBookTicker(symbol, 'spot');
+  public subscribeSpotSymbolBookTicker(
+    symbol: string,
+    wsKeyOverride?: WsKey,
+  ): Promise<unknown> {
+    return this.subscribeSymbolBookTicker(symbol, 'spot', wsKeyOverride);
   }
 
   /**
@@ -2374,8 +2419,15 @@ export class WebsocketClient extends BaseWebsocketClient<
     symbol: string,
     levels: 5 | 10 | 20,
     updateMs: 1000 | 100 = 1000,
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
-    return this.subscribePartialBookDepths(symbol, levels, updateMs, 'spot');
+    return this.subscribePartialBookDepths(
+      symbol,
+      levels,
+      updateMs,
+      'spot',
+      wsKeyOverride,
+    );
   }
 
   /**
@@ -2384,7 +2436,8 @@ export class WebsocketClient extends BaseWebsocketClient<
   public subscribeSpotDiffBookDepth(
     symbol: string,
     updateMs: 1000 | 100 = 1000,
+    wsKeyOverride?: WsKey,
   ): Promise<unknown> {
-    return this.subscribeDiffBookDepth(symbol, updateMs, 'spot');
+    return this.subscribeDiffBookDepth(symbol, updateMs, 'spot', wsKeyOverride);
   }
 }
