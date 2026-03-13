@@ -16,6 +16,7 @@ import {
   MiscUserDataConnectionState,
   safeTerminateWs,
   WS_LOGGER_CATEGORY,
+  WSConnectionCategory,
   WsKey,
   WsTopicRequest,
 } from './websocket-util';
@@ -40,7 +41,7 @@ export interface UserDataStreamManagerConfig {
 
   getWsUrlFn(
     wsKey: WsKey,
-    connectionType: 'market' | 'userData' | 'wsAPI',
+    connectionType: WSConnectionCategory,
   ): Promise<string>;
 
   getRestClientOptionsFn: () => RestClientOptions;
@@ -165,8 +166,8 @@ export class UserDataStreamManager {
 
     // Begin the connection process with the active listen key
     try {
-      const wsBaseUrl = await this.getWsUrlFn(wsKey, 'userData');
-      const wsURL = wsBaseUrl + `/${listenKey}`;
+      const wsBaseUrl = await this.getWsUrlFn(wsKey, 'private');
+      const wsURL = wsBaseUrl + `${listenKey}`;
 
       const throwOnConnectionError = true;
       const connectResult = await this.connectFn(

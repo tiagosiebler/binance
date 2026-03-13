@@ -54,9 +54,15 @@ export const WS_KEY_MAP = {
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
   // market data, user data
   usdm: 'usdm',
+  usdmPrivate: 'usdmPrivate', // user data only (for split streams)
+  usdmPublic: 'usdmPublic', // high freq public market data (primarily book and tickers)
+  usdmMarket: 'usdmMarket', // all other market data
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/general-info
   usdmTestnet: 'usdmTestnet',
+  usdmTestnetPrivate: 'usdmTestnetPrivate', // user data only (for split streams)
+  usdmTestnetPublic: 'usdmTestnetPublic', // high freq public market data (primarily book and tickers)
+  usdmTestnetMarket: 'usdmTestnetMarket', // all other market data
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
   // ONLY WS API | NO USER DATA
@@ -67,8 +73,15 @@ export const WS_KEY_MAP = {
   // market data, user data
   coinm: 'coinm',
   coinm2: 'coinm2',
+  // coinmPrivate: 'coinmPrivate', // user data only (for split streams)
+  // coinmPublic: 'coinmPublic', // high freq public market data (primarily book and tickers)
+  // coinmMarket: 'coinmMarket', // all other market data
+
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
   coinmTestnet: 'coinmTestnet',
+  // coinmTestnetPrivate: 'coinmTestnetPrivate', // user data only (for split streams)
+  // coinmTestnetPublic: 'coinmTestnetPublic', // high freq public market data (primarily book and tickers)
+  // coinmTestnetMarket: 'coinmTestnetMarket', // all other market data
 
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-api-general-info
   // ONLY WS API | NO USER DATA
@@ -156,9 +169,15 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
   // market data, user data
   usdm: 'wss://fstream.binance.com',
+  usdmPublic: 'wss://fstream.binance.com',
+  usdmMarket: 'wss://fstream.binance.com',
+  usdmPrivate: 'wss://fstream.binance.com',
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/general-info
   usdmTestnet: 'wss://stream.binancefuture.com',
+  usdmTestnetPublic: 'wss://stream.binancefuture.com',
+  usdmTestnetMarket: 'wss://stream.binancefuture.com',
+  usdmTestnetPrivate: 'wss://stream.binancefuture.com',
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-api-general-info
   // ONLY WS API
@@ -170,8 +189,15 @@ export const WS_KEY_URL_MAP: Record<WsKey, string> = {
   // market data, user data
   coinm: 'wss://dstream.binance.com',
   coinm2: 'wss://dstream-auth.binance.com', // Warning, coinm2 requires a listenkey
+  // coinmPublic: 'wss://dstream.binance.com',
+  // coinmMarket: 'wss://dstream.binance.com',
+  // coinmPrivate: 'wss://dstream.binance.com',
+
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/general-info
   coinmTestnet: 'wss://dstream.binancefuture.com',
+  // coinmTestnetPublic: 'wss://dstream.binancefuture.com',
+  // coinmTestnetMarket: 'wss://dstream.binancefuture.com',
+  // coinmTestnetPrivate: 'wss://dstream.binancefuture.com',
 
   // https://developers.binance.com/docs/derivatives/coin-margined-futures/websocket-api-general-info
   // ONLY WS API | NO USER DATA
@@ -211,14 +237,30 @@ export const WS_KEY_MM_URL_MAP: Record<WsKey, string | undefined> = {
 
   // USDM Futures MM endpoints
   usdm: 'wss://fstream-mm.binance.com',
+  usdmMarket: 'wss://fstream-mm.binance.com',
+  usdmPrivate: 'wss://fstream-mm.binance.com',
+  usdmPublic: 'wss://fstream-mm.binance.com',
+
   usdmTestnet: undefined, // No MM endpoint for testnet
+  usdmTestnetPublic: undefined,
+  usdmTestnetMarket: undefined,
+  usdmTestnetPrivate: undefined,
+
   usdmWSAPI: 'wss://ws-fapi-mm.binance.com',
   usdmWSAPITestnet: undefined, // No MM endpoint for testnet
 
   // COINM Futures MM endpoints
   coinm: 'wss://dstream-mm.binance.com',
   coinm2: undefined, // No MM endpoint for coinm2
+  // coinmPublic: 'wss://dstream-mm.binance.com',
+  // coinmMarket: 'wss://dstream-mm.binance.com',
+  // coinmPrivate: 'wss://dstream-mm.binance.com',
+
   coinmTestnet: undefined, // No MM endpoint for testnet
+  // coinmTestnetPublic: undefined,
+  // coinmTestnetMarket: undefined,
+  // coinmTestnetPrivate: undefined,
+
   coinmWSAPI: 'wss://ws-dapi-mm.binance.com',
   coinmWSAPITestnet: undefined, // No MM endpoint for testnet
 
@@ -251,14 +293,26 @@ export const WS_KEY_DEMO_URL_MAP: Record<WsKey, string | undefined> = {
 
   // Demo Trading - USDM Futures
   usdm: 'wss://fstream.binancefuture.com',
+  usdmPublic: 'wss://fstream.binancefuture.com',
+  usdmMarket: 'wss://fstream.binancefuture.com',
+  usdmPrivate: 'wss://fstream.binancefuture.com',
   usdmTestnet: undefined, // No demo for testnet
+  usdmTestnetMarket: undefined,
+  usdmTestnetPrivate: undefined,
+  usdmTestnetPublic: undefined,
   usdmWSAPI: 'wss://testnet.binancefuture.com',
   usdmWSAPITestnet: undefined, // No demo for testnet
 
   // Demo Trading - COINM Futures
   coinm: 'wss://dstream.binancefuture.com',
+  // coinmPublic: 'wss://dstream.binancefuture.com',
+  // coinmMarket: 'wss://dstream.binancefuture.com',
+  // coinmPrivate: 'wss://dstream.binancefuture.com',
   coinm2: undefined, // No demo for coinm2
   coinmTestnet: undefined, // No demo for testnet
+  // coinmTestnetPublic: undefined,
+  // coinmTestnetMarket: undefined,
+  // coinmTestnetPrivate: undefined,
   coinmWSAPI: 'wss://testnet.binancefuture.com',
   coinmWSAPITestnet: undefined, // No demo for testnet
 
@@ -271,9 +325,19 @@ export const WS_KEY_DEMO_URL_MAP: Record<WsKey, string | undefined> = {
   alpha: undefined,
 };
 
+/**
+ * For some products, topics are broken down into 3 endpoint/connection categories:
+ *  https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Important-WebSocket-Change-Notice#public--market-combined-subscriptions
+ *
+ * - Public (high frequency market data, e.g. book updates)
+ * - Market (general market data)
+ * - Private (account data, user data stream)
+ */
+export type WSConnectionCategory = 'public' | 'market' | 'private';
+
 export function getWsURLSuffix(
   wsKey: WsKey,
-  connectionType: 'market' | 'userData',
+  connectionType: WSConnectionCategory,
 ): string {
   switch (wsKey) {
     case 'main':
@@ -283,9 +347,10 @@ export function getWsURLSuffix(
     case 'mainTestnetPublic':
     case 'mainTestnetUserData': {
       switch (connectionType) {
+        case 'public':
         case 'market':
           return '/stream';
-        case 'userData':
+        case 'private':
           return '/ws';
         default: {
           throw neverGuard(
@@ -301,12 +366,16 @@ export function getWsURLSuffix(
     case 'marginUserData': {
       return '/ws-api/v3';
     }
+    // USDM Futures
     case 'usdm':
     case 'usdmTestnet': {
       switch (connectionType) {
+        // Legacy market data endpoints subscribe via /stream.
+        // In future, routing should automatically direct topics to usdmPublic or usdmMarket, depending on the topic
+        case 'public':
         case 'market':
           return '/stream';
-        case 'userData':
+        case 'private':
           return '/ws';
         default: {
           throw neverGuard(
@@ -316,6 +385,18 @@ export function getWsURLSuffix(
         }
       }
     }
+    case 'usdmPublic':
+    case 'usdmTestnetPublic':
+      return '/public/stream';
+
+    case 'usdmMarket':
+    case 'usdmTestnetMarket':
+      return '/market/stream';
+
+    case 'usdmPrivate':
+    case 'usdmTestnetPrivate':
+      return '/private/stream?listenKey='; // listen key will be suffixed to this
+
     case 'usdmWSAPI':
     case 'usdmWSAPITestnet': {
       return '/ws-fapi/v1';
@@ -324,14 +405,16 @@ export function getWsURLSuffix(
     case 'coinmWSAPITestnet': {
       return '/ws-dapi/v1';
     }
+    // CoinM Futures & European Options
     case 'coinm':
     case 'coinmTestnet':
     case 'eoptions':
       switch (connectionType) {
+        case 'public':
         case 'market':
-          return '/market/stream';
-        case 'userData':
-          return '/private/ws';
+          return '/stream';
+        case 'private':
+          return '/ws/'; // listen key will be suffixed to this, both coinm & eoptions
         default: {
           throw neverGuard(
             connectionType,
@@ -339,6 +422,15 @@ export function getWsURLSuffix(
           );
         }
       }
+    // case 'coinmPublic':
+    // case 'coinmTestnetPublic':
+    //   return '/public/stream';
+    // case 'coinmMarket':
+    // case 'coinmTestnetMarket':
+    //   return '/market/stream';
+    // case 'coinmPrivate':
+    // case 'coinmTestnetPrivate':
+    //   return '/private/stream';
     case 'coinm2':
       return '/stream&listenKey=';
     case 'portfolioMarginUserData':
@@ -352,6 +444,63 @@ export function getWsURLSuffix(
       throw neverGuard(wsKey, `Unhandled WsKey "${wsKey}"`);
     }
   }
+}
+
+/**
+ * Follows API spec to route topics to specific WS Endpoints:
+ * https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Important-WebSocket-Change-Notice#public--market-combined-subscriptions
+ */
+export function getWSConnectionCategoryForTopic(
+  wsTopic: WsTopic,
+): WSConnectionCategory {
+  switch (wsTopic) {
+    case 'diffDepth':
+    case 'mergedDepth':
+    case 'orderBookL2_200':
+    case 'orderBookL2_25':
+    case 'realtimes': // are these remnants from upgrade?
+    case 'bookTicker':
+    case 'depth': {
+      // Public (high-frequency public data)
+      return 'public';
+    }
+    case 'insurance':
+    case 'klineV2':
+    case 'aggTrade':
+    case 'markPrice':
+    case 'kline':
+    case 'continuousKline':
+    case 'miniTicker':
+    case 'ticker':
+    case 'forceOrder':
+    case 'compositeIndex':
+    case 'contractInfo':
+    case 'assetIndex':
+    case 'ticketInfo':
+    case 'instrument_info': {
+      return 'market';
+    }
+    case 'outboundAccountInfo':
+    case 'order':
+    case 'stop_order':
+    case 'position':
+    case 'trade':
+    case 'wallet':
+    case 'execution':
+    case 'executionReport': {
+      return 'private';
+    }
+    default: {
+      return 'market';
+      // const err = neverGuard(
+      //   wsTopic,
+      //   `Unhandled WsTopic "${wsTopic}" - cannot resolve connection category. Defaulting to 'market'`,
+      // );
+      // console.warn(new Date(), err);
+    }
+  }
+
+  return 'market';
 }
 
 export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [];
@@ -398,7 +547,11 @@ export function getTestnetWsKey(wsKey: WsKey): WsKey {
     case WS_KEY_MAP.usdmTestnet:
     case WS_KEY_MAP.mainWSAPITestnet:
     case WS_KEY_MAP.usdmWSAPITestnet:
-    case WS_KEY_MAP.coinmWSAPITestnet: {
+    case WS_KEY_MAP.coinmWSAPITestnet:
+    // case WS_KEY_MAP.coinmTestnetPrivate: // case WS_KEY_MAP.coinmTestnetMarket: // case WS_KEY_MAP.coinmTestnetPublic:
+    case WS_KEY_MAP.usdmTestnetMarket:
+    case WS_KEY_MAP.usdmTestnetPublic:
+    case WS_KEY_MAP.usdmTestnetPrivate: {
       return wsKey;
     }
 
@@ -419,6 +572,12 @@ export function getTestnetWsKey(wsKey: WsKey): WsKey {
     case WS_KEY_MAP.usdmWSAPI: {
       return WS_KEY_MAP.usdmWSAPITestnet;
     }
+    case WS_KEY_MAP.usdmMarket:
+      return WS_KEY_MAP.usdmTestnetMarket;
+    case WS_KEY_MAP.usdmPublic:
+      return WS_KEY_MAP.usdmTestnetPublic;
+    case WS_KEY_MAP.usdmPrivate:
+      return WS_KEY_MAP.usdmTestnetPrivate;
 
     case WS_KEY_MAP.coinm:
     case WS_KEY_MAP.coinm2: {
@@ -427,6 +586,13 @@ export function getTestnetWsKey(wsKey: WsKey): WsKey {
     case WS_KEY_MAP.coinmWSAPI: {
       return WS_KEY_MAP.coinmWSAPITestnet;
     }
+
+    // case WS_KEY_MAP.coinmMarket:
+    //   return WS_KEY_MAP.coinmTestnetMarket;
+    // case WS_KEY_MAP.coinmPublic:
+    //   return WS_KEY_MAP.coinmTestnetPublic;
+    // case WS_KEY_MAP.coinmPrivate:
+    //   return WS_KEY_MAP.coinmTestnetPrivate;
 
     case WS_KEY_MAP.marginRiskUserData:
     case WS_KEY_MAP.marginUserData:
@@ -664,16 +830,28 @@ export function resolveUserDataMarketForWsKey(wsKey: WsKey): WsMarket {
     case 'mainWSAPITestnet':
       return 'spotTestnet';
     case 'usdm':
+    case 'usdmMarket':
+    case 'usdmPrivate':
+    case 'usdmPublic':
     case 'usdmWSAPI':
       return 'usdm';
     case 'usdmTestnet':
+    case 'usdmTestnetMarket':
+    case 'usdmTestnetPrivate':
+    case 'usdmTestnetPublic':
     case 'usdmWSAPITestnet':
       return 'usdmTestnet';
     case 'coinm':
     case 'coinm2':
+    // case 'coinmMarket':
+    // case 'coinmPrivate':
+    // case 'coinmPublic':
     case 'coinmWSAPI':
       return 'coinm';
     case 'coinmTestnet':
+    // case 'coinmTestnetMarket':
+    // case 'coinmTestnetPrivate':
+    // case 'coinmTestnetPublic':
     case 'coinmWSAPITestnet':
       return 'coinmTestnet';
     case 'eoptions':
@@ -697,21 +875,52 @@ export function resolveUserDataMarketForWsKey(wsKey: WsKey): WsMarket {
 /**
  * Used by the legacy subscribe* utility methods to determine which wsKey to route the subscription to.
  */
-export function resolveWsKeyForLegacyMarket(
+export function getWsKeyForProductGroup(
   market: 'spot' | 'usdm' | 'coinm',
+  topic: WsTopic,
 ): WsKey {
+  const wsConnectionCategory = getWSConnectionCategoryForTopic(topic);
+
   switch (market) {
     case 'spot': {
       return 'main';
     }
     case 'coinm': {
       return 'coinm';
+      // switch (wsConnectionCategory) {
+      //   case 'market':
+      //     return 'coinmMarket';
+      //   case 'private':
+      //     return 'coinmPrivate';
+      //   case 'public':
+      //     return 'coinmPublic';
+      //   default: {
+      //     throw neverGuard(
+      //       wsConnectionCategory,
+      //       `getWsKeyForProductGroup(${market}, ${topic}): Unhandled wsConnectionCategory "${wsConnectionCategory}"`,
+      //     );
+      //   }
+      // }
     }
     case 'usdm': {
-      return 'usdm';
+      switch (wsConnectionCategory) {
+        case 'market':
+          return 'usdmMarket';
+        case 'private':
+          return 'usdmPrivate';
+        case 'public':
+          return 'usdmPublic';
+        default: {
+          throw neverGuard(
+            wsConnectionCategory,
+            `getWsKeyForProductGroup(${market}, ${topic}): Unhandled wsConnectionCategory "${wsConnectionCategory}"`,
+          );
+        }
+      }
     }
   }
 }
+
 export function parseRawWsMessageLegacy(
   event: any,
   options: WSClientConfigurableOptions,
