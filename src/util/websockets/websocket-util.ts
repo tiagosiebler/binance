@@ -351,7 +351,7 @@ export function getWsURLSuffix(
         case 'market':
           return '/stream';
         case 'private':
-          return '/ws';
+          return '/ws/'; // /ws/listenKeyHere
         default: {
           throw neverGuard(
             connectionType,
@@ -376,7 +376,8 @@ export function getWsURLSuffix(
         case 'market':
           return '/stream';
         case 'private':
-          return '/ws';
+          // listen key will be suffixed to this
+          return '/ws/'; // /ws/listenKeyHere
         default: {
           throw neverGuard(
             connectionType,
@@ -395,7 +396,8 @@ export function getWsURLSuffix(
 
     case 'usdmPrivate':
     case 'usdmTestnetPrivate':
-      return '/private/stream?listenKey='; // listen key will be suffixed to this
+      // listen key will be suffixed to this
+      return '/private/stream?listenKey=';
 
     case 'usdmWSAPI':
     case 'usdmWSAPITestnet': {
@@ -414,7 +416,8 @@ export function getWsURLSuffix(
         case 'market':
           return '/stream';
         case 'private':
-          return '/ws/'; // listen key will be suffixed to this, both coinm & eoptions
+          // listen key will be suffixed to this, both coinm & eoptions
+          return '/ws/'; // /ws/listenKeyHere
         default: {
           throw neverGuard(
             connectionType,
@@ -434,10 +437,14 @@ export function getWsURLSuffix(
     case 'coinm2':
       return '/stream&listenKey=';
     case 'portfolioMarginUserData':
-      return '/pm/ws'; // pm/ws/listenKeyHere
+      // listen key will be suffixed to this
+      return '/pm/ws/'; // pm/ws/listenKeyHere
+
     case 'portfolioMarginProUserData':
-      return '/pm-classic/ws';
+      // listen key will be suffixed to this
+      return '/pm-classic/ws/'; // pm-classic/ws/listenKeyHere
     case 'alpha':
+      // https://developers.binance.com/docs/alpha/market-data/websocket-market-data
       // wss://nbstream.binance.com/w3w/wsa/stream
       return '/w3w/wsa/stream';
     default: {
