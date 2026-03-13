@@ -152,48 +152,61 @@ import {
       [
         // Aggregate Trade Stream
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Aggregate-Trade-Streams
-        // 'btcusdt@aggTrade',
+        'btcusdt@aggTrade',
+
         // Mark Price Stream
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream
-        // 'btcusdt@markPrice',
-        // 'btcusdt@markPrice@1s',
+        'btcusdt@markPrice',
+        'btcusdt@markPrice@1s',
+
         // Mark Price Stream for All market
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Mark-Price-Stream-for-All-market
-        // '!markPrice@arr',
+        '!markPrice@arr',
+
         // Kline/Candlestick Streams
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Kline-Candlestick-Streams
-        // 'btcusdt@kline_1m',
+        'btcusdt@kline_1m',
+
         // Continuous Contract Kline/Candlestick Streams
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Continuous-Contract-Kline-Candlestick-Streams
-        // 'btcusdt_perpetual@continuousKline_1m', // DOESNT EXIST AS TYPE GUARD, ONLY IN BEAUTIFIER
+        'btcusdt_perpetual@continuousKline_1m', // DOESNT EXIST AS TYPE GUARD, ONLY IN BEAUTIFIER
+
         // Individual Symbol Mini Ticker Stream
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Mini-Ticker-Stream
-        // 'btcusdt@miniTicker', // DOESNT EXIST AS TYPE GUARD, ONLY FOR RAW MESSAGE
+        'btcusdt@miniTicker', // DOESNT EXIST AS TYPE GUARD, ONLY FOR RAW MESSAGE
+
         // All Market Mini Tickers Stream
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Mini-Tickers-Stream
-        // '!miniTicker@arr', // DOESNT EXIST AS TYPE GUARD
+        '!miniTicker@arr', // DOESNT EXIST AS TYPE GUARD
+
         // Individual Symbol Ticker Streams
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Individual-Symbol-Ticker-Streams
-        // 'btcusdt@ticker',
+        'btcusdt@ticker',
+
         // All Market Tickers Stream
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Tickers-Stream
-        // '!ticker@arr', // DOESNT EXIST AS TYPE GUARD
+        '!ticker@arr', // DOESNT EXIST AS TYPE GUARD
+
         // Liquidation Order Stream
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Liquidation-Order-Streams
-        // 'btcusdt@forceOrder',
+        'btcusdt@forceOrder',
+
         // Liquidation Order Stream for All market
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Market-Liquidation-Order-Streams
-        // '!forceOrder@arr',
+        '!forceOrder@arr',
+
         // Composite Index Symbol Information Streams
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Composite-Index-Symbol-Information-Streams
-        // 'btcusdt@compositeIndex', // DOESNT EXIST AS TYPE GUARD
+
+        'btcusdt@compositeIndex', // DOESNT EXIST AS TYPE GUARD
         // Contract Info Stream
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Contract-Info-Stream
-        // '!contractInfo', // DOESNT EXIST AS TYPE GUARD
+        '!contractInfo', // DOESNT EXIST AS TYPE GUARD
+
         // Multi-Assets Mode Asset Index Stream
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Multi-Assets-Mode-Asset-Index
-        // '!assetIndex@arr', // DOESNT EXIST AS TYPE GUARD
-        // 'btcusdt@assetIndex',
+        '!assetIndex@arr', // DOESNT EXIST AS TYPE GUARD
+        'btcusdt@assetIndex',
       ],
       wsConnectionKey,
     );

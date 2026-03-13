@@ -153,19 +153,19 @@ import {
       [
         // Individual Symbol Book Ticker Streams
         // https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams#individual-symbol-book-ticker-streams
-        // 'btcusdt@bookTicker',
+        'btcusdt@bookTicker',
         // All Book Tickers Stream
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/All-Book-Tickers-Stream
-        // '!bookTicker', // DOESNT EXIST AS TYPE GUARD
+        '!bookTicker', // DOESNT EXIST AS TYPE GUARD
         // Partial Book Depth Streams
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Partial-Book-Depth-Streams
-        // 'btcusdt@depth5',
-        // 'btcusdt@depth10@100ms',
+        'btcusdt@depth5',
+        'btcusdt@depth10@100ms',
         // Diff. Book Depth Stream
         // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Diff-Book-Depth-Streams
-        // 'btcusdt@depth',
-        // 'btcusdt@depth@100ms',
-        // 'btcusdt@depth@500ms',
+        'btcusdt@depth',
+        'btcusdt@depth@100ms',
+        'btcusdt@depth@500ms',
       ],
       wsConnectionKey,
     );
