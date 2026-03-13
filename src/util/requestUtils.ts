@@ -259,7 +259,13 @@ export function requiresWSAPINewClientOID(
     case WS_KEY_MAP.mainTestnetUserData:
     case WS_KEY_MAP.marginRiskUserData:
     case WS_KEY_MAP.usdm:
+    case WS_KEY_MAP.usdmMarket:
+    case WS_KEY_MAP.usdmPublic:
+    case WS_KEY_MAP.usdmPrivate:
     case WS_KEY_MAP.usdmTestnet:
+    case WS_KEY_MAP.usdmTestnetMarket:
+    case WS_KEY_MAP.usdmTestnetPublic:
+    case WS_KEY_MAP.usdmTestnetPrivate:
     case WS_KEY_MAP.coinm:
     case WS_KEY_MAP.coinm2:
     case WS_KEY_MAP.coinmTestnet:

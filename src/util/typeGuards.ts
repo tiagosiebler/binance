@@ -84,6 +84,12 @@ export function isWSAPIWsKey(wsKey: WsKey): wsKey is WSAPIWsKey {
     case 'mainTestnetPublic':
     case 'mainTestnetUserData':
     case 'usdm':
+    case 'usdmPublic':
+    case 'usdmMarket':
+    case 'usdmPrivate':
+    case 'usdmTestnetPublic':
+    case 'usdmTestnetMarket':
+    case 'usdmTestnetPrivate':
     case 'usdmTestnet':
     case 'coinm':
     case 'coinmTestnet':
