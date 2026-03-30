@@ -13,7 +13,7 @@
     "test": "jest",
     "test:rest:public": "jest \"public\\.test\\.ts$\"",
     "test:rest:private": "jest \"(private\\.test|private\\.staking).*\\.ts$\"",
-    "test:wsapi": "jest \"wsapi\\.test\\.ts$\"",
+    "test:wsapi": "jest \"wsapi\\..*\\.test\\.ts$\"",
     "test:misc:auth": "jest \"test/auth/.*\\.test\\.ts$\"",
     "test:misc:other": "jest \"(beautifier|network)\\.test\\.ts$\"",
     "test:watch": "jest --watch",
