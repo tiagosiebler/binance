@@ -496,11 +496,11 @@ export class WebsocketClient extends BaseWebsocketClient<
       const encodeValues = true;
       const filterUndefinedParams = true;
 
-      const semiFinalRequestParams = {
+      const semiFinalRequestParams = Object.fromEntries(Object.entries({
         apiKey: this.options.api_key,
         ...otherParams,
-      };
-
+      }).sort(([a], [b]) => a.localeCompare(b)));
+      
       const serialisedParams = serialiseParams(
         semiFinalRequestParams,
         strictParamValidation,
