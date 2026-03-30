@@ -83,7 +83,7 @@ jobs:
           PROXY_USER: ${{ secrets.PROXY_USER }}
           PROXY_PASS: ${{ secrets.PROXY_PASS }}
 
-      - name: Test WS API
+      - name: Test WebSocket API Auth
         run: npm run test
         env:
           API_KEY_COM: ${{ secrets.API_KEY_COM }}
