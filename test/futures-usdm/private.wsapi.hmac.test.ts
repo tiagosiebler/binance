@@ -148,8 +148,15 @@ describe('Private Futures USDM WebSocket API - HMAC', () => {
       };
 
       // Read-only API keys, so an invalid permissions error confirms that sign was OK and we successfully authenticated, but just don't have permissions for that endpoint:
-      expect(e.error?.code).toBe(expectedPermissionError.error.code);
-      expect(e.status).toBe(expectedPermissionError.status);
+      // expect code to match -2015 or -4408
+      // -1022 = signature error == issue in SDK
+      // -2015 = invalid key permissions = sign OK
+      // {"code":-4408,"msg":"This symbol is in reduce only mode due to regulation requirements. Please upgrade to Binance Credits Trading Mode."}
+      expect([-2015, -4408]).toContain(e.error?.code);
+      expect([400, 401]).toContain(e.status);
+
+      // expect(e.error?.code).toBe(expectedPermissionError.error.code);
+      // expect(e.status).toBe(expectedPermissionError.status);
     }
   });
 

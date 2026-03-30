@@ -326,12 +326,17 @@ export function serialiseParams(
   strict_validation = false,
   encodeValues: boolean = false,
   filterUndefinedParams: boolean = false,
+  sortProperties = false,
 ): string {
-  const paramKeys = !filterUndefinedParams
-    ? Object.keys(params)
-    : Object.keys(params).filter((key) => typeof params[key] !== 'undefined');
+  const paramKeys = Object.keys(params);
 
-  return paramKeys
+  const filteredKeys = filterUndefinedParams
+    ? paramKeys.filter((key) => typeof params[key] !== 'undefined')
+    : paramKeys;
+
+  const sortedKeys = sortProperties ? filteredKeys.sort() : filteredKeys;
+
+  return sortedKeys
     .map((key) => {
       const value = params[key];
       if (strict_validation === true && typeof value === 'undefined') {
