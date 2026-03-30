@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DefaultLogger, MainClient, WebsocketAPIClient } from '../../src';
 import { getTestProxy, getWSTestProxy } from '../proxy.util';
 

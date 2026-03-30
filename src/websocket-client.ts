@@ -495,6 +495,7 @@ export class WebsocketClient extends BaseWebsocketClient<
       const strictParamValidation = true;
       const encodeValues = true;
       const filterUndefinedParams = true;
+      const sortProperties = true;
 
       const semiFinalRequestParams = {
         apiKey: this.options.api_key,
@@ -506,6 +507,7 @@ export class WebsocketClient extends BaseWebsocketClient<
         strictParamValidation,
         encodeValues,
         filterUndefinedParams,
+        sortProperties,
       );
 
       let signature: string;

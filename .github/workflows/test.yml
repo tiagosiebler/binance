@@ -29,7 +29,61 @@ jobs:
       - name: Check Lint
         run: npm run lint
 
-      - name: Test
+      - name: Test REST API Public
+        run: npm run test:rest:public
+        env:
+          PROXY_ENABLED: ${{ secrets.PROXY_ENABLED }}
+          PROXY_HOST: ${{ secrets.PROXY_HOST }}
+          PROXY_PORT: ${{ secrets.PROXY_PORT }}
+          PROXY_USER: ${{ secrets.PROXY_USER }}
+          PROXY_PASS: ${{ secrets.PROXY_PASS }}
+
+      - name: Test REST API Private
+        run: npm run test:rest:private
+        env:
+          API_KEY_COM: ${{ secrets.API_KEY_COM }}
+          API_SECRET_COM: ${{ secrets.API_SECRET_COM }}
+          API_RSA_KEY_COM: ${{ secrets.API_RSA_KEY_COM }}
+          API_RSA_SECRET_COM: ${{ secrets.API_RSA_SECRET_COM }}
+          API_ED25519_KEY_COM: ${{ secrets.API_ED25519_KEY_COM }}
+          API_ED25519_SECRET_COM: ${{ secrets.API_ED25519_SECRET_COM }}
+          PROXY_ENABLED: ${{ secrets.PROXY_ENABLED }}
+          PROXY_HOST: ${{ secrets.PROXY_HOST }}
+          PROXY_PORT: ${{ secrets.PROXY_PORT }}
+          PROXY_USER: ${{ secrets.PROXY_USER }}
+          PROXY_PASS: ${{ secrets.PROXY_PASS }}
+
+      - name: Test Misc - Auth
+        run: npm run test:misc:auth
+        env:
+          API_KEY_COM: ${{ secrets.API_KEY_COM }}
+          API_SECRET_COM: ${{ secrets.API_SECRET_COM }}
+          API_RSA_KEY_COM: ${{ secrets.API_RSA_KEY_COM }}
+          API_RSA_SECRET_COM: ${{ secrets.API_RSA_SECRET_COM }}
+          API_ED25519_KEY_COM: ${{ secrets.API_ED25519_KEY_COM }}
+          API_ED25519_SECRET_COM: ${{ secrets.API_ED25519_SECRET_COM }}
+          PROXY_ENABLED: ${{ secrets.PROXY_ENABLED }}
+          PROXY_HOST: ${{ secrets.PROXY_HOST }}
+          PROXY_PORT: ${{ secrets.PROXY_PORT }}
+          PROXY_USER: ${{ secrets.PROXY_USER }}
+          PROXY_PASS: ${{ secrets.PROXY_PASS }}
+
+      - name: Test Misc - Other
+        run: npm run test:misc:other
+        env:
+          API_KEY_COM: ${{ secrets.API_KEY_COM }}
+          API_SECRET_COM: ${{ secrets.API_SECRET_COM }}
+          API_RSA_KEY_COM: ${{ secrets.API_RSA_KEY_COM }}
+          API_RSA_SECRET_COM: ${{ secrets.API_RSA_SECRET_COM }}
+          API_ED25519_KEY_COM: ${{ secrets.API_ED25519_KEY_COM }}
+          API_ED25519_SECRET_COM: ${{ secrets.API_ED25519_SECRET_COM }}
+          PROXY_ENABLED: ${{ secrets.PROXY_ENABLED }}
+          PROXY_HOST: ${{ secrets.PROXY_HOST }}
+          PROXY_PORT: ${{ secrets.PROXY_PORT }}
+          PROXY_USER: ${{ secrets.PROXY_USER }}
+          PROXY_PASS: ${{ secrets.PROXY_PASS }}
+
+      - name: Test WebSocket API Auth
         run: npm run test
         env:
           API_KEY_COM: ${{ secrets.API_KEY_COM }}

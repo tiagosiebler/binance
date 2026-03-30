@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-require-imports */
 import { AxiosRequestConfig } from 'axios';
 
@@ -16,7 +17,7 @@ export function getTestProxy(): AxiosRequestConfig {
     throw new Error('One or more env vars missing for proxy support');
   }
 
-  console.log('Test proxy enabled...');
+  // console.log('Test proxy enabled...');
 
   return {
     proxy: {
@@ -44,7 +45,7 @@ export function getWSTestProxy(): Partial<WSClientConfigurableOptions> {
     throw new Error('One or more env vars missing for proxy support');
   }
 
-  console.log('WS Test proxy enabled...');
+  // console.log('WS Test proxy enabled...');
 
   return {
     wsOptions: {

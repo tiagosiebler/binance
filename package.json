@@ -1,6 +1,6 @@
 {
   "name": "binance",
-  "version": "3.5.3",
+  "version": "3.5.4",
   "description": "Professional Node.js & JavaScript SDK for Binance REST APIs & WebSockets, with TypeScript & end-to-end tests.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -11,6 +11,11 @@
   ],
   "scripts": {
     "test": "jest",
+    "test:rest:public": "jest \"public\\.test\\.ts$\"",
+    "test:rest:private": "jest \"(private\\.test|private\\.staking).*\\.ts$\"",
+    "test:wsapi": "jest \"wsapi\\..*\\.test\\.ts$\"",
+    "test:misc:auth": "jest \"test/auth/.*\\.test\\.ts$\"",
+    "test:misc:other": "jest \"(beautifier|network)\\.test\\.ts$\"",
     "test:watch": "jest --watch",
     "clean": "rimraf lib dist",
     "build": "tsc",
