@@ -488,12 +488,12 @@ This table includes all endpoints from the official Exchange API docs and corres
 | [getInstLoanBorrowRepayRecords()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4272) | :closed_lock_with_key:  | GET | `sapi/v1/margin/loan-group/borrow-repay` |
 | [getMarginInterestRebateBalance()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4278) | :closed_lock_with_key:  | GET | `sapi/v1/margin/loan-group/interest-rebate-balance` |
 | [getMarginInterestRebateBalanceRecords()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4282) | :closed_lock_with_key:  | GET | `sapi/v1/margin/loan-group/interest-rebate-balance/records` |
-| [getAlphaTokenList()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4297) | :closed_lock_with_key:  | POST | `sapi/v1/broker/subAccount` |
-| [getAlphaExchangeInfo()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4304) | :closed_lock_with_key:  | POST | `sapi/v1/broker/subAccount` |
-| [getAlphaAggTrades()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4311) | :closed_lock_with_key:  | POST | `sapi/v1/broker/subAccount` |
-| [getAlphaKlines()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4319) | :closed_lock_with_key:  | POST | `sapi/v1/broker/subAccount` |
-| [getAlphaTicker()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4327) | :closed_lock_with_key:  | POST | `sapi/v1/broker/subAccount` |
-| [getAlphaFullDepth()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4335) | :closed_lock_with_key:  | POST | `sapi/v1/broker/subAccount` |
+| [getAlphaTokenList()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4297) |  | GET | `bapi/defi/v1/public/wallet-direct/buw/wallet/cex/alpha/all/token/list` |
+| [getAlphaExchangeInfo()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4304) |  | GET | `bapi/defi/v1/public/alpha-trade/get-exchange-info` |
+| [getAlphaAggTrades()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4311) |  | GET | `bapi/defi/v1/public/alpha-trade/agg-trades` |
+| [getAlphaKlines()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4319) |  | GET | `bapi/defi/v1/public/alpha-trade/klines` |
+| [getAlphaTicker()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4327) |  | GET | `bapi/defi/v1/public/alpha-trade/ticker` |
+| [getAlphaFullDepth()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4335) |  | GET | `bapi/defi/v1/public/alpha-trade/fullDepth` |
 | [createBrokerSubAccount()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4351) | :closed_lock_with_key:  | POST | `sapi/v1/broker/subAccount` |
 | [getBrokerSubAccount()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4357) | :closed_lock_with_key:  | GET | `sapi/v1/broker/subAccount` |
 | [enableMarginBrokerSubAccount()](https://github.com/tiagosiebler/binance/blob/master/src/main-client.ts#L4363) | :closed_lock_with_key:  | POST | `sapi/v1/broker/subAccount/futures` |
