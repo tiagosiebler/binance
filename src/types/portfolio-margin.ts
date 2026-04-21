@@ -123,6 +123,96 @@ export interface NewPortfolioConditionalOrderResponse {
   priceMatch: PMPriceMatch;
 }
 
+export type PortfolioUMAlgoType = 'CONDITIONAL';
+
+export interface NewPortfolioUMAlgoOrderReq {
+  algoType: PortfolioUMAlgoType;
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  positionSide?: 'BOTH' | 'LONG' | 'SHORT';
+  type: PMStrategyType;
+  timeInForce?: string;
+  quantity?: string;
+  price?: string;
+  triggerPrice?: string;
+  workingType?: PMWorkingType;
+  priceMatch?: PMPriceMatch;
+  closePosition?: string;
+  priceProtect?: string;
+  reduceOnly?: string;
+  activatePrice?: string;
+  callbackRate?: string;
+  clientAlgoId?: string;
+  newOrderRespType?: 'ACK' | 'RESULT';
+  selfTradePreventionMode?: PMSelfTradePreventionMode;
+  goodTillDate?: number;
+}
+
+export interface PortfolioUMAlgoOrder {
+  algoId: number;
+  clientAlgoId: string;
+  algoType: string;
+  orderType: string;
+  symbol: string;
+  side: string;
+  positionSide: string;
+  timeInForce: string;
+  quantity: string;
+  algoStatus: string;
+  triggerPrice: string;
+  price: string;
+  icebergQuantity: string | null;
+  selfTradePreventionMode: string;
+  workingType: string;
+  priceMatch: string;
+  closePosition: boolean;
+  priceProtect: boolean;
+  reduceOnly: boolean;
+  activatePrice: string;
+  callbackRate: string;
+  createTime: number;
+  updateTime: number;
+  triggerTime: number;
+  goodTillDate: number;
+  actualOrderId?: string;
+  actualPrice?: string;
+  tpTriggerPrice?: string;
+  tpPrice?: string;
+  slTriggerPrice?: string;
+  slPrice?: string;
+  tpOrderType?: string;
+}
+
+export interface CancelPortfolioUMAlgoOrderReq {
+  algoId?: number;
+  clientAlgoId?: string;
+}
+
+export interface PortfolioUMCancelAlgoOrderResponse {
+  algoId: number;
+  clientAlgoId: string;
+  code: string;
+  msg: string;
+}
+
+export interface PortfolioUMCancelAllUMAlgoOpenOrdersResponse {
+  code: number;
+  msg: string;
+}
+
+export interface QueryPortfolioUMAlgoOrderReq {
+  algoId?: number;
+  clientAlgoId?: string;
+}
+
+export interface QueryPortfolioAllUMAlgoOrdersReq {
+  symbol: string;
+  algoId?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}
+
 export interface NewPortfolioCMOrderReq {
   symbol: string;
   side: 'BUY' | 'SELL';
@@ -1418,4 +1508,9 @@ export interface DownloadLinkResponse {
   notified: boolean; // ignore
   expirationTimestamp: number; // The link would expire after this timestamp
   isExpired: boolean | null;
+}
+
+export interface PortfolioTradFiPerpsContractSignResponse {
+  code: number;
+  msg: string;
 }

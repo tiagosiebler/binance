@@ -93,6 +93,24 @@ export interface WSAPIAvgPriceRequest {
 }
 
 /**
+ * Query execution rules (e.g. PRICE_RANGE). Only one of symbol, symbols, or symbolStatus per request.
+ */
+export interface WSAPIExecutionRulesRequest {
+  symbol?: string;
+  symbols?: string[];
+  symbolStatus?: 'TRADING' | 'HALT' | 'BREAK';
+}
+
+export interface WSAPIReferencePriceRequest {
+  symbol: string;
+}
+
+export interface WSAPIReferencePriceCalculationRequest {
+  symbol: string;
+  symbolStatus?: 'TRADING' | 'HALT' | 'BREAK';
+}
+
+/**
  * Symbol for single symbol, or symbols for multiple symbols
  */
 export interface WSAPITicker24hrRequest {

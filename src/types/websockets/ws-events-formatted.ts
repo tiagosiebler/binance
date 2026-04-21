@@ -263,6 +263,38 @@ export interface WsMessageSpotUserDataExecutionReportEventFormatted
   orderQuoteQty: number;
   workingTime: number;
   selfTradePreventionMode: SelfTradePreventionMode;
+  expiryReason?: string;
+  trailingDelta?: number;
+  preventedMatchId?: number;
+  trailingTime?: number;
+  strategyId?: number;
+  strategyType?: number;
+  tradeGroupId?: number;
+  counterOrderId?: number;
+  preventedQuantity?: number;
+  lastPreventedQuantity?: number;
+  counterSymbol?: string;
+  preventedExecutionQuantity?: number;
+  preventedExecutionPrice?: number;
+  preventedExecutionQuoteQty?: number;
+}
+
+export interface WsMessagePortfolioMarginProAccountUpdateFormatted
+  extends WsSharedBase {
+  eventType: 'PM_PRO_ACCOUNT_UPDATE';
+  eventTime: number;
+  uniMMR: number;
+  accountEquity: number;
+  actualEquity: number;
+  initialMargin: number;
+  maintenanceMargin: number;
+  availableBalance: number;
+  virtualMaxWithdraw: number;
+}
+
+export interface WsMessageWsapiServerShutdownFormatted extends WsSharedBase {
+  eventType: 'serverShutdown';
+  eventTime: number;
 }
 
 export interface OrderObjectFormatted {
@@ -440,6 +472,8 @@ export interface WsMessageMarkPriceEventFormatted extends WsSharedBase {
   eventTime: number;
   symbol: string;
   markPrice: number;
+  /** Mark price moving average (USDⓈ-M). */
+  markPriceMovingAverage?: number;
   settlePriceEstimate: number;
   indexPrice?: number; // undefined for coinm
   /** Note this is in decimal format (e.g. 0.0004 === 0.04%). Multiply by 100 to get funding rate percent value */
@@ -576,10 +610,12 @@ export type WsMessageFuturesUserDataEventFormatted =
 
 export type WsUserDataEvents =
   | WsMessageSpotUserDataEventFormatted
-  | WsMessageFuturesUserDataEventFormatted;
+  | WsMessageFuturesUserDataEventFormatted
+  | WsMessagePortfolioMarginProAccountUpdateFormatted;
 
 export type WsFormattedMessage =
   | WsUserDataEvents
+  | WsMessageWsapiServerShutdownFormatted
   | WsMessageKlineFormatted
   | WsMessageAggTradeFormatted
   | WsMessageTradeFormatted

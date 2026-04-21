@@ -443,6 +443,8 @@ export interface WSAPISOROrderPlaceResponse {
   type: string;
   side: string;
   workingTime: number;
+  /** With newOrderRespType RESULT or FULL when the order has an expiry reason. */
+  expiryReason?: string;
   fills: {
     matchType: string;
     price: string;
@@ -682,6 +684,8 @@ export interface WSAPISpotOrderRESULT extends WSAPISpotOrderACK {
   side: string;
   workingTime: number;
   selfTradePreventionMode: string;
+  /** With newOrderRespType RESULT or FULL when the order has an expiry reason. */
+  expiryReason?: string;
 }
 
 export interface WSAPISpotOrderFill {
