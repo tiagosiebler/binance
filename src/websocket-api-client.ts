@@ -1,4 +1,10 @@
-import { ExchangeInfo, SpotAmendKeepPriorityResult } from './types/spot';
+import {
+  ExchangeInfo,
+  SpotAmendKeepPriorityResult,
+  SpotExecutionRulesResponse,
+  SpotReferencePriceCalculationResponse,
+  SpotReferencePriceResult,
+} from './types/spot';
 import {
   WSAPIResponse,
   WSAPIUserDataListenKeyRequest,
@@ -10,6 +16,7 @@ import {
   WSAPIAllOrdersRequest,
   WSAPIAvgPriceRequest,
   WSAPIExchangeInfoRequest,
+  WSAPIExecutionRulesRequest,
   WSAPIFuturesAlgoOrderCancelRequest,
   WSAPIFuturesOrderBookRequest,
   WSAPIFuturesOrderCancelRequest,
@@ -43,6 +50,8 @@ import {
   WSAPIOrderStatusRequest,
   WSAPIOrderTestRequest,
   WSAPIRecvWindowTimestamp,
+  WSAPIReferencePriceCalculationRequest,
+  WSAPIReferencePriceRequest,
   WSAPISOROrderPlaceRequest,
   WSAPISOROrderTestRequest,
   WSAPITicker24hrRequest,
@@ -412,6 +421,51 @@ export class WebsocketAPIClient {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'avgPrice',
+      params,
+      { authIsOptional: true },
+    );
+  }
+
+  /**
+   * Query execution rules (e.g. PRICE_RANGE) for symbol(s) or by symbol status.
+   */
+  getSpotExecutionRules(
+    params?: WSAPIExecutionRulesRequest,
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<SpotExecutionRulesResponse>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'executionRules',
+      params,
+      { authIsOptional: true },
+    );
+  }
+
+  /**
+   * Query reference price for a symbol.
+   */
+  getSpotReferencePrice(
+    params: WSAPIReferencePriceRequest,
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<SpotReferencePriceResult>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'referencePrice',
+      params,
+      { authIsOptional: true },
+    );
+  }
+
+  /**
+   * Query how reference price is calculated for a symbol.
+   */
+  getSpotReferencePriceCalculation(
+    params: WSAPIReferencePriceCalculationRequest,
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<SpotReferencePriceCalculationResponse>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'referencePrice.calculation',
       params,
       { authIsOptional: true },
     );

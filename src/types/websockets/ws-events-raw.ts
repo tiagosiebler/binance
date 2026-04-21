@@ -225,6 +225,39 @@ export interface WsMessageSpotUserDataExecutionReportEventRaw
   Q: numberInString;
   W: number;
   V: SelfTradePreventionMode;
+  /** Expiry reason when present (user data executionReport). */
+  eR?: string;
+  d?: number;
+  v?: number;
+  D?: number;
+  j?: number;
+  J?: number;
+  u?: number;
+  U?: number;
+  A?: numberInString;
+  B?: numberInString;
+  Cs?: string;
+  pl?: numberInString;
+  pL?: numberInString;
+  pY?: numberInString;
+}
+
+export interface WsMessagePortfolioMarginProAccountUpdateRaw
+  extends WsSharedBase {
+  e: 'PM_PRO_ACCOUNT_UPDATE';
+  E: number;
+  u: numberInString;
+  eq: numberInString;
+  ae: numberInString;
+  im: numberInString;
+  mm: numberInString;
+  avb: numberInString;
+  vmw: numberInString;
+}
+
+export interface WsMessageWsapiServerShutdownRaw extends WsSharedBase {
+  e: 'serverShutdown';
+  E: number;
 }
 
 export interface OrderObjectRaw {
@@ -452,6 +485,8 @@ export interface WsMessageMarkPriceUpdateEventRaw extends WsSharedBase {
   E: number;
   s: string;
   p: string;
+  /** Mark price moving average (USDⓈ-M mark price stream). */
+  ap?: string;
   P: string;
   i: string;
   r: string;
@@ -550,10 +585,12 @@ export type WsMessageFuturesUserDataEventRaw =
 
 export type WsUserDataEventsRaw =
   | WsRawSpotUserDataEventRaw
-  | WsMessageFuturesUserDataEventRaw;
+  | WsMessageFuturesUserDataEventRaw
+  | WsMessagePortfolioMarginProAccountUpdateRaw;
 
 export type WsRawMessage =
   | WsEventStreamTerminatedRaw
+  | WsMessageWsapiServerShutdownRaw
   | WsUserDataEventsRaw
   | WsMessageKlineRaw
   | WsMessageAggTradeRaw

@@ -5,6 +5,7 @@ import {
   CancelPortfolioCMOrderReq,
   CancelPortfolioMarginOCOReq,
   CancelPortfolioMarginOrderReq,
+  CancelPortfolioUMAlgoOrderReq,
   CancelPortfolioUMConditionalOrderReq,
   CancelPortfolioUMOrderReq,
   DownloadLinkResponse,
@@ -23,6 +24,7 @@ import {
   NewPortfolioMarginOCOResponse,
   NewPortfolioMarginOrderReq,
   NewPortfolioMarginOrderResponse,
+  NewPortfolioUMAlgoOrderReq,
   NewPortfolioUMConditionalOrderReq,
   NewPortfolioUMOrderReq,
   NewPortfolioUMOrderResponse,
@@ -56,12 +58,16 @@ import {
   PortfolioMarginRepayRecord,
   PortfolioMarginTrade,
   PortfolioNegativeBalanceInterestRecord,
+  PortfolioTradFiPerpsContractSignResponse,
   PortfolioTradingStatus,
   PortfolioUMAccountAsset,
   PortfolioUMAccountAssetV2,
   PortfolioUMAccountConfig,
   PortfolioUMAccountPosition,
   PortfolioUMAccountPositionV2,
+  PortfolioUMAlgoOrder,
+  PortfolioUMCancelAlgoOrderResponse,
+  PortfolioUMCancelAllUMAlgoOpenOrdersResponse,
   PortfolioUMCancelConditionalOrderResponse,
   PortfolioUMCancelOrderResponse,
   PortfolioUMConditionalOrder,
@@ -76,6 +82,7 @@ import {
   PortfolioUMTrade,
   QueryPortfolioAllCMConditionalOrdersReq,
   QueryPortfolioAllCMOrdersReq,
+  QueryPortfolioAllUMAlgoOrdersReq,
   QueryPortfolioAllUMConditionalOrdersReq,
   QueryPortfolioAllUMOrdersReq,
   QueryPortfolioCMConditionalOrderHistoryReq,
@@ -91,6 +98,7 @@ import {
   QueryPortfolioMarginOCOReq,
   QueryPortfolioMarginOrderReq,
   QueryPortfolioMarginTradesReq,
+  QueryPortfolioUMAlgoOrderReq,
   QueryPortfolioUMConditionalOrderHistoryReq,
   QueryPortfolioUMForceOrdersReq,
   QueryPortfolioUMIncomeReq,
@@ -160,6 +168,10 @@ export class PortfolioClient extends BaseRestClient {
     return this.get('papi/v1/ping');
   }
 
+  signTradFiPerpsContract(): Promise<PortfolioTradFiPerpsContractSignResponse> {
+    return this.postPrivate('papi/v1/um/stock/contract');
+  }
+
   /**
    *
    * DERIVATIVES -TRADE endpoints
@@ -173,11 +185,21 @@ export class PortfolioClient extends BaseRestClient {
     return this.postPrivate('papi/v1/um/order', params);
   }
 
+  /**
+   * @deprecated From 2026-04-28; replaced by {@link PortfolioClient.submitNewUMAlgoOrder} (`POST /papi/v1/um/algo/order`).
+   */
   submitNewUMConditionalOrder(
     params: NewPortfolioUMConditionalOrderReq,
   ): Promise<NewPortfolioConditionalOrderResponse> {
     this.validateOrderId(params, 'newClientOrderId');
     return this.postPrivate('papi/v1/um/conditional/order', params);
+  }
+
+  submitNewUMAlgoOrder(
+    params: NewPortfolioUMAlgoOrderReq,
+  ): Promise<PortfolioUMAlgoOrder> {
+    this.validateOrderId(params, 'clientAlgoId');
+    return this.postPrivate('papi/v1/um/algo/order', params);
   }
 
   submitNewCMOrder(
@@ -235,17 +257,35 @@ export class PortfolioClient extends BaseRestClient {
     return this.deletePrivate('papi/v1/um/allOpenOrders', params);
   }
 
+  /**
+   * @deprecated From 2026-04-28; replaced by {@link PortfolioClient.cancelUMAlgoOrder} (`DELETE /papi/v1/um/algo/order`).
+   */
   cancelUMConditionalOrder(
     params: CancelPortfolioUMConditionalOrderReq,
   ): Promise<PortfolioUMCancelConditionalOrderResponse> {
     return this.deletePrivate('papi/v1/um/conditional/order', params);
   }
 
+  cancelUMAlgoOrder(
+    params: CancelPortfolioUMAlgoOrderReq,
+  ): Promise<PortfolioUMCancelAlgoOrderResponse> {
+    return this.deletePrivate('papi/v1/um/algo/order', params);
+  }
+
+  /**
+   * @deprecated From 2026-04-28; replaced by {@link PortfolioClient.cancelAllUMAlgoOpenOrders} (`DELETE /papi/v1/um/algo/allOpenOrders`).
+   */
   cancelAllUMConditionalOrders(params: { symbol: string }): Promise<{
     code: number;
     msg: string;
   }> {
     return this.deletePrivate('papi/v1/um/conditional/allOpenOrders', params);
+  }
+
+  cancelAllUMAlgoOpenOrders(params: {
+    symbol: string;
+  }): Promise<PortfolioUMCancelAllUMAlgoOpenOrdersResponse> {
+    return this.deletePrivate('papi/v1/um/algo/allOpenOrders', params);
   }
 
   cancelCMOrder(
@@ -324,24 +364,54 @@ export class PortfolioClient extends BaseRestClient {
     return this.getPrivate('papi/v1/um/openOrders', params);
   }
 
+  /**
+   * @deprecated From 2026-04-28; replaced by {@link PortfolioClient.getAllUMAlgoOrders} (`GET /papi/v1/um/algo/allAlgoOrders`).
+   */
   getAllUMConditionalOrders(
     params: QueryPortfolioAllUMConditionalOrdersReq,
   ): Promise<PortfolioUMConditionalOrder[]> {
     return this.getPrivate('papi/v1/um/conditional/allOrders', params);
   }
 
+  getAllUMAlgoOrders(
+    params: QueryPortfolioAllUMAlgoOrdersReq,
+  ): Promise<PortfolioUMAlgoOrder[]> {
+    return this.getPrivate('papi/v1/um/algo/allAlgoOrders', params);
+  }
+
+  /**
+   * @deprecated From 2026-04-28; replaced by {@link PortfolioClient.getUMAlgoOpenOrders} (`GET /papi/v1/um/algo/openAlgoOrders`).
+   */
   getUMOpenConditionalOrders(params: {
     symbol?: string;
   }): Promise<PortfolioUMConditionalOrder[]> {
     return this.getPrivate('papi/v1/um/conditional/openOrders', params);
   }
 
+  getUMAlgoOpenOrders(params?: {
+    symbol?: string;
+  }): Promise<PortfolioUMAlgoOrder[]> {
+    return this.getPrivate('papi/v1/um/algo/openAlgoOrders', params);
+  }
+
+  /**
+   * @deprecated From 2026-04-28; replaced by {@link PortfolioClient.getUMAlgoOrder} (`GET /papi/v1/um/algo/algoOrder`).
+   */
   getUMOpenConditionalOrder(
     params: QueryPortfolioUMOpenConditionalOrderReq,
   ): Promise<PortfolioUMConditionalOrder> {
     return this.getPrivate('papi/v1/um/conditional/openOrder', params);
   }
 
+  getUMAlgoOrder(
+    params: QueryPortfolioUMAlgoOrderReq,
+  ): Promise<PortfolioUMAlgoOrder> {
+    return this.getPrivate('papi/v1/um/algo/algoOrder', params);
+  }
+
+  /**
+   * @deprecated From 2026-04-28; use {@link PortfolioClient.getUMAlgoOrder} or {@link PortfolioClient.getAllUMAlgoOrders} instead of `.../conditional/orderHistory`.
+   */
   getUMConditionalOrderHistory(
     params: QueryPortfolioUMConditionalOrderHistoryReq,
   ): Promise<PortfolioUMConditionalOrder> {

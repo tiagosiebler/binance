@@ -1,6 +1,11 @@
 import { WS_KEY_MAP, WsKey } from '../../util/websockets/websocket-util';
 import { FuturesExchangeInfo } from '../futures';
-import { ExchangeInfo } from '../spot';
+import {
+  ExchangeInfo,
+  SpotExecutionRulesResponse,
+  SpotReferencePriceCalculationResponse,
+  SpotReferencePriceResult,
+} from '../spot';
 import {
   WSAPIAccountCommissionWSAPIRequest,
   WSAPIAccountInformationRequest,
@@ -8,6 +13,7 @@ import {
   WSAPIAllOrdersRequest,
   WSAPIAvgPriceRequest,
   WSAPIExchangeInfoRequest,
+  WSAPIExecutionRulesRequest,
   WSAPIFuturesAlgoOrderCancelRequest,
   WSAPIFuturesOrderBookRequest,
   WSAPIFuturesOrderCancelRequest,
@@ -39,6 +45,8 @@ import {
   WSAPIOrderStatusRequest,
   WSAPIOrderTestRequest,
   WSAPIRecvWindowTimestamp,
+  WSAPIReferencePriceCalculationRequest,
+  WSAPIReferencePriceRequest,
   WSAPISessionLogonRequest,
   WSAPISOROrderPlaceRequest,
   WSAPISOROrderTestRequest,
@@ -121,6 +129,9 @@ export const WS_API_Operations = [
   'klines',
   'uiKlines',
   'avgPrice',
+  'executionRules',
+  'referencePrice',
+  'referencePrice.calculation',
   'ticker.24hr',
   'ticker.tradingDay',
   'ticker',
@@ -311,6 +322,9 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
   klines: WSAPIKlinesRequest;
   uiKlines: WSAPIKlinesRequest;
   avgPrice: WSAPIAvgPriceRequest;
+  executionRules: void | WSAPIExecutionRulesRequest;
+  referencePrice: WSAPIReferencePriceRequest;
+  'referencePrice.calculation': WSAPIReferencePriceCalculationRequest;
   'ticker.24hr': void | WSAPITicker24hrRequest;
   'ticker.tradingDay': WSAPITickerTradingDayRequest;
   ticker: WSAPITickerRequest;
@@ -481,6 +495,9 @@ export interface WsAPIOperationResponseMap {
   klines: WSAPIResponse<WSAPIKline[]>;
   uiKlines: WSAPIResponse<WSAPIKline[]>;
   avgPrice: WSAPIResponse<WSAPIAvgPrice>;
+  executionRules: WSAPIResponse<SpotExecutionRulesResponse>;
+  referencePrice: WSAPIResponse<SpotReferencePriceResult>;
+  'referencePrice.calculation': WSAPIResponse<SpotReferencePriceCalculationResponse>;
   'ticker.24hr': WSAPIResponse<
     WSAPIFullTicker | WSAPIMiniTicker | WSAPIFullTicker[] | WSAPIMiniTicker[]
   >;

@@ -47,6 +47,8 @@ import {
   AlphaAggTrade,
   AlphaAggTradesParams,
   AlphaExchangeInfo,
+  AlphaFullDepthParams,
+  AlphaFullDepthResponse,
   AlphaKline,
   AlphaKlinesParams,
   AlphaTicker,
@@ -62,6 +64,16 @@ import {
   BasicSubAccount,
   BasicTimeRangeParam,
   BethRewardsHistory,
+  BfusdAccountResponse,
+  BfusdQuotaResponse,
+  BfusdRateHistoryRow,
+  BfusdRedeemParams,
+  BfusdRedeemResponse,
+  BfusdRedemptionHistoryRow,
+  BfusdRewardsHistoryRow,
+  BfusdSubscribeParams,
+  BfusdSubscribeResponse,
+  BfusdSubscriptionHistoryRow,
   BlvtRedemptionRecord,
   BlvtSubscriptionRecord,
   BlvtUserLimitInfo,
@@ -192,6 +204,10 @@ import {
   GetApplicationStatusParams,
   GetAssetParams,
   GetBethRewardsHistoryParams,
+  GetBfusdRateHistoryParams,
+  GetBfusdRedemptionHistoryParams,
+  GetBfusdRewardsHistoryParams,
+  GetBfusdSubscriptionHistoryParams,
   GetBlvtRedemptionRecordParams,
   GetBlvtSubscriptionRecordParams,
   GetBnsolRateHistoryReq,
@@ -270,6 +286,7 @@ import {
   GetMarginAccountBorrowRepayRecordsParams,
   GetMarginCapitalFlowParams,
   GetMarginInterestHistoryParams,
+  GetMarginInterestRebateBalanceRecordsParams,
   GetMarginOrderCountUsageParams,
   GetMinerDetailsParams,
   GetMinerDetailsResponse,
@@ -301,6 +318,10 @@ import {
   GetPortfolioMarginProInterestHistoryResponse,
   GetRateHistory,
   GetRateHistoryParams,
+  GetRwusdRateHistoryParams,
+  GetRwusdRedemptionHistoryParams,
+  GetRwusdRewardsHistoryParams,
+  GetRwusdSubscriptionHistoryParams,
   GetSmallLiabilityExchangeHistoryParams,
   GetSoftStakingProductListParams,
   GetSoftStakingProductListResponse,
@@ -375,6 +396,8 @@ import {
   MarginDelistSchedule,
   MarginInterestHistory,
   MarginInterestRateHistory,
+  MarginInterestRebateBalanceRecordsResponse,
+  MarginInterestRebateBalanceResponse,
   MarginOrderCountUsageResponse,
   MarginOTOCOOrder,
   MarginOTOOrder,
@@ -427,6 +450,9 @@ import {
   PMProMintBFUSDParams,
   PMProMintBFUSDResponse,
   PMProRedeemBFUSDResponse,
+  PortfolioMarginMarginCallLevelDeleteResponse,
+  PortfolioMarginMarginCallLevelGetResponse,
+  PortfolioMarginMarginCallLevelResponse,
   PortfolioMarginProAccountBalance,
   PortfolioMarginProSpanAccountInfo,
   PreventedMatch,
@@ -469,7 +495,18 @@ import {
   ReplaceSpotOrderParams,
   ReplaceSpotOrderResultSuccess,
   RollingWindowTickerParams,
+  RwusdAccountResponse,
+  RwusdQuotaResponse,
+  RwusdRateHistoryRow,
+  RwusdRedeemParams,
+  RwusdRedeemResponse,
+  RwusdRedemptionHistoryRow,
+  RwusdRewardsHistoryRow,
+  RwusdSubscribeParams,
+  RwusdSubscribeResponse,
+  RwusdSubscriptionHistoryRow,
   SetAutoSubscribeParams,
+  SetPortfolioMarginMarginCallLevelParams,
   SetSoftStakingParams,
   SetSoftStakingResponse,
   SimpleEarnAccountResponse,
@@ -498,7 +535,11 @@ import {
   SpecialLowLatencyKeyResponse,
   SpotAlgoOrder,
   SpotAmendKeepPriorityResult,
+  SpotExecutionRulesParams,
+  SpotExecutionRulesResponse,
   SpotOrder,
+  SpotReferencePriceCalculationResponse,
+  SpotReferencePriceResult,
   StakingBasicParams,
   StakingHistory,
   StakingHistoryParams,
@@ -773,6 +814,34 @@ export class MainClient extends BaseRestClient {
 
   getAvgPrice(params: { symbol: string }): Promise<CurrentAvgPrice> {
     return this.get('api/v3/avgPrice', params);
+  }
+
+  getExecutionRules(
+    params?: SpotExecutionRulesParams,
+  ): Promise<SpotExecutionRulesResponse> {
+    if (params && params['symbols'] && Array.isArray(params['symbols'])) {
+      const { symbols, ...otherParams } = params;
+      const symbolsQueryParam = JSON.stringify(symbols);
+
+      return this.get(
+        'api/v3/executionRules?symbols=' + symbolsQueryParam,
+        otherParams,
+      );
+    }
+    return this.get('api/v3/executionRules', params);
+  }
+
+  getReferencePrice(params: {
+    symbol: string;
+  }): Promise<SpotReferencePriceResult> {
+    return this.get('api/v3/referencePrice', params);
+  }
+
+  getReferencePriceCalculation(params: {
+    symbol: string;
+    symbolStatus?: 'TRADING' | 'HALT' | 'BREAK';
+  }): Promise<SpotReferencePriceCalculationResponse> {
+    return this.get('api/v3/referencePrice/calculation', params);
   }
 
   get24hrChangeStatistics(params?: {
@@ -2578,6 +2647,102 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
+   *
+   * BFUSD (sapi/v1/bfusd)
+   *
+   **/
+
+  getBfusdAccount(): Promise<BfusdAccountResponse> {
+    return this.getPrivate('sapi/v1/bfusd/account');
+  }
+
+  getBfusdQuota(): Promise<BfusdQuotaResponse> {
+    return this.getPrivate('sapi/v1/bfusd/quota');
+  }
+
+  subscribeBfusd(
+    params: BfusdSubscribeParams,
+  ): Promise<BfusdSubscribeResponse> {
+    return this.postPrivate('sapi/v1/bfusd/subscribe', params);
+  }
+
+  redeemBfusd(params: BfusdRedeemParams): Promise<BfusdRedeemResponse> {
+    return this.postPrivate('sapi/v1/bfusd/redeem', params);
+  }
+
+  getBfusdSubscriptionHistory(
+    params: GetBfusdSubscriptionHistoryParams,
+  ): Promise<{ rows: BfusdSubscriptionHistoryRow[]; total: number }> {
+    return this.getPrivate('sapi/v1/bfusd/history/subscriptionHistory', params);
+  }
+
+  getBfusdRedemptionHistory(
+    params: GetBfusdRedemptionHistoryParams,
+  ): Promise<{ rows: BfusdRedemptionHistoryRow[]; total: number }> {
+    return this.getPrivate('sapi/v1/bfusd/history/redemptionHistory', params);
+  }
+
+  getBfusdRewardsHistory(
+    params: GetBfusdRewardsHistoryParams,
+  ): Promise<{ rows: BfusdRewardsHistoryRow[]; total: number }> {
+    return this.getPrivate('sapi/v1/bfusd/history/rewardsHistory', params);
+  }
+
+  getBfusdRateHistory(
+    params: GetBfusdRateHistoryParams,
+  ): Promise<{ rows: BfusdRateHistoryRow[]; total: string }> {
+    return this.getPrivate('sapi/v1/bfusd/history/rateHistory', params);
+  }
+
+  /**
+   *
+   * RWUSD (sapi/v1/rwusd)
+   *
+   **/
+
+  getRwusdAccount(): Promise<RwusdAccountResponse> {
+    return this.getPrivate('sapi/v1/rwusd/account');
+  }
+
+  getRwusdQuota(): Promise<RwusdQuotaResponse> {
+    return this.getPrivate('sapi/v1/rwusd/quota');
+  }
+
+  subscribeRwusd(
+    params: RwusdSubscribeParams,
+  ): Promise<RwusdSubscribeResponse> {
+    return this.postPrivate('sapi/v1/rwusd/subscribe', params);
+  }
+
+  redeemRwusd(params: RwusdRedeemParams): Promise<RwusdRedeemResponse> {
+    return this.postPrivate('sapi/v1/rwusd/redeem', params);
+  }
+
+  getRwusdSubscriptionHistory(
+    params: GetRwusdSubscriptionHistoryParams,
+  ): Promise<{ rows: RwusdSubscriptionHistoryRow[]; total: number }> {
+    return this.getPrivate('sapi/v1/rwusd/history/subscriptionHistory', params);
+  }
+
+  getRwusdRedemptionHistory(
+    params: GetRwusdRedemptionHistoryParams,
+  ): Promise<{ rows: RwusdRedemptionHistoryRow[]; total: number }> {
+    return this.getPrivate('sapi/v1/rwusd/history/redemptionHistory', params);
+  }
+
+  getRwusdRewardsHistory(
+    params: GetRwusdRewardsHistoryParams,
+  ): Promise<{ rows: RwusdRewardsHistoryRow[]; total: number }> {
+    return this.getPrivate('sapi/v1/rwusd/history/rewardsHistory', params);
+  }
+
+  getRwusdRateHistory(
+    params: GetRwusdRateHistoryParams,
+  ): Promise<{ rows: RwusdRateHistoryRow[]; total: string }> {
+    return this.getPrivate('sapi/v1/rwusd/history/rateHistory', params);
+  }
+
+  /**
    * @deprecated as of 2024-01-19
    */
   getStakingProducts(
@@ -3821,6 +3986,20 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/portfolio/account');
   }
 
+  setPortfolioMarginMarginCallLevel(
+    params: SetPortfolioMarginMarginCallLevelParams,
+  ): Promise<PortfolioMarginMarginCallLevelResponse> {
+    return this.postPrivate('sapi/v1/portfolio/margin-call-level', params);
+  }
+
+  getPortfolioMarginMarginCallLevel(): Promise<PortfolioMarginMarginCallLevelGetResponse> {
+    return this.getPrivate('sapi/v1/portfolio/margin-call-level');
+  }
+
+  deletePortfolioMarginMarginCallLevel(): Promise<PortfolioMarginMarginCallLevelDeleteResponse> {
+    return this.deletePrivate('sapi/v1/portfolio/margin-call-level');
+  }
+
   bnbTransfer(params: BnbTransferParams): Promise<{
     tranId: number;
   }> {
@@ -4096,6 +4275,19 @@ export class MainClient extends BaseRestClient {
     return this.getPrivate('sapi/v1/margin/loan-group/borrow-repay', params);
   }
 
+  getMarginInterestRebateBalance(): Promise<MarginInterestRebateBalanceResponse> {
+    return this.getPrivate('sapi/v1/margin/loan-group/interest-rebate-balance');
+  }
+
+  getMarginInterestRebateBalanceRecords(
+    params?: GetMarginInterestRebateBalanceRecordsParams,
+  ): Promise<MarginInterestRebateBalanceRecordsResponse> {
+    return this.getPrivate(
+      'sapi/v1/margin/loan-group/interest-rebate-balance/records',
+      params,
+    );
+  }
+
   /**
    *
    * ALPHA TRADING - Market Data
@@ -4135,6 +4327,16 @@ export class MainClient extends BaseRestClient {
   getAlphaTicker(params: { symbol: string }): Promise<AlphaTicker> {
     return this.getForBaseUrl(
       'bapi/defi/v1/public/alpha-trade/ticker',
+      'www',
+      params,
+    );
+  }
+
+  getAlphaFullDepth(
+    params: AlphaFullDepthParams,
+  ): Promise<AlphaFullDepthResponse> {
+    return this.getForBaseUrl(
+      'bapi/defi/v1/public/alpha-trade/fullDepth',
       'www',
       params,
     );
