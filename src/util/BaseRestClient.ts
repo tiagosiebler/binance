@@ -7,7 +7,9 @@ import https from 'https';
 import { BinanceBaseUrlKey } from '../types/shared';
 import Beautifier from './beautifier';
 import {
+  generateNewOrderId,
   GenericAPIResponse,
+  getOrderIdPrefix,
   getRestBaseUrl,
   getRESTRequestSignature,
   getTestnetBaseUrlKey,
@@ -160,6 +162,22 @@ export default abstract class BaseRestClient {
 
   public getBaseUrlKey(): BinanceBaseUrlKey {
     return this.baseUrlKey;
+  }
+
+  /**
+   * Get the correct prefix for this product group (e.g. spot, margin, futures) to be used when generating a custom order ID (e.g. `newClientOrderId`).
+   *
+   * @returns The prefix that should be used when any custom order ID is included with an order (e.g. `newClientOrderId`). The prefix will always be 10 characters long.
+   */
+  public getOrderIdPrefix(): string {
+    return `x-${getOrderIdPrefix(this.getBaseUrlKey(), 'v1')}`;
+  }
+
+  /**
+   * @returns A randomly generated custom order ID that can be used when sending an order to the API. Typically used with the custom order ID parameter, such as `newClientOrderId`.
+   */
+  public generateNewOrderId(): string {
+    return generateNewOrderId(this.getBaseUrlKey());
   }
 
   public getRateLimitStates() {

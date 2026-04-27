@@ -142,6 +142,7 @@ export function generateNewOrderId(network: BinanceBaseUrlKey): string {
 
   return prefixedId;
 }
+
 export function getBaseURLKeyForWsKey(wsKey: WsKey): BinanceBaseUrlKey {
   switch (wsKey) {
     case WS_KEY_MAP.mainWSAPI:
