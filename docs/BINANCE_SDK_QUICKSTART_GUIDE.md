@@ -1307,12 +1307,12 @@ Move from public reads to private actions one layer at a time:
 
 1. Public REST APIs
 2. Public WebSockets
-3. Private account/user data streams
-4. Private REST account reads
+3. Private REST account reads
+4. Private account/user data streams
 5. Order validation
 6. Tiny demo or live trading tests
 
-For Spot, use `testNewOrder()` before `submitNewOrder()`. For Futures, prefer demo trading before live trading if it fits your setup.
+For Futures, prefer demo trading before live trading if it fits your setup.
 
 ### 2. Reconnect, then backfill
 
@@ -1323,13 +1323,14 @@ If your system uses WebSockets for account or market state, a reconnect should u
 1. Pause risky order actions when `reconnecting` fires.
 2. On `reconnected`, query REST for account state, orders, fills, positions, and any market state you depend on.
 3. Reconcile internal state.
-4. Resume normal processing.
+4. React to any discrepancies in internal vs exchange state, as needed.
+5. Resume normal processing.
 
 ### 3. Keep credentials scoped
 
 Live, demo trading, Spot testnet, and Futures testnet credentials are different. Keep them separate in your secrets manager and deployment configuration.
 
-Use the minimum permissions needed for each key. A market-data key should not be able to trade. A trading key should not have withdrawal permissions. Do not put live secrets in frontend code.
+Use the minimum permissions needed for each key. A market-data key should not be able to trade. A trading key should not have withdrawal permissions. Do not put live secrets in frontend code. Make use of IP whitelisting for any API keys. These must be protected, treat them like passwords.
 
 ### 4. Keep streams and commands separate
 
@@ -1342,9 +1343,9 @@ Spot, USD-M Futures, COIN-M Futures, Options, and Portfolio Margin do not all us
 - Spot: `BTCUSDT`
 - USD-M Futures: `BTCUSDT`
 - COIN-M Futures: `BTCUSD_PERP`
-- Stream names are usually lowercase, such as `btcusdt@trade`
+- Stream names are usually lowercase, such as `btcusdt@trade`. Refer to the examples and/or exchange API docs for exact stream names.
 
-Client order IDs deserve the same care. If you do not need a custom client order ID, omit it. If your strategy relies on idempotency, retries, or reconciliation, generate an ID before sending the order and persist it. If you build your own value, keep the SDK's product prefix in place and stay within Binance's length and character constraints.
+Client order IDs deserve the same care. If you do not need a custom client order ID, omit it. If your strategy relies on idempotency, retries, or reconciliation, generate an ID before sending the order and persist it using the restClient.generateNewOrderId() method. If you build your own value, keep the SDK's product prefix in place (query it using restClient.getOrderIdPrefix()) and stay within Binance's length and character constraints.
 
 ### 6. Watch clocks and rate limits
 
@@ -1373,6 +1374,9 @@ console.log(client.getRateLimitStates());
 ```
 
 If you see timestamp errors, fix system clock sync first. If you see rate-limit pressure, reduce polling, batch where the API allows it, and design around Binance's documented request weights.
+
+For more guidance on resolving timestamp & recvWindow issues, refer to the following guidance:
+https://github.com/sieblyio/awesome-crypto-examples/wiki/Timestamp-for-this-request-is-outside-of-the-recvWindow
 
 ### 7. Logging and large integers
 
