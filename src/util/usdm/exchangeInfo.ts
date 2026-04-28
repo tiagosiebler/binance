@@ -5,8 +5,9 @@ import {
   FuturesSymbolMinNotionalFilter,
 } from '../../types/futures';
 
-type USDMFuturesFilterByType<TFilterType extends FuturesSymbolFilter['filterType']> =
-  Extract<FuturesSymbolFilter, { filterType: TFilterType }>;
+type USDMFuturesFilterByType<
+  TFilterType extends FuturesSymbolFilter['filterType'],
+> = Extract<FuturesSymbolFilter, { filterType: TFilterType }>;
 
 export interface USDMFuturesNormalisedSymbolFilters {
   symbol: string;
