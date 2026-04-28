@@ -706,8 +706,8 @@ export interface WSAPINewFuturesAlgoOrderRequest<numberType = numberInString> {
   quantity?: numberType;
   reduceOnly?: BooleanString;
   price?: numberInString;
-  newClientOrderId?: string;
-  stopPrice?: numberInString;
+  clientAlgoId?: string;
+  triggerPrice?: numberInString;
   closePosition?: BooleanString;
   activatePrice?: numberInString;
   callbackRate?: numberInString;

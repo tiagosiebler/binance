@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { USDMClient } from '../../../src/index';
+import { FuturesNewAlgoOrderParams, USDMClient } from '../../../src/index';
 
 // or
-// import { USDMClient } from 'binance';
+// import { FuturesNewAlgoOrderParams, USDMClient } from 'binance';
 
 const key = process.env.API_KEY_COM || 'APIKEY';
 const secret = process.env.API_SECRET_COM || 'APISECRET';
@@ -10,70 +9,85 @@ const secret = process.env.API_SECRET_COM || 'APISECRET';
 const client = new USDMClient({
   api_secret: secret,
   api_key: key,
-  beautifyResponses: true,
+  beautifyResponses: false,
 });
 
-const symbol = 'BTCUSDT';
+const symbol = process.env.BINANCE_EXAMPLE_SYMBOL || 'BTCUSDT';
 
 async function start() {
   try {
-    // ### This is for Hedge Mode Only ###
-    // assuming you currently have a open position, and you want to modify the SL order.
-
-    /**
-     * first we get all long and short positions status
-     * the result of this method in hedge mode is array of two objects
-     * first index for LONG and second index for SHORT
-     */
-    const [
-      { positionAmt: longAmount, ...long },
-      { positionAmt: shortAmount, ...short },
-    ]: any = await client.getPositionsV3({ symbol });
-
-    // if longAmount is bigger than 0 means we have open long position and if shortAmount is below 0 means we have open short position
-    const hasLong = parseFloat(longAmount) > 0;
-    const hasShort = parseFloat(shortAmount) < 0;
-    const hasOpen = hasLong || hasShort;
-
-    // if we have any open position then we continue
-    if (hasOpen) {
-      // we get ourstop loss here
-      const orders = await client.getAllOpenOrders({ symbol });
-      const stopOrders =
-        orders.filter(({ type }) => type === 'STOP_MARKET') ?? [];
-
-      // we want to modify our long position SL here
-      if (hasLong) {
-        // we get the StopLoss order which is realted to long
-        const { orderId }: any = stopOrders.find(
-          ({ positionSide: ps }) => ps == 'LONG',
-        );
-
-        // if it exists, cancel it.
-        if (orderId) {
-          await client.cancelOrder({ symbol, orderId });
-        }
-
-        const { markPrice }: any = long;
-
-        // creating SL order
-        const result = await client.submitNewOrder({
-          symbol,
-          side: 'SELL', // the action of order, means this order will sell which is sl for long position
-          positionSide: 'LONG', // based on the headge mode we either LONG or SHORT, here we are doing it for our long pos
-          timeInForce: 'GTC',
-          type: 'STOP_MARKET',
-          closePosition: 'true', // this is here because we don't have the position quantity value, and it means closee all quantity
-          stopPrice: parseFloat((markPrice * 0.99).toFixed(3)), // set sl price 1% below current price
-          workingType: 'MARK_PRICE',
-        });
-        console.log('SL Modifiled sell result: ', result);
+    // Hedge Mode example: find each open hedge position and replace its SL.
+    const positions = await client.getPositionsV3({ symbol });
+    const hedgePositions = positions.filter((position) => {
+      if (position.positionSide === 'LONG') {
+        return Number(position.positionAmt) > 0;
       }
-    } else {
-      console.log('No Open position found');
+      if (position.positionSide === 'SHORT') {
+        return Number(position.positionAmt) < 0;
+      }
+      return false;
+    });
+
+    if (!hedgePositions.length) {
+      console.log('No open LONG or SHORT hedge position found');
+      return;
+    }
+
+    const openAlgoOrders = await client.getOpenAlgoOrders({
+      symbol,
+      algoType: 'CONDITIONAL',
+    });
+    const sdkOrderIdPrefix = client.getOrderIdPrefix();
+
+    for (const position of hedgePositions) {
+      if (
+        position.positionSide !== 'LONG' &&
+        position.positionSide !== 'SHORT'
+      ) {
+        continue;
+      }
+
+      const positionSide = position.positionSide;
+      const side = positionSide === 'LONG' ? 'SELL' : 'BUY';
+      const triggerPriceMultiplier = positionSide === 'LONG' ? 0.99 : 1.01;
+      const appOwnedStops = openAlgoOrders.filter(
+        (order) =>
+          order.orderType === 'STOP_MARKET' &&
+          order.positionSide === positionSide &&
+          order.side === side &&
+          order.clientAlgoId.startsWith(sdkOrderIdPrefix),
+      );
+
+      const stopLossOrder: FuturesNewAlgoOrderParams = {
+        algoType: 'CONDITIONAL',
+        symbol,
+        side,
+        positionSide,
+        type: 'STOP_MARKET',
+        closePosition: 'true',
+        triggerPrice: (
+          Number(position.markPrice) * triggerPriceMultiplier
+        ).toFixed(3),
+        workingType: 'MARK_PRICE',
+        priceProtect: 'TRUE',
+      };
+
+      if (appOwnedStops.length > 1) {
+        throw new Error(
+          `More than one SDK-prefixed ${positionSide} STOP_MARKET algo order found; refusing to choose automatically.`,
+        );
+      }
+
+      const existingStop = appOwnedStops[0];
+      if (existingStop) {
+        await client.cancelAlgoOrder({ algoId: existingStop.algoId });
+      }
+
+      const result = await client.submitNewAlgoOrder(stopLossOrder);
+      console.log(`SL modified ${positionSide} result: `, result);
     }
   } catch (e) {
-    console.error('market sell failed: ', e);
+    console.error('SL update failed: ', e);
   }
 }
 

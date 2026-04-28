@@ -142,6 +142,7 @@ export function generateNewOrderId(network: BinanceBaseUrlKey): string {
 
   return prefixedId;
 }
+
 export function getBaseURLKeyForWsKey(wsKey: WsKey): BinanceBaseUrlKey {
   switch (wsKey) {
     case WS_KEY_MAP.mainWSAPI:
@@ -179,6 +180,9 @@ function getWSAPINewOrderIdProperties(
         )
       ) {
         return ['newClientOrderId'];
+      }
+      if (operation === 'algoOrder.place') {
+        return ['clientAlgoId'];
       }
       if (operation === 'orderList.place') {
         return ['listClientOrderId', 'limitClientOrderId', 'stopClientOrderId'];
@@ -244,6 +248,7 @@ export function requiresWSAPINewClientOID(
         'order.place',
         'order.amend.keepPriority',
         'sor.order.place',
+        'algoOrder.place',
         'orderList.place',
         'orderList.place.oco',
         'orderList.place.oto',
@@ -615,7 +620,7 @@ export function logInvalidOrderId(
   params: object,
 ) {
   console.warn(
-    `WARNING: '${orderIdProperty}' invalid - it should be prefixed with ${expectedOrderIdPrefix}. Use the 'client.generateNewOrderId()' REST client utility method to generate a fresh order ID on demand. Original request: ${JSON.stringify(
+    `WARNING: '${orderIdProperty}' invalid - it should be prefixed with ${expectedOrderIdPrefix}. Use the 'client.generateNewOrderId()' REST client utility method to generate a fresh order ID on demand. If truly custom order IDs are needed, use 'client.getOrderIdPrefix()' to request the prefix required for custom order IDs, before adding your custom suffix. Original request: ${JSON.stringify(
       params,
     )}`,
   );

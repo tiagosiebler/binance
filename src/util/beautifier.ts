@@ -187,6 +187,9 @@ export default class Beautifier {
    */
   beautifyObjectValues(data: any | any[]) {
     // console.log('beautifier.beautifyObjectValues()', { data });
+    if (data === null || data === undefined) {
+      return data;
+    }
     if (Array.isArray(data)) {
       return this.beautifyArrayValues(data);
     }
@@ -197,7 +200,7 @@ export default class Beautifier {
         beautifedObject[key] = this.beautifyArrayValues(val, key);
       } else if (key === 'e' && type === 'string') {
         beautifedObject['eventType'] = this.beautifyValueWithKey(key, val);
-      } else if (type === 'object') {
+      } else if (type === 'object' && val !== null) {
         beautifedObject[key] = this.beautifyObjectValues(val);
       } else {
         beautifedObject[key] = this.beautifyValueWithKey(key, val);
@@ -215,6 +218,8 @@ export default class Beautifier {
         beautifedArray.push(this.beautifyArrayValues(val, parentKey || key));
       } else if (type === 'string' || type === 'number' || type === 'boolean') {
         beautifedArray.push(this.beautifyValueWithKey(parentKey || key, val));
+      } else if (val === null || val === undefined) {
+        beautifedArray.push(val);
       } else {
         beautifedArray.push(this.beautifyObjectValues(val));
       }

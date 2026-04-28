@@ -1121,6 +1121,60 @@ describe('Beautifier', () => {
           price: 45896.03333227,
         });
       });
+
+      it('should preserve null values in unmapped REST responses', () => {
+        const data = {
+          algoId: 3000000000000001,
+          clientAlgoId: 'x-redacted-tp',
+          algoType: 'CONDITIONAL',
+          orderType: 'TAKE_PROFIT',
+          symbol: 'BTCUSDT',
+          side: 'SELL',
+          positionSide: 'BOTH',
+          timeInForce: 'GTC',
+          quantity: '0.001',
+          algoStatus: 'NEW',
+          triggerPrice: '79478.10',
+          price: '79478.10',
+          icebergQuantity: null,
+          selfTradePreventionMode: 'EXPIRE_MAKER',
+          workingType: 'CONTRACT_PRICE',
+          priceMatch: 'NONE',
+          closePosition: false,
+          priceProtect: false,
+          reduceOnly: true,
+          createTime: 1777299463231,
+          updateTime: 1777299463231,
+          triggerTime: 0,
+          goodTillDate: 0,
+        };
+
+        expect(beautifier.beautify(data, 'fapi/v1/algoOrder')).toStrictEqual({
+          algoId: 3000000000000001,
+          clientAlgoId: 'x-redacted-tp',
+          algoType: 'CONDITIONAL',
+          orderType: 'TAKE_PROFIT',
+          symbol: 'BTCUSDT',
+          side: 'SELL',
+          positionSide: 'BOTH',
+          timeInForce: 'GTC',
+          quantity: 0.001,
+          algoStatus: 'NEW',
+          triggerPrice: 79478.1,
+          price: 79478.1,
+          icebergQuantity: null,
+          selfTradePreventionMode: 'EXPIRE_MAKER',
+          workingType: 'CONTRACT_PRICE',
+          priceMatch: 'NONE',
+          closePosition: false,
+          priceProtect: false,
+          reduceOnly: true,
+          createTime: 1777299463231,
+          updateTime: 1777299463231,
+          triggerTime: 0,
+          goodTillDate: 0,
+        });
+      });
     });
   });
 });

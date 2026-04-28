@@ -1439,10 +1439,14 @@ export class WebsocketClient extends BaseWebsocketClient<
    * Note: the wsKey parameter is optional, but can be used to connect to other environments for this product group.
    */
   public async subscribeUsdFuturesUserDataStream(
-    wsKey: WsKey = WS_KEY_MAP.usdmPrivate, // usdm | usdmPrivate | usdmTestnet
+    userWsKey: WsKey = WS_KEY_MAP.usdmPrivate, //  usdmPrivate | usdmTestnetPrivate
     forceNewConnection?: boolean,
     miscState?: MiscUserDataConnectionState,
   ): Promise<WSConnectedResult | undefined> {
+    // Prevent 'usdm' from being used unintentionally, since this has to be routed via the private endpoints.
+    const wsKey =
+      userWsKey === WS_KEY_MAP.usdm ? WS_KEY_MAP.usdmPrivate : userWsKey;
+
     try {
       const isTestnet =
         wsKey === WS_KEY_MAP.usdmTestnet ||
@@ -1614,7 +1618,6 @@ export class WebsocketClient extends BaseWebsocketClient<
       );
     }
 
-    // todo: close?
     this.close(userDataWsKey);
   }
 
@@ -1651,7 +1654,9 @@ export class WebsocketClient extends BaseWebsocketClient<
         realWsKey,
       });
       console.trace();
-      process.exit(-1);
+      throw new Error(
+        'Derived key fed into respawn method! This should not happen. Please report this if you see it, with steps to reproduce.',
+      );
     }
 
     // If another connection attempt is in progress for this listen key, don't initiate a retry or the risk is multiple connections on the same listen key

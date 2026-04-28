@@ -506,8 +506,6 @@ export function getWSConnectionCategoryForTopic(
       // console.warn(new Date(), err);
     }
   }
-
-  return 'market';
 }
 
 export const WS_AUTH_ON_CONNECT_KEYS: WsKey[] = [];
