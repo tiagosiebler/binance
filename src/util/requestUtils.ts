@@ -620,7 +620,7 @@ export function logInvalidOrderId(
   params: object,
 ) {
   console.warn(
-    `WARNING: '${orderIdProperty}' invalid - it should be prefixed with ${expectedOrderIdPrefix}. Use the 'client.generateNewOrderId()' REST client utility method to generate a fresh order ID on demand. Original request: ${JSON.stringify(
+    `WARNING: '${orderIdProperty}' invalid - it should be prefixed with ${expectedOrderIdPrefix}. Use the 'client.generateNewOrderId()' REST client utility method to generate a fresh order ID on demand. If truly custom order IDs are needed, use 'client.getOrderIdPrefix()' to request the prefix required for custom order IDs, before adding your custom suffix. Original request: ${JSON.stringify(
       params,
     )}`,
   );
