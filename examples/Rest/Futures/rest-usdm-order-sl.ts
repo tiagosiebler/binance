@@ -16,15 +16,20 @@ const symbol = process.env.BINANCE_EXAMPLE_SYMBOL || 'BTCUSDT';
 
 async function start() {
   try {
-    // Hedge Mode example: find the LONG position and prepare a replacement SL.
+    // Hedge Mode example: find each open hedge position and replace its SL.
     const positions = await client.getPositionsV3({ symbol });
-    const longPosition = positions.find(
-      (position) => position.positionSide === 'LONG',
-    );
-    const longAmount = Number(longPosition?.positionAmt || 0);
+    const hedgePositions = positions.filter((position) => {
+      if (position.positionSide === 'LONG') {
+        return Number(position.positionAmt) > 0;
+      }
+      if (position.positionSide === 'SHORT') {
+        return Number(position.positionAmt) < 0;
+      }
+      return false;
+    });
 
-    if (!longPosition || longAmount <= 0) {
-      console.log('No open LONG position found');
+    if (!hedgePositions.length) {
+      console.log('No open LONG or SHORT hedge position found');
       return;
     }
 
@@ -33,41 +38,56 @@ async function start() {
       algoType: 'CONDITIONAL',
     });
     const sdkOrderIdPrefix = client.getOrderIdPrefix();
-    const appOwnedLongStops = openAlgoOrders.filter(
-      (order) =>
-        order.orderType === 'STOP_MARKET' &&
-        order.positionSide === 'LONG' &&
-        order.side === 'SELL' &&
-        order.clientAlgoId.startsWith(sdkOrderIdPrefix),
-    );
 
-    const stopLossOrder: FuturesNewAlgoOrderParams = {
-      algoType: 'CONDITIONAL',
-      symbol,
-      side: 'SELL',
-      positionSide: 'LONG',
-      type: 'STOP_MARKET',
-      closePosition: 'true',
-      triggerPrice: (Number(longPosition.markPrice) * 0.99).toFixed(3),
-      workingType: 'MARK_PRICE',
-      priceProtect: 'TRUE',
-    };
+    for (const position of hedgePositions) {
+      if (
+        position.positionSide !== 'LONG' &&
+        position.positionSide !== 'SHORT'
+      ) {
+        continue;
+      }
 
-    if (appOwnedLongStops.length > 1) {
-      throw new Error(
-        'More than one SDK-prefixed LONG STOP_MARKET algo order found; refusing to choose automatically.',
+      const positionSide = position.positionSide;
+      const side = positionSide === 'LONG' ? 'SELL' : 'BUY';
+      const triggerPriceMultiplier = positionSide === 'LONG' ? 0.99 : 1.01;
+      const appOwnedStops = openAlgoOrders.filter(
+        (order) =>
+          order.orderType === 'STOP_MARKET' &&
+          order.positionSide === positionSide &&
+          order.side === side &&
+          order.clientAlgoId.startsWith(sdkOrderIdPrefix),
       );
-    }
 
-    const existingStop = appOwnedLongStops[0];
-    if (existingStop) {
-      await client.cancelAlgoOrder({ algoId: existingStop.algoId });
-    }
+      const stopLossOrder: FuturesNewAlgoOrderParams = {
+        algoType: 'CONDITIONAL',
+        symbol,
+        side,
+        positionSide,
+        type: 'STOP_MARKET',
+        closePosition: 'true',
+        triggerPrice: (
+          Number(position.markPrice) * triggerPriceMultiplier
+        ).toFixed(3),
+        workingType: 'MARK_PRICE',
+        priceProtect: 'TRUE',
+      };
 
-    const result = await client.submitNewAlgoOrder(stopLossOrder);
-    console.log('SL modified sell result: ', result);
+      if (appOwnedStops.length > 1) {
+        throw new Error(
+          `More than one SDK-prefixed ${positionSide} STOP_MARKET algo order found; refusing to choose automatically.`,
+        );
+      }
+
+      const existingStop = appOwnedStops[0];
+      if (existingStop) {
+        await client.cancelAlgoOrder({ algoId: existingStop.algoId });
+      }
+
+      const result = await client.submitNewAlgoOrder(stopLossOrder);
+      console.log(`SL modified ${positionSide} result: `, result);
+    }
   } catch (e) {
-    console.error('market sell failed: ', e);
+    console.error('SL update failed: ', e);
   }
 }
 
