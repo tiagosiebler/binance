@@ -1009,7 +1009,7 @@ export interface FuturesNewAlgoOrderParams {
   workingType?: WorkingType;
   priceMatch?: PriceMatchMode;
   closePosition?: BooleanString;
-  priceProtect?: BooleanString;
+  priceProtect?: BooleanStringCapitalised;
   reduceOnly?: BooleanString;
   activatePrice?: numberInString;
   callbackRate?: numberInString;
