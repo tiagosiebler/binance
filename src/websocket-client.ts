@@ -1654,7 +1654,9 @@ export class WebsocketClient extends BaseWebsocketClient<
         realWsKey,
       });
       console.trace();
-      process.exit(-1);
+      throw new Error(
+        'Derived key fed into respawn method! This should not happen. Please report this if you see it, with steps to reproduce.',
+      );
     }
 
     // If another connection attempt is in progress for this listen key, don't initiate a retry or the risk is multiple connections on the same listen key

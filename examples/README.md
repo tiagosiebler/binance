@@ -12,7 +12,7 @@ Found something difficult to implement? Contribute to these examples and help ot
 
 Samples that refer to API credentials using `process.env.API_KEY_COM` can be spawned with environment variables. Unix/macOS example:
 ```
-APIKEY='apikeypastedhere' APISECRET='apisecretpastedhere' tsx examples/WebSockets/ws-userdata-listenkey.ts
+API_KEY_COM='apikeypastedhere' API_SECRET_COM='apisecretpastedhere' tsx "examples/WebSockets/Private(userdata)/ws-userdata-listenkey.ts"
 ```
 
 Or edit the example directly to hardcode your API keys.
@@ -90,6 +90,6 @@ High level summary for some of the available examples, but check the folder for 
 
 #### REST USDM Examples
 
-- `rest-future-bracket-order.ts` Creates three order, entry, TP, SL and submit them all at once using `submitMultipleOrders`
-- `rest-usdm-order.ts` Creates single entry, using `submitNewOrder`
-- `rest-usdm-order-sl.ts` Modify current Stop Loss order(HedgeMode only)
+- `rest-future-bracket-order.ts` Creates an entry order plus TP/SL Algo Service orders.
+- `rest-usdm-order.ts` Creates a single entry order using `submitNewOrder`.
+- `rest-usdm-order-sl.ts` Modifies a Hedge Mode LONG stop-loss order using Algo Service orders.

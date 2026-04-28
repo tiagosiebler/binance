@@ -546,7 +546,7 @@ await client.submitNewOrder({
 });
 ```
 
-The prefix returned by `getOrderIdPrefix()` is 10 characters long. For endpoints with Binance's common 32-character client order ID limit, that leaves 22 characters for your own suffix. Keep the suffix short and use only characters Binance allows for that field.
+The prefix returned by `getOrderIdPrefix()` is 10 characters long. For endpoints with Binance's common 32-character client order ID limit, that leaves 22 characters for your own suffix. Some fields have a different documented limit, such as USD-M Futures Algo `clientAlgoId`, which currently allows up to 36 characters and therefore leaves 26 characters after the SDK prefix. Keep the suffix short and use only characters Binance allows for that field.
 
 If you need to track richer metadata than will comfortably fit in the client order ID, do not try to squeeze it into these custom order ID fields. Instead, generate an ID with `client.generateNewOrderId()` before placing the order, use that value as the key for your own metadata, and store the metadata locally or in an external store such as Redis. Later, when order updates arrive through REST API polling or user data events, you can look up the richer context using the seen `newClientOrderId` value like a primary key, while keeping the exchange-facing ID short and valid.
 

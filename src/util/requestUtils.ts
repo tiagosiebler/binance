@@ -181,6 +181,9 @@ function getWSAPINewOrderIdProperties(
       ) {
         return ['newClientOrderId'];
       }
+      if (operation === 'algoOrder.place') {
+        return ['clientAlgoId'];
+      }
       if (operation === 'orderList.place') {
         return ['listClientOrderId', 'limitClientOrderId', 'stopClientOrderId'];
       }
@@ -245,6 +248,7 @@ export function requiresWSAPINewClientOID(
         'order.place',
         'order.amend.keepPriority',
         'sor.order.place',
+        'algoOrder.place',
         'orderList.place',
         'orderList.place.oco',
         'orderList.place.oto',
