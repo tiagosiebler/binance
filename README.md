@@ -56,7 +56,7 @@ Updated & performant JavaScript & Node.js SDK for the Binance REST APIs and WebS
 - Proxy support via axios integration.
 - Active community support & collaboration in telegram: [Node.js Algo Traders](https://t.me/nodetraders).
 - QuickStart Guide: [Binance JavaScript QuickStart Guide](https://siebly.io/sdk/binance/javascript)
-- Binance API & WebSocket JavaScript Tutorial: [Binance JavaScript API & WebSocket Tutorial](https://siebly.io/sdk/binance/javascript/tutorial)
+- Binance JavaScript Tutorial: [Binance JavaScript REST API & WebSocket Tutorial](https://siebly.io/sdk/binance/javascript/tutorial)
 
 ## Table of Contents
 

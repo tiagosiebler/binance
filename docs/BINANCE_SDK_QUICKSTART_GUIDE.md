@@ -1,15 +1,18 @@
 # Binance SDK Quickstart Guide
 
+> [!TIP]
+> This guide can be read in tutorial format on the Siebly Website: [Binance JavaScript REST API & WebSocket Tutorial](https://siebly.io/sdk/binance/javascript/tutorial)
+
 This guide walks through key pieces of a Binance REST API, WebSocket & WebSocket API integration using [`binance`](https://www.npmjs.com/package/binance), the Binance JavaScript and TypeScript SDK by Siebly.io.
 
-The SDK handles request building and connectivity for you, including request signing, WebSocket management, healthchecks, heartbeats, listen-key refreshes, resubscribe behavior, and WebSocket API response mapping so your code can stay focused on the workflow you are automating. This guide will walk you through installation and client selection, then moves through public calls, private auth, REST, streams, user data, and the WebSocket API.
+The SDK handles request building and connectivity for you, including request signing, WebSocket management, healthchecks, heartbeats, listen-key refreshes, resubscribe behavior, and WebSocket API response mapping so your code can stay focused on the workflow you are automating. This guide will walk you through installation and client selection, then moves through public calls, private auth, REST API calls, streams, user data, and the WebSocket API.
 
 **Key links**
 
 - Binance JavaScript SDK by Siebly: [`binance`](https://www.npmjs.com/package/binance)
 - GitHub Repository: [`tiagosiebler/binance`](https://github.com/tiagosiebler/binance)
 - SDK function-endpoint map: [Binance JavaScript Endpoint Reference](./endpointFunctionList.md)
-- REST examples: [Binance SDK REST examples](../examples/Rest)
+- REST API examples: [Binance SDK REST API examples](../examples/Rest)
 - WebSocket examples: [Binance SDK WebSocket examples](../examples/WebSockets)
 - More SDKs: [Siebly.io](https://siebly.io)
 
@@ -19,13 +22,13 @@ The SDK handles request building and connectivity for you, including request sig
 
 A stable Binance integration is more than a handful of HTTP requests. Binance splits behavior across product groups, transports, key types, and environments:
 
-- Spot, Margin, Wallet, Convert, Earn, and Sub-Account APIs live behind the main REST client, but not all of them share the same endpoint prefix or permission model.
+- Spot, Margin, Wallet, Convert, Earn, and Sub-Account APIs live behind the main REST API client, but not all of them share the same endpoint prefix or permission model.
 - Some of these product groups expect API calls to reach different subdomains.
-- USD-M Futures and COIN-M Futures have separate REST clients, symbols, endpoint prefixes, and WebSocket endpoints.
+- USD-M Futures and COIN-M Futures have separate REST API clients, symbols, endpoint prefixes, and WebSocket endpoints.
 - Both have their own subdomains as well.
-- Portfolio Margin uses a dedicated REST client and its own account model.
+- Portfolio Margin uses a dedicated REST API client and its own account model.
 - Public streams, private user data streams, and WebSocket API commands are different flows.
-- Private REST and WebSocket API requests must be signed.
+- Private REST API and WebSocket API requests must be signed.
 - User data streams can involve listen keys, WebSocket API subscriptions, token refreshes, and reconnect handling.
 
 Most of that work is handled for you, while the grouping & naming stays close to Binance's API naming. The SDK gives you dedicated REST API clients for the major product groups, `WebsocketClient` for streaming, `WebsocketAPIClient` for awaitable WebSocket API requests. It also includes TypeScript definitions, ESM/CJS support, proxy support, and optional response beautification.
@@ -93,16 +96,16 @@ If you are only testing public endpoints, you do not need any keys at all.
 
 ## Products and clients
 
-Binance is not one single API. The SDK splits REST clients around Binance's product boundaries:
+Binance is not one single API. The SDK splits API clients around Binance's product groups:
 
-| Product group                                                    | REST client          | Common usage                                                                                              |
-| ---------------------------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------- |
-| Spot, Margin, Wallet, Convert, Earn, Sub-accounts, Broker, Alpha | `MainClient`         | Spot trading, account data, wallet flows, margin trading, transfers, savings/earn, sub-account management |
-| USD-M Futures                                                    | `USDMClient`         | USDT/USDC margined futures market data, account data, positions, orders                                   |
-| COIN-M Futures                                                   | `CoinMClient`        | Coin-margined futures market data, account data, positions, orders                                        |
-| Portfolio Margin                                                 | `PortfolioClient`    | Portfolio Margin account, UM/CM/margin orders, balances, positions                                        |
-| WebSocket streams                                                | `WebsocketClient`    | Public market data streams and private user data streams                                                  |
-| WebSocket API                                                    | `WebsocketAPIClient` | REST-like Spot and Futures commands over persistent WebSocket API connections                             |
+| Product group                                                              | API client           | Common usage                                                                                              |
+| -------------------------------------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------- |
+| REST API: Spot, Margin, Wallet, Convert, Earn, Sub-accounts, Broker, Alpha | `MainClient`         | Spot trading, account data, wallet flows, margin trading, transfers, savings/earn, sub-account management |
+| REST API: USD-M Futures                                                    | `USDMClient`         | USDT/USDC margined futures market data, account data, positions, orders                                   |
+| REST API: COIN-M Futures                                                   | `CoinMClient`        | Coin-margined futures market data, account data, positions, orders                                        |
+| REST API: Portfolio Margin                                                 | `PortfolioClient`    | Portfolio Margin account, UM/CM/margin orders, balances, positions                                        |
+| WebSocket streams                                                          | `WebsocketClient`    | Public market data streams and private user data streams                                                  |
+| WebSocket API                                                              | `WebsocketAPIClient` | REST API-like Spot and Futures commands over persistent WebSocket API connections                         |
 
 As a rule of thumb:
 
@@ -111,11 +114,11 @@ As a rule of thumb:
 - Use `CoinMClient` when the Binance docs path starts with `dapi/`.
 - Use `PortfolioClient` when the Binance docs path starts with `papi/`.
 - Use `WebsocketClient` when you want to subscribe to streams and receive events.
-- Use `WebsocketAPIClient` when you want to send commands over WebSocket and await responses like REST.
+- Use `WebsocketAPIClient` when you want to send commands over WebSocket and await responses like REST API calls.
 
 For a complete method map, see [docs/endpointFunctionList.md](./endpointFunctionList.md). If any endpoints or properties seem to be missing, please open an issue on GitHub and we'll look into it. Targeted PRs are also welcome.
 
-### REST, streams, listen keys, and WebSocket API
+### REST API, streams, listen keys, and WebSocket API
 
 Binance uses several related but different integration patterns. It helps to keep them separate:
 
@@ -141,7 +144,7 @@ const result = await wsApi.testSpotOrder({
 });
 ```
 
-Use REST when you want maximum endpoint coverage, simple one-off calls, or reconciliation after reconnects. Use the WebSocket API when you want persistent connectivity, lower request overhead, WebSocket API-only features, or a promise-driven command path that can share the same event-driven architecture as your streams. With Ed25519 keys, authentication can happen once per WebSocket API connection, which can improve latency in mid-to-high frequency systems. One less thing to repeat every request, is cumulatively saved time.
+Use the REST API when you want maximum endpoint coverage, simple one-off calls, or reconciliation after reconnects. Use the WebSocket API when you want persistent connectivity, lower request overhead, WebSocket API-only features, or a promise-driven command path that can share the same event-driven architecture as your streams. With Ed25519 keys, authentication can happen once per WebSocket API connection, which can improve latency in mid-to-high frequency systems. One less thing to repeat every request, is cumulatively saved time.
 
 ---
 
@@ -179,9 +182,9 @@ async function main() {
 main().catch(console.error);
 ```
 
-That confirms public Spot REST is wired correctly.
+That confirms public Spot REST API access is wired correctly.
 
-See also: [Spot public REST example](../examples/Rest/Spot/rest-spot-public.ts)
+See also: [Spot public REST API example](../examples/Rest/Spot/rest-spot-public.ts)
 
 ### 2. First public Spot WebSocket stream
 
@@ -311,7 +314,7 @@ See also: [USD-M Futures demo trading example](../examples/Rest/Futures/rest-usd
 
 ### 6. First WebSocket API request
 
-The WebSocket API lets you send requests over a persistent WebSocket connection and await responses, similar to REST. This is useful for lower-latency workflows and for WebSocket API-only features.
+The WebSocket API lets you send requests over a persistent WebSocket connection and await responses, similar to REST API calls. This is useful for lower-latency workflows and for WebSocket API-only features.
 
 ```typescript
 import { WebsocketAPIClient } from 'binance';
@@ -346,7 +349,7 @@ See also: [WebSocket API client example](../examples/WebSockets/WS-API/ws-api-cl
 
 ---
 
-## Spot, Margin, and Wallet REST
+## Spot, Margin, and Wallet REST API
 
 Most Binance integrations start with `MainClient`. It covers Spot trading and many account APIs under Binance's main REST API families.
 
@@ -374,7 +377,7 @@ const client = new MainClient({
 });
 ```
 
-Private REST methods are signed automatically. You do not need to manually add timestamps, signatures, or `X-MBX-APIKEY` headers.
+Private REST API methods are signed automatically. You do not need to manually add timestamps, signatures, or `X-MBX-APIKEY` headers.
 
 ### Common public Spot market data calls
 
@@ -421,7 +424,7 @@ const apiPermissions = await client.getApiKeyPermissions();
 
 See also:
 
-- [Spot public REST example](../examples/Rest/Spot/rest-spot-public.ts)
+- [Spot public REST API example](../examples/Rest/Spot/rest-spot-public.ts)
 - [Spot exchange info example](../examples/Rest/Spot/rest-spot-exchange-info.ts)
 - [Spot private trading example](../examples/Rest/Spot/rest-spot-private-trade.ts)
 - [Spot private miscellaneous account example](../examples/Rest/Spot/rest-spot-private-misc.ts)
@@ -502,7 +505,7 @@ await client.submitNewOrder({
 });
 ```
 
-If your system needs to know the client order ID before the order is sent, but the ID does not need to carry any meaning, ask the REST client to generate one:
+If your system needs to know the client order ID before the order is sent, but the ID does not need to carry any meaning, ask the REST API client to generate one:
 
 ```typescript
 const newClientOrderId = client.generateNewOrderId();
@@ -518,7 +521,7 @@ await client.submitNewOrder({
 });
 ```
 
-`generateNewOrderId()` is available on every REST client, including `MainClient`, `USDMClient`, `CoinMClient`, and `PortfolioClient`. The client already knows its product group, so the generated ID uses the right Binance-compatible prefix.
+`generateNewOrderId()` is available on every REST API client, including `MainClient`, `USDMClient`, `CoinMClient`, and `PortfolioClient`. The client already knows its product group, so the generated ID uses the right Binance-compatible prefix.
 
 If you want to include a small piece of your own context in the client order ID, such as a take-profit marker or strategy step, use the product prefix from the client and append your suffix:
 
@@ -545,11 +548,11 @@ await client.submitNewOrder({
 
 The prefix returned by `getOrderIdPrefix()` is 10 characters long. For endpoints with Binance's common 32-character client order ID limit, that leaves 22 characters for your own suffix. Keep the suffix short and use only characters Binance allows for that field.
 
-If you need to track richer metadata than will comfortably fit in the client order ID, do not try to squeeze it into these custom order ID fields. Instead, generate an ID with `client.generateNewOrderId()` before placing the order, use that value as the key for your own metadata, and store the metadata locally or in an external store such as Redis. Later, when order updates arrive through REST polling or user data events, you can look up the richer context using the seen `newClientOrderId` value like a primary key, while keeping the exchange-facing ID short and valid.
+If you need to track richer metadata than will comfortably fit in the client order ID, do not try to squeeze it into these custom order ID fields. Instead, generate an ID with `client.generateNewOrderId()` before placing the order, use that value as the key for your own metadata, and store the metadata locally or in an external store such as Redis. Later, when order updates arrive through REST API polling or user data events, you can look up the richer context using the seen `newClientOrderId` value like a primary key, while keeping the exchange-facing ID short and valid.
 
 Regular Spot/Futures/Portfolio orders usually use `newClientOrderId`; newer Futures algo or conditional flows may use `clientAlgoId` instead. The same rule applies: omit it unless you need it, use `generateNewOrderId()` when any unique ID is fine, and use `getOrderIdPrefix()` when building your own value.
 
-### Margin REST examples
+### Margin REST API examples
 
 Margin APIs also live on `MainClient`.
 
@@ -618,7 +621,7 @@ Withdrawal calls are intentionally not shown as a quickstart. Use withdrawal per
 
 ---
 
-## Futures REST
+## Futures REST API
 
 Binance Futures are split into USD-M and COIN-M product groups. Use the dedicated client for the product you are integrating.
 
@@ -710,7 +713,7 @@ const ticker = await coinm.getSymbolPriceTicker({ symbol: 'BTCUSD_PERP' });
 
 See also:
 
-- [USD-M public REST example](../examples/Rest/Futures/rest-usdm-public.ts)
+- [USD-M public REST API example](../examples/Rest/Futures/rest-usdm-public.ts)
 - [USD-M demo trading example](../examples/Rest/Futures/rest-usdm-demo.ts)
 - [USD-M testnet example](../examples/Rest/Futures/rest-usdm-testnet.ts)
 
@@ -802,7 +805,7 @@ See also:
 
 ---
 
-## Portfolio Margin REST
+## Portfolio Margin REST API
 
 Portfolio Margin has its own account model and a dedicated `PortfolioClient`.
 
@@ -864,14 +867,14 @@ await portfolio.submitNewMarginOrder({
 
 See also:
 
-- [Portfolio Margin public REST example](../examples/Rest/Portfolio%20Margin/rest-portfoliomargin-public.ts)
-- [Portfolio Margin private REST example](../examples/Rest/Portfolio%20Margin/rest-portfoliomargin-private.ts)
+- [Portfolio Margin public REST API example](../examples/Rest/Portfolio%20Margin/rest-portfoliomargin-public.ts)
+- [Portfolio Margin private REST API example](../examples/Rest/Portfolio%20Margin/rest-portfoliomargin-private.ts)
 
 ---
 
 ## WebSocket Streams
 
-Use `WebsocketClient` when you want event-driven updates instead of polling REST. It is the shared client for public market streams and the older listen-key style user data streams.
+Use `WebsocketClient` when you want event-driven updates instead of polling the REST API. It is the shared client for public market streams and the older listen-key style user data streams.
 
 The workflow is simple: create a client, add event handlers, provide API keys if you need private user data, and subscribe to the streams you want. The SDK opens the correct Binance endpoint, applies proxy settings if configured, fetches and refreshes listen keys where required, monitors heartbeats, reconnects stale sockets, and resubscribes cached topics after reconnect.
 
@@ -1002,7 +1005,7 @@ User data streams are how Binance pushes private account events: order updates, 
 
 Binance uses two patterns for these streams: WebSocket API user data subscriptions and listen-key user data streams. The SDK supports both; the product group determines which path you should use.
 
-For either pattern, listen for the WebSocket lifecycle events as well as account events. The event names are `reconnecting` and `reconnected`. `reconnecting` fires when the SDK starts replacing a dropped connection; `reconnected` fires after the replacement connection is open. Both include the `wsKey`, which tells you which connection was affected. For user data streams, `reconnected` is the right place to reconcile private state through REST in case account events were missed while the socket was down.
+For either pattern, listen for the WebSocket lifecycle events as well as account events. The event names are `reconnecting` and `reconnected`. `reconnecting` fires when the SDK starts replacing a dropped connection; `reconnected` fires after the replacement connection is open. Both include the `wsKey`, which tells you which connection was affected. For user data streams, `reconnected` is the right place to reconcile private state through the REST API in case account events were missed while the socket was down.
 
 With `WebsocketAPIClient`, attach those handlers to `wsApi.getWSClient()`. With `WebsocketClient`, attach them directly to the client.
 
@@ -1144,7 +1147,7 @@ See also:
 
 ## WebSocket API
 
-Binance's WebSocket API is a request/response API over a persistent WebSocket connection. It is useful when you want lower request overhead than REST, or when a Binance feature is exposed through the WebSocket API flow.
+Binance's WebSocket API is a request/response API over a persistent WebSocket connection. It is useful when you want lower request overhead than REST API calls, or when a Binance feature is exposed through the WebSocket API flow.
 
 `WebsocketAPIClient` wraps that in a promise-driven interface: call a method, await a promise, receive the response, and let the SDK manage the underlying WebSocket connection.
 
@@ -1152,8 +1155,8 @@ Binance's WebSocket API is a request/response API over a persistent WebSocket co
 
 The SDK supports HMAC, RSA, and Ed25519 keys:
 
-- HMAC: supported for REST and WebSocket API, but WebSocket API private commands are signed individually.
-- RSA: supported for REST and WebSocket API, but WebSocket API private commands are signed individually.
+- HMAC: supported for REST API and WebSocket API, but WebSocket API private commands are signed individually.
+- RSA: supported for REST API and WebSocket API, but WebSocket API private commands are signed individually.
 - Ed25519: recommended for WebSocket API because the SDK can authenticate the WebSocket API session once and then send private commands without signing every command.
 
 If your `api_secret` contains a PEM private key, the SDK automatically detects whether it should use RSA or Ed25519 signing.
@@ -1259,7 +1262,7 @@ const client = new USDMClient({
 });
 ```
 
-Demo trading is supported by SDK options for REST and WebSocket clients where Binance provides demo endpoints.
+Demo trading is supported by SDK options for REST API and WebSocket clients where Binance provides demo endpoints.
 
 ### Testnet
 
@@ -1307,7 +1310,7 @@ Move from public reads to private actions one layer at a time:
 
 1. Public REST APIs
 2. Public WebSockets
-3. Private REST account reads
+3. Private REST API account reads
 4. Private account/user data streams
 5. Order validation
 6. Tiny demo or live trading tests
@@ -1318,10 +1321,10 @@ For Futures, prefer demo trading before live trading if it fits your setup.
 
 Listen for `reconnecting` and `reconnected`. A dropped WebSocket connection is a normal production condition, especially during volatility or scheduled exchange disconnects.
 
-If your system uses WebSockets for account or market state, a reconnect should usually trigger a REST backfill:
+If your system uses WebSockets for account or market state, a reconnect should usually trigger a REST API backfill:
 
 1. Pause risky order actions when `reconnecting` fires.
-2. On `reconnected`, query REST for account state, orders, fills, positions, and any market state you depend on.
+2. On `reconnected`, query the REST API for account state, orders, fills, positions, and any market state you depend on.
 3. Reconcile internal state.
 4. React to any discrepancies in internal vs exchange state, as needed.
 5. Resume normal processing.
@@ -1364,7 +1367,7 @@ await client.fetchLatencySummary();
 wsApi.setTimeOffsetMs(-500);
 ```
 
-The REST client also tracks Binance rate-limit headers it sees:
+The REST API client also tracks Binance rate-limit headers it sees:
 
 ```typescript
 const ticker = await client.getSymbolPriceTicker({ symbol: 'BTCUSDT' });
@@ -1422,13 +1425,13 @@ See also: [custom parser example](../examples/WebSockets/Misc/ws-custom-parser.t
 
 ## FAQ
 
-**Which REST client should I use?**
+**Which REST API client should I use?**
 
 Use `MainClient` for Spot, margin, wallet, Convert, Earn, sub-account, and many account APIs. Use `USDMClient` for USD-M Futures. Use `CoinMClient` for COIN-M Futures. Use `PortfolioClient` for Portfolio Margin.
 
 **Do I need API keys for public market data?**
 
-No. Public REST market data and public WebSocket market data do not require API keys.
+No. Public REST API market data and public WebSocket market data do not require API keys.
 
 **Can I use one Binance API key for every product group?**
 
@@ -1449,7 +1452,7 @@ Prefer `WebsocketAPIClient.subscribeUserDataStream(WS_KEY_MAP.mainWSAPI)` for Sp
 
 **What happens if a WebSocket connection drops?**
 
-The SDK supports reconnect and resubscribe flows. Listen for `reconnecting` and `reconnected`. Use `reconnected` as a trigger to reconcile state through REST before resuming risky trading actions.
+The SDK supports reconnect and resubscribe flows. Listen for `reconnecting` and `reconnected`. Use `reconnected` as a trigger to reconcile state through the REST API before resuming risky trading actions.
 
 **Should I use demo trading or testnet?**
 
