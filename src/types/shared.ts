@@ -5,7 +5,6 @@ export type numberInString = string | number;
 export type ExchangeSymbol = string;
 
 export type BooleanString = 'true' | 'false';
-export type BooleanStringCapitalised = 'TRUE' | 'FALSE';
 
 export type BinanceBaseUrlKey =
   | 'spot'

@@ -1,6 +1,5 @@
 import {
   BooleanString,
-  BooleanStringCapitalised,
   ExchangeFilter,
   KlineInterval,
   numberInString,
@@ -134,7 +133,7 @@ export interface NewFuturesOrderParams<numberType = number> {
   activationPrice?: numberType;
   callbackRate?: numberType;
   workingType?: WorkingType;
-  priceProtect?: BooleanStringCapitalised;
+  priceProtect?: BooleanString;
   newOrderRespType?: 'ACK' | 'RESULT';
   selfTradePreventionMode?: SelfTradePreventionMode;
   priceMatch?: PriceMatchMode;
@@ -1009,7 +1008,7 @@ export interface FuturesNewAlgoOrderParams {
   workingType?: WorkingType;
   priceMatch?: PriceMatchMode;
   closePosition?: BooleanString;
-  priceProtect?: BooleanStringCapitalised;
+  priceProtect?: BooleanString;
   reduceOnly?: BooleanString;
   activatePrice?: numberInString;
   callbackRate?: numberInString;

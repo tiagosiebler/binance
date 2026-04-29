@@ -8,7 +8,6 @@ import {
 } from '../futures';
 import {
   BooleanString,
-  BooleanStringCapitalised,
   KlineInterval,
   numberInString,
   OrderResponseType,
@@ -623,7 +622,7 @@ export interface WSAPINewFuturesOrderRequest<numberType = numberInString> {
   activationPrice?: numberType;
   callbackRate?: numberType;
   workingType?: WorkingType;
-  priceProtect?: BooleanStringCapitalised;
+  priceProtect?: BooleanString;
   newOrderRespType?: 'ACK' | 'RESULT';
   selfTradePreventionMode?: SelfTradePreventionMode;
   priceMatch?: PriceMatchMode;
@@ -712,7 +711,7 @@ export interface WSAPINewFuturesAlgoOrderRequest<numberType = numberInString> {
   activatePrice?: numberInString;
   callbackRate?: numberInString;
   workingType?: WorkingType;
-  priceProtect?: BooleanStringCapitalised;
+  priceProtect?: BooleanString;
   newOrderRespType?: OrderResponseType;
   priceMatch?: PriceMatchMode;
   selfTradePreventionMode?: SelfTradePreventionMode;
