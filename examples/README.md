@@ -90,6 +90,6 @@ High level summary for some of the available examples, but check the folder for 
 
 #### REST USDM Examples
 
-- `rest-future-bracket-order.ts` Creates an entry order plus TP/SL Algo Service orders.
+- `rest-future-bracket-order.ts` Creates an entry order plus a passive reduce-only TP limit order and an SL Algo Service order.
 - `rest-usdm-order.ts` Creates a single entry order using `submitNewOrder`.
 - `rest-usdm-order-sl.ts` Modifies a Hedge Mode LONG stop-loss order using Algo Service orders.

@@ -268,14 +268,18 @@ For a complete example, refer to the [rest-private-rsa.ts](./rest-private-rsa.ts
 ================
 File: examples/REST/Futures/rest-future-bracket-order.ts
 ================
-import { NewFuturesOrderParams, USDMClient } from '../../../src/index';
+import {
+  FuturesNewAlgoOrderParams,
+  NewFuturesOrderParams,
+  USDMClient,
+} from '../../../src/index';
 ⋮----
 // TODO: check balance and do other validations
 ⋮----
 // create three orders
-// 1. entry order (GTC),
-// 2. take profit order (GTE_GTC),
-// 3. stop loss order (GTE_GTC)
+// 1. entry order,
+// 2. passive reduce-only take profit limit order,
+// 3. stop loss Algo Service order
 
 ================
 File: examples/REST/Futures/rest-usdm-demo.ts
@@ -913,7 +917,7 @@ High level summary for some of the available examples, but check the folder for 
 
 #### REST USDM Examples
 
-- `rest-future-bracket-order.ts` Creates three order, entry, TP, SL and submit them all at once using `submitMultipleOrders`
+- `rest-future-bracket-order.ts` Creates an entry order plus a passive reduce-only TP limit order and an SL Algo Service order.
 - `rest-usdm-order.ts` Creates single entry, using `submitNewOrder`
 - `rest-usdm-order-sl.ts` Modify current Stop Loss order(HedgeMode only)
 

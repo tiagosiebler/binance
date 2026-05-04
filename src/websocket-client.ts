@@ -43,6 +43,7 @@ import {
   getPromiseRefForWSAPIRequest,
   getRealWsKeyFromDerivedWsKey,
   getTestnetWsKey,
+  getTopicsPerWSKey,
   getWsKeyForProductGroup,
   getWsUrl,
   getWsURLSuffix,
@@ -63,6 +64,8 @@ import {
 import { WSConnectedResult } from './util/websockets/WsStore.types';
 
 const WS_LOGGER_CATEGORY = { category: 'binance-ws' };
+
+type TopicRequestsPerWsKeyEntry = [WsKey, WsTopicRequest<string>[]];
 
 export interface WSAPIRequestFlags {
   /** If true, will skip auth requirement for WS API connection */
@@ -186,7 +189,8 @@ export class WebsocketClient extends BaseWebsocketClient<
   public connectPublic(): Promise<WSConnectedResult | undefined>[] {
     return [
       this.connect(WS_KEY_MAP.main),
-      this.connect(WS_KEY_MAP.usdm),
+      this.connect(WS_KEY_MAP.usdmPublic),
+      this.connect(WS_KEY_MAP.usdmMarket),
       this.connect(WS_KEY_MAP.coinm),
       this.connect(WS_KEY_MAP.eoptions),
       this.connect(WS_KEY_MAP.alpha),
@@ -236,7 +240,21 @@ export class WebsocketClient extends BaseWebsocketClient<
     const topicRequests = Array.isArray(requests) ? requests : [requests];
     const normalisedTopicRequests = getNormalisedTopicRequests(topicRequests);
 
-    return this.subscribeTopicsForWsKey(normalisedTopicRequests, wsKey);
+    const topicRequestsPerWsKey = getTopicsPerWSKey(
+      normalisedTopicRequests,
+      wsKey,
+    );
+
+    const topicRequestEntries = Object.entries(
+      topicRequestsPerWsKey,
+    ) as TopicRequestsPerWsKeyEntry[];
+
+    const subscribePromises = topicRequestEntries.map(
+      ([resolvedWsKey, resolvedTopicRequests]) =>
+        this.subscribeTopicsForWsKey(resolvedTopicRequests, resolvedWsKey),
+    );
+
+    return Promise.all(subscribePromises);
   }
 
   /**
@@ -254,7 +272,20 @@ export class WebsocketClient extends BaseWebsocketClient<
     const topicRequests = Array.isArray(requests) ? requests : [requests];
     const normalisedTopicRequests = getNormalisedTopicRequests(topicRequests);
 
-    return this.unsubscribeTopicsForWsKey(normalisedTopicRequests, wsKey);
+    const topicRequestsPerWsKey = getTopicsPerWSKey(
+      normalisedTopicRequests,
+      wsKey,
+    );
+    const topicRequestEntries = Object.entries(
+      topicRequestsPerWsKey,
+    ) as TopicRequestsPerWsKeyEntry[];
+
+    const unsubscribePromises = topicRequestEntries.map(
+      ([resolvedWsKey, resolvedTopicRequests]) =>
+        this.unsubscribeTopicsForWsKey(resolvedTopicRequests, resolvedWsKey),
+    );
+
+    return Promise.all(unsubscribePromises);
   }
 
   /**
