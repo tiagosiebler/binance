@@ -1,5 +1,6 @@
 import {
   FuturesNewAlgoOrderParams,
+  NewFuturesOrderParams,
   USDMClient,
 } from '../../../src/index';
 
@@ -19,34 +20,33 @@ const client = new USDMClient({
 
     const assetPrices = await client.getMarkPrice({ symbol });
     const markPrice = Number(assetPrices.markPrice);
-    const stopLossPrice = ((markPrice * 99.9) / 100).toFixed(2);
-    const takeProfitPrice = ((markPrice * 100.1) / 100).toFixed(2);
+    const stopLossPrice = Number(((markPrice * 99.9) / 100).toFixed(2));
+    const takeProfitPrice = Number(((markPrice * 100.1) / 100).toFixed(2));
 
-    const entryOrder = {
+    const entryOrder: NewFuturesOrderParams = {
       positionSide: 'BOTH',
       quantity,
       reduceOnly: 'false',
       side: 'BUY',
       symbol,
       type: 'MARKET',
-    } as const;
+    };
 
-    const takeProfitOrder: FuturesNewAlgoOrderParams = {
-      algoType: 'CONDITIONAL',
+    const takeProfitOrder: NewFuturesOrderParams = {
       positionSide: 'BOTH',
-      priceProtect: 'TRUE',
+      price: takeProfitPrice,
+      quantity,
+      reduceOnly: 'true',
       side: 'SELL',
-      triggerPrice: takeProfitPrice,
       symbol,
-      type: 'TAKE_PROFIT_MARKET',
-      workingType: 'MARK_PRICE',
-      closePosition: 'true',
+      timeInForce: 'GTX',
+      type: 'LIMIT',
     };
 
     const stopLossOrder: FuturesNewAlgoOrderParams = {
       algoType: 'CONDITIONAL',
       positionSide: 'BOTH',
-      priceProtect: 'TRUE',
+      priceProtect: 'true',
       side: 'SELL',
       triggerPrice: stopLossPrice,
       symbol,
@@ -56,11 +56,10 @@ const client = new USDMClient({
     };
 
     const openedOrder = await client.submitNewOrder(entryOrder);
-    const takeProfitAlgoOrder =
-      await client.submitNewAlgoOrder(takeProfitOrder);
+    const takeProfitLimitOrder = await client.submitNewOrder(takeProfitOrder);
     const stopLossAlgoOrder = await client.submitNewAlgoOrder(stopLossOrder);
 
-    console.log({ openedOrder, takeProfitAlgoOrder, stopLossAlgoOrder });
+    console.log({ openedOrder, takeProfitLimitOrder, stopLossAlgoOrder });
   } catch (e) {
     console.error(e);
   }
