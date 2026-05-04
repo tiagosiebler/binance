@@ -53,6 +53,15 @@ export const WS_KEY_MAP = {
 
   // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams
   // market data, user data
+  /**
+   * USD-M Futures product-group alias.
+   *
+   * For raw subscribe/unsubscribe calls, this is auto-routed to the required
+   * split USD-M market data key (`usdmPublic` or `usdmMarket`) per topic.
+   *
+   * For direct endpoint control, use `usdmPublic`, `usdmMarket`, or
+   * `usdmPrivate`.
+   */
   usdm: 'usdm',
   usdmPrivate: 'usdmPrivate', // user data only (for split streams)
   usdmPublic: 'usdmPublic', // high freq public market data (primarily book and tickers)
@@ -115,7 +124,13 @@ export const WS_KEYS_SPOT = [
 
 export const WS_KEYS_FUTURES = [
   WS_KEY_MAP.usdm,
+  WS_KEY_MAP.usdmPrivate,
+  WS_KEY_MAP.usdmPublic,
+  WS_KEY_MAP.usdmMarket,
   WS_KEY_MAP.usdmTestnet,
+  WS_KEY_MAP.usdmTestnetPrivate,
+  WS_KEY_MAP.usdmTestnetPublic,
+  WS_KEY_MAP.usdmTestnetMarket,
   WS_KEY_MAP.usdmWSAPI,
   WS_KEY_MAP.usdmWSAPITestnet,
   WS_KEY_MAP.coinm,
@@ -736,6 +751,55 @@ export function getNormalisedTopicRequests(
 }
 
 /**
+ * These topics resolve to the public (high-frequency public data) WS endpoint for USDM futures:
+ * https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Important-WebSocket-Change-Notice#public-high-frequency-public-data
+ *
+ * All other public topics revert to the market endpoint.
+ */
+const USDM_PUBLIC_MARKET_DATA_STREAMS = ['bookTicker', 'depth'];
+
+/**
+ * USD-M Futures retired the legacy combined market data endpoint on 2026-04-23.
+ * Keep the legacy `usdm` wsKey convenient by routing raw market data streams to
+ * Binance's split public/market stream keys.
+ */
+export function getUsdmMarketDataWsKeyForTopic(
+  wsKey: WsKey,
+  topic: string,
+): WsKey {
+  if (wsKey !== WS_KEY_MAP.usdm && wsKey !== WS_KEY_MAP.usdmTestnet) {
+    return wsKey;
+  }
+
+  const streamName = extractStreamNameFromWsTopic(topic);
+  const isPublicStream = USDM_PUBLIC_MARKET_DATA_STREAMS.includes(streamName);
+
+  if (wsKey === WS_KEY_MAP.usdmTestnet) {
+    return isPublicStream
+      ? WS_KEY_MAP.usdmTestnetPublic
+      : WS_KEY_MAP.usdmTestnetMarket;
+  }
+
+  return isPublicStream ? WS_KEY_MAP.usdmPublic : WS_KEY_MAP.usdmMarket;
+}
+
+function extractStreamNameFromWsTopic(topic: string): string {
+  if (topic.startsWith('!')) {
+    return topic.slice(1).split('@')[0].split('_')[0];
+  }
+
+  const firstStreamSegment = topic.includes('@')
+    ? topic.slice(topic.indexOf('@') + 1).split('@')[0]
+    : topic;
+
+  if (firstStreamSegment.startsWith('depth')) {
+    return 'depth';
+  }
+
+  return firstStreamSegment.split('_')[0];
+}
+
+/**
  * Groups topics in request into per-wsKey groups
  * @param normalisedTopicRequests
  * @param wsKey
@@ -753,7 +817,10 @@ export function getTopicsPerWSKey(
 
   // Sort into per wsKey arrays, in case topics are mixed together for different wsKeys
   for (const topicRequest of normalisedTopicRequests) {
-    const derivedWsKey = wsKey;
+    const derivedWsKey = getUsdmMarketDataWsKeyForTopic(
+      wsKey,
+      topicRequest.topic,
+    );
 
     if (
       !perWsKeyTopics[derivedWsKey] ||
