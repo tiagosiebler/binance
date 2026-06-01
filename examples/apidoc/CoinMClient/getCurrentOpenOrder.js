@@ -1,10 +1,12 @@
-const { CoinMClient } = require('binance');
+import { CoinMClient } from 'binance';
+// or, if require is preferred:
+// const { CoinMClient } = require('binance');
 
-  // This example shows how to call this Binance API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "binance" for Binance exchange
-  // This Binance API SDK is available on npm via "npm install binance"
-  // ENDPOINT: dapi/v1/openOrder
-  // METHOD: GET
-  // PUBLIC: NO
+// This example shows how to call this Binance API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "binance" for Binance exchange
+// This Binance API SDK is available on npm via "npm install binance"
+// ENDPOINT: dapi/v1/openOrder
+// METHOD: GET
+// PUBLIC: NO
 
 const client = new CoinMClient({
   api_key: 'insert_api_key_here',
