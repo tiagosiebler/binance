@@ -316,6 +316,41 @@ export interface ConvertDustParams {
   accountType?: 'SPOT' | 'MARGIN';
 }
 
+export type DustConvertAccountType = 'SPOT' | 'MARGIN';
+
+export interface DustConvertParams {
+  asset: string[];
+  accountType?: DustConvertAccountType;
+  clientId?: string;
+  targetAsset?: string;
+  thirdPartyClientId?: string;
+  dustQuotaAssetToTargetAssetPrice?: numberInString;
+}
+
+export interface DustConvertibleAssetsParams {
+  targetAsset: string;
+  accountType?: DustConvertAccountType;
+  dustQuotaAssetToTargetAssetPrice?: numberInString;
+}
+
+export interface DustConvertibleAssetDetail {
+  asset: string;
+  assetFullName: string;
+  amountFree: numberInString;
+  exchange: numberInString;
+  toQuotaAssetAmount: numberInString;
+  toTargetAssetAmount: numberInString;
+  toTargetAssetOffExchange: numberInString;
+}
+
+export interface DustConvertibleAssetsResponse {
+  dribbletPercentage: numberInString;
+  totalTransferQuotaAssetAmount: numberInString;
+  totalTransferTargetAssetAmount: numberInString;
+  dribbletBase: numberInString;
+  details: DustConvertibleAssetDetail[];
+}
+
 export interface DustInfoDetail {
   asset: string;
   assetFullName: string;
@@ -585,6 +620,21 @@ export interface RawTrade {
   isBestMatch: boolean;
 }
 
+export interface BlockTrade {
+  id: number;
+  price: numberInString;
+  qty: numberInString;
+  quoteQty: numberInString;
+  time: number;
+  isBuyerMaker: boolean;
+}
+
+export interface HistoricalBlockTradesParams {
+  symbol: string;
+  fromId: number;
+  limit?: number;
+}
+
 export interface RawAccountTrade {
   symbol: string;
   id: number;
@@ -793,6 +843,8 @@ export interface OrderListOrder {
   symbol: string;
   orderId: number;
   clientOrderId: string;
+  /** Present only for expired orders. */
+  expiryReason?: string;
 }
 
 export interface OrderListResponse<RT extends OrderResponseType = 'ACK'> {
@@ -953,6 +1005,8 @@ export interface SpotOrder {
   isWorking: boolean;
   origQuoteOrderQty: numberInString;
   selfTradePreventionMode: SelfTradePreventionMode;
+  /** Present only for expired orders. */
+  expiryReason?: string;
 }
 
 export interface SpotAmendKeepPriorityResult {
@@ -6064,6 +6118,48 @@ export interface SpecialLowLatencyKeyInfo {
   apiKey: string;
   ip: string;
   type: 'HMAC_SHA256' | 'RSA' | 'Ed25519';
+}
+
+export interface MarginLiquidationLoan {
+  asset: string;
+  amount: string;
+  repaidAmount: string;
+  remainingAmount: string;
+}
+
+export interface RepayMarginLiquidationLoanParams {
+  asset: string;
+  amount: string;
+}
+
+export type MarginLiquidationLoanRepayStatus = 'SUCCESS' | 'PENDING';
+
+export interface MarginLiquidationLoanRepayResponse {
+  repayId: number;
+  asset: string;
+  amount: string;
+  status: MarginLiquidationLoanRepayStatus;
+  createTime: number;
+}
+
+export interface GetMarginLiquidationLoanRepayHistoryParams {
+  startTime?: number;
+  endTime?: number;
+  current?: number;
+  size?: number;
+}
+
+export interface MarginLiquidationLoanRepayHistoryRecord {
+  repayId: number;
+  asset: string;
+  amount: string;
+  status: MarginLiquidationLoanRepayStatus;
+  createTime: number;
+}
+
+export interface MarginLiquidationLoanRepayHistoryResponse {
+  total: number;
+  rows: MarginLiquidationLoanRepayHistoryRecord[];
 }
 
 export interface SolStakingAccount {

@@ -254,6 +254,17 @@ export interface WSAPIOrder {
   selfTradePreventionMode: string;
   preventedMatchId?: number;
   preventedQuantity?: numberInString;
+  /** Present only for expired orders. */
+  expiryReason?: string;
+}
+
+export interface WSAPIBlockTrade {
+  id: number;
+  price: numberInString;
+  qty: numberInString;
+  quoteQty: numberInString;
+  time: number;
+  isBuyerMaker: boolean;
 }
 
 export interface WSAPIOrderList {
@@ -421,6 +432,8 @@ export interface WSAPIOrderListStatusResponse {
     symbol: string;
     orderId: number;
     clientOrderId: string;
+    /** Present only for expired orders. */
+    expiryReason?: string;
   }[];
 }
 

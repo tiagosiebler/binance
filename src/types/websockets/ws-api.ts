@@ -12,6 +12,7 @@ import {
   WSAPIAllOrderListsRequest,
   WSAPIAllOrdersRequest,
   WSAPIAvgPriceRequest,
+  WSAPIBlockTradesHistoricalRequest,
   WSAPIExchangeInfoRequest,
   WSAPIExecutionRulesRequest,
   WSAPIFuturesAlgoOrderCancelRequest,
@@ -65,6 +66,7 @@ import {
   WSAPIAggregateTrade,
   WSAPIAllocation,
   WSAPIAvgPrice,
+  WSAPIBlockTrade,
   WSAPIBookTicker,
   WSAPIFullTicker,
   WSAPIFuturesAccountBalanceItem,
@@ -125,6 +127,7 @@ export const WS_API_Operations = [
   'depth',
   'trades.recent',
   'trades.historical',
+  'blockTrades.historical',
   'trades.aggregate',
   'klines',
   'uiKlines',
@@ -318,6 +321,7 @@ export interface WsAPITopicRequestParamMap<TWSKey = WsKey> {
     : WSAPIOrderBookRequest;
   'trades.recent': WSAPITradesRecentRequest;
   'trades.historical': WSAPITradesHistoricalRequest;
+  'blockTrades.historical': WSAPIBlockTradesHistoricalRequest;
   'trades.aggregate': WSAPITradesAggregateRequest;
   klines: WSAPIKlinesRequest;
   uiKlines: WSAPIKlinesRequest;
@@ -491,6 +495,7 @@ export interface WsAPIOperationResponseMap {
   depth: WSAPIResponse<WSAPIOrderBook | WSAPIFuturesOrderBook>;
   'trades.recent': WSAPIResponse<WSAPITrade[]>;
   'trades.historical': WSAPIResponse<WSAPITrade[]>;
+  'blockTrades.historical': WSAPIResponse<WSAPIBlockTrade[]>;
   'trades.aggregate': WSAPIResponse<WSAPIAggregateTrade[]>;
   klines: WSAPIResponse<WSAPIKline[]>;
   uiKlines: WSAPIResponse<WSAPIKline[]>;

@@ -70,6 +70,12 @@ export interface WSAPITradesHistoricalRequest {
   limit?: number;
 }
 
+export interface WSAPIBlockTradesHistoricalRequest {
+  symbol: string;
+  fromId: number;
+  limit?: number;
+}
+
 export interface WSAPITradesAggregateRequest {
   symbol: string;
   fromId?: number;

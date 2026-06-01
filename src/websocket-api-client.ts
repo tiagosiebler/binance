@@ -15,6 +15,7 @@ import {
   WSAPIAllOrderListsRequest,
   WSAPIAllOrdersRequest,
   WSAPIAvgPriceRequest,
+  WSAPIBlockTradesHistoricalRequest,
   WSAPIExchangeInfoRequest,
   WSAPIExecutionRulesRequest,
   WSAPIFuturesAlgoOrderCancelRequest,
@@ -69,6 +70,7 @@ import {
   WSAPIAggregateTrade,
   WSAPIAllocation,
   WSAPIAvgPrice,
+  WSAPIBlockTrade,
   WSAPIBookTicker,
   WSAPIFullTicker,
   WSAPIFuturesAccountBalanceItem,
@@ -358,6 +360,21 @@ export class WebsocketAPIClient {
     return this.wsClient.sendWSAPIRequest(
       wsKey || WS_KEY_MAP.mainWSAPI,
       'trades.historical',
+      params,
+      { authIsOptional: true },
+    );
+  }
+
+  /**
+   * Get historical block trades
+   */
+  getSpotHistoricalBlockTrades(
+    params: WSAPIBlockTradesHistoricalRequest,
+    wsKey?: WSAPIWsKeyMain,
+  ): Promise<WSAPIResponse<WSAPIBlockTrade[]>> {
+    return this.wsClient.sendWSAPIRequest(
+      wsKey || WS_KEY_MAP.mainWSAPI,
+      'blockTrades.historical',
       params,
       { authIsOptional: true },
     );

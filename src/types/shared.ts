@@ -330,6 +330,22 @@ export interface SymbolPercentPriceFilter {
   avgPriceMins: number;
 }
 
+export interface SymbolPercentPriceBySideFilter {
+  filterType: 'PERCENT_PRICE_BY_SIDE';
+  bidMultiplierUp: numberInString;
+  bidMultiplierDown: numberInString;
+  askMultiplierUp: numberInString;
+  askMultiplierDown: numberInString;
+  avgPriceMins: number;
+}
+
+export interface SymbolLegacyMinNotionalFilter {
+  filterType: 'MIN_NOTIONAL';
+  minNotional: numberInString;
+  applyToMarket: boolean;
+  avgPriceMins: number;
+}
+
 export interface SymbolLotSizeFilter {
   filterType: 'LOT_SIZE';
   minQty: numberInString;
@@ -381,6 +397,8 @@ export interface SymbolMaxPositionFilter {
 export type SymbolFilter =
   | SymbolPriceFilter
   | SymbolPercentPriceFilter
+  | SymbolPercentPriceBySideFilter
+  | SymbolLegacyMinNotionalFilter
   | SymbolLotSizeFilter
   | SymbolMinNotionalFilter
   | SymbolIcebergPartsFilter
