@@ -1,4 +1,6 @@
-const { WebsocketAPIClient } = require('binance');
+import { WebsocketAPIClient } from 'binance';
+// or, if require is preferred:
+// const { WebsocketAPIClient } = require('binance');
 
 // This example shows how to call this Binance WebSocket API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "binance" for Binance exchange
 // This Binance API SDK is available on npm via "npm install binance"
