@@ -74,6 +74,7 @@ import {
   BfusdSubscribeParams,
   BfusdSubscribeResponse,
   BfusdSubscriptionHistoryRow,
+  BlockTrade,
   BlvtRedemptionRecord,
   BlvtSubscriptionRecord,
   BlvtUserLimitInfo,
@@ -160,6 +161,9 @@ import {
   DualInvestmentPosition,
   DualInvestmentProduct,
   DustConversion,
+  DustConvertibleAssetsParams,
+  DustConvertibleAssetsResponse,
+  DustConvertParams,
   DustInfo,
   DustLog,
   EditInvestmentPlanParams,
@@ -287,6 +291,7 @@ import {
   GetMarginCapitalFlowParams,
   GetMarginInterestHistoryParams,
   GetMarginInterestRebateBalanceRecordsParams,
+  GetMarginLiquidationLoanRepayHistoryParams,
   GetMarginOrderCountUsageParams,
   GetMinerDetailsParams,
   GetMinerDetailsResponse,
@@ -351,6 +356,7 @@ import {
   GetWbethRewardsHistoryResponse,
   GetWrapHistoryParams,
   HistoricalAlgoOrder,
+  HistoricalBlockTradesParams,
   HistoricalDataLink,
   HistoricalSpotAlgoOrder,
   IndexLinkedPlanRedemptionRecord,
@@ -398,6 +404,9 @@ import {
   MarginInterestRateHistory,
   MarginInterestRebateBalanceRecordsResponse,
   MarginInterestRebateBalanceResponse,
+  MarginLiquidationLoan,
+  MarginLiquidationLoanRepayHistoryResponse,
+  MarginLiquidationLoanRepayResponse,
   MarginOrderCountUsageResponse,
   MarginOTOCOOrder,
   MarginOTOOrder,
@@ -492,6 +501,7 @@ import {
   RepayCryptoLoanFlexibleWithCollateralResponse,
   RepayCryptoLoanParams,
   RepayCryptoLoanResponse,
+  RepayMarginLiquidationLoanParams,
   ReplaceSpotOrderParams,
   ReplaceSpotOrderResultSuccess,
   RollingWindowTickerParams,
@@ -796,6 +806,12 @@ export class MainClient extends BaseRestClient {
 
   getHistoricalTrades(params: HistoricalTradesParams): Promise<RawTrade[]> {
     return this.get('api/v3/historicalTrades', params);
+  }
+
+  getHistoricalBlockTrades(
+    params: HistoricalBlockTradesParams,
+  ): Promise<BlockTrade[]> {
+    return this.get('api/v3/historicalBlockTrades', params);
   }
 
   getAggregateTrades(
@@ -1428,6 +1444,41 @@ export class MainClient extends BaseRestClient {
   }
 
   /**
+   * Query the current cross-margin liquidation loan status (bankruptcy deficit).
+   */
+  getMarginLiquidationLoan(): Promise<MarginLiquidationLoan> {
+    return this.getPrivate('sapi/v1/margin/liquidation-loan');
+  }
+
+  /**
+   * Repay an outstanding cross-margin liquidation loan from the spot wallet.
+   */
+  repayMarginLiquidationLoan(
+    params: RepayMarginLiquidationLoanParams,
+  ): Promise<MarginLiquidationLoanRepayResponse> {
+    return this.postPrivate('sapi/v1/margin/liquidation-loan/repay', params);
+  }
+
+  /**
+   * Query cross-margin liquidation loan repayment history.
+   */
+  getMarginLiquidationLoanRepayHistory(
+    params?: GetMarginLiquidationLoanRepayHistoryParams,
+  ): Promise<MarginLiquidationLoanRepayHistoryResponse> {
+    return this.getPrivate(
+      'sapi/v1/margin/liquidation-loan/repay-history',
+      params,
+    );
+  }
+
+  /**
+   * Exit Margin Special Key mode for Cross Margin Classic accounts.
+   */
+  exitMarginSpecialKeyMode(): Promise<object> {
+    return this.postPrivate('sapi/v1/margin/exit-special-key-mode');
+  }
+
+  /**
    *
    * MARGIN TRADING Endpoints - Transfer endpoints
    *
@@ -1659,6 +1710,25 @@ export class MainClient extends BaseRestClient {
 
   convertDustToBnb(params: ConvertDustParams): Promise<DustConversion> {
     return this.postPrivate('sapi/v1/asset/dust', params);
+  }
+
+  /**
+   * Convert dust assets to a target asset (e.g. BNB, USDT).
+   */
+  convertDustAssets(params: DustConvertParams): Promise<DustConversion> {
+    return this.postPrivate('sapi/v1/asset/dust-convert/convert', params);
+  }
+
+  /**
+   * Query assets eligible for dust conversion.
+   */
+  queryDustConvertibleAssets(
+    params: DustConvertibleAssetsParams,
+  ): Promise<DustConvertibleAssetsResponse> {
+    return this.postPrivate(
+      'sapi/v1/asset/dust-convert/query-convertible-assets',
+      params,
+    );
   }
 
   getDustLog(params?: BasicTimeRangeParam): Promise<DustLog> {
