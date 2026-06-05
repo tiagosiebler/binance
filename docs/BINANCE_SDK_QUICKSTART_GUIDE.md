@@ -72,7 +72,7 @@ The main auth and environment rules are:
 - RSA and Ed25519 keys use self-generated private keys.
 - Ed25519 is recommended for latency-sensitive integrations with the WebSocket API, as this enables session-based WebSocket API authentication, instead of having to authenticate every request.
 
-All supported key types use the same SDK constructor shape. The SDK will automatically detect your key type and adjust request building & sign automatically:
+All supported key types use the same SDK constructor shape. The SDK will automatically detect your key type and adjust request building and signing automatically:
 
 ```typescript
 const client = new MainClient({
@@ -130,7 +130,7 @@ Binance uses several related but different integration patterns. It helps to kee
 | WebSocket API user data      | `WebsocketAPIClient.subscribeUserDataStream(...)`                                                                | Spot user data and some newer private stream flows without the old Spot listen-key workflow                                                       | WebSocket API auth, subscription command, reconnect/resubscribe behavior                            |
 | WebSocket API commands       | `WebsocketAPIClient` methods or `WebsocketClient.sendWSAPIRequest(...)`                                          | Lower-latency request/response commands over an already-open WebSocket, such as order tests, order placement, cancellation, status, account reads | WebSocket connection persistence, auth, request IDs, promise resolution, response/error correlation |
 
-The WebSocket API is not just another stream. It is a request/response API over WebSocket. Since much of the functionality is a better alternative to the REST API, we've introduced the promise-driven `WebsocketAPIClient`. Lets you write code that feels like working with a REST API. Call a function to send a command over WS and await the response, without any of the complexity of managing asynchronous messaging over WebSockets (as well as the life-cycle complexities that come with keeping WebSockets healthy).
+The WebSocket API is not just another stream. It is a request/response API over WebSocket. Since much of the functionality is a better alternative to the REST API, we've introduced the promise-driven `WebsocketAPIClient`. It lets you write code that feels like working with a REST API. Call a function to send a command over WS and await the response, without any of the complexity of managing asynchronous messaging over WebSockets (as well as the life-cycle complexities that come with keeping WebSockets healthy).
 
 ```typescript
 const result = await wsApi.testSpotOrder({
@@ -144,7 +144,7 @@ const result = await wsApi.testSpotOrder({
 });
 ```
 
-Use the REST API when you want maximum endpoint coverage, simple one-off calls, or reconciliation after reconnects. Use the WebSocket API when you want persistent connectivity, lower request overhead, WebSocket API-only features, or a promise-driven command path that can share the same event-driven architecture as your streams. With Ed25519 keys, authentication can happen once per WebSocket API connection, which can improve latency in mid-to-high frequency systems. One less thing to repeat every request, is cumulatively saved time.
+Use the REST API when you want maximum endpoint coverage, simple one-off calls, or reconciliation after reconnects. Use the WebSocket API when you want persistent connectivity, lower request overhead, WebSocket API-only features, or a promise-driven command path that can share the same event-driven architecture as your streams. With Ed25519 keys, authentication can happen once per WebSocket API connection, which can improve latency in mid-to-high frequency systems. Removing repeated authentication work from every request can save time cumulatively.
 
 ---
 
@@ -492,7 +492,7 @@ await client.cancelOrder({
 
 **Custom client order IDs**
 
-You do not always need to set a custom client order ID. Most of the time, the cleanest option is to send the order without `newClientOrderId` and let the SDK handle the request normally:
+You do not always need to set a custom client order ID. Most of the time, the cleanest option is to send the order without `newClientOrderId` or the equivalent custom ID field for that endpoint, and let the SDK handle the request normally:
 
 ```typescript
 await client.submitNewOrder({
@@ -546,11 +546,11 @@ await client.submitNewOrder({
 });
 ```
 
-The prefix returned by `getOrderIdPrefix()` is 10 characters long. For endpoints with Binance's common 32-character client order ID limit, that leaves 22 characters for your own suffix. Some fields have a different documented limit, such as USD-M Futures Algo `clientAlgoId`, which currently allows up to 36 characters and therefore leaves 26 characters after the SDK prefix. Keep the suffix short and use only characters Binance allows for that field.
+The prefix returned by `getOrderIdPrefix()` is 10 characters long. For endpoints with Binance's common 32-character client order ID limit, that leaves 22 characters for your own suffix. Keep the suffix short and use only characters Binance allows for that field.
 
-If you need to track richer metadata than will comfortably fit in the client order ID, do not try to squeeze it into these custom order ID fields. Instead, generate an ID with `client.generateNewOrderId()` before placing the order, use that value as the key for your own metadata, and store the metadata locally or in an external store such as Redis. Later, when order updates arrive through REST API polling or user data events, you can look up the richer context using the seen `newClientOrderId` value like a primary key, while keeping the exchange-facing ID short and valid.
+If you need to track richer metadata than will comfortably fit in the client order ID, do not try to squeeze it into these custom order ID fields. Instead, generate an ID with `client.generateNewOrderId()` before placing the order, use that value as the key for your own metadata, and store the metadata locally or in an external store such as Redis. Later, when order updates arrive through REST API polling or user data events, you can look up the richer context using the seen Binance client ID value like a primary key, while keeping the exchange-facing ID short and valid.
 
-Regular Spot/Futures/Portfolio orders usually use `newClientOrderId`; newer Futures algo or conditional flows may use `clientAlgoId` instead. The same rule applies: omit it unless you need it, use `generateNewOrderId()` when any unique ID is fine, and use `getOrderIdPrefix()` when building your own value.
+Regular Spot, Futures, and Portfolio orders usually use `newClientOrderId`; newer Futures algo or conditional flows may use `clientAlgoId` instead. Treat both fields, and any similar Binance custom order ID field, as the same kind of SDK-prefixed client ID. The same rule applies: omit it unless you need it, use `generateNewOrderId()` when any unique ID is fine, and use `getOrderIdPrefix()` when building your own value. Do not bypass the SDK prefix, length, or character checks just because the endpoint uses a different field name.
 
 ### Margin REST API examples
 
@@ -895,7 +895,7 @@ The workflow is simple: create a client, add event handlers, provide API keys if
 
 ### Understanding `WS_KEY_MAP`
 
-`WS_KEY_MAP` tells the SDK which Binance WebSocket endpoint family to use. This matters because Spot, USD-M Futures, COIN-M Futures, Options, Portfolio Margin, and WebSocket API traffic do not all live on the same endpoint.
+[`WS_KEY_MAP`](/reference/glossary#ws-key) tells the SDK which Binance WebSocket endpoint family to use. This matters because Spot, USD-M Futures, COIN-M Futures, Options, Portfolio Margin, and WebSocket API traffic do not all live on the same endpoint.
 
 Common `WS_KEY_MAP` entries:
 
@@ -968,10 +968,7 @@ ws.subscribe(
 );
 
 // Regular market data: trades, mark price, klines, mini tickers, liquidations.
-ws.subscribe(
-  ['btcusdt@aggTrade', 'btcusdt@markPrice', 'btcusdt@kline_1m'],
-  WS_KEY_MAP.usdmMarket,
-);
+ws.subscribe(['btcusdt@aggTrade', 'btcusdt@markPrice', 'btcusdt@kline_1m'], WS_KEY_MAP.usdmMarket);
 ```
 
 See also:
@@ -1005,7 +1002,7 @@ User data streams are how Binance pushes private account events: order updates, 
 
 Binance uses two patterns for these streams: WebSocket API user data subscriptions and listen-key user data streams. The SDK supports both; the product group determines which path you should use.
 
-For either pattern, listen for the WebSocket lifecycle events as well as account events. The event names are `reconnecting` and `reconnected`. `reconnecting` fires when the SDK starts replacing a dropped connection; `reconnected` fires after the replacement connection is open. Both include the `wsKey`, which tells you which connection was affected. For user data streams, `reconnected` is the right place to reconcile private state through the REST API in case account events were missed while the socket was down.
+For either pattern, listen for the WebSocket lifecycle events as well as account events. The event names are `reconnecting` and `reconnected`. `reconnecting` fires when the SDK starts replacing a dropped connection; `reconnected` fires after the replacement connection is open. Both include the [`wsKey`](/reference/glossary#ws-key), which tells you which connection was affected. For user data streams, `reconnected` is the right place to reconcile private state through the REST API in case account events were missed while the socket was down.
 
 With `WebsocketAPIClient`, attach those handlers to `wsApi.getWSClient()`. With `WebsocketClient`, attach them directly to the client.
 
@@ -1131,9 +1128,7 @@ ws.on('reconnected', ({ wsKey }) => {
 
 ws.on('exception', console.error);
 
-await ws.subscribePortfolioMarginUserDataStream(
-  WS_KEY_MAP.portfolioMarginUserData,
-);
+await ws.subscribePortfolioMarginUserDataStream(WS_KEY_MAP.portfolioMarginUserData);
 ```
 
 See also:
@@ -1412,9 +1407,7 @@ import { WebsocketClient } from 'binance';
 
 const ws = new WebsocketClient({
   customParseJSONFn: (rawEvent) => {
-    return JSON.parse(
-      rawEvent.replace(/"orderId":\s*(\d+)/g, '"orderId":"$1"'),
-    );
+    return JSON.parse(rawEvent.replace(/"orderId":\s*(\d+)/g, '"orderId":"$1"'));
   },
 });
 ```
