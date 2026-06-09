@@ -8,6 +8,7 @@
 [![last commit](https://img.shields.io/github/last-commit/tiagosiebler/binance)][1]
 [![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/binance/badge)](https://www.codefactor.io/repository/github/tiagosiebler/binance)
 [![Telegram](https://img.shields.io/badge/chat-on%20telegram-blue.svg)](https://t.me/nodetraders)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tiagosiebler/binance)
 
 <p align="center">
   <a href="https://www.npmjs.com/package/binance">
